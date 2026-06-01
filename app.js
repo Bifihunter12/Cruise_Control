@@ -594,16 +594,23 @@ function challengeWeeks() {
   const cursor = new Date(start);
   let   num    = 1;
   while (cursor <= cap) {
-    const wStart = new Date(cursor);
-    const wEnd   = new Date(cursor);
-    wEnd.setDate(wEnd.getDate() + 6);
-    const actualEnd = wEnd < cap ? wEnd : cap;
-    const days = [];
-    const d = new Date(wStart);
-    while (d <= actualEnd) { days.push(toKey(d)); d.setDate(d.getDate() + 1); }
+    const wStart    = new Date(cursor);
+    const wFullEnd  = new Date(cursor); wFullEnd.setDate(wFullEnd.getDate() + 6);
+    const wCapEnd   = wFullEnd < end ? wFullEnd : end;   // week end capped at challenge end
+    const wTodayEnd = wCapEnd < cap  ? wCapEnd  : cap;   // further capped at today for stats
+
+    // Full week days including future (for dots display) — capped at challenge end
+    const allDays = [];
+    const fd = new Date(wStart);
+    while (fd <= wCapEnd) { allDays.push(toKey(fd)); fd.setDate(fd.getDate() + 1); }
+
+    // Elapsed days only (for point calculations)
+    const days = allDays.filter(k => k <= todayKey());
+
     const label = formatDate(wStart, { month:"short", day:"numeric" }) + " – " +
-                  formatDate(actualEnd, { month:"short", day:"numeric" });
-    weeks.push({ num, label, days });
+                  formatDate(wCapEnd, { month:"short", day:"numeric" });
+
+    weeks.push({ num, label, days, allDays });
     cursor.setDate(cursor.getDate() + 7);
     num++;
   }
@@ -642,7 +649,7 @@ function renderWeekCard(week, isCurrent) {
   const cls      = isCurrent ? "week-card week-card-current" : "week-card";
   const badge    = hitGoal
     ? `<span class="wc-goal-hit">✓ Goal</span>`
-    : `<span class="wc-days">${ws.logged}/${ws.total}</span>`;
+    : `<span class="wc-days">${ws.logged}/${week.allDays.length}</span>`;
   return `
     <div class="${cls}">
       <div class="wc-top">
@@ -653,7 +660,7 @@ function renderWeekCard(week, isCurrent) {
         ${badge}
       </div>
       <div class="wc-label">${week.label}</div>
-      <div class="wc-dots">${renderWeekDots(week.days)}</div>
+      <div class="wc-dots">${renderWeekDots(week.allDays)}</div>
       <div class="wc-goal-row">
         <span class="wc-pts">${ws.pts} <span class="wc-goal-of">/ ${WEEKLY_GOAL} pts</span></span>
         ${ws.runs > 0 ? `<span class="wc-runs">🏃 ${ws.runs}</span>` : ""}
