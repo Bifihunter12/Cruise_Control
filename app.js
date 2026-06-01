@@ -124,6 +124,18 @@ const badges = [
   { id: "comeback-kid",     label: "🧡 Comeback Kid",       test: (c) => c.anyRecovered },
   { id: "minimum-warrior",  label: "⚡ Minimum Warrior",    test: (c) => c.minimumCompleted >= 5 },
   { id: "iron-minimum",     label: "🛡 Iron Minimum",       test: (c) => c.minimumCompleted >= 10 },
+  // ── Weekly & Monthly ──────────────────────────────────────────────────────
+  { id: "week-1-done",      label: "📅 Week 1 Done",        test: (c) => c.completedWeeks >= 1 },
+  { id: "week-3-done",      label: "📅 3 Weeks Done",       test: (c) => c.completedWeeks >= 3 },
+  { id: "week-5-done",      label: "📆 5 Weeks Done",       test: (c) => c.completedWeeks >= 5 },
+  { id: "week-8-done",      label: "📆 8 Weeks Done",       test: (c) => c.completedWeeks >= 8 },
+  { id: "week-10-done",     label: "🔟 10 Weeks Done",      test: (c) => c.completedWeeks >= 10 },
+  { id: "all-weeks",        label: "🏆 All 12 Weeks",       test: (c) => c.completedWeeks >= 12 },
+  { id: "weekly-mvp",       label: "⭐ Weekly MVP",          test: (c) => c.bestWeekPts >= 200 },
+  { id: "weekly-legend",    label: "🌟 Weekly Legend",      test: (c) => c.bestWeekPts >= 350 },
+  { id: "june-complete",    label: "☀️ June Complete",      test: (c) => c.juneComplete },
+  { id: "july-complete",    label: "🌙 July Complete",      test: (c) => c.julyComplete },
+  { id: "august-done",      label: "🚢 August Done",        test: (c) => c.augustComplete },
 ];
 
 const milestoneMessages = {
@@ -570,21 +582,140 @@ function renderSaveDaySheet() {
   `;
 }
 
+// ── Week / history helpers ────────────────────────────────────────────────
+
+function challengeWeeks() {
+  const start  = parseDate(START_DATE);
+  const end    = parseDate(END_DATE);
+  const today  = parseDate(todayKey());
+  const cap    = today < end ? today : end;
+  const weeks  = [];
+  const cursor = new Date(start);
+  let   num    = 1;
+  while (cursor <= cap) {
+    const wStart = new Date(cursor);
+    const wEnd   = new Date(cursor);
+    wEnd.setDate(wEnd.getDate() + 6);
+    const actualEnd = wEnd < cap ? wEnd : cap;
+    const days = [];
+    const d = new Date(wStart);
+    while (d <= actualEnd) { days.push(toKey(d)); d.setDate(d.getDate() + 1); }
+    const label = formatDate(wStart, { month:"short", day:"numeric" }) + " – " +
+                  formatDate(actualEnd, { month:"short", day:"numeric" });
+    weeks.push({ num, label, days });
+    cursor.setDate(cursor.getDate() + 7);
+    num++;
+  }
+  return weeks;
+}
+
+function calcWeekStats(dayKeys) {
+  const today   = todayKey();
+  const logged  = dayKeys.filter(k => { const d = state.days[k]; return d && (d.done.length || d.recovered); }).length;
+  const pts     = dayKeys.reduce((s, k) => s + (state.days[k] ? completionInfo(state.days[k]).points : 0), 0);
+  const runs    = dayKeys.filter(k => state.days[k]?.done.includes("run")).length;
+  const hasBoss = dayKeys.some(k => state.days[k]?.mode === "boss" && state.days[k]?.done.length);
+  const past    = dayKeys.every(k => k < today);
+  const perfect = past && logged === dayKeys.length && dayKeys.length > 0;
+  return { logged, total: dayKeys.length, pts, runs, hasBoss, perfect };
+}
+
+function renderWeekDots(dayKeys) {
+  const today = todayKey();
+  return dayKeys.map(k => {
+    if (k > today) return `<span class="wdot future"></span>`;
+    const d = state.days[k];
+    if (!d || (!d.done.length && !d.recovered)) return `<span class="wdot empty ${k===today?"now":""}"></span>`;
+    const info = completionInfo(d);
+    if (d.mode === "boss"    && info.percent === 100) return `<span class="wdot boss"></span>`;
+    if (d.mode === "minimum" && info.percent === 100) return `<span class="wdot min"></span>`;
+    if (info.percent === 100) return `<span class="wdot full ${k===today?"now":""}"></span>`;
+    return `<span class="wdot partial ${k===today?"now":""}"></span>`;
+  }).join("");
+}
+
+function renderWeekCard(week, isCurrent) {
+  const ws  = calcWeekStats(week.days);
+  const cls = isCurrent ? "week-card week-card-current" : "week-card";
+  return `
+    <div class="${cls}">
+      <div class="wc-top">
+        <div>
+          <span class="wc-num">Week ${week.num}</span>
+          ${ws.hasBoss ? `<span class="wc-boss-pip">👑</span>` : ""}
+        </div>
+        ${ws.perfect ? `<span class="wc-perfect">✓ Perfect</span>` : `<span class="wc-days">${ws.logged}/${ws.total}</span>`}
+      </div>
+      <div class="wc-label">${week.label}</div>
+      <div class="wc-dots">${renderWeekDots(week.days)}</div>
+      <div class="wc-footer">
+        <span class="wc-pts">${ws.pts} pts</span>
+        ${ws.runs > 0 ? `<span class="wc-runs">🏃 ${ws.runs} run${ws.runs>1?"s":""}</span>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function renderMonthCard(name, year, month) {
+  const start    = parseDate(START_DATE);
+  const end      = parseDate(END_DATE);
+  const today    = parseDate(todayKey());
+  const inMonth  = new Date(year, month + 1, 0).getDate();
+  const keys     = [];
+  for (let d = 1; d <= inMonth; d++) {
+    const k    = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const date = parseDate(k);
+    if (date >= start && date <= end && date <= today) keys.push(k);
+  }
+  if (!keys.length) return "";
+  const ws  = calcWeekStats(keys);
+  const pct = Math.round((ws.logged / keys.length) * 100);
+  return `
+    <div class="month-card">
+      <div class="mc-top">
+        <span class="mc-name">${name}</span>
+        ${ws.perfect ? `<span class="mc-perfect">✓ Complete</span>` : ""}
+      </div>
+      <div class="mc-stats">${ws.pts} pts · ${ws.logged}/${keys.length} days${ws.runs ? ` · 🏃 ${ws.runs}` : ""}</div>
+      <div class="mc-track"><div class="mc-fill" style="width:${pct}%"></div></div>
+    </div>
+  `;
+}
+
 // ── Week view ─────────────────────────────────────────────────────────────
 
 function renderWeek() {
-  const stats = calcStats();
+  const stats     = calcStats();
   const breakdown = calcHabitBreakdown();
+  const weeks     = challengeWeeks();
+  const current   = weeks[weeks.length - 1];
+  const past      = weeks.slice(0, -1).reverse();
+
   return `
     <main>
-      <div class="section-label">Last 7 days</div>
-      <div class="dot-row">${renderWeekDots()}</div>
-
+      <div class="section-label">Overview</div>
       <div class="stats-grid">
-        ${statCard("🔥 Streak",      stats.streak,    "days")}
-        ${statCard("⭐ Total pts",    stats.totalPts,  "")}
+        ${statCard("🔥 Streak",      stats.streak,                        "days")}
+        ${statCard("⭐ Total pts",    stats.totalPts,                      "")}
         ${statCard("🏆 Best day",    `${stats.bestDay}/${habits.length}`, "")}
-        ${statCard("📅 Days logged", stats.daysLogged, "")}
+        ${statCard("📅 Days logged", stats.daysLogged,                    "")}
+      </div>
+
+      <div class="section-label">This week</div>
+      ${renderWeekCard(current, true)}
+
+      ${past.length ? `
+        <div class="section-label">Week history</div>
+        <div class="week-history">
+          ${past.map(w => renderWeekCard(w, false)).join("")}
+        </div>
+      ` : ""}
+
+      <div class="section-label">By month</div>
+      <div class="month-row">
+        ${renderMonthCard("June",   2026, 5)}
+        ${renderMonthCard("July",   2026, 6)}
+        ${renderMonthCard("August", 2026, 7)}
       </div>
 
       <div class="section-label">Habit breakdown</div>
@@ -600,28 +731,6 @@ function renderWeek() {
       </div>
     </main>
   `;
-}
-
-function renderWeekDots() {
-  const today = parseDate(todayKey());
-  const start = new Date(today);
-  start.setDate(today.getDate() - 6);
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    const key = toKey(d);
-    const future = d > today;
-    const day = state.days[key];
-    let cls = "empty";
-    if (future) cls = "future";
-    else if (day) {
-      const info = completionInfo(day);
-      if (day.mode === "minimum" && info.percent === 100) cls = "minimum";
-      else if (info.percent === 100) cls = "full";
-      else if (info.done > 0 || day.recovered) cls = "partial";
-    }
-    return `<span class="day-dot ${cls} ${key===todayKey()?"today":""}" title="${key}"></span>`;
-  }).join("");
 }
 
 function statCard(label, value, unit) {
@@ -786,6 +895,7 @@ function renderMore() {
     { label: "⚖️ Weight",     ids: ["on-the-scale","first-pound","2lbs-down","3lbs-down","5lbs-down","7lbs-down","halfway-weight","12lbs-down","15lbs-down","17lbs-down","goal-reached","downward-trend","data-driven","twoweek-logger","month-logger","logged-in","30-weighins","60-weighins","perfect-logger"] },
     { label: "🌿 Habits",     ids: ["sober-week","sober-month","morning-ritual","devoted-yogi","bookworm","deep-reader","sleep-champion","hydration-nation"] },
     { label: "🧡 Resilience", ids: ["comeback-kid","minimum-warrior","iron-minimum"] },
+    { label: "📆 Weekly & Monthly", ids: ["week-1-done","week-3-done","week-5-done","week-8-done","week-10-done","all-weeks","weekly-mvp","weekly-legend","june-complete","july-complete","august-done"] },
   ];
   return `
     <main>
@@ -1077,6 +1187,46 @@ function checkBadges() {
         else break;
       }
       return n;
+    })(),
+    completedWeeks:   (() => {
+      return challengeWeeks().filter(w => {
+        const past = w.days.every(k => k < todayKey());
+        if (!past) return false;
+        return w.days.every(k => { const d = state.days[k]; return d && (d.done.length || d.recovered); });
+      }).length;
+    })(),
+    bestWeekPts:      Math.max(0, ...challengeWeeks().map(w =>
+      w.days.reduce((s, k) => s + (state.days[k] ? completionInfo(state.days[k]).points : 0), 0)
+    )),
+    juneComplete:     (() => {
+      const today = todayKey();
+      if (today < "2026-07-01") return false;
+      for (let d = 1; d <= 30; d++) {
+        const k = `2026-06-${String(d).padStart(2,"0")}`;
+        const day = state.days[k];
+        if (!day || (!day.done.length && !day.recovered)) return false;
+      }
+      return true;
+    })(),
+    julyComplete:     (() => {
+      const today = todayKey();
+      if (today < "2026-08-01") return false;
+      for (let d = 1; d <= 31; d++) {
+        const k = `2026-07-${String(d).padStart(2,"0")}`;
+        const day = state.days[k];
+        if (!day || (!day.done.length && !day.recovered)) return false;
+      }
+      return true;
+    })(),
+    augustComplete:   (() => {
+      const today = todayKey();
+      if (today < "2026-08-25") return false;
+      for (let d = 1; d <= 25; d++) {
+        const k = `2026-08-${String(d).padStart(2,"0")}`;
+        const day = state.days[k];
+        if (!day || (!day.done.length && !day.recovered)) return false;
+      }
+      return true;
     })(),
   };
   badges.forEach(b => {
