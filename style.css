@@ -451,22 +451,22 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 /* ── Run habit ───────────────────────────────────── */
 
-.run-habit { cursor: default; }
+.run-habit {
+  cursor: default;
+  min-height: 76px;
+}
 .run-habit:active { transform: none; }
 
 .run-body {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-self: stretch;
+  gap: 7px;
   min-width: 0;
-  padding: 10px 0;
 }
 
 .run-distances {
   display: flex;
   gap: 6px;
-  margin-top: 7px;
   flex-wrap: wrap;
 }
 
