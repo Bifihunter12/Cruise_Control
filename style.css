@@ -451,53 +451,37 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 /* ── Run habit ───────────────────────────────────── */
 
-.run-habit {
-  cursor: default;
-  min-height: 76px;
-}
+.run-habit { cursor: default; }
 .run-habit:active { transform: none; }
 
 .run-body {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 5px;
   min-width: 0;
 }
 
 .run-distances {
   display: flex;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
 }
 
 .run-dist {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 5px 11px;
-  border-radius: 10px;
+  padding: 3px 9px;
+  border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--surface-2);
   color: var(--text-dim);
   font-family: var(--font);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 400;
   cursor: pointer;
+  white-space: nowrap;
   transition: background 150ms, color 150ms, border-color 150ms;
-  line-height: 1.3;
 }
 
-.run-pts-hint {
-  font-size: 9px;
-  font-weight: 700;
-  opacity: 0.5;
-  letter-spacing: 0.02em;
-  margin-top: 1px;
-}
-
-.run-dist.active .run-pts-hint {
-  opacity: 0.85;
-}
+.run-pts-hint { display: none; }
 
 .run-dist:active { transform: scale(0.93); }
 
