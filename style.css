@@ -457,7 +457,10 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .run-body {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-self: stretch;
   min-width: 0;
+  padding: 10px 0;
 }
 
 .run-distances {
