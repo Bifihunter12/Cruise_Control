@@ -5,6 +5,7 @@ const START_DATE = "2026-06-01";
 const END_DATE = "2026-08-25";
 const TOTAL_DAYS = 86;
 const RING_CIRC = 2 * Math.PI * 90;
+const WEEKLY_GOAL = 175; // pts — requires standard days + 2 runs. minimum-only week = 133 pts.
 
 const habits = [
   // ── Minimum Day — always, no exceptions ──────────────────────────────────
@@ -635,8 +636,13 @@ function renderWeekDots(dayKeys) {
 }
 
 function renderWeekCard(week, isCurrent) {
-  const ws  = calcWeekStats(week.days);
-  const cls = isCurrent ? "week-card week-card-current" : "week-card";
+  const ws       = calcWeekStats(week.days);
+  const goalPct  = Math.min(100, Math.round((ws.pts / WEEKLY_GOAL) * 100));
+  const hitGoal  = !isCurrent && ws.pts >= WEEKLY_GOAL;
+  const cls      = isCurrent ? "week-card week-card-current" : "week-card";
+  const badge    = hitGoal
+    ? `<span class="wc-goal-hit">✓ Goal</span>`
+    : `<span class="wc-days">${ws.logged}/${ws.total}</span>`;
   return `
     <div class="${cls}">
       <div class="wc-top">
@@ -644,40 +650,56 @@ function renderWeekCard(week, isCurrent) {
           <span class="wc-num">Week ${week.num}</span>
           ${ws.hasBoss ? `<span class="wc-boss-pip">👑</span>` : ""}
         </div>
-        ${ws.perfect ? `<span class="wc-perfect">✓ Perfect</span>` : `<span class="wc-days">${ws.logged}/${ws.total}</span>`}
+        ${badge}
       </div>
       <div class="wc-label">${week.label}</div>
       <div class="wc-dots">${renderWeekDots(week.days)}</div>
-      <div class="wc-footer">
-        <span class="wc-pts">${ws.pts} pts</span>
-        ${ws.runs > 0 ? `<span class="wc-runs">🏃 ${ws.runs} run${ws.runs>1?"s":""}</span>` : ""}
+      <div class="wc-goal-row">
+        <span class="wc-pts">${ws.pts} <span class="wc-goal-of">/ ${WEEKLY_GOAL} pts</span></span>
+        ${ws.runs > 0 ? `<span class="wc-runs">🏃 ${ws.runs}</span>` : ""}
+      </div>
+      <div class="wc-goal-track">
+        <div class="wc-goal-fill ${hitGoal ? "wc-goal-done" : ""}" style="width:${goalPct}%"></div>
       </div>
     </div>
   `;
 }
 
 function renderMonthCard(name, year, month) {
-  const start    = parseDate(START_DATE);
-  const end      = parseDate(END_DATE);
-  const today    = parseDate(todayKey());
-  const inMonth  = new Date(year, month + 1, 0).getDate();
-  const keys     = [];
+  const start      = parseDate(START_DATE);
+  const end        = parseDate(END_DATE);
+  const today      = parseDate(todayKey());
+  const inMonth    = new Date(year, month + 1, 0).getDate();
+  const keys       = [];
   for (let d = 1; d <= inMonth; d++) {
     const k    = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
     const date = parseDate(k);
     if (date >= start && date <= end && date <= today) keys.push(k);
   }
   if (!keys.length) return "";
-  const ws  = calcWeekStats(keys);
-  const pct = Math.round((ws.logged / keys.length) * 100);
+  // Total challenge days in this month (not just elapsed) for the goal denominator
+  const totalInMonth = Math.min(inMonth, (() => {
+    let n = 0;
+    for (let d = 1; d <= inMonth; d++) {
+      const date = parseDate(`${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`);
+      if (date >= start && date <= end) n++;
+    }
+    return n;
+  })());
+  const monthGoal  = Math.round(WEEKLY_GOAL / 7 * totalInMonth);
+  const ws         = calcWeekStats(keys);
+  const goalPct    = Math.min(100, Math.round((ws.pts / monthGoal) * 100));
+  const isPast     = keys[keys.length - 1] < todayKey();
+  const hitGoal    = isPast && ws.pts >= monthGoal;
   return `
     <div class="month-card">
       <div class="mc-top">
         <span class="mc-name">${name}</span>
-        ${ws.perfect ? `<span class="mc-perfect">✓ Complete</span>` : ""}
+        ${hitGoal ? `<span class="mc-perfect">✓</span>` : ""}
       </div>
-      <div class="mc-stats">${ws.pts} pts · ${ws.logged}/${keys.length} days${ws.runs ? ` · 🏃 ${ws.runs}` : ""}</div>
-      <div class="mc-track"><div class="mc-fill" style="width:${pct}%"></div></div>
+      <div class="mc-stats">${ws.pts} / ${monthGoal}<span class="mc-unit"> pts</span></div>
+      <div class="mc-track"><div class="mc-fill ${hitGoal ? "mc-hit" : ""}" style="width:${goalPct}%"></div></div>
+      <div class="mc-sub">${ws.logged}/${keys.length} days${ws.runs ? ` · 🏃 ${ws.runs}` : ""}</div>
     </div>
   `;
 }
