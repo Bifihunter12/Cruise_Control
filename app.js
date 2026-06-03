@@ -80,9 +80,9 @@ const badges = [
   { id: "twenty-runs",       label: "🏃 Twenty Runs",       test: (c) => c.runsLogged >= 20 },
   { id: "twenty-five-runs",  label: "💪 25 Runs",           test: (c) => c.runsLogged >= 25 },
   { id: "thirty-runs",       label: "🔥 30 Runs",           test: (c) => c.runsLogged >= 30 },
-  { id: "run-streak",        label: "⚡ Run Streak 3",      test: (c) => c.runStreak >= 3 },
-  { id: "run-streak-5",      label: "⚡ Run Streak 5",      test: (c) => c.runStreak >= 5 },
-  { id: "run-streak-7",      label: "🌟 Run Streak 7",      test: (c) => c.runStreak >= 7 },
+  { id: "run-streak",        label: "⚡ Boss Runner",        test: (c) => c.runsLogged >= 3 },
+  { id: "run-streak-5",      label: "⚡ Regular Runner",     test: (c) => c.runsLogged >= 8 },
+  { id: "run-streak-7",      label: "🌟 Dedicated Runner",   test: (c) => c.runsLogged >= 12 },
   { id: "distance-builder",  label: "📏 Distance Builder",  test: (c) => c.hasRun3k },
   { id: "speed-merchant",    label: "⚡ Speed Merchant",    test: (c) => c.run3kPlus >= 5 },
   { id: "ten-long-runs",     label: "💪 10 Long Runs",      test: (c) => c.run3kPlus >= 10 },
@@ -728,8 +728,8 @@ function renderWeek() {
       <div class="stats-grid">
         ${statCard("🔥 Streak",      stats.streak,                        "days")}
         ${statCard("⭐ Total pts",    stats.totalPts,                      "")}
-        ${statCard("🏆 Best day",    `${stats.bestDay}/${habits.length}`, "")}
-        ${statCard("📅 Days logged", stats.daysLogged,                    "")}
+        ${statCard("🏆 Best day",    stats.bestDay, "habits")}
+        ${statCard("📅 Days logged", stats.daysLogged, "")}
       </div>
 
       <div class="section-label">This week</div>
@@ -1037,7 +1037,9 @@ function setMode(mode) {
 function toggleHabit(id) {
   const day   = getDay();
   const habit = habits.find(h => h.id === id);
-  if (!habit || (day.mode === "minimum" && !habit.minimum_day)) return;
+  if (!habit) return;
+  if (day.mode === "minimum" && !habit.minimum_day) return;
+  if (day.mode !== "boss"    &&  habit.boss_only)   return;
   if (day.done.includes(id)) day.done = day.done.filter(x => x !== id);
   else day.done.push(id);
   updatePoints(day);
@@ -1061,7 +1063,7 @@ function toggleBonus() {
 
 function selectRunKm(rawKm) {
   const day = getDay();
-  if (day.mode === "minimum") return;
+  if (day.mode !== "boss") return;
   const km = rawKm === "5+" ? "5+" : Number(rawKm);
   if (day.runKm === km) {
     // tap same distance → uncheck
@@ -1153,10 +1155,11 @@ function calcStreak() {
 }
 
 function calcHabitBreakdown() {
-  const max = Math.max(1, Object.keys(state.days).length);
+  const loggedDays = Object.values(state.days).filter(d => d.done.length > 0 || d.recovered);
+  const max = Math.max(1, loggedDays.length);
   return habits.map(h => {
-    const count = Object.values(state.days).filter(d => d.done.includes(h.id)).length;
-    return { ...h, percent: Math.round((count / max) * 100) };
+    const count = loggedDays.filter(d => d.done.includes(h.id)).length;
+    return { ...h, count, percent: Math.round((count / max) * 100) };
   });
 }
 
@@ -1289,11 +1292,6 @@ function currentGreeting() {
 }
 
 function isAfterSix() { return new Date().getHours() >= 18; }
-
-function isVacationMode() {
-  const d = diffDays(todayKey(), END_DATE);
-  return d >= 0 && d <= 7;
-}
 
 function formatDate(date, opts) {
   return new Intl.DateTimeFormat(undefined, opts).format(date);
