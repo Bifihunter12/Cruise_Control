@@ -20,7 +20,7 @@ const habits = [
   // ── Standard Day — full protocol ─────────────────────────────────────────
   { id: "sleep",    title: "7+ hours sleep",       emoji: "🌙", quip: "Sleep is the real supplement.",            minimum_day: false, points: 2 },
   { id: "mobility", title: "Functional mobility",  emoji: "🦵", quip: "Hips and ankles decide your future.",      minimum_day: false, points: 2 },
-  { id: "run",      title: "Run session",          emoji: "🏃", quip: "Mon 1km · Wed 1km · go longer when ready.", minimum_day: false, points: 2 },
+  { id: "run",      title: "Run session",          emoji: "🏃", quip: "Boss Day fuel. Go further.", minimum_day: false, boss_only: true, points: 2 },
   { id: "read",     title: "Read 10 pages",        emoji: "📖", quip: "10 pages a day is a book a month.",        minimum_day: false, points: 2 }
 ];
 
@@ -250,7 +250,9 @@ function getDay(key = todayKey()) {
 }
 
 function activeHabits(day = getDay()) {
-  return day.mode === "minimum" ? habits.filter(h => h.minimum_day) : habits;
+  if (day.mode === "minimum")  return habits.filter(h => h.minimum_day);
+  if (day.mode === "standard") return habits.filter(h => !h.boss_only);
+  return habits; // boss — all habits unlocked
 }
 
 function runPoints(km) {
@@ -463,16 +465,16 @@ function renderHabit(habit, day) {
 }
 
 function renderRunHabit(day) {
-  const locked  = day.mode === "minimum";   // run is never a minimum habit
+  const locked  = day.mode !== "boss";
   const checked = day.done.includes("run");
   const km      = day.runKm;
   if (locked) return `
     <div class="habit-card locked" aria-disabled="true">
-      <span class="accent"></span>
-      <span class="habit-emoji">🔒</span>
+      <span class="accent" style="background:linear-gradient(135deg,#ffcc44,#ff9500)"></span>
+      <span class="habit-emoji">👑</span>
       <span>
         <span class="habit-title">Run session</span>
-        <span class="habit-quip">Minimum Day shield is up.</span>
+        <span class="habit-quip">${day.mode === "minimum" ? "Minimum Day — run locked." : "Switch to Boss Day to unlock."}</span>
       </span>
       <span class="check-circle"></span>
     </div>`;
@@ -1023,6 +1025,7 @@ function setMode(mode) {
   const day = getDay();
   day.mode = mode;
   if (mode === "minimum") day.done = day.done.filter(id => habits.find(h => h.id === id)?.minimum_day);
+  if (mode === "standard") day.done = day.done.filter(id => !habits.find(h => h.id === id)?.boss_only);
   updatePoints(day);
   saveState();
   if (mode === "minimum") showToast("Minimum day set. Streak is safe.");

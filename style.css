@@ -935,6 +935,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .bar-track {
+  display: block;
   height: 5px;
   overflow: hidden;
   border-radius: 999px;
@@ -942,8 +943,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .bar-fill {
+  display: block;
   height: 100%;
-  width: 0;
   border-radius: inherit;
   background: var(--gradient);
 }
