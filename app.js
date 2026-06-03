@@ -690,31 +690,27 @@ function renderWeekCard(week, isCurrent) {
 }
 
 function renderMonthCard(name, year, month) {
-  const start      = parseDate(START_DATE);
-  const end        = parseDate(END_DATE);
-  const today      = parseDate(todayKey());
-  const inMonth    = new Date(year, month + 1, 0).getDate();
-  const keys       = [];
+  const start   = parseDate(START_DATE);
+  const end     = parseDate(END_DATE);
+  const today   = todayKey();
+  const inMonth = new Date(year, month + 1, 0).getDate();
+
+  // All challenge days in this month (regardless of today)
+  const allKeys = [];
   for (let d = 1; d <= inMonth; d++) {
     const k    = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
     const date = parseDate(k);
-    if (date >= start && date <= end && date <= today) keys.push(k);
+    if (date >= start && date <= end) allKeys.push(k);
   }
-  if (!keys.length) return "";
-  // Total challenge days in this month (not just elapsed) for the goal denominator
-  const totalInMonth = Math.min(inMonth, (() => {
-    let n = 0;
-    for (let d = 1; d <= inMonth; d++) {
-      const date = parseDate(`${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`);
-      if (date >= start && date <= end) n++;
-    }
-    return n;
-  })());
-  const monthGoal  = Math.round(WEEKLY_GOAL / 7 * totalInMonth);
-  const ws         = calcWeekStats(keys);
-  const goalPct    = Math.min(100, Math.round((ws.pts / monthGoal) * 100));
-  const isPast     = keys[keys.length - 1] < todayKey();
-  const hitGoal    = isPast && ws.pts >= monthGoal;
+  if (!allKeys.length) return "";
+
+  const elapsedKeys = allKeys.filter(k => k <= today);
+  const monthGoal   = Math.round(WEEKLY_GOAL / 7 * allKeys.length);
+  const ws          = calcWeekStats(elapsedKeys);
+  const goalPct     = Math.min(100, Math.round((ws.pts / monthGoal) * 100));
+  const isPast      = allKeys[allKeys.length - 1] < today;
+  const hitGoal     = isPast && ws.pts >= monthGoal;
+
   return `
     <div class="month-card">
       <div class="mc-top">
@@ -723,7 +719,7 @@ function renderMonthCard(name, year, month) {
       </div>
       <div class="mc-stats">${ws.pts} / ${monthGoal}<span class="mc-unit"> pts</span></div>
       <div class="mc-track"><div class="mc-fill ${hitGoal ? "mc-hit" : ""}" style="width:${goalPct}%"></div></div>
-      <div class="mc-sub">${ws.logged}/${keys.length} days${ws.runs ? ` · 🏃 ${ws.runs}` : ""}</div>
+      <div class="mc-sub">${elapsedKeys.length}/${allKeys.length} days${ws.runs ? ` · 🏃 ${ws.runs}` : ""}</div>
     </div>
   `;
 }
