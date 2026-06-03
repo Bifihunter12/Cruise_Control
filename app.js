@@ -9,26 +9,22 @@ const WEEKLY_GOAL = 175; // pts — requires standard days + 2 runs. minimum-onl
 
 const habits = [
   // ── Minimum Day — always, no exceptions ──────────────────────────────────
-  { id: "steps",    title: "15k steps",           emoji: "👟", quip: "One loop becomes two.",                    minimum_day: true,  points: 2 },
-  { id: "protein",  title: "Prioritize protein",   emoji: "🥩", quip: "Protein keeps the muscle, drops the fat.", minimum_day: true,  points: 2 },
-  { id: "water",    title: "Drink 3L water",       emoji: "💧", quip: "Most hunger is just thirst.",              minimum_day: true,  points: 2 },
-  { id: "nolate",   title: "Stop eating at 8pm",   emoji: "⏰", quip: "Kitchen closes at 8.",                     minimum_day: true,  points: 2 },
-  { id: "noliquid", title: "No liquid calories",   emoji: "🥤", quip: "Liquid calories are invisible and real.",  minimum_day: true,  points: 2 },
-  { id: "noalcohol",title: "No alcohol",           emoji: "🚫", quip: "Empty calories, broken sleep, more hunger.", minimum_day: true, points: 2 },
-  { id: "weighin",  title: "Daily weigh-in",       emoji: "⚖️", quip: "Data beats guessing every time.",          minimum_day: true,  points: 2 },
-  { id: "yoga",     title: "Morning yoga",         emoji: "🧘", quip: "Sets the tone for everything after.",      minimum_day: true,  points: 2 },
+  { id: "yoga",      title: "Morning yoga",              emoji: "🧘", quip: "Sets the tone for everything after.",           minimum_day: true,  points: 2 },
+  { id: "gratitude", title: "Gratitude",                 emoji: "🙏", quip: "Three things. Two minutes. Changes everything.", minimum_day: true,  points: 2 },
+  { id: "weighin",   title: "Daily weigh-in",            emoji: "⚖️", quip: "Data beats guessing every time.",               minimum_day: true,  points: 2 },
+  { id: "steps",     title: "Steps",                     emoji: "👟", quip: "10k min · 12k standard · 15k boss.",            minimum_day: true,  points: 2 },
+  { id: "protein",   title: "Protein at every meal",     emoji: "🥩", quip: "Protein keeps the muscle, drops the fat.",      minimum_day: true,  points: 2 },
+  { id: "water",     title: "Drink 3L water",            emoji: "💧", quip: "Most hunger is just thirst.",                   minimum_day: true,  points: 2 },
+  { id: "noalcohol", title: "No alcohol or liquid cals", emoji: "🚫", quip: "Empty calories in every form. Skip them.",      minimum_day: true,  points: 2 },
+  { id: "nolate",    title: "Stop eating at 8pm",        emoji: "⏰", quip: "Kitchen closes at 8.",                          minimum_day: true,  points: 2 },
   // ── Standard Day — full protocol ─────────────────────────────────────────
-  { id: "sleep",    title: "7+ hours sleep",       emoji: "🌙", quip: "Sleep is the real supplement.",            minimum_day: false, points: 2 },
-  { id: "mobility", title: "Functional mobility",  emoji: "🦵", quip: "Hips and ankles decide your future.",      minimum_day: false, points: 2 },
-  { id: "run",      title: "Run session",          emoji: "🏃", quip: "Boss Day fuel. Go further.", minimum_day: false, boss_only: true, points: 2 },
-  { id: "read",     title: "Read 10 pages",        emoji: "📖", quip: "10 pages a day is a book a month.",        minimum_day: false, points: 2 }
+  { id: "sleep",     title: "7+ hours sleep",        emoji: "🌙", quip: "Sleep is the real supplement.",            minimum_day: false, points: 2 },
+  { id: "mobility",  title: "Functional mobility",   emoji: "🦵", quip: "Recovery is training too.",                minimum_day: false, points: 2 },
+  { id: "read",      title: "Read 10 pages",         emoji: "📖", quip: "10 pages a day is a book a month.",        minimum_day: false, points: 2 },
+  // ── Boss Day exclusive ────────────────────────────────────────────────────
+  { id: "run",       title: "Run session",           emoji: "🏃", quip: "Boss Day fuel. Go further.",               minimum_day: false, boss_only: true, points: 2 }
 ];
 
-const bonusChallenges = [
-  "20k steps today", "Meal prep lunches for tomorrow", "10 min stretch or foam roll",
-  "Log every meal in MyFitnessPal", "Cold shower after workout", "No phone 1hr before bed",
-  "Add a 2nd walk in the evening", "Eat vegetables at every meal today", "Hit 120g protein"
-];
 
 const microActions = [
   "Drink a full glass of water right now",
@@ -58,8 +54,6 @@ const badges = [
   { id: "cruise-ready",     label: "🚢 Cruise Ready",       test: (c) => c.dayNumber === 86 && c.complete },
   // ── Boss ──────────────────────────────────────────────────────────────────
   { id: "boss-energy",      label: "👑 Boss Energy",        test: (c) => c.anyBoss },
-  { id: "bonus-hunter",     label: "🎯 Bonus Hunter",       test: (c) => c.anyBonusDone },
-  { id: "true-boss",        label: "💎 True Boss",          test: (c) => c.trueBossDays >= 1 },
   { id: "boss-week",        label: "👑 Boss Week",          test: (c) => c.bossWeek },
   { id: "boss-machine",     label: "🦾 Boss Machine",       test: (c) => c.bossCompleteDays >= 10 },
   { id: "boss-month",       label: "🔱 Boss Month",         test: (c) => c.bossCompleteDays >= 20 },
@@ -121,6 +115,8 @@ const badges = [
   { id: "deep-reader",      label: "📖 Deep Reader",        test: (c) => c.totalRead >= 30 },
   { id: "sleep-champion",   label: "😴 Sleep Champion",     test: (c) => c.sleepStreak >= 7 },
   { id: "hydration-nation", label: "💧 Hydration Nation",   test: (c) => c.waterStreak >= 14 },
+  { id: "grateful-week",   label: "🙏 Grateful Week",      test: (c) => c.gratitudeStreak >= 7 },
+  { id: "grateful-month",  label: "🌸 Grateful Month",     test: (c) => c.gratitudeStreak >= 30 },
   // ── Resilience ────────────────────────────────────────────────────────────
   { id: "comeback-kid",     label: "🧡 Comeback Kid",       test: (c) => c.anyRecovered },
   { id: "minimum-warrior",  label: "⚡ Minimum Warrior",    test: (c) => c.minimumCompleted >= 5 },
@@ -191,12 +187,12 @@ function loadState() {
 function normalizeDay(raw) {
   if (!raw || typeof raw !== "object") raw = {};
   return {
-    mode:      ["minimum","standard","boss"].includes(raw.mode) ? raw.mode : "standard",
-    done:      Array.isArray(raw.done) ? raw.done : [],
-    recovered: raw.recovered === true,
-    pts:       typeof raw.pts === "number" ? raw.pts : 0,
-    runKm:     raw.runKm   ?? null,
-    bonusDone: raw.bonusDone === true,
+    mode:       ["minimum","standard","boss"].includes(raw.mode) ? raw.mode : "standard",
+    done:       Array.isArray(raw.done) ? raw.done : [],
+    recovered:  raw.recovered === true,
+    pts:        typeof raw.pts === "number" ? raw.pts : 0,
+    runKm:      raw.runKm      ?? null,
+    stepsCount: raw.stepsCount ?? null,
   };
 }
 
@@ -243,7 +239,7 @@ function diffDays(fromKey, toKeyVal) {
 
 function getDay(key = todayKey()) {
   if (!state.days[key]) {
-    state.days[key] = { mode: "standard", done: [], recovered: false, pts: 0, runKm: null, bonusDone: false };
+    state.days[key] = { mode: "standard", done: [], recovered: false, pts: 0, runKm: null, stepsCount: null };
     saveState();
   }
   return state.days[key];
@@ -256,11 +252,18 @@ function activeHabits(day = getDay()) {
 }
 
 function runPoints(km) {
-  if (!km)       return 0;
+  if (!km)         return 0;
   if (km === "5+") return 7;
-  if (km >= 5)   return 5;
-  if (km >= 3)   return 3;
+  if (km >= 5)     return 5;
+  if (km >= 3)     return 3;
   return 2; // 1 km
+}
+
+function stepsPoints(count) {
+  if (!count)    return 0;
+  if (count >= 15) return 4;
+  if (count >= 12) return 3;
+  return 2; // 10k
 }
 
 function completionInfo(day = getDay()) {
@@ -271,13 +274,17 @@ function completionInfo(day = getDay()) {
   const completionBonus = (done === total && total > 0) ? 3 : 0;
   const basePoints = active.reduce((s, h) => {
     if (!day.done.includes(h.id)) return s;
-    return s + (h.id === "run" ? runPoints(day.runKm) : h.points);
+    if (h.id === "run")   return s + runPoints(day.runKm);
+    if (h.id === "steps") return s + (day.stepsCount ? stepsPoints(day.stepsCount) : h.points);
+    return s + h.points;
   }, 0);
-  const bonusPts  = (day.mode === "boss" && day.bonusDone) ? 5 : 0;
-  const maxBonus  = day.mode === "boss" ? 5 : 0;
-  const baseMax   = active.reduce((s, h) => s + (h.id === "run" ? 7 : h.points), 0);
-  const points    = Math.round((basePoints + completionBonus + bonusPts) * multiplier);
-  const maxPoints = Math.round((baseMax + 3 + maxBonus) * multiplier);
+  const baseMax   = active.reduce((s, h) => {
+    if (h.id === "run")   return s + 7;
+    if (h.id === "steps") return s + 4;
+    return s + h.points;
+  }, 0);
+  const points    = Math.round((basePoints + completionBonus) * multiplier);
+  const maxPoints = Math.round((baseMax + 3) * multiplier);
   return { done, total, percent: total ? Math.round((done / total) * 100) : 0, points, maxPoints, multiplier, completionBonus };
 }
 
@@ -377,7 +384,6 @@ function renderToday() {
           <div style="font-size:12px;font-weight:300;color:var(--text-dim)">${info.done} / ${info.total}</div>
         </div>
         <div class="habit-list">${habits.map(h => renderHabit(h, day)).join("")}</div>
-        ${day.mode === "boss" ? renderBonus(day, key) : ""}
       </section>
     </main>
   `;
@@ -447,16 +453,44 @@ function renderModeSelector(day) {
   ).join("")}</div>`;
 }
 
+function stepsTitle(mode) {
+  if (mode === "boss")     return "15k steps";
+  if (mode === "standard") return "12k steps";
+  return "10k steps";
+}
+
+function renderStepsHabit(day) {
+  const checked = day.done.includes("steps");
+  const count   = day.stepsCount;
+  return `
+    <div class="habit-card run-habit ${checked ? "checked" : ""}">
+      <span class="accent"></span>
+      <span class="habit-emoji">👟</span>
+      <div class="run-body">
+        <span class="habit-title">${stepsTitle(day.mode)}</span>
+        <div class="run-distances">
+          <button class="run-dist ${count===10?"active":""}" data-steps-count="10">10k</button>
+          <button class="run-dist ${count===12?"active":""}" data-steps-count="12">12k</button>
+          <button class="run-dist ${count===15?"active":""}" data-steps-count="15">15k</button>
+        </div>
+      </div>
+      <span class="check-circle">${checked ? stepsPoints(count)+"pts" : ""}</span>
+    </div>
+  `;
+}
+
 function renderHabit(habit, day) {
-  if (habit.id === "run") return renderRunHabit(day);
+  if (habit.id === "run")   return renderRunHabit(day);
+  if (habit.id === "steps") return renderStepsHabit(day);
   const locked  = day.mode === "minimum" && !habit.minimum_day;
   const checked = day.done.includes(habit.id);
+  const title   = habit.title;
   return `
     <button class="habit-card ${checked?"checked":""} ${locked?"locked":""}" data-habit="${habit.id}" ${locked?`aria-disabled="true"`:""}>
       <span class="accent"></span>
       <span class="habit-emoji">${locked ? "🔒" : habit.emoji}</span>
-      <span>
-        <span class="habit-title">${habit.title}</span>
+      <span class="habit-info">
+        <span class="habit-title">${title}</span>
         <span class="habit-quip">${locked ? "Minimum Day shield is up." : habit.quip}</span>
       </span>
       <span class="check-circle">${checked ? "✓" : ""}</span>
@@ -472,7 +506,7 @@ function renderRunHabit(day) {
     <div class="habit-card locked" aria-disabled="true">
       <span class="accent" style="background:linear-gradient(135deg,#ffcc44,#ff9500)"></span>
       <span class="habit-emoji">👑</span>
-      <span>
+      <span class="habit-info">
         <span class="habit-title">Run session</span>
         <span class="habit-quip">${day.mode === "minimum" ? "Minimum Day — run locked." : "Switch to Boss Day to unlock."}</span>
       </span>
@@ -480,15 +514,15 @@ function renderRunHabit(day) {
     </div>`;
   return `
     <div class="habit-card run-habit ${checked?"checked":""}">
-      <span class="accent"></span>
+      <span class="accent" style="background:linear-gradient(135deg,#ffcc44,#ff9500)"></span>
       <span class="habit-emoji">🏃</span>
       <div class="run-body">
-        <span class="habit-title">Run session</span>
+        <span class="habit-title">Run session <span class="boss-pip">👑</span></span>
         <div class="run-distances">
-          <button class="run-dist ${km===1?"active":""}"    data-run-km="1">1 km<span class="run-pts-hint">2 pt</span></button>
-          <button class="run-dist ${km===3?"active":""}"    data-run-km="3">3 km<span class="run-pts-hint">3 pt</span></button>
-          <button class="run-dist ${km===5?"active":""}"    data-run-km="5">5 km<span class="run-pts-hint">5 pt</span></button>
-          <button class="run-dist ${km==="5+"?"active":""}" data-run-km="5+">5 km+<span class="run-pts-hint">7 pt</span></button>
+          <button class="run-dist ${km===1?"active":""}"    data-run-km="1">1 km</button>
+          <button class="run-dist ${km===3?"active":""}"    data-run-km="3">3 km</button>
+          <button class="run-dist ${km===5?"active":""}"    data-run-km="5">5 km</button>
+          <button class="run-dist ${km==="5+"?"active":""}" data-run-km="5+">5 km+</button>
         </div>
       </div>
       <span class="check-circle">${checked ? runPoints(km)+"pts" : ""}</span>
@@ -496,19 +530,6 @@ function renderRunHabit(day) {
   `;
 }
 
-function renderBonus(day, key) {
-  const idx  = Math.abs(hashCode(key)) % bonusChallenges.length;
-  const done = day.bonusDone;
-  return `
-    <button class="bonus-card ${done?"bonus-done":""}" data-bonus-done>
-      <div class="bonus-header">
-        <div class="bonus-title">Boss Bonus  <span class="bonus-pts">+5 pts</span></div>
-        <div class="bonus-check">${done ? "✓" : ""}</div>
-      </div>
-      <div class="bonus-text">${bonusChallenges[idx]}</div>
-    </button>
-  `;
-}
 
 function renderWeightWidget() {
   if (!state.weighIns.length) return "";
@@ -551,7 +572,7 @@ function renderCompleteBanner(day, info) {
       <span class="cb-icon">👑</span>
       <div class="cb-body">
         <div class="cb-title">BOSS DAY COMPLETE</div>
-        <div class="cb-sub">${info.points} pts · ${day.bonusDone ? "Bonus claimed. Absolute unit." : "Boss Bonus still available ↓"}</div>
+        <div class="cb-sub">${info.points} pts · All habits done. Absolute unit.</div>
       </div>
     </div>`;
   return `
@@ -920,11 +941,11 @@ function renderMore() {
   const earnedPct   = Math.round((earnedCount / totalCount) * 100);
   const cats = [
     { label: "🔥 Streaks",    ids: ["first-wave","getting-started","work-week","on-fire","iron-week","three-weeks","locked-in","45-days","two-months","perfect-week","75-soft","halfway-mark","cruise-ready"] },
-    { label: "👑 Boss",       ids: ["boss-energy","bonus-hunter","true-boss","boss-week","boss-machine","boss-month"] },
+    { label: "👑 Boss",       ids: ["boss-energy","boss-week","boss-machine","boss-month"] },
     { label: "⭐ Points",     ids: ["first-points","century","point-collector","high-scorer","elite","unstoppable","legend"] },
     { label: "🏃 Running",    ids: ["first-run","five-runs","run-week","ten-runs","fifteen-runs","twenty-runs","twenty-five-runs","thirty-runs","run-streak","run-streak-5","run-streak-7","distance-builder","speed-merchant","ten-long-runs","twenty-long-runs","5k-done","5k-hat-trick","5k-specialist","beyond-5k","beyond-repeat"] },
     { label: "⚖️ Weight",     ids: ["on-the-scale","first-pound","2lbs-down","3lbs-down","5lbs-down","7lbs-down","halfway-weight","12lbs-down","15lbs-down","17lbs-down","goal-reached","downward-trend","data-driven","twoweek-logger","month-logger","logged-in","30-weighins","60-weighins","perfect-logger"] },
-    { label: "🌿 Habits",     ids: ["sober-week","sober-month","morning-ritual","devoted-yogi","bookworm","deep-reader","sleep-champion","hydration-nation"] },
+    { label: "🌿 Habits",     ids: ["sober-week","sober-month","morning-ritual","devoted-yogi","bookworm","deep-reader","sleep-champion","hydration-nation","grateful-week","grateful-month"] },
     { label: "🧡 Resilience", ids: ["comeback-kid","minimum-warrior","iron-minimum"] },
     { label: "📆 Weekly & Monthly", ids: ["week-1-done","week-3-done","week-5-done","week-8-done","week-10-done","all-weeks","weekly-mvp","weekly-legend","june-complete","july-complete","august-done"] },
   ];
@@ -1003,7 +1024,9 @@ function bindEvents() {
   document.querySelectorAll("[data-run-km]").forEach(b => {
     b.addEventListener("click", e => { e.stopPropagation(); selectRunKm(b.dataset.runKm); });
   });
-  document.querySelector("[data-bonus-done]")?.addEventListener("click", toggleBonus);
+  document.querySelectorAll("[data-steps-count]").forEach(b => {
+    b.addEventListener("click", e => { e.stopPropagation(); selectStepsCount(b.dataset.stepsCount); });
+  });
   document.querySelectorAll("[data-chart]").forEach(b => {
     b.addEventListener("click", () => { activeChartTab = b.dataset.chart; render(); });
   });
@@ -1049,14 +1072,20 @@ function toggleHabit(id) {
   render();
 }
 
-function toggleBonus() {
-  const day = getDay();
-  if (day.mode !== "boss") return;
-  day.bonusDone = !day.bonusDone;
+
+function selectStepsCount(rawCount) {
+  const day   = getDay();
+  const count = Number(rawCount);
+  if (day.stepsCount === count) {
+    day.stepsCount = null;
+    day.done = day.done.filter(id => id !== "steps");
+  } else {
+    day.stepsCount = count;
+    if (!day.done.includes("steps")) day.done.push("steps");
+  }
   updatePoints(day);
   saveState();
   navigator.vibrate?.(10);
-  if (day.bonusDone) showToast("Boss Bonus complete. +5 pts.");
   checkBadges();
   render();
 }
@@ -1187,7 +1216,6 @@ function checkBadges() {
     streak,
     totalPts:         stats.totalPts,
     anyBoss:          allDays.some(d => d.mode === "boss" && d.done.length),
-    anyBonusDone:     allDays.some(d => d.bonusDone),
     bossWeek:         lastNDays(7).filter(k => state.days[k]?.mode === "boss" && state.days[k]?.done.length).length >= 3,
     bossCompleteDays: allDays.filter(d => d.mode === "boss" && completionInfo(d).percent === 100).length,
     anyRecovered:     allDays.some(d => d.recovered),
@@ -1201,13 +1229,13 @@ function checkBadges() {
     hasRun3k:         allDays.some(d => d.runKm === 3 || d.runKm === 5 || d.runKm === "5+"),
     run3kPlus:        allDays.filter(d => d.runKm === 3 || d.runKm === 5 || d.runKm === "5+").length,
     runStreak:        habitStreakCount("run"),
-    trueBossDays:     allDays.filter(d => d.mode === "boss" && completionInfo(d).percent === 100 && d.bonusDone).length,
     soberStreak:      habitStreakCount("noalcohol"),
     yogaStreak:       habitStreakCount("yoga"),
     readStreak:       habitStreakCount("read"),
     sleepStreak:      habitStreakCount("sleep"),
     waterStreak:      habitStreakCount("water"),
     weighInStreak:    habitStreakCount("weighin"),
+    gratitudeStreak:  habitStreakCount("gratitude"),
     totalYoga:        allDays.filter(d => d.done.includes("yoga")).length,
     totalRead:        allDays.filter(d => d.done.includes("read")).length,
     totalWeighIns:    state.weighIns.length,
@@ -1301,9 +1329,6 @@ function pickRandom(arr, n) {
   return [...arr].sort(() => Math.random() - 0.5).slice(0, n);
 }
 
-function hashCode(s) {
-  return s.split("").reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0, 0);
-}
 
 function showToast(msg) {
   const stack = document.getElementById("toast-stack");
