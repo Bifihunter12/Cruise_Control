@@ -611,25 +611,19 @@ function renderSaveDaySheet() {
 function challengeWeeks() {
   const start  = parseDate(START_DATE);
   const end    = parseDate(END_DATE);
-  const today  = parseDate(todayKey());
-  const cap    = today < end ? today : end;
   const weeks  = [];
   const cursor = new Date(start);
   let   num    = 1;
-  while (cursor <= cap) {
-    const wStart    = new Date(cursor);
-    const wFullEnd  = new Date(cursor); wFullEnd.setDate(wFullEnd.getDate() + 6);
-    const wCapEnd   = wFullEnd < end ? wFullEnd : end;   // week end capped at challenge end
-    const wTodayEnd = wCapEnd < cap  ? wCapEnd  : cap;   // further capped at today for stats
+  while (cursor <= end) {
+    const wStart   = new Date(cursor);
+    const wFullEnd = new Date(cursor); wFullEnd.setDate(wFullEnd.getDate() + 6);
+    const wCapEnd  = wFullEnd < end ? wFullEnd : end;
 
-    // Full week days including future (for dots display) — capped at challenge end
     const allDays = [];
     const fd = new Date(wStart);
     while (fd <= wCapEnd) { allDays.push(toKey(fd)); fd.setDate(fd.getDate() + 1); }
 
-    // Elapsed days only (for point calculations)
-    const days = allDays.filter(k => k <= todayKey());
-
+    const days  = allDays.filter(k => k <= todayKey());
     const label = formatDate(wStart, { month:"short", day:"numeric" }) + " – " +
                   formatDate(wCapEnd, { month:"short", day:"numeric" });
 
@@ -737,49 +731,31 @@ function renderMonthCard(name, year, month) {
 // ── Week view ─────────────────────────────────────────────────────────────
 
 function renderWeek() {
-  const stats     = calcStats();
-  const breakdown = calcHabitBreakdown();
-  const weeks     = challengeWeeks();
-  const current   = weeks[weeks.length - 1];
-  const past      = weeks.slice(0, -1).reverse();
+  const stats  = calcStats();
+  const weeks  = challengeWeeks();
+  const today  = todayKey();
+  const curIdx = weeks.findIndex(w => w.allDays.includes(today));
 
   return `
     <main>
       <div class="section-label">Overview</div>
       <div class="stats-grid">
-        ${statCard("🔥 Streak",      stats.streak,                        "days")}
-        ${statCard("⭐ Total pts",    stats.totalPts,                      "")}
-        ${statCard("🏆 Best day",    stats.bestDay, "habits")}
+        ${statCard("🔥 Streak",      stats.streak,    "days")}
+        ${statCard("⭐ Total pts",    stats.totalPts,  "")}
+        ${statCard("🏆 Best day",    stats.bestDay,   "habits")}
         ${statCard("📅 Days logged", stats.daysLogged, "")}
       </div>
 
-      <div class="section-label">This week</div>
-      ${renderWeekCard(current, true)}
-
-      ${past.length ? `
-        <div class="section-label">Week history</div>
-        <div class="week-history">
-          ${past.map(w => renderWeekCard(w, false)).join("")}
-        </div>
-      ` : ""}
+      <div class="section-label">All weeks</div>
+      <div class="week-history">
+        ${weeks.map((w, i) => renderWeekCard(w, i === curIdx)).join("")}
+      </div>
 
       <div class="section-label">By month</div>
       <div class="month-row">
         ${renderMonthCard("June",   2026, 5)}
         ${renderMonthCard("July",   2026, 6)}
         ${renderMonthCard("August", 2026, 7)}
-      </div>
-
-      <div class="section-label">Habit breakdown</div>
-      <div class="more-card" style="margin-bottom:0">
-        <div class="bar-list">
-          ${breakdown.map(item => `
-            <div class="bar-row">
-              <span>${item.emoji} ${item.title}</span>
-              <span class="bar-track"><span class="bar-fill" style="width:${item.percent}%"></span></span>
-            </div>
-          `).join("")}
-        </div>
       </div>
     </main>
   `;
@@ -1183,14 +1159,6 @@ function calcStreak() {
   return streak;
 }
 
-function calcHabitBreakdown() {
-  const loggedDays = Object.values(state.days).filter(d => d.done.length > 0 || d.recovered);
-  const max = Math.max(1, loggedDays.length);
-  return habits.map(h => {
-    const count = loggedDays.filter(d => d.done.includes(h.id)).length;
-    return { ...h, count, percent: Math.round((count / max) * 100) };
-  });
-}
 
 function habitStreakCount(id) {
   let n = 0;

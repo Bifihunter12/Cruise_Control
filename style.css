@@ -873,32 +873,6 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   letter-spacing: -0.01em;
 }
 
-.bar-list { display: grid; gap: 10px; margin-top: 14px; }
-
-.bar-row {
-  display: grid;
-  grid-template-columns: 110px 1fr;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
-  font-weight: 300;
-  color: var(--text-dim);
-}
-
-.bar-track {
-  display: block;
-  height: 5px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: var(--track);
-}
-
-.bar-fill {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--gradient);
-}
 
 /* ── Week cards ─────────────────────────────────── */
 
