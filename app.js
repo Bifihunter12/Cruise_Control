@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.05.2";
+const APP_VERSION = "2026.06.05.3";
 const STORAGE_KEY = "cruise_mode_v1";
 const START_DATE = "2026-06-01";
 const END_DATE = "2026-08-25";
@@ -213,7 +213,8 @@ function normalizeState(raw) {
     days,
     weighIns: Array.isArray(raw.weighIns) ? raw.weighIns : [],
     totalPts: typeof raw.totalPts === "number" ? raw.totalPts : 0,
-    badges:   Array.isArray(raw.badges)   ? raw.badges   : [],
+    badges:      Array.isArray(raw.badges)   ? raw.badges   : [],
+    migrations:  raw.migrations && typeof raw.migrations === "object" ? raw.migrations : {},
   };
 }
 
@@ -1380,6 +1381,19 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
   });
 
   navigator.serviceWorker.addEventListener("controllerchange", reloadForUpdate);
+}
+
+// ── One-time migrations ───────────────────────────────────────────────────────
+// v2: clear week badges incorrectly awarded by the completedWeeks vacuous-truth bug
+if (!state.migrations["weekBadgesFix_v2"]) {
+  const tainted = new Set([
+    "week-1-done","week-3-done","week-5-done",
+    "week-8-done","week-10-done","all-weeks",
+    "weekly-mvp","weekly-legend"
+  ]);
+  state.badges = state.badges.filter(id => !tainted.has(id));
+  state.migrations["weekBadgesFix_v2"] = true;
+  saveState();
 }
 
 startAppUpdateChecks();
