@@ -1,10 +1,12 @@
 "use strict";
 
+const APP_VERSION = "2026.06.05.1";
 const STORAGE_KEY = "cruise_mode_v1";
 const START_DATE = "2026-06-01";
 const END_DATE = "2026-08-25";
 const TOTAL_DAYS = 86;
 const RING_CIRC = 2 * Math.PI * 90;
+const UPDATE_CHECK_MS = 30 * 60 * 1000;
 const WEEKLY_GOAL = 175; // pts — requires standard days + 2 runs. minimum-only week = 133 pts.
 
 const habits = [
@@ -1311,14 +1313,73 @@ function setDynamicIcon() {
   link.href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
+async function clearAppCaches() {
+  if (!("caches" in window)) return;
+  const keys = await caches.keys();
+  await Promise.all(keys.filter((key) => key.startsWith("cruise-mode-")).map((key) => caches.delete(key)));
+}
+
+function reloadForUpdate() {
+  if (sessionStorage.getItem("cruise_mode_reloaded_for_update") === APP_VERSION) return;
+  sessionStorage.setItem("cruise_mode_reloaded_for_update", APP_VERSION);
+  window.location.reload();
+}
+
+async function applyAppUpdate(nextVersion) {
+  console.info(`Cruise Mode update found: ${APP_VERSION} -> ${nextVersion}`);
+  await clearAppCaches();
+
+  if ("serviceWorker" in navigator) {
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (registration) await registration.update();
+  }
+
+  reloadForUpdate();
+}
+
+async function checkForAppUpdate() {
+  try {
+    const response = await fetch(`/app-version.json?t=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) return;
+
+    const info = await response.json();
+    if (info.version && info.version !== APP_VERSION) {
+      await applyAppUpdate(info.version);
+    }
+  } catch (error) {
+    console.warn("Update check failed", error);
+  }
+}
+
+function startAppUpdateChecks() {
+  if (!("fetch" in window)) return;
+
+  checkForAppUpdate();
+  setInterval(checkForAppUpdate, UPDATE_CHECK_MS);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) checkForAppUpdate();
+  });
+}
+
 // ── Boot ─────────────────────────────────────────────────────────────────────
 
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(e => console.warn("SW failed", e));
+    navigator.serviceWorker.register("/sw.js")
+      .then((registration) => registration.update())
+      .catch(e => console.warn("SW failed", e));
   });
+
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    if (event.data?.type === "APP_UPDATED" && event.data.version !== APP_VERSION) {
+      reloadForUpdate();
+    }
+  });
+
+  navigator.serviceWorker.addEventListener("controllerchange", reloadForUpdate);
 }
 
+startAppUpdateChecks();
 saveState();
 setDynamicIcon();
 render();
