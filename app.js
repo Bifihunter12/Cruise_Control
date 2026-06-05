@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.05.1";
+const APP_VERSION = "2026.06.05.2";
 const STORAGE_KEY = "cruise_mode_v1";
 const START_DATE = "2026-06-01";
 const END_DATE = "2026-08-25";
@@ -1218,10 +1218,13 @@ function checkBadges() {
       return n;
     })(),
     completedWeeks:   (() => {
+      const today = todayKey();
       return challengeWeeks().filter(w => {
-        const past = w.days.every(k => k < todayKey());
-        if (!past) return false;
-        return w.days.every(k => { const d = state.days[k]; return d && (d.done.length || d.recovered); });
+        // Week must be fully in the past — last day of the full week must be before today
+        const lastDay = w.allDays[w.allDays.length - 1];
+        if (!lastDay || lastDay >= today) return false;
+        // Every day in that week must have been logged
+        return w.allDays.every(k => { const d = state.days[k]; return d && (d.done.length || d.recovered); });
       }).length;
     })(),
     bestWeekPts:      Math.max(0, ...challengeWeeks().map(w =>
