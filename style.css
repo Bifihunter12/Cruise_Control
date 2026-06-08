@@ -2188,6 +2188,19 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   padding-top: 4px;
 }
 
+.ob-privacy-note {
+  font-size: 11px;
+  color: var(--text-faint);
+  text-align: center;
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+.ob-privacy-link {
+  color: var(--text-dim);
+  text-decoration: underline;
+}
+
 /* ── Template Categories ────────────────────────────────────────────────── */
 
 .template-cat-label {

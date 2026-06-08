@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.08.12";
+const APP_VERSION = "2026.06.08.13";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -3490,6 +3490,7 @@ function renderObAccount() {
       ${isSignin ? "No account yet? Create one" : "Already have an account? Sign in"}
     </button>
     <button class="link-btn ob-link ob-link--faint" data-ob-skip-account>Skip — use offline</button>
+    ${!isSignin ? `<p class="ob-privacy-note">By creating an account you agree to our <a href="/privacy.html" target="_blank" class="ob-privacy-link">Privacy Policy</a>.</p>` : ""}
   </div>`;
 }
 
@@ -3514,6 +3515,11 @@ function renderDataSettings() {
       </label>
       <div style="font-size:12px;color:var(--text-dim);margin-top:8px">⚠️ Restoring will overwrite all current data.</div>
     </div>
+  </div>
+  <div style="margin-top:20px;text-align:center">
+    <a href="/privacy.html" target="_blank" style="font-size:12px;color:var(--text-dim);text-decoration:none">Privacy Policy</a>
+    <span style="font-size:12px;color:var(--text-faint);margin:0 8px">·</span>
+    <span style="font-size:12px;color:var(--text-faint)">v${APP_VERSION}</span>
   </div>`;
 }
 
