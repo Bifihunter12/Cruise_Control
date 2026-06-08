@@ -59,7 +59,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 /* ── Shell ─────────────────────────────────── */
 
 .app-shell {
-  width: min(100%, 520px);
+  width: min(100%, 480px);
   min-height: 100vh;
   margin: 0 auto;
   padding: max(20px, env(safe-area-inset-top)) 18px calc(88px + env(safe-area-inset-bottom));
@@ -561,7 +561,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .ww-label {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -2825,7 +2825,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .pp-date {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-dim);
   text-align: center;
   font-weight: 600;
@@ -3049,5 +3049,119 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   border-radius: 10px; padding: 10px 12px;
   font-size: 13px; color: #ff7070;
   margin-bottom: 12px;
+}
+
+/* ── +pts floating animation ── */
+.pts-anim {
+  position: fixed; z-index: 999; pointer-events: none;
+  font-size: 14px; font-weight: 900; color: var(--success);
+  text-shadow: 0 0 12px rgba(79,255,180,0.5);
+  transform: translateX(-50%);
+  animation: pts-float 0.85s cubic-bezier(0.2,0.8,0.2,1) forwards;
+}
+@keyframes pts-float {
+  0%   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  30%  { opacity: 1; transform: translateX(-50%) translateY(-16px) scale(1.15); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-52px) scale(0.9); }
+}
+
+/* ── Boss Day banner ── */
+.boss-day-banner {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: linear-gradient(90deg, rgba(255,204,68,0.12), rgba(255,149,0,0.12));
+  border: 1px solid rgba(255,180,0,0.25);
+  border-radius: var(--radius-sm); padding: 10px 16px;
+  font-size: 13px; font-weight: 700; color: #ffd54f;
+  margin-bottom: 14px;
+  animation: boss-pulse 2.5s ease-in-out infinite;
+}
+@keyframes boss-pulse {
+  0%,100% { box-shadow: 0 0 0 rgba(255,180,0,0); }
+  50%     { box-shadow: 0 0 16px rgba(255,180,0,0.18); }
+}
+
+/* ── New-week Monday ceremony banner ── */
+.new-week-banner {
+  background: linear-gradient(135deg, rgba(180,79,255,0.12), rgba(255,79,163,0.08));
+  border: 1px solid rgba(180,79,255,0.2);
+  border-radius: var(--radius); padding: 18px 20px;
+  margin-bottom: 18px; position: relative;
+}
+.new-week-banner h3 { font-size: 17px; font-weight: 900; margin-bottom: 4px; }
+.new-week-banner p  { font-size: 13px; color: var(--text-dim); margin: 0; }
+.new-week-dismiss {
+  position: absolute; top: 10px; right: 12px;
+  font-size: 18px; color: var(--text-dim); padding: 4px;
+}
+
+/* ── Comeback banner ── */
+.comeback-banner {
+  background: rgba(79,255,180,0.07);
+  border: 1px solid rgba(79,255,180,0.2);
+  border-radius: var(--radius-sm); padding: 12px 16px;
+  margin-bottom: 14px; font-size: 13px;
+}
+.comeback-banner strong { color: var(--success); }
+
+
+/* ── Points explainer in builder ── */
+.pts-explainer {
+  background: rgba(79,255,180,0.06);
+  border: 1px solid rgba(79,255,180,0.15);
+  border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 16px;
+}
+.pts-explainer-title { font-size: 12px; font-weight: 800; color: var(--success); margin-bottom: 4px; letter-spacing: 0.04em; }
+.pts-explainer-body  { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+/* ── Builder reminder hint ── */
+.builder-reminder-hint {
+  background: rgba(180,79,255,0.07);
+  border: 1px solid rgba(180,79,255,0.15);
+  border-radius: var(--radius-sm); padding: 10px 14px; margin-top: 12px;
+  font-size: 12px; color: var(--text-dim); line-height: 1.5;
+}
+.builder-reminder-hint strong { color: var(--text); }
+
+/* ── PWA install banner ── */
+.install-banner {
+  position: fixed; bottom: calc(76px + env(safe-area-inset-bottom));
+  left: 50%; transform: translateX(-50%);
+  width: min(calc(100% - 32px), 440px);
+  background: var(--surface-3);
+  border: 1px solid rgba(180,79,255,0.3);
+  border-radius: var(--radius); padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  z-index: 100;
+  box-shadow: var(--shadow);
+  animation: slide-up 0.3s ease;
+}
+.install-banner-text { flex: 1; font-size: 13px; }
+.install-banner-text strong { display: block; font-size: 14px; margin-bottom: 2px; }
+.install-banner-text span   { color: var(--text-dim); }
+.install-banner-btn  { font-size: 12px; font-weight: 700; background: var(--gradient); color: #fff; padding: 8px 14px; border-radius: 999px; white-space: nowrap; }
+.install-banner-dismiss { font-size: 18px; color: var(--text-dim); padding: 4px; }
+@keyframes slide-up {
+  from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+}
+
+/* ── Big toast (Day 1 celebration) ── */
+.big-toast {
+  position: fixed; bottom: calc(88px + env(safe-area-inset-bottom) + 12px);
+  left: 50%; transform: translateX(-50%);
+  width: min(calc(100% - 32px), 440px);
+  background: linear-gradient(135deg, rgba(180,79,255,0.2), rgba(255,79,163,0.15));
+  border: 1px solid rgba(180,79,255,0.35);
+  border-radius: var(--radius); padding: 16px 18px;
+  z-index: 60; text-align: center;
+  animation: toast-in 0.3s ease, fade-out 0.4s ease 3.6s forwards;
+}
+.big-toast-emoji { font-size: 28px; display: block; margin-bottom: 6px; }
+.big-toast-title { font-size: 16px; font-weight: 900; margin-bottom: 4px; }
+.big-toast-sub   { font-size: 13px; color: var(--text-dim); }
+@keyframes fade-out { to { opacity: 0; transform: translateX(-50%) translateY(12px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pts-anim, .boss-day-banner, .install-banner, .big-toast { animation: none; }
 }
 

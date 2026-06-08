@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.08.8";
+const APP_VERSION = "2026.06.08.9";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -839,6 +839,9 @@ let _cloudAuthLoading = false; // loading spinner for cloud auth
 let _cloudPushTimer   = null;  // debounce timer for cloud push
 let _skipCloudPush    = false; // prevent redundant push after pull
 let reminderTimeout = null;
+let _pwaInstallPrompt = null;  // beforeinstallprompt event (PWA install)
+let _showInstallBanner = false; // show the PWA install nudge
+let _newWeekBanner = null;     // { pts } — Monday new-week ceremony, null when dismissed
 
 // ── Cloud Sync (Netlify Functions + Blobs) ─────────────────────────────────
 const CloudSync = {
@@ -1020,6 +1023,7 @@ function normalizeChallenge(raw) {
     streakFreezes:            typeof raw.streakFreezes === "number" ? raw.streakFreezes : 0,
     streakFreezeWeeksAwarded: Array.isArray(raw.streakFreezeWeeksAwarded) ? raw.streakFreezeWeeksAwarded : [],
     jokerBudget:              typeof raw.jokerBudget === "number" ? raw.jokerBudget : 3,
+    flags:                    (raw.flags && typeof raw.flags === "object" && !Array.isArray(raw.flags)) ? raw.flags : {},
   };
 }
 
@@ -1625,6 +1629,102 @@ function renderConfirmModal() {
   </div>`;
 }
 
+// ── Launch UX ────────────────────────────────────────────────────────────
+
+// Monday new-week ceremony
+function checkNewWeekCeremony() {
+  const today = todayKey();
+  const d = new Date();
+  if (d.getDay() !== 1) return; // only Monday
+  if (localStorage.getItem("conqur_newweek") === today) return; // already shown this Monday
+  // Calculate last week's total points across all active/completed challenges
+  let lastWeekPts = 0;
+  Object.values(state.challenges).forEach(c => {
+    for (let i = 1; i <= 7; i++) {
+      const k = addDays(today, -i);
+      lastWeekPts += (c.days?.[k]?.pts || 0);
+    }
+  });
+  if (lastWeekPts > 0) {
+    _newWeekBanner = { pts: lastWeekPts };
+    localStorage.setItem("conqur_newweek", today);
+  }
+}
+
+// Floating +pts animation
+function showPtsAnim(pts, rect) {
+  if (!pts || pts <= 0) return;
+  const el = document.createElement("div");
+  el.className = "pts-anim";
+  el.textContent = `+${pts} pts`;
+  el.style.left = `${rect.left + rect.width * 0.72}px`;
+  el.style.top  = `${rect.top + 12}px`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+// Big toast for special moments (Day 1, halfway, etc.)
+function showBigToast(emoji, title, sub, duration = 4000) {
+  const existing = document.querySelector(".big-toast");
+  if (existing) existing.remove();
+  const el = document.createElement("div");
+  el.className = "big-toast";
+  el.innerHTML = `<span class="big-toast-emoji">${emoji}</span><div class="big-toast-title">${title}</div><div class="big-toast-sub">${sub}</div>`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), duration);
+}
+
+// Count consecutive missed days immediately before today for a challenge
+function getConsecutiveMisses(challenge) {
+  let count = 0;
+  const today = todayKey();
+  let cursor = addDays(today, -1);
+  while (cursor >= challenge.startDate) {
+    const day = challenge.days[cursor];
+    if (day?.mode === "rest") break; // rest day is not a miss
+    if (!day || !dayLogged(day)) count++;
+    else break;
+    cursor = addDays(cursor, -1);
+  }
+  return count;
+}
+
+// Best week score across all weeks of a challenge
+function challengePersonalBest(challenge) {
+  const weeks = challengeWeeks(challenge);
+  return weeks.reduce((best, week) => {
+    const score = week.allDays.reduce((s, d) => s + (challenge.days[d]?.pts || 0), 0);
+    return Math.max(best, score);
+  }, 0);
+}
+
+// Check and fire one-time milestone celebrations
+function checkMilestones(challenge) {
+  if (!challenge.flags) challenge.flags = {};
+  const totalDays = diffDays(challenge.startDate, challenge.endDate) + 1;
+  const dayNumber = challengeDayNumber(challenge);
+  const today = todayKey();
+  const day = challenge.days[today];
+  if (!day) return;
+  const info = completionInfo(challenge, day);
+
+  // Day 1 complete
+  if (dayNumber === 1 && info.percent === 100 && !challenge.flags.day1done) {
+    challenge.flags.day1done = true;
+    setTimeout(() => {
+      showBigToast("✅", "Day 1 done.", "Come back tomorrow. Your streak starts now.");
+      if (_pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
+        setTimeout(() => { _showInstallBanner = true; render(); }, 3000);
+      }
+    }, 500);
+  }
+  // Halfway
+  if (dayNumber >= Math.ceil(totalDays / 2) && info.percent === 100 && !challenge.flags.halfway) {
+    challenge.flags.halfway = true;
+    setTimeout(() => showBigToast("🎯", "Halfway there.", "Most people quit here. You didn't."), 600);
+  }
+}
+
 // ── Render Core ────────────────────────────────────────────────────────────
 
 function render() {
@@ -1664,6 +1764,18 @@ function render() {
   }
   if (onboardingStep !== null) html += renderOnboarding();
   html += renderConfirmModal();
+  if (_showInstallBanner && _pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
+    html += `
+    <div class="install-banner">
+      <span style="font-size:28px">📲</span>
+      <div class="install-banner-text">
+        <strong>Add Conqur to your Home Screen</strong>
+        <span>Works offline. Opens like a native app.</span>
+      </div>
+      <button class="install-banner-btn" data-install-accept>Install</button>
+      <button class="install-banner-dismiss" data-install-dismiss aria-label="Dismiss">×</button>
+    </div>`;
+  }
   app.innerHTML = html;
   if (!_eventsBound) { bindEvents(); _eventsBound = true; }
   requestAnimationFrame(() => {
@@ -1777,10 +1889,25 @@ function renderToday() {
   const canGoBack  = addDays(effDate, -1) >= minDate;
   const canGoFwd   = !isToday;
 
+  // Comeback: consecutive missed days before today
+  const missedStreak = isToday ? getConsecutiveMisses(challenge) : 0;
+
   return `
   <main>
     ${active.length > 1 ? renderChallengePills(active) : ""}
     ${renderWeeklyRecap(challenge)}
+    ${_newWeekBanner ? `
+    <div class="new-week-banner">
+      <h3>🗓 New week. Clean slate.</h3>
+      <p>Last week: <strong>${_newWeekBanner.pts} pts</strong>. Come back stronger.</p>
+      <button class="new-week-dismiss" data-dismiss-newweek aria-label="Dismiss">×</button>
+    </div>` : ""}
+    ${missedStreak >= 2 ? `
+    <div class="comeback-banner">
+      <strong>Welcome back.</strong> ${missedStreak} days missed — that's okay. Today still counts.
+    </div>` : ""}
+    ${isToday && day.mode === "boss" ? `
+    <div class="boss-day-banner">👑 Boss Day — all points ×1.5 today</div>` : ""}
     <div class="date-nav">
       <button class="date-nav-arrow ${canGoBack?"":"disabled"}" data-date-back ${canGoBack?"":"disabled"} aria-label="Previous day">‹</button>
       <span class="date-nav-label ${!isToday?"date-nav-past":""}">
@@ -1881,7 +2008,7 @@ function renderNoChallenge() {
       <div class="wf-item"><span class="wf-icon">🏆</span><span class="wf-text">21 challenges — 75 Hard, Cold Exposure, Morning Routine, Fasting and more</span></div>
       <div class="wf-item"><span class="wf-icon">👑</span><span class="wf-text">Boss Days, Rest Days, Minimum Days — built for real life, not perfection</span></div>
       <div class="wf-item"><span class="wf-icon">🔥</span><span class="wf-text">Streaks, badges, streak freezes, and weekly recaps that keep you honest</span></div>
-      <div class="wf-item"><span class="wf-icon">📵</span><span class="wf-text">Works offline. No account. No ads. Free forever. Your data stays on your device.</span></div>
+      <div class="wf-item"><span class="wf-icon">📵</span><span class="wf-text">Works offline. No ads. Your data stays on your device.</span></div>
     </div>` : ""}
 
     ${upcoming.length ? `
@@ -1901,7 +2028,7 @@ function renderNoChallenge() {
     <button class="primary-button" style="max-width:280px;margin:0 auto" data-open-builder>
       ${hasPast || upcoming.length ? "Start New Challenge" : "Start Your First Challenge"}
     </button>
-    ${isFirstTime ? `<p class="welcome-hint">No account needed. No ads. No BS.</p>` : ""}
+    ${isFirstTime ? `<p class="welcome-hint">No ads. No tracking. Just you and the challenge.</p>` : ""}
   </main>`;
 }
 
@@ -2285,6 +2412,8 @@ function renderWeeklyGoalBar(challenge) {
   }, 0);
   const pct = Math.min(100, Math.round((pts / challenge.weeklyGoal) * 100));
   const hit = pts >= challenge.weeklyGoal;
+  const best = challengePersonalBest(challenge);
+  const bestLabel = best > 0 ? `<span style="font-size:11px;color:var(--text-dim)">Best: ${best} pts</span>` : "";
   return `
   <div class="weekly-goal-bar">
     <div class="wgb-row">
@@ -2292,7 +2421,10 @@ function renderWeeklyGoalBar(challenge) {
       <span class="wgb-pct">${pct}%</span>
     </div>
     <div class="wgb-track"><div class="wgb-fill ${hit?"wgb-done":""}" style="width:${pct}%"></div></div>
-    ${hit ? "" : `<div style="font-size:11px;color:var(--text-dim);margin-top:4px">Hit the goal to unlock week badges 🏅</div>`}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+      ${hit ? `<span style="font-size:11px;color:var(--success)">Week badge unlocked 🏅</span>` : `<span style="font-size:11px;color:var(--text-dim)">Hit the goal to unlock week badges 🏅</span>`}
+      ${bestLabel}
+    </div>
   </div>`;
 }
 
@@ -2556,7 +2688,7 @@ function renderChallenges() {
       <div class="section-label" style="margin:0">Active Challenges</div>
       <button class="pill-btn" data-open-builder>+ New</button>
     </div>
-    ${active.length ? active.map(c=>renderChallengeCard(c)).join("") : `<div class="empty-state">No active challenges. <button class="link-btn" data-open-builder>Start one</button></div>`}
+    ${active.length ? active.map(c=>renderChallengeCard(c)).join("") : `<div class="empty-state">No challenge running. <button class="link-btn" data-open-builder>Ready to start something?</button></div>`}
     ${paused.length ? `<div class="section-label">⏸ Paused</div>${paused.map(c=>renderChallengeCard(c)).join("")}` : ""}
     ${past.length   ? `<div class="section-label">Past Challenges</div>${past.map(c=>renderChallengeCard(c)).join("")}` : ""}
   </main>`;
@@ -3017,13 +3149,13 @@ function renderBuilderCustomize() {
       <span class="mode-desc" style="margin:0">Zero — no rest days on this challenge.</span>
     </div>` : `
     <div class="joker-budget-row" style="margin-bottom:14px">
-      <div class="field-label">Rest Days (your budget)</div>
+      <div class="field-label">Rest Days allowed</div>
       <div class="joker-stepper">
         <button class="joker-step-btn" data-joker-adj="-1">−</button>
         <span class="joker-step-val" id="joker-val">${builderForm.jokerBudget}</span>
         <button class="joker-step-btn" data-joker-adj="1">+</button>
       </div>
-      <p class="mode-desc" style="margin:4px 0 0">${builderForm.jokerBudget === 0 ? "Zero compromise — no rest days." : `${builderForm.jokerBudget} planned day${builderForm.jokerBudget===1?"":"s"} off. Use them wisely.`}</p>
+      <p class="mode-desc" style="margin:4px 0 0">${builderForm.jokerBudget === 0 ? "Zero compromise — no rest days." : `${builderForm.jokerBudget} day${builderForm.jokerBudget===1?"":"s"} you can skip without breaking your streak.`}</p>
     </div>`}
     <label class="field" style="margin-bottom:16px">
       Weekly point goal
@@ -3064,7 +3196,12 @@ function renderBuilderCustomize() {
         </div>
       </div>`}
     `}
-    <button class="primary-button" style="margin-top:20px" data-start-challenge>
+    <div class="pts-explainer">
+      <div class="pts-explainer-title">⭐ How points work</div>
+      <div class="pts-explainer-body">Check off habits to earn points. Boss Days give 1.5×. Hit your weekly goal to earn badges. Points reset every Monday — your streak doesn't.</div>
+    </div>
+    <div class="builder-reminder-hint">💡 <strong>Set a daily reminder</strong> after you start — users who do are far more likely to finish. Find it in <em>More → Notifications</em>.</div>
+    <button class="primary-button" style="margin-top:16px" data-start-challenge>
       Start Challenge 🚀
     </button>
     <button class="secondary-button" style="margin-top:8px" data-builder-back>← Back</button>
@@ -3274,10 +3411,9 @@ function renderBadgeCat(label, defs, earned, templateId) {
 // ── Onboarding ────────────────────────────────────────────────────────────
 
 const ONBOARDING_STEPS = [
-  { emoji:"🏆", title:"Welcome to Conqur", body:"Build habits. Win challenges. Earn badges. This is your mission control.", tab:null },
-  { emoji:"📅", title:"Today Tab",         body:"Your daily dashboard. Log habits, track your ring, and see your streak.", tab:"today" },
-  { emoji:"⚡", title:"Challenges",         body:"Pick a template or build your own. Run multiple challenges at once.", tab:"challenges" },
-  { emoji:"📊", title:"Body & Badges",      body:"Track weight, measurements, and unlock badges as you hit milestones.", tab:"body" },
+  { emoji:"🏆", title:"Pick a challenge",  body:"Choose from 21 challenges — from Daily Journaling to the Pacific Crest Trail. Each one comes with daily habits to check off.", tab:null },
+  { emoji:"⭐", title:"Earn points daily",  body:"Every habit you check earns points. Boss Days give 1.5×. Hit your weekly goal to unlock badges. Points reset Monday — your streak doesn't.", tab:null },
+  { emoji:"🔥", title:"Come back tomorrow", body:"Your streak grows every day you log. Miss a day? Soft mode gives you grace. Rest days are built in. One day at a time.", tab:null },
 ];
 
 function renderOnboarding() {
@@ -3452,7 +3588,20 @@ function updateRingVisuals() {
 function bindEvents() {
   on("[data-tab]",          el => { activeTab=el.dataset.tab; builderOpen=false; settingsOpen=false; viewChallengeId=null; editChallengeId=null; editForm=null; sheetOpen=false; bodyHistoryLimit=5; viewingDate=null; render(); });
   on("[data-mode]",         el => setMode(el.dataset.mode));
-  on("[data-habit]",        el => toggleHabit(el.dataset.habit));
+  on("[data-habit]",        el => {
+    const habitId = el.dataset.habit;
+    const rect = el.getBoundingClientRect();
+    toggleHabit(habitId);
+    // Show +pts animation if habit was just checked on (not off)
+    const c = currentChallenge();
+    const day = c && getChallengeDay(c, effectiveDate());
+    if (day?.done.includes(habitId)) {
+      const habit = c.habits.find(h => h.id === habitId);
+      const pts   = habit?.points ?? 0;
+      const mult  = day.mode === "boss" ? 1.5 : 1;
+      if (pts > 0) showPtsAnim(Math.round(pts * mult), rect);
+    }
+  });
   on("[data-tier]",         el => selectTier(el.dataset.tier, el.dataset.tierVal));
   on("[data-chart]",        el => { activeChartTab=el.dataset.chart; render(); });
   on("[data-today-challenge]", el => { todayChallengeId=el.dataset.todayChallenge; render(); });
@@ -3557,7 +3706,13 @@ function bindEvents() {
     showToast("✅ Account created! Data syncing to cloud.");
     render();
   });
-  on("[data-cloud-signout]", () => { CloudSync.signOut(); _cloudAuthError = ""; render(); });
+  on("[data-cloud-signout]",   () => { CloudSync.signOut(); _cloudAuthError = ""; render(); });
+  on("[data-dismiss-newweek]", () => { _newWeekBanner = null; render(); });
+  on("[data-install-accept]",  async () => {
+    _showInstallBanner = false; render();
+    if (_pwaInstallPrompt) { _pwaInstallPrompt.prompt(); await _pwaInstallPrompt.userChoice; _pwaInstallPrompt = null; }
+  });
+  on("[data-install-dismiss]", () => { _showInstallBanner = false; localStorage.setItem("conqur_install_shown","1"); render(); });
   on("[data-cloud-sync]", async () => {
     if (_cloudAuthLoading) return;
     _cloudAuthLoading = true; render();
@@ -3814,7 +3969,9 @@ function toggleHabit(id) {
   else { day.done.push(id); _animHabitId = id; }
   updateDayPoints(c, day);
   saveState(); navigator.vibrate?.(10);
-  checkBadges(c); render();
+  checkBadges(c);
+  checkMilestones(c);
+  render();
 }
 
 function logDistance(habitId, km) {
@@ -4324,6 +4481,10 @@ if (!state.migrations["badgeSystemV2"]) {
 if (!Object.keys(state.challenges).length && !state.migrations["cruiseModeImport_v1"]) {
   onboardingStep = 0;
 }
+// Monday new-week ceremony
+checkNewWeekCeremony();
+// PWA install prompt capture
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); _pwaInstallPrompt = e; });
 saveState();
 scheduleReminder();
 setDynamicIcon();
