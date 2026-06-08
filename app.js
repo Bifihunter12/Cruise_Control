@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.08.10";
+const APP_VERSION = "2026.06.08.11";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -72,8 +72,8 @@ const TEMPLATES = [
       { id:"yoga",      title:"Morning yoga",              emoji:"🧘", quip:"Sets the tone for everything after.",           type:"binary", minimum_day:true,  boss_only:false, points:2 },
       { id:"gratitude", title:"Gratitude",                 emoji:"🙏", quip:"Three things. Two minutes. Changes everything.", type:"binary", minimum_day:true,  boss_only:false, points:2 },
       { id:"weighin",   title:"Daily weigh-in",            emoji:"⚖️", quip:"Data beats guessing every time.",               type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"steps",     title:"Steps",                     emoji:"👟", quip:"10k min · 12k standard · 15k boss.",            type:"tiered", minimum_day:true,  boss_only:false, points:2,
-        tiers:[{value:10,label:"10k",points:2},{value:12,label:"12k",points:3},{value:15,label:"15k",points:4}] },
+      { id:"steps",     title:"Steps",                     emoji:"👟", quip:"8k min · 10k standard · 15k boss.",             type:"tiered", minimum_day:true,  boss_only:false, points:2,
+        tiers:[{value:8,label:"8k",points:2},{value:10,label:"10k",points:3},{value:15,label:"15k",points:4}] },
       { id:"protein",   title:"Protein at every meal",     emoji:"🥩", quip:"Protein keeps the muscle, drops the fat.",      type:"binary", minimum_day:true,  boss_only:false, points:2 },
       { id:"water",     title:"Drink 3L water",            emoji:"💧", quip:"Most hunger is just thirst.",                   type:"binary", minimum_day:true,  boss_only:false, points:2 },
       { id:"noalcohol", title:"No alcohol or liquid cals", emoji:"🚫", quip:"Empty calories in every form. Skip them.",      type:"binary", minimum_day:true,  boss_only:false, points:2 },
