@@ -1963,25 +1963,114 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   background: #fff;
 }
 
-/* ── Onboarding Tour ────────────────────────────────────────────────────── */
+/* ── Onboarding — full-screen landing experience ────────────────────────── */
 
-.ob-backdrop { z-index: 200; }
+.ob-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 28px 40px;
+  overflow-y: auto;
+  animation: ob-fade-in 0.35s ease;
+}
 
-.ob-card {
+@keyframes ob-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Hero screen ── */
+
+.ob-hero-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
   text-align: center;
-  padding: 32px 24px 28px;
+}
+
+.ob-hero-icon {
+  font-size: 56px;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.ob-hero-logo {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+}
+
+.ob-hero-tagline {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.ob-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 36px;
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ob-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--text-dim);
+  text-align: left;
+}
+
+.ob-feature-icon {
+  font-size: 22px;
+  width: 30px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* ── Info slides ── */
+
+.ob-screen--slide {
+  justify-content: space-between;
+  padding-top: 80px;
+  padding-bottom: 44px;
+}
+
+.ob-slide-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
 }
 
 .ob-emoji {
-  font-size: 48px;
+  font-size: 56px;
   line-height: 1;
-  margin-bottom: 14px;
+  margin-bottom: 20px;
 }
 
 .ob-title {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 900;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   background: var(--gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1989,31 +2078,114 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .ob-body {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 300;
   color: var(--text-dim);
-  line-height: 1.6;
-  margin-bottom: 16px;
+  line-height: 1.65;
+  max-width: 320px;
 }
 
 .ob-dots {
   display: flex;
   justify-content: center;
-  gap: 6px;
+  gap: 7px;
+  margin: 24px 0;
 }
 
 .ob-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--surface-3);
   border: 1px solid var(--border);
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.2s;
 }
 
 .ob-dot.active {
   background: var(--primary);
   border-color: var(--primary);
+  transform: scale(1.3);
+}
+
+/* ── Account screen ── */
+
+.ob-screen--account {
+  justify-content: flex-start;
+  padding-top: 64px;
+  gap: 0;
+}
+
+.ob-screen--account .ob-slide-inner {
+  margin-bottom: 20px;
+}
+
+.ob-screen--account .ob-emoji {
+  font-size: 44px;
+  margin-bottom: 14px;
+}
+
+.ob-form {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 8px;
+}
+
+.ob-field {
+  margin-bottom: 12px;
+}
+
+.ob-pw-hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-dim);
+}
+
+.ob-auth-error {
+  background: rgba(255,70,70,0.12);
+  border: 1px solid rgba(255,70,70,0.3);
+  color: #ff7070;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  text-align: center;
+  width: 100%;
+  max-width: 340px;
+}
+
+.ob-loading {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+/* ── Shared CTA & links ── */
+
+.ob-cta {
+  width: 100%;
+  max-width: 340px;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.ob-link {
+  font-size: 13px;
+  color: var(--text-dim);
+  padding: 10px 0;
+  text-decoration: none;
+}
+
+.ob-link--faint {
+  color: var(--text-faint);
+  font-size: 12px;
+  padding-top: 4px;
 }
 
 /* ── Template Categories ────────────────────────────────────────────────── */

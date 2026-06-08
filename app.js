@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.08.9";
+const APP_VERSION = "2026.06.08.10";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -834,8 +834,11 @@ let settingsOpen = false;
 let justCompletedId  = null;   // challenge shown in completion modal right now
 let justCompletedIds = [];     // queue of IDs waiting to be shown after the current one
 let _confirmDialog   = null;   // { msg, onConfirm } — replaces window.confirm()
-let _cloudAuthError   = "";    // error message for cloud auth form
-let _cloudAuthLoading = false; // loading spinner for cloud auth
+let _cloudAuthError   = "";    // error message for cloud auth form (settings)
+let _cloudAuthLoading = false; // loading spinner for cloud auth (settings)
+let _obAuthError      = "";    // error message for onboarding account screen
+let _obAuthLoading    = false; // loading spinner for onboarding account screen
+let _obAuthMode       = "signup"; // "signup" | "signin" on the account screen
 let _cloudPushTimer   = null;  // debounce timer for cloud push
 let _skipCloudPush    = false; // prevent redundant push after pull
 let reminderTimeout = null;
@@ -1735,9 +1738,15 @@ function render() {
     if (_nc) { const _nd = getChallengeDay(_nc, effectiveDate()); if (_nd.note !== _noteEl.value) { _nd.note = _noteEl.value; saveState(); } }
   }
   const app = document.getElementById("app");
+  // Full-screen onboarding — render only the onboarding screen
+  if (onboardingStep !== null) {
+    app.innerHTML = renderOnboarding();
+    if (!_eventsBound) { bindEvents(); _eventsBound = true; }
+    return;
+  }
   // Scroll to top when the primary view changes (not for modals/sheet)
   const viewKey = `${activeTab}|${builderOpen}|${settingsOpen}|${viewChallengeId}|${editChallengeId}`;
-  if (viewKey !== _lastViewKey && !justCompletedId && onboardingStep === null) {
+  if (viewKey !== _lastViewKey && !justCompletedId) {
     window.scrollTo(0, 0);
     _lastViewKey = viewKey;
   }
@@ -1762,7 +1771,6 @@ function render() {
     const _cc = getChallenge(justCompletedId);
     if (_cc) html += renderCompletionModal(_cc);
   }
-  if (onboardingStep !== null) html += renderOnboarding();
   html += renderConfirmModal();
   if (_showInstallBanner && _pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
     html += `
@@ -3411,28 +3419,85 @@ function renderBadgeCat(label, defs, earned, templateId) {
 // ── Onboarding ────────────────────────────────────────────────────────────
 
 const ONBOARDING_STEPS = [
-  { emoji:"🏆", title:"Pick a challenge",  body:"Choose from 21 challenges — from Daily Journaling to the Pacific Crest Trail. Each one comes with daily habits to check off.", tab:null },
-  { emoji:"⭐", title:"Earn points daily",  body:"Every habit you check earns points. Boss Days give 1.5×. Hit your weekly goal to unlock badges. Points reset Monday — your streak doesn't.", tab:null },
-  { emoji:"🔥", title:"Come back tomorrow", body:"Your streak grows every day you log. Miss a day? Soft mode gives you grace. Rest days are built in. One day at a time.", tab:null },
+  { emoji:"🎯", title:"Pick a challenge",  body:"Choose from 28 challenges — from Daily Journaling to the Pacific Crest Trail. Each one comes with daily habits to check off." },
+  { emoji:"⭐", title:"Earn points daily",  body:"Every habit you check earns points. Boss Days give 1.5×. Hit your weekly goal to unlock badges. Points reset Monday — your streak doesn't." },
+  { emoji:"🔥", title:"Come back tomorrow", body:"Your streak grows every day you log. Miss a day? Soft mode gives you grace. Rest days are built in. One day at a time." },
 ];
+// onboardingStep: 0 = hero, 1-3 = info slides, 4 = account screen
 
-function renderOnboarding() {
-  if (onboardingStep === null || onboardingStep >= ONBOARDING_STEPS.length) return "";
-  const step = ONBOARDING_STEPS[onboardingStep];
-  const isLast = onboardingStep === ONBOARDING_STEPS.length - 1;
-  const dots = ONBOARDING_STEPS.map((_,i) =>
-    `<span class="ob-dot ${i===onboardingStep?"active":""}"></span>`).join("");
+function renderObHero() {
   return `
-  <div class="sheet-backdrop ob-backdrop">
-    <section class="sheet ob-card" role="dialog">
-      <div class="ob-emoji">${step.emoji}</div>
+  <div class="ob-screen" role="main">
+    <div class="ob-hero-top">
+      <div class="ob-hero-icon" aria-hidden="true">🏆</div>
+      <div class="ob-hero-logo">CONQUR</div>
+      <div class="ob-hero-tagline">Build the habits.<br>Win the challenge.</div>
+    </div>
+    <ul class="ob-features" aria-label="App features">
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">🎯</span><span>28 challenges — from journaling to epic trails</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">⭐</span><span>Daily points, streaks &amp; badges</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">🔥</span><span>Boss Days, rest days &amp; soft mode</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">📴</span><span>Works offline — no account required</span></li>
+    </ul>
+    <button class="primary-button ob-cta" data-ob-next>Let's go →</button>
+    <button class="link-btn ob-link" data-ob-to-signin>Already have an account? Sign in</button>
+  </div>`;
+}
+
+function renderObSlide() {
+  const step = ONBOARDING_STEPS[onboardingStep - 1];
+  const dots = ONBOARDING_STEPS.map((_,i) =>
+    `<span class="ob-dot ${i === onboardingStep - 1 ? "active" : ""}"></span>`).join("");
+  return `
+  <div class="ob-screen ob-screen--slide" role="main">
+    <div class="ob-slide-inner">
+      <div class="ob-emoji" aria-hidden="true">${step.emoji}</div>
       <div class="ob-title">${step.title}</div>
       <div class="ob-body">${step.body}</div>
-      <div class="ob-dots">${dots}</div>
-      <button class="primary-button" data-ob-next style="margin-top:16px">${isLast?"Pick your first challenge →":"Next →"}</button>
-      <button class="link-btn" data-ob-skip style="margin-top:8px;display:block;text-align:center">Skip tour</button>
-    </section>
+    </div>
+    <div class="ob-dots" aria-hidden="true">${dots}</div>
+    <button class="primary-button ob-cta" data-ob-next>Next →</button>
+    <button class="link-btn ob-link" data-ob-skip>Skip to account setup</button>
   </div>`;
+}
+
+function renderObAccount() {
+  const isSignin = _obAuthMode === "signin";
+  return `
+  <div class="ob-screen ob-screen--account" role="main">
+    <div class="ob-slide-inner">
+      <div class="ob-emoji" aria-hidden="true">☁️</div>
+      <div class="ob-title">${isSignin ? "Welcome back" : "Save your progress"}</div>
+      <div class="ob-body">${isSignin
+        ? "Sign in to restore your challenges, streaks and badges."
+        : "Create a free account so your data survives a reinstall or new phone."}</div>
+    </div>
+    ${_obAuthError ? `<div class="ob-auth-error">${esc(_obAuthError)}</div>` : ""}
+    ${_obAuthLoading
+      ? `<div class="ob-loading">One moment…</div>`
+      : `<div class="ob-form">
+          <label class="field ob-field">
+            Email
+            <input id="ob-email" type="email" placeholder="your@email.com" autocomplete="email" inputmode="email">
+          </label>
+          <label class="field ob-field">
+            Password${!isSignin ? ` <span class="ob-pw-hint">(min 8 characters)</span>` : ""}
+            <input id="ob-password" type="password" placeholder="••••••••" autocomplete="${isSignin ? "current-password" : "new-password"}">
+          </label>
+          <button class="primary-button ob-cta" data-ob-auth>${isSignin ? "Sign In" : "Create Account"}</button>
+        </div>`}
+    <button class="link-btn ob-link" data-ob-toggle-auth>
+      ${isSignin ? "No account yet? Create one" : "Already have an account? Sign in"}
+    </button>
+    <button class="link-btn ob-link ob-link--faint" data-ob-skip-account>Skip — use offline</button>
+  </div>`;
+}
+
+function renderOnboarding() {
+  if (onboardingStep === null) return "";
+  if (onboardingStep === 0) return renderObHero();
+  if (onboardingStep <= ONBOARDING_STEPS.length) return renderObSlide();
+  return renderObAccount();
 }
 
 function renderDataSettings() {
@@ -3820,12 +3885,45 @@ function bindEvents() {
     };
     reader.readAsText(file);
   });
-  on("[data-ob-next]",         () => {
+  // ── Onboarding navigation ──────────────────────────────────────────────────
+  on("[data-ob-next]", () => {
     onboardingStep++;
-    const step = ONBOARDING_STEPS[onboardingStep];
-    if (step?.tab) activeTab = step.tab;
-    if (onboardingStep >= ONBOARDING_STEPS.length) {
-      onboardingStep = null;
+    // After last info slide (step 3 → 4) we show the account screen naturally
+    render();
+  });
+  on("[data-ob-skip]", () => {
+    // Skip info slides → jump straight to account screen
+    onboardingStep = ONBOARDING_STEPS.length + 1;
+    _obAuthError = "";
+    render();
+  });
+  on("[data-ob-to-signin]", () => {
+    _obAuthMode = "signin";
+    onboardingStep = ONBOARDING_STEPS.length + 1;
+    _obAuthError = "";
+    render();
+  });
+  on("[data-ob-toggle-auth]", () => {
+    _obAuthMode = _obAuthMode === "signup" ? "signin" : "signup";
+    _obAuthError = "";
+    render();
+  });
+  on("[data-ob-auth]", async () => {
+    const email    = document.getElementById("ob-email")?.value?.trim() || "";
+    const password = document.getElementById("ob-password")?.value || "";
+    if (!email || !password) { _obAuthError = "Email and password are required."; render(); return; }
+    if (_obAuthMode === "signup" && password.length < 8) { _obAuthError = "Password must be at least 8 characters."; render(); return; }
+    _obAuthLoading = true; _obAuthError = ""; render();
+    const res = _obAuthMode === "signup"
+      ? await CloudSync.signUp(email, password)
+      : await CloudSync.signIn(email, password);
+    _obAuthLoading = false;
+    if (res.error) { _obAuthError = res.error; render(); return; }
+    // Success — go to challenge picker (signup) or today tab (signin with existing data)
+    onboardingStep = null;
+    if (_obAuthMode === "signin" && Object.keys(state.challenges).length > 0) {
+      activeTab = "today";
+    } else {
       activeTab = "challenges";
       builderOpen = true;
       builderStep = "template";
@@ -3833,7 +3931,14 @@ function bindEvents() {
     }
     render();
   });
-  on("[data-ob-skip]",         () => { onboardingStep = null; activeTab = "today"; render(); });
+  on("[data-ob-skip-account]", () => {
+    onboardingStep = null;
+    activeTab = "challenges";
+    builderOpen = true;
+    builderStep = "template";
+    builderForm = defaultBuilderForm();
+    render();
+  });
   on("[data-confirm-ok]",      () => { const fn = _confirmDialog?.onConfirm; _confirmDialog = null; render(); if (fn) fn(); });
   on("[data-confirm-cancel]",  () => { _confirmDialog = null; render(); });
   on("[data-delete-photo]",    el => {
