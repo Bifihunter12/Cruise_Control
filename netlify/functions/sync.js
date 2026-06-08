@@ -36,7 +36,7 @@ exports.handler = async (event) => {
   const user = verifyToken(event.headers.authorization || event.headers.Authorization || "");
   if (!user) return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: "Unauthorized" }) };
 
-  const store = getStore({ name: "conqur-state", consistency: "strong" });
+  const store = getStore("conqur-state");
   const key   = `state-${user.uid}`;
 
   if (event.httpMethod === "GET") {

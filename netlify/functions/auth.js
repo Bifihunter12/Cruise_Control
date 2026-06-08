@@ -46,17 +46,32 @@ exports.handler = async (event) => {
       return err(400, "Password must be at least 8 characters");
     }
     const pwHash = crypto.createHash("sha256").update(uid + ":" + password).digest("hex");
-    const store  = getStore({ name: "conqur-users", consistency: "strong" });
+
+    let store;
+    try {
+      store = getStore("conqur-users");
+    } catch(e) {
+      console.error("getStore failed:", e);
+      return err(500, "Storage unavailable — try again in a moment.");
+    }
 
     if (action === "signup") {
-      const existing = await store.get(uid, { type: "text" }).catch(() => null);
-      if (existing) return err(409, "Email already registered — sign in instead.");
-      await store.set(uid, JSON.stringify({ email: cleanEmail, pwHash, createdAt: Date.now() }));
+      try {
+        const existing = await store.get(uid, { type: "text" });
+        if (existing) return err(409, "Email already registered — sign in instead.");
+      } catch(e) { /* not found = null, that's fine */ }
+      try {
+        await store.set(uid, JSON.stringify({ email: cleanEmail, pwHash, createdAt: Date.now() }));
+      } catch(e) {
+        console.error("store.set failed:", e);
+        return err(500, "Could not save account — try again.");
+      }
       return ok({ token: makeToken(uid, cleanEmail), uid, email: cleanEmail });
     }
 
     if (action === "signin") {
-      const raw = await store.get(uid, { type: "text" }).catch(() => null);
+      let raw = null;
+      try { raw = await store.get(uid, { type: "text" }); } catch(e) { raw = null; }
       if (!raw) return err(401, "Invalid email or password");
       const user = JSON.parse(raw);
       if (user.pwHash !== pwHash) return err(401, "Invalid email or password");
