@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.08.6";
+const APP_VERSION = "2026.06.08.7";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -14,6 +14,14 @@ const TIERS = {
   epic:      { label:"Epic",      color:"#c070ff" }, // WoW purple
   legendary: { label:"Legendary", color:"#ff8c00" }, // WoW orange/gold
 };
+
+// Returns an inline tag for epic/legendary challenges, empty string otherwise
+function tierTag(templateId) {
+  const tier = templateId ? TEMPLATE_TIERS[templateId] : null;
+  if (tier !== "epic" && tier !== "legendary") return "";
+  const td = TIERS[tier];
+  return `<span class="tier-tag" style="color:${td.color}">${td.label}</span>`;
+}
 
 // Challenge template → tier
 const TEMPLATE_TIERS = {
@@ -2284,7 +2292,7 @@ function renderWeeklyGoalBar(challenge) {
       <span class="wgb-pct">${pct}%</span>
     </div>
     <div class="wgb-track"><div class="wgb-fill ${hit?"wgb-done":""}" style="width:${pct}%"></div></div>
-    ${hit ? "" : `<div style="font-size:11px;color:var(--text-faint);margin-top:4px">Hit the goal to unlock week badges 🏅</div>`}
+    ${hit ? "" : `<div style="font-size:11px;color:var(--text-dim);margin-top:4px">Hit the goal to unlock week badges 🏅</div>`}
   </div>`;
 }
 
@@ -2583,7 +2591,7 @@ function renderChallengeCard(c) {
     <div class="cc-top">
       <div class="cc-emoji">${esc(c.emoji)}</div>
       <div class="cc-info">
-        <div class="cc-name"${tierData?` style="color:${tierData.color}"`:""}>${esc(c.name)}</div>
+        <div class="cc-name"${tierData?` style="color:${tierData.color}"`:""}>${esc(c.name)}${tierTag(c.templateId)}</div>
         <div class="cc-meta">${isExpedition && tpl?.routeKm
           ? `${Math.round(totalKmVal * factor * 10)/10} / ${Math.round(tpl.routeKm * factor).toLocaleString()} ${dUnit} · Day ${dayNumber}`
           : `${totalDays}d · ${c.mode} · Day ${dayNumber}`}</div>
@@ -2638,7 +2646,7 @@ function renderChallengeDetail(c) {
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       </button>
       <div>
-        <div style="font-size:18px;font-weight:700">${esc(c.emoji)} ${(()=>{ const t=c.templateId?TEMPLATE_TIERS[c.templateId]:null; const td=t?TIERS[t]:null; return td?`<span style="color:${td.color}">${esc(c.name)}</span>`:esc(c.name); })()}</div>
+        <div style="font-size:18px;font-weight:700">${esc(c.emoji)} ${(()=>{ const t=c.templateId?TEMPLATE_TIERS[c.templateId]:null; const td=t?TIERS[t]:null; return td?`<span style="color:${td.color}">${esc(c.name)}</span>${tierTag(c.templateId)}`:esc(c.name); })()}</div>
         <div style="font-size:12px;color:var(--text-dim)">${c.startDate} → ${c.endDate}</div>
       </div>
     </div>
@@ -2956,7 +2964,7 @@ function renderBuilderTemplates() {
     return `
     <button class="template-card${isExpedition?" tc-cat expedition":""}" data-select-template="${t.id}">
       <div class="tc-emoji">${t.emoji}</div>
-      <div class="tc-name" style="color:${tierData.color}">${t.name}</div>
+      <div class="tc-name" style="color:${tierData.color}">${t.name}${tierTag(t.id)}</div>
       <div class="tc-meta">${meta}</div>
       <div class="tc-desc">${t.description}</div>
     </button>`;

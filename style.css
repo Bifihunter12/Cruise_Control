@@ -137,7 +137,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   margin-top: 2px;
   font-size: 12px;
   font-weight: 300;
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 
 .journey-track {
@@ -2876,8 +2876,11 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   width: 72px; background: var(--surface-3); border: 1.5px solid var(--border);
   border-radius: 8px; color: var(--text); font-size: 16px; font-weight: 600;
   padding: 6px 8px; text-align: right;
+  -moz-appearance: textfield;
 }
 .distance-input:focus { border-color: var(--accent); outline: none; }
+.distance-input::-webkit-outer-spin-button,
+.distance-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .distance-unit { font-size: 13px; color: var(--text-dim); font-weight: 500; }
 .distance-activity-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
 .dist-pill {
@@ -3005,6 +3008,16 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .badge-tier-dot {
   width: 7px; height: 7px; border-radius: 50%;
   display: block; margin: 0 auto 4px;
+}
+
+/* ── Epic / Legendary tier tag ── */
+.tier-tag {
+  display: inline-block;
+  font-size: 9px; font-weight: 800;
+  letter-spacing: 0.09em; text-transform: uppercase;
+  margin-left: 6px; vertical-align: middle;
+  padding: 1px 5px; border-radius: 3px;
+  background: rgba(255,255,255,0.07);
 }
 
 /* ── Distance unit selector ── */
