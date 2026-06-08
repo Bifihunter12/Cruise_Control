@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.08.13";
+const APP_VERSION = "2026.06.08.14";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -846,6 +846,15 @@ let _pwaInstallPrompt = null;  // beforeinstallprompt event (PWA install)
 let _showInstallBanner = false; // show the PWA install nudge
 let _newWeekBanner = null;     // { pts } — Monday new-week ceremony, null when dismissed
 
+// ── Analytics helper (Plausible — graceful no-op if script not loaded) ───────
+function trackEvent(name, props) {
+  try {
+    if (typeof window.plausible === "function") {
+      window.plausible(name, props ? { props } : undefined);
+    }
+  } catch(e) { /* silent */ }
+}
+
 // ── Cloud Sync (Netlify Functions + Blobs) ─────────────────────────────────
 const CloudSync = {
   get token()    { return localStorage.getItem("conqur_token")  || null; },
@@ -1471,6 +1480,7 @@ function checkBadges(challenge) {
         challenge.status = "completed";
         if (!justCompletedId) justCompletedId = challenge.id;
         else justCompletedIds.push(challenge.id);
+        trackEvent("Challenge Completed", { challenge: challenge.name, days: challenge.duration });
       }
     }
   });
@@ -3781,7 +3791,12 @@ function bindEvents() {
   on("[data-dismiss-newweek]", () => { _newWeekBanner = null; render(); });
   on("[data-install-accept]",  async () => {
     _showInstallBanner = false; render();
-    if (_pwaInstallPrompt) { _pwaInstallPrompt.prompt(); await _pwaInstallPrompt.userChoice; _pwaInstallPrompt = null; }
+    if (_pwaInstallPrompt) {
+      _pwaInstallPrompt.prompt();
+      const choice = await _pwaInstallPrompt.userChoice;
+      if (choice?.outcome === "accepted") trackEvent("App Installed");
+      _pwaInstallPrompt = null;
+    }
   });
   on("[data-install-dismiss]", () => { _showInstallBanner = false; localStorage.setItem("conqur_install_shown","1"); render(); });
   on("[data-cloud-sync]", async () => {
@@ -3925,6 +3940,7 @@ function bindEvents() {
       : await CloudSync.signIn(email, password);
     _obAuthLoading = false;
     if (res.error) { _obAuthError = res.error; render(); return; }
+    trackEvent(_obAuthMode === "signup" ? "Account Created" : "Sign In");
     // Success — go to challenge picker (signup) or today tab (signin with existing data)
     onboardingStep = null;
     if (_obAuthMode === "signin" && Object.keys(state.challenges).length > 0) {
@@ -4236,6 +4252,7 @@ function startChallenge() {
   builderOpen = false;
   activeTab = "today";
   showToast(`${c.emoji} ${c.name} started!`);
+  trackEvent("Challenge Started", { challenge: c.name, template: builderForm.templateId || "custom" });
   render();
 }
 
