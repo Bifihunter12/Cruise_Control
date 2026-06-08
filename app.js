@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.08.11";
+const APP_VERSION = "2026.06.08.12";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -2013,7 +2013,7 @@ function renderNoChallenge() {
     ${isFirstTime ? `
     <p class="welcome-desc">Build any habit in 21–86 days. Log daily, earn streaks and badges, and watch yourself change.</p>
     <div class="welcome-features">
-      <div class="wf-item"><span class="wf-icon">🏆</span><span class="wf-text">21 challenges — 75 Hard, Cold Exposure, Morning Routine, Fasting and more</span></div>
+      <div class="wf-item"><span class="wf-icon">🏆</span><span class="wf-text">28 challenges — 75 Hard, Cold Exposure, Morning Routine, Pacific Crest Trail and more</span></div>
       <div class="wf-item"><span class="wf-icon">👑</span><span class="wf-text">Boss Days, Rest Days, Minimum Days — built for real life, not perfection</span></div>
       <div class="wf-item"><span class="wf-icon">🔥</span><span class="wf-text">Streaks, badges, streak freezes, and weekly recaps that keep you honest</span></div>
       <div class="wf-item"><span class="wf-icon">📵</span><span class="wf-text">Works offline. No ads. Your data stays on your device.</span></div>
