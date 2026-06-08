@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.07.4";
+const APP_VERSION = "2026.06.07.7";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -195,6 +195,79 @@ const TEMPLATES = [
       { id:"sl-perfect", title:"All habits, flawless",      emoji:"⭐", quip:"Boss Day: perfect sleep hygiene.",     type:"binary", minimum_day:false, boss_only:true,  points:4 },
     ]
   },
+  {
+    id: "no-sugar", name: "No Sugar", emoji: "🚫🍬", category: "lifestyle",
+    description: "30 days without added sugar. Clearer skin, better energy, no crashes.",
+    duration: 30, weeklyGoal: 75, defaultMode: "strict",
+    habits: [
+      { id:"ns-nosugar",  title:"Zero added sugar today",    emoji:"🚫", quip:"Read the label. It's in everything.",   type:"binary", minimum_day:true,  boss_only:false, points:5 },
+      { id:"ns-water",    title:"Drink 2L water",            emoji:"💧", quip:"Cravings are often just dehydration.",  type:"binary", minimum_day:true,  boss_only:false, points:2 },
+      { id:"ns-fruit",    title:"Eat whole fruit (no juice)",emoji:"🍎", quip:"Fibre intact. Spike avoided.",          type:"binary", minimum_day:false, boss_only:false, points:1 },
+      { id:"ns-label",    title:"Read every food label",     emoji:"🔍", quip:"Knowledge is the weapon.",             type:"binary", minimum_day:false, boss_only:false, points:1 },
+      { id:"ns-nocheat",  title:"No sugar AND no sweeteners",emoji:"💎", quip:"Boss Day: pure. No substitutes.",       type:"binary", minimum_day:false, boss_only:true,  points:5 },
+    ]
+  },
+  {
+    id: "morning-routine", name: "Morning Routine", emoji: "🌅", category: "lifestyle",
+    description: "30 days of owning the first hour. Win the morning, win the day.",
+    duration: 30, weeklyGoal: 80, defaultMode: "soft",
+    habits: [
+      { id:"mr-wake",     title:"Wake up on time — no snooze",emoji:"⏰", quip:"First decision of the day. Make it right.", type:"binary", minimum_day:true,  boss_only:false, points:3 },
+      { id:"mr-move",     title:"Move your body (10 min)",    emoji:"🏃", quip:"Anything counts. Don't overthink it.",  type:"binary", minimum_day:true,  boss_only:false, points:3 },
+      { id:"mr-nophone",  title:"No phone for first 30 min",  emoji:"📵", quip:"Protect your mind before the world gets in.", type:"binary", minimum_day:true, boss_only:false, points:2 },
+      { id:"mr-hydrate",  title:"Drink water before coffee",  emoji:"💧", quip:"You wake up dehydrated every time.",   type:"binary", minimum_day:false, boss_only:false, points:1 },
+      { id:"mr-journal",  title:"Write 3 priorities for today",emoji:"📓",quip:"Clear mind. Clear direction.",          type:"binary", minimum_day:false, boss_only:false, points:2 },
+      { id:"mr-cold",     title:"Cold shower",                emoji:"🧊", quip:"Boss Day: go cold. All the way.",       type:"binary", minimum_day:false, boss_only:true,  points:4 },
+    ]
+  },
+  {
+    id: "yoga-flexibility", name: "Yoga & Flexibility", emoji: "🧘‍♀️", category: "movement",
+    description: "30 days of daily yoga and stretching. Move better, recover faster, feel lighter.",
+    duration: 30, weeklyGoal: 70, defaultMode: "soft",
+    habits: [
+      { id:"yf-yoga",     title:"Yoga session (20 min+)",     emoji:"🧘", quip:"Show up to the mat. That's the whole job.", type:"binary", minimum_day:true, boss_only:false, points:4 },
+      { id:"yf-stretch",  title:"Full-body stretch (10 min)", emoji:"🦵", quip:"Tight muscles are slow muscles.",        type:"binary", minimum_day:true,  boss_only:false, points:2 },
+      { id:"yf-breathe",  title:"Breathwork (5 min)",         emoji:"💨", quip:"Breath controls everything else.",       type:"binary", minimum_day:false, boss_only:false, points:2 },
+      { id:"yf-hydrate",  title:"Hydration 2L",               emoji:"💧", quip:"Flexibility and dehydration don't mix.",  type:"binary", minimum_day:false, boss_only:false, points:1 },
+      { id:"yf-flow",     title:"45-min full flow class",     emoji:"🌊", quip:"Boss Day: commit to the full session.",   type:"binary", minimum_day:false, boss_only:true,  points:5 },
+    ]
+  },
+  {
+    id: "digital-detox", name: "Digital Detox", emoji: "📵", category: "lifestyle",
+    description: "30 days of intentional screen use. Take back your attention.",
+    duration: 30, weeklyGoal: 70, defaultMode: "soft",
+    habits: [
+      { id:"dd-limit",    title:"Max 1h social media",        emoji:"📱", quip:"Your attention is the product. Guard it.", type:"binary", minimum_day:true, boss_only:false, points:4 },
+      { id:"dd-morning",  title:"No phone first 30 min",      emoji:"🌅", quip:"Start the day on your terms.",            type:"binary", minimum_day:true,  boss_only:false, points:3 },
+      { id:"dd-nobed",    title:"No phone in bed",            emoji:"🛏️", quip:"Better sleep starts here.",               type:"binary", minimum_day:false, boss_only:false, points:2 },
+      { id:"dd-outside",  title:"Spend 30 min outside",       emoji:"🌳", quip:"Real world. Real rest.",                  type:"binary", minimum_day:false, boss_only:false, points:2 },
+      { id:"dd-full",     title:"Zero social media today",    emoji:"🏆", quip:"Boss Day: no apps. Just presence.",       type:"binary", minimum_day:false, boss_only:true,  points:5 },
+    ]
+  },
+  {
+    id: "intermittent-fasting", name: "Intermittent Fasting", emoji: "⏱️", category: "transformation",
+    description: "30 days of 16:8. Eat in an 8-hour window, fast for 16. Simple, effective.",
+    duration: 30, weeklyGoal: 80, defaultMode: "strict",
+    habits: [
+      { id:"if-fast",     title:"16-hour fast completed",     emoji:"⏱️", quip:"The window is the whole game.",          type:"binary", minimum_day:true,  boss_only:false, points:5 },
+      { id:"if-water",    title:"Drink water during fast",    emoji:"💧", quip:"Water, black coffee, and tea only.",     type:"binary", minimum_day:true,  boss_only:false, points:2 },
+      { id:"if-nosnack",  title:"No snacking outside window", emoji:"🚫", quip:"Discipline between meals matters.",      type:"binary", minimum_day:false, boss_only:false, points:2 },
+      { id:"if-protein",  title:"Protein-first meal",         emoji:"🥩", quip:"Break the fast right.",                  type:"binary", minimum_day:false, boss_only:false, points:1 },
+      { id:"if-20",       title:"20-hour fast",               emoji:"⚡", quip:"Boss Day: extend the window.",           type:"binary", minimum_day:false, boss_only:true,  points:5 },
+    ]
+  },
+  {
+    id: "core-abs", name: "Core & Abs", emoji: "🔥", category: "movement",
+    description: "30 days of daily core work. Planks, crunches, leg raises — build real strength.",
+    duration: 30, weeklyGoal: 80, defaultMode: "strict",
+    habits: [
+      { id:"ca-core",     title:"Core workout (15 min)",      emoji:"💪", quip:"15 minutes. No excuses.",                type:"binary", minimum_day:true,  boss_only:false, points:5 },
+      { id:"ca-plank",    title:"2-min plank hold",           emoji:"⏱️", quip:"The plank is honest.",                   type:"binary", minimum_day:true,  boss_only:false, points:2 },
+      { id:"ca-protein",  title:"Protein at every meal",      emoji:"🥩", quip:"Muscle needs fuel.",                     type:"binary", minimum_day:false, boss_only:false, points:2 },
+      { id:"ca-stretch",  title:"Hip flexor stretch",         emoji:"🦵", quip:"Core work tightens everything. Stretch.", type:"binary", minimum_day:false, boss_only:false, points:1 },
+      { id:"ca-beast",    title:"30-min full core blast",     emoji:"🏆", quip:"Boss Day: all out. Burn.",               type:"binary", minimum_day:false, boss_only:true,  points:5 },
+    ]
+  },
 ];
 
 // ── Badge Definitions ──────────────────────────────────────────────────────
@@ -256,6 +329,24 @@ const CHALLENGE_BADGES = [
   // Sleep
   { id:"lights-out",      label:"😴 Lights Out",         desc:"Complete your first sleep habit.",                 test: c => c.sleepHabitsLogged >= 1 },
   { id:"deep-sleeper",    label:"🌙 Deep Sleeper",       desc:"7-day sleep streak. Your body thanks you.",        test: c => c.sleepStreak >= 7 },
+  // No Sugar
+  { id:"sugar-free-day",  label:"🚫 Sugar Free",         desc:"Log your first no-sugar day.",                    test: c => c.noSugarLogged >= 1 },
+  { id:"sweet-freedom",   label:"🍎 Sweet Freedom",      desc:"7-day no-sugar streak.",                          test: c => c.noSugarStreak >= 7 },
+  // Morning Routine
+  { id:"early-bird",      label:"🌅 Early Bird",         desc:"Complete your first morning routine.",             test: c => c.morningRoutineLogged >= 1 },
+  { id:"sunrise-club",    label:"☀️ Sunrise Club",        desc:"7-day morning routine streak.",                   test: c => c.morningRoutineStreak >= 7 },
+  // Digital Detox
+  { id:"unplugged",       label:"📵 Unplugged",          desc:"Complete your first digital detox day.",           test: c => c.detoxLogged >= 1 },
+  { id:"screen-free",     label:"🌳 Screen Free",        desc:"7-day detox streak. Your brain thanks you.",      test: c => c.detoxStreak >= 7 },
+  // Intermittent Fasting
+  { id:"first-fast",      label:"⏱️ First Fast",          desc:"Complete your first 16-hour fast.",               test: c => c.fastingLogged >= 1 },
+  { id:"fat-adapted",     label:"🔥 Fat Adapted",        desc:"14-day fasting streak.",                          test: c => c.fastingStreak >= 14 },
+  // Core & Abs
+  { id:"core-activated",  label:"💪 Core Activated",    desc:"Complete your first core session.",                test: c => c.coreLogged >= 1 },
+  { id:"iron-core",       label:"🔥 Iron Core",          desc:"Log 20 core sessions.",                           test: c => c.coreLogged >= 20 },
+  // Yoga
+  { id:"first-flow",      label:"🧘 First Flow",         desc:"Complete your first yoga session.",                test: c => c.yogaLogged >= 1 },
+  { id:"flexible-mind",   label:"🌿 Flexible Mind",      desc:"7-day yoga streak.",                              test: c => c.yogaStreak >= 7 },
 ];
 
 const GLOBAL_BADGES = [
@@ -263,6 +354,65 @@ const GLOBAL_BADGES = [
   { id:"g-triple-threat",    label:"🏆 Triple Threat",    desc:"Complete 3 challenges.",                      test: g => g.completedChallenges >= 3 },
   { id:"g-multi-tasker",     label:"🔀 Multi-Tasker",     desc:"Run 2 challenges at the same time.",          test: g => g.activeChallenges >= 2 },
 ];
+
+// ── Challenge Chains (what comes next after each template) ────────────────
+const CHALLENGE_CHAINS = {
+  "30-pushups":         "strength",
+  "75-soft":            "75-hard",
+  "75-hard":            "cruise-control",
+  "reading":            "creative",
+  "meditation":         "cold-exposure",
+  "morning-routine":    "75-soft",
+  "walking":            "running",
+  "running":            "cycling",
+  "no-sugar":           "intermittent-fasting",
+  "sleep-reset":        "morning-routine",
+  "digital-detox":      "meditation",
+  "dry-month":          "no-sugar",
+  "yoga-flexibility":   "75-soft",
+  "core-abs":           "strength",
+};
+
+// ── PhotoDB — IndexedDB wrapper for progress photos ───────────────────────
+const PhotoDB = {
+  _db: null,
+  async open() {
+    if (this._db) return this._db;
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open("conqur_photos", 1);
+      req.onupgradeneeded = e => { e.target.result.createObjectStore("photos", { keyPath: "key" }); };
+      req.onsuccess = e => { this._db = e.target.result; resolve(this._db); };
+      req.onerror   = () => reject(req.error);
+    });
+  },
+  async set(key, dataURL) {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("photos", "readwrite");
+      tx.objectStore("photos").put({ key, dataURL });
+      tx.oncomplete = resolve;
+      tx.onerror    = () => reject(tx.error);
+    });
+  },
+  async get(key) {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("photos", "readonly");
+      const req = tx.objectStore("photos").get(key);
+      req.onsuccess = () => resolve(req.result?.dataURL || null);
+      req.onerror   = () => reject(req.error);
+    });
+  },
+  async list(prefix) {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("photos", "readonly");
+      const req = tx.objectStore("photos").getAll();
+      req.onsuccess = () => resolve((req.result || []).filter(r => r.key.startsWith(prefix)).sort((a,b) => a.key.localeCompare(b.key)));
+      req.onerror   = () => reject(req.error);
+    });
+  },
+};
 
 // ── State Management ───────────────────────────────────────────────────────
 
@@ -284,6 +434,9 @@ let onboardingStep = null;   // null = done, 0-3 = active step
 let bodyHistoryLimit = 5;    // how many history rows to show in Body tab
 let _lastViewKey = "";       // for scroll-to-top on navigation changes
 let _animHabitId = null;     // habit that just got checked (for pop animation)
+let viewingDate       = null;     // null = today; set to a past dateKey to backfill habits
+let challengeDetailView = "weeks"; // "weeks" | "calendar"
+let calendarViewMonth   = null;    // null = auto; or "YYYY-MM-DD" (first of month)
 
 function defaultBuilderForm() {
   return {
@@ -317,12 +470,13 @@ function saveBuilderFormFromDOM() {
 function normalizeDay(raw) {
   if (!raw || typeof raw !== "object") raw = {};
   return {
-    mode:      ["minimum","standard","boss","rest"].includes(raw.mode) ? raw.mode : "standard",
-    done:      Array.isArray(raw.done) ? raw.done : [],
-    recovered: raw.recovered === true,
-    pts:       typeof raw.pts === "number" ? raw.pts : 0,
-    tiers:     (raw.tiers && typeof raw.tiers === "object") ? raw.tiers : {},
-    note:      typeof raw.note === "string" ? raw.note : "",
+    mode:       ["minimum","standard","boss","rest"].includes(raw.mode) ? raw.mode : "standard",
+    done:       Array.isArray(raw.done) ? raw.done : [],
+    recovered:  raw.recovered  === true,
+    pts:        typeof raw.pts === "number" ? raw.pts : 0,
+    tiers:      (raw.tiers && typeof raw.tiers === "object") ? raw.tiers : {},
+    note:       typeof raw.note === "string" ? raw.note : "",
+    freezeUsed: raw.freezeUsed === true,
   };
 }
 
@@ -348,8 +502,10 @@ function normalizeChallenge(raw) {
     createdAt:   raw.createdAt || todayKey(),
     pausedOn:    raw.pausedOn    || null,
     pausedDays:  typeof raw.pausedDays === "number" ? raw.pausedDays : 0,
-    finalStreak: raw.finalStreak ?? null,
-    totalPts:    typeof raw.totalPts === "number" ? raw.totalPts : 0,
+    finalStreak:              raw.finalStreak ?? null,
+    totalPts:                 typeof raw.totalPts === "number" ? raw.totalPts : 0,
+    streakFreezes:            typeof raw.streakFreezes === "number" ? raw.streakFreezes : 0,
+    streakFreezeWeeksAwarded: Array.isArray(raw.streakFreezeWeeksAwarded) ? raw.streakFreezeWeeksAwarded : [],
   };
 }
 
@@ -494,6 +650,8 @@ function getAllChallenges() {
 
 function getChallenge(id) { return state.challenges[id] || null; }
 
+function effectiveDate() { return viewingDate || todayKey(); }
+
 function getChallengeDay(challenge, key = todayKey()) {
   if (!challenge.days[key]) {
     challenge.days[key] = { mode:"standard", done:[], recovered:false, pts:0, tiers:{} };
@@ -543,7 +701,7 @@ function updateDayPoints(challenge, day) {
 }
 
 function dayLogged(day) {
-  return day && (day.done.length > 0 || day.recovered || day.mode === "rest");
+  return day && (day.done.length > 0 || day.recovered || day.mode === "rest" || day.freezeUsed);
 }
 
 function calcChallengeStreak(challenge) {
@@ -686,6 +844,30 @@ function checkBadges(challenge) {
   const _sleepIds = challenge.habits.filter(h =>
     h.id==="sl-hours" || /\d\+.{0,8}sleep|sleep.{0,8}\d\+/i.test(h.title)
   ).map(h=>h.id);
+  // No Sugar
+  const _noSugarIds = challenge.habits.filter(h =>
+    h.id==="ns-nosugar" || /no.{0,6}sugar|zero.{0,6}sugar/i.test(h.title)
+  ).map(h=>h.id);
+  // Morning Routine
+  const _morningIds = challenge.habits.filter(h =>
+    h.id==="mr-wake" || /wake up|no snooze/i.test(h.title)
+  ).map(h=>h.id);
+  // Digital Detox
+  const _detoxIds = challenge.habits.filter(h =>
+    h.id==="dd-limit" || /social media|screen time/i.test(h.title)
+  ).map(h=>h.id);
+  // Intermittent Fasting
+  const _fastingIds = challenge.habits.filter(h =>
+    h.id==="if-fast" || /fast completed|\d{2}-hour fast/i.test(h.title)
+  ).map(h=>h.id);
+  // Core & Abs
+  const _coreIds = challenge.habits.filter(h =>
+    h.id==="ca-core" || /core workout|ab workout/i.test(h.title)
+  ).map(h=>h.id);
+  // Yoga
+  const _yogaIds = challenge.habits.filter(h =>
+    h.id==="yf-yoga" || /yoga session/i.test(h.title)
+  ).map(h=>h.id);
 
   const ctx = {
     dayNumber, pctDone, streak, totalPts,
@@ -738,6 +920,17 @@ function checkBadges(challenge) {
     hasPR:             _prIds.length ? allDays.some(d=>_prIds.some(id=>d.done.includes(id))) : false,
     sleepHabitsLogged: _sleepIds.length ? allDays.filter(d=>_sleepIds.some(id=>d.done.includes(id))).length : 0,
     sleepStreak:       _sleepIds.length ? Math.max(0,..._sleepIds.map(id=>habitStreakCount(challenge,id))) : 0,
+    noSugarLogged:         _noSugarIds.length ? allDays.filter(d=>_noSugarIds.some(id=>d.done.includes(id))).length : 0,
+    noSugarStreak:         _noSugarIds.length ? Math.max(0,..._noSugarIds.map(id=>habitStreakCount(challenge,id))) : 0,
+    morningRoutineLogged:  _morningIds.length ? allDays.filter(d=>_morningIds.some(id=>d.done.includes(id))).length : 0,
+    morningRoutineStreak:  _morningIds.length ? Math.max(0,..._morningIds.map(id=>habitStreakCount(challenge,id))) : 0,
+    detoxLogged:           _detoxIds.length ? allDays.filter(d=>_detoxIds.some(id=>d.done.includes(id))).length : 0,
+    detoxStreak:           _detoxIds.length ? Math.max(0,..._detoxIds.map(id=>habitStreakCount(challenge,id))) : 0,
+    fastingLogged:         _fastingIds.length ? allDays.filter(d=>_fastingIds.some(id=>d.done.includes(id))).length : 0,
+    fastingStreak:         _fastingIds.length ? Math.max(0,..._fastingIds.map(id=>habitStreakCount(challenge,id))) : 0,
+    coreLogged:            _coreIds.length ? allDays.filter(d=>_coreIds.some(id=>d.done.includes(id))).length : 0,
+    yogaLogged:            _yogaIds.length ? allDays.filter(d=>_yogaIds.some(id=>d.done.includes(id))).length : 0,
+    yogaStreak:            _yogaIds.length ? Math.max(0,..._yogaIds.map(id=>habitStreakCount(challenge,id))) : 0,
   };
 
   let earned = false;
@@ -769,6 +962,26 @@ function checkBadges(challenge) {
   });
 
   if (earned) saveState();
+  checkStreakFreezeAward(challenge);
+}
+
+function checkStreakFreezeAward(challenge) {
+  const today = todayKey();
+  const weeks = challengeWeeks(challenge);
+  const curWeek = weeks.find(w => w.allDays.includes(today));
+  if (!curWeek) return;
+  const weekKey = curWeek.allDays[0]; // first day of week = unique ID
+  if ((challenge.streakFreezeWeeksAwarded || []).includes(weekKey)) return; // already awarded this week
+  const pts = curWeek.days.reduce((s,k) => {
+    const d = challenge.days[k]; return s + (d ? completionInfo(challenge,d).points : 0);
+  }, 0);
+  if (pts >= challenge.weeklyGoal) {
+    challenge.streakFreezes = (challenge.streakFreezes || 0) + 1;
+    if (!challenge.streakFreezeWeeksAwarded) challenge.streakFreezeWeeksAwarded = [];
+    challenge.streakFreezeWeeksAwarded.push(weekKey);
+    showToast("❄️ Streak Freeze earned — weekly goal hit!");
+    saveState();
+  }
 }
 
 function habitStreakCount(challenge, habitId) {
@@ -796,7 +1009,7 @@ function render() {
   const _noteEl = document.getElementById("day-note");
   if (_noteEl) {
     const _nc = currentChallenge();
-    if (_nc) { const _nd = getChallengeDay(_nc); if (_nd.note !== _noteEl.value) { _nd.note = _noteEl.value; saveState(); } }
+    if (_nc) { const _nd = getChallengeDay(_nc, effectiveDate()); if (_nd.note !== _noteEl.value) { _nd.note = _noteEl.value; saveState(); } }
   }
   const app = document.getElementById("app");
   // Scroll to top when the primary view changes (not for modals/sheet)
@@ -894,31 +1107,51 @@ function renderToday() {
     todayChallengeId = active[0].id;
   }
   const challenge = active.find(c => c.id === todayChallengeId);
-  const day  = getChallengeDay(challenge);
+  const today    = todayKey();
+  const effDate  = effectiveDate();
+  // Clamp viewingDate within challenge bounds and no further back than 3 days
+  const minBack  = addDays(today, -3);
+  const minDate  = challenge.startDate > minBack ? challenge.startDate : minBack;
+  if (viewingDate && viewingDate < minDate) viewingDate = minDate;
+  if (viewingDate && viewingDate > today)  viewingDate = null;
+  const isToday  = effDate === today;
+
+  const day  = getChallengeDay(challenge, effDate);
   const info = completionInfo(challenge, day);
-  const today = todayKey();
   const totalDays  = diffDays(challenge.startDate, challenge.endDate)+1;
-  const dayNumber  = challengeDayNumber(challenge);
+  const dayNumber  = challengeDayNumber(challenge, effDate);
   const daysLeft   = Math.max(0, diffDays(today, challenge.endDate));
   const journeyPct = clamp(Math.round((dayNumber/totalDays)*100), 0, 100);
   const streak     = calcChallengeStreak(challenge);
+
+  const canGoBack  = addDays(effDate, -1) >= minDate;
+  const canGoFwd   = !isToday;
 
   return `
   <main>
     ${active.length > 1 ? renderChallengePills(active) : ""}
     ${renderWeeklyRecap(challenge)}
+    <div class="date-nav">
+      <button class="date-nav-arrow ${canGoBack?"":"disabled"}" data-date-back ${canGoBack?"":"disabled"} aria-label="Previous day">‹</button>
+      <span class="date-nav-label ${!isToday?"date-nav-past":""}">
+        ${isToday ? "Today" : formatDate(parseDate(effDate), {weekday:"short", month:"short", day:"numeric"})}
+      </span>
+      <button class="date-nav-arrow ${canGoFwd?"":"disabled"}" data-date-fwd ${canGoFwd?"":"disabled"} aria-label="Next day">›</button>
+    </div>
+    ${!isToday ? `<div class="backfill-banner">✏️ Editing ${formatDate(parseDate(effDate),{weekday:"long"})} — changes save immediately.</div>` : ""}
     <section class="hero">
       <div class="day-label">${challenge.emoji} ${challenge.name}</div>
       <div class="day-count">Day ${dayNumber} <span style="font-weight:300;font-size:0.55em;color:var(--text-dim)">of ${totalDays}</span></div>
       <div class="subtitle">${daysLeft > 0 ? daysLeft+" days remaining" : "Final day!"} · ${challenge.mode} mode</div>
-      <div class="greeting">${currentGreeting()}</div>
+      ${isToday ? `<div class="greeting">${currentGreeting()}</div>` : ""}
       <div class="journey-track"><div class="journey-fill" style="width:${journeyPct}%"></div></div>
     </section>
 
     <section class="today-stage panel">
       ${renderRing(info, day, streak, challenge)}
-      ${renderWeightWidget()}
-      ${renderTodayWeightLog()}
+      ${isToday ? renderStreakFreezeUI(challenge) : ""}
+      ${isToday ? renderWeightWidget() : ""}
+      ${isToday ? renderTodayWeightLog() : ""}
       ${renderCompleteBanner(day, info, challenge)}
       ${info.done===0 ? `<p class="empty-copy">Nothing logged yet. What's first?</p>` : ""}
     </section>
@@ -930,7 +1163,7 @@ function renderToday() {
       ${renderModeSelector(day)}
     </section>
 
-    ${renderWeeklyGoalBar(challenge)}
+    ${isToday ? renderWeeklyGoalBar(challenge) : ""}
 
     <section>
       <div class="section-head">
@@ -940,7 +1173,7 @@ function renderToday() {
       <div class="habit-list">
         ${challenge.habits.map(h => renderHabit(h, day, challenge)).join("")}
       </div>
-      ${(!day.recovered && info.done < info.total) ? `<button class="link-btn rough-day-link" data-open-sheet>Having a rough day?</button>` : ""}
+      ${(isToday && !day.recovered && info.done < info.total) ? `<button class="link-btn rough-day-link" data-open-sheet>Having a rough day?</button>` : ""}
     </section>
     ${renderDayNote(day)}
     ${renderPastNotes(challenge)}
@@ -965,6 +1198,7 @@ function renderNoChallenge() {
   const today = todayKey();
   const hasPast = Object.values(state.challenges).some(c => c.status !== "active");
   const upcoming = Object.values(state.challenges).filter(c => c.status === "active" && c.startDate > today);
+  const isFirstTime = !hasPast && !upcoming.length;
   return `
   <main class="welcome-shell">
     <div class="welcome-logo">
@@ -977,7 +1211,17 @@ function renderNoChallenge() {
       </svg>
     </div>
     <h1 class="welcome-title">Conqur</h1>
-    <p class="welcome-sub">${upcoming.length ? "Your next challenge starts soon." : hasPast ? "All challenges complete. Start a new one." : "Build the habits. Win the challenge."}</p>
+    <p class="welcome-sub">${upcoming.length ? "Your next challenge starts soon." : hasPast ? "All challenges complete. Start a new one." : "Pick a challenge. Build the habit. Win."}</p>
+
+    ${isFirstTime ? `
+    <p class="welcome-desc">Build any habit in 21–86 days. Log daily, earn streaks and badges, and watch yourself change.</p>
+    <div class="welcome-features">
+      <div class="wf-item"><span class="wf-icon">🏆</span><span class="wf-text">21 challenges — 75 Hard, Cold Exposure, Morning Routine, Fasting and more</span></div>
+      <div class="wf-item"><span class="wf-icon">👑</span><span class="wf-text">Boss Days, Rest Days, Minimum Days — built for real life, not perfection</span></div>
+      <div class="wf-item"><span class="wf-icon">🔥</span><span class="wf-text">Streaks, badges, streak freezes, and weekly recaps that keep you honest</span></div>
+      <div class="wf-item"><span class="wf-icon">📵</span><span class="wf-text">Works offline. No account. No ads. Free forever. Your data stays on your device.</span></div>
+    </div>` : ""}
+
     ${upcoming.length ? `
     <div style="width:100%;max-width:320px;margin:0 auto 16px">
       ${upcoming.map(c=>`
@@ -995,7 +1239,7 @@ function renderNoChallenge() {
     <button class="primary-button" style="max-width:280px;margin:0 auto" data-open-builder>
       ${hasPast || upcoming.length ? "Start New Challenge" : "Start Your First Challenge"}
     </button>
-    ${hasPast || upcoming.length ? "" : `<p class="welcome-hint">Choose from templates or build your own</p>`}
+    ${isFirstTime ? `<p class="welcome-hint">No account needed. No ads. No BS.</p>` : ""}
   </main>`;
 }
 
@@ -1043,6 +1287,21 @@ function renderRing(info, day, streak, challenge) {
   </div>`;
 }
 
+function renderStreakFreezeUI(challenge) {
+  const freezes = challenge.streakFreezes || 0;
+  const yesterday = addDays(todayKey(), -1);
+  const yDay = challenge.days[yesterday];
+  const yesterdayUnlogged = !dayLogged(yDay) && yesterday >= challenge.startDate;
+  if (freezes === 0) return "";
+  return `
+  <div class="freeze-bar">
+    <span class="freeze-bar-label">❄️ ${freezes} streak freeze${freezes > 1 ? "s" : ""}</span>
+    ${yesterdayUnlogged
+      ? `<button class="pill-btn" data-use-freeze>Protect streak</button>`
+      : `<span class="freeze-bar-hint">Ready if you miss a day</span>`}
+  </div>`;
+}
+
 function renderModeSelector(day) {
   const modeDesc = {
     minimum:  "Locks non-essential habits. Streak stays safe.",
@@ -1061,6 +1320,23 @@ function renderHabit(habit, day, challenge) {
   const locked  = day.mode==="rest" || (day.mode==="minimum" && !habit.minimum_day) || (day.mode!=="boss" && habit.boss_only);
   const checked = day.done.includes(habit.id);
   const popping = _animHabitId === habit.id;
+  // Photo habits get a camera capture button alongside the checkbox
+  const isPhoto = !locked && (habit.id === "photo" || /progress\s*photo/i.test(habit.title));
+  if (isPhoto) {
+    return `
+  <div class="habit-card photo-habit-card ${checked?"checked":""} ${popping?"habit-pop":""}">
+    <span class="accent"></span>
+    <span class="habit-emoji">${habit.emoji}</span>
+    <span class="habit-info">
+      <span class="habit-title">${habit.title}${habit.boss_only?`<span class="boss-pip">👑</span>`:""}</span>
+      <span class="habit-quip">${checked ? "Photo logged ✓" : habit.quip}</span>
+    </span>
+    <div class="photo-habit-actions">
+      <button class="camera-btn" data-capture-photo="${habit.id}" aria-label="Take progress photo">📷</button>
+      <button class="check-circle ${checked?"":"check-hollow"}" data-habit="${habit.id}" aria-label="Mark done">${checked?"✓":""}</button>
+    </div>
+  </div>`;
+  }
   return `
   <button class="habit-card ${checked?"checked":""} ${locked?"locked":""} ${popping?"habit-pop":""}" data-habit="${habit.id}" ${locked?`aria-disabled="true"`:""}>
     <span class="accent"></span>
@@ -1097,6 +1373,7 @@ function renderTieredHabit(habit, day, challenge) {
       <div class="run-distances">
         ${habit.tiers.map(t => `<button class="run-dist ${String(selVal)===String(t.value)?"active":""}" data-tier="${habit.id}" data-tier-val="${t.value}">${t.label}</button>`).join("")}
       </div>
+      ${!checked ? `<span class="tier-hint">Tap to log</span>` : ""}
     </div>
     <span class="check-circle">${checked && selVal != null ? (tierPoints(habit,selVal)+"pts") : checked ? "✓" : ""}</span>
   </div>`;
@@ -1169,6 +1446,7 @@ function renderWeeklyGoalBar(challenge) {
       <span class="wgb-pct">${pct}%</span>
     </div>
     <div class="wgb-track"><div class="wgb-fill ${hit?"wgb-done":""}" style="width:${pct}%"></div></div>
+    ${hit ? "" : `<div style="font-size:11px;color:var(--text-faint);margin-top:4px">Hit the goal to unlock week badges 🏅</div>`}
   </div>`;
 }
 
@@ -1260,16 +1538,20 @@ function renderPastNotes(challenge) {
 
 function suggestNextChallenges(c) {
   const finishedId = c.templateId;
-  const cat = TEMPLATES.find(t => t.id === finishedId)?.category;
-  let pool = cat
-    ? TEMPLATES.filter(t => t.id !== finishedId && t.category === cat)
-    : TEMPLATES.filter(t => t.id !== finishedId);
-  if (pool.length < 2) pool = TEMPLATES.filter(t => t.id !== finishedId);
-  return pickRandom(pool, 2);
+  // Check challenge chain first
+  const chainNextId = finishedId && CHALLENGE_CHAINS[finishedId];
+  const chainNext   = chainNextId ? TEMPLATES.find(t => t.id === chainNextId) : null;
+  const cat  = TEMPLATES.find(t => t.id === finishedId)?.category;
+  const pool = TEMPLATES.filter(t => t.id !== finishedId && t.id !== chainNextId);
+  const sameCat = pool.filter(t => t.category === cat);
+  const extras  = pickRandom(sameCat.length ? sameCat : pool, chainNext ? 1 : 2);
+  return chainNext ? [chainNext, ...extras] : extras;
 }
 
 function renderCompletionSuggestions(c) {
-  const sugs = suggestNextChallenges(c);
+  const chainNextId = c.templateId && CHALLENGE_CHAINS[c.templateId];
+  // Exclude the chain template — it's already featured prominently above
+  let sugs = suggestNextChallenges(c).filter(t => t.id !== chainNextId);
   if (!sugs.length) return "";
   return `
   <div class="completion-suggestions">
@@ -1370,6 +1652,8 @@ function renderCompletionModal(c) {
   const totalPts    = Object.values(c.days).reduce((s,d) => s+(d.pts||0), 0);
   const finalStreak = c.finalStreak ?? calcChallengeStreak(c);
   const canShare    = !!navigator.share || !!navigator.clipboard;
+  const nextId      = c.templateId && CHALLENGE_CHAINS[c.templateId];
+  const nextT       = nextId ? TEMPLATES.find(t => t.id === nextId) : null;
   return `
   <div class="sheet-backdrop" data-close-completion>
     <section class="sheet completion-modal" role="dialog">
@@ -1377,9 +1661,15 @@ function renderCompletionModal(c) {
       <div class="completion-title">Challenge Complete!</div>
       <div class="completion-name">${c.name}</div>
       <div class="completion-sub">${totalDays} days · ${totalPts} pts · ${finalStreak}-day streak.<br>That's what commitment looks like.</div>
-      <button class="primary-button" data-close-completion style="margin-top:20px">Hell yeah! 🎉</button>
+      ${nextT ? `
+      <button class="chain-cta" data-start-suggested="${nextT.id}">
+        <span class="chain-cta-pre">Continue your journey</span>
+        <span class="chain-cta-main">${nextT.emoji} ${nextT.name} →</span>
+        <span class="chain-cta-sub">${nextT.duration} days · Level up 🚀</span>
+      </button>` : ""}
+      <button class="${nextT?"secondary-button":"primary-button"}" data-close-completion style="margin-top:${nextT?"8":"20"}px">Hell yeah! 🎉</button>
       ${canShare ? `<button class="secondary-button" data-share-completion style="margin-top:8px">🔗 Share your achievement</button>` : ""}
-      <button class="secondary-button" data-completion-new-challenge style="margin-top:8px">Start next challenge →</button>
+      <button class="secondary-button" data-completion-new-challenge style="margin-top:8px">Browse all challenges →</button>
       ${renderCompletionSuggestions(c)}
     </section>
   </div>`;
@@ -1440,14 +1730,17 @@ function renderChallengeCard(c) {
 
 function renderChallengeDetail(c) {
   if (!c) return `<main><div class="empty-state">Challenge not found.</div></main>`;
-  const today = todayKey();
-  const weeks = challengeWeeks(c);
+  const today     = todayKey();
+  const weeks     = challengeWeeks(c);
   const totalDays = diffDays(c.startDate, c.endDate)+1;
   const dayNumber = challengeDayNumber(c);
-  const pct = clamp(Math.round((dayNumber/totalDays)*100), 0, 100);
-  const streak = calcChallengeStreak(c);
-  const totalPts = Object.values(c.days).reduce((s,d)=>s+(d.pts||0),0);
+  const pct       = clamp(Math.round((dayNumber/totalDays)*100), 0, 100);
+  const streak    = calcChallengeStreak(c);
+  const totalPts  = Object.values(c.days).reduce((s,d)=>s+(d.pts||0),0);
   const curWeekIdx = weeks.findIndex(w=>w.allDays.includes(today));
+  const hasPhotoHabit = c.habits.some(h => h.id === "photo" || /progress\s*photo/i.test(h.title));
+  const nextChainId   = c.templateId && CHALLENGE_CHAINS[c.templateId];
+  const nextChainT    = nextChainId ? TEMPLATES.find(t => t.id === nextChainId) : null;
   return `
   <main>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
@@ -1460,34 +1753,57 @@ function renderChallengeDetail(c) {
       </div>
     </div>
     <div class="stats-grid" style="margin-bottom:14px">
-      ${statCard("🔥 Streak",    streak,    "days")}
-      ${statCard("⭐ Total pts", totalPts,  "")}
-      ${statCard("📅 Progress",  pct+"%",   "")}
-      ${statCard("🏅 Badges",   c.badges.length,"")}
+      ${statCard("🔥 Streak",    streak,   "days")}
+      ${statCard("⭐ Total pts", totalPts, "")}
+      ${statCard("📅 Progress",  pct+"%",  "")}
+      ${statCard("🏅 Badges",    c.badges.length, "")}
     </div>
-    <div class="section-label">All Weeks</div>
-    <div class="week-history">
-      ${weeks.map((w,i)=>renderWeekCard(c,w,i===curWeekIdx)).join("")}
+
+    ${nextChainT && c.status !== "active" ? `
+    <div class="chain-next-banner" data-start-suggested="${nextChainT.id}">
+      <div class="cnb-label">Continue your journey →</div>
+      <div class="cnb-row">
+        <span class="cnb-emoji">${nextChainT.emoji}</span>
+        <div class="cnb-info">
+          <div class="cnb-name">${nextChainT.name}</div>
+          <div class="cnb-meta">${nextChainT.duration} days · Level up 🚀</div>
+        </div>
+        <span class="cnb-arrow">→</span>
+      </div>
+    </div>` : ""}
+
+    <div class="detail-view-tabs">
+      <button class="dvt-tab ${challengeDetailView==="weeks"?"active":""}" data-detail-view="weeks">Weeks</button>
+      <button class="dvt-tab ${challengeDetailView==="calendar"?"active":""}" data-detail-view="calendar">Calendar</button>
     </div>
+    ${challengeDetailView === "calendar"
+      ? renderMonthCalendar(c)
+      : `<div class="week-history">${weeks.map((w,i)=>renderWeekCard(c,w,i===curWeekIdx)).join("")}</div>`}
+
     <div class="section-label">Habits</div>
     <div class="habit-preview-list" style="margin-bottom:14px">
       ${c.habits.map(h => {
         const allDays = Object.values(c.days);
-        // Only count days where this habit was available (not locked by mode/boss)
         const available = allDays.filter(d => {
           if (d.mode === "minimum" && !h.minimum_day) return false;
           if (h.boss_only && d.mode !== "boss") return false;
-          return d.done.length > 0 || d.recovered; // only count logged days
+          return d.done.length > 0 || d.recovered;
         });
         const done = available.filter(d => d.done.includes(h.id)).length;
-        const pct  = available.length ? Math.round((done / available.length) * 100) : null;
-        const color = pct == null ? "var(--text-faint)" : pct >= 80 ? "var(--success)" : pct >= 50 ? "#f5a623" : "var(--secondary)";
+        const hpct = available.length ? Math.round((done / available.length) * 100) : null;
+        const color = hpct == null ? "var(--text-faint)" : hpct >= 80 ? "var(--success)" : hpct >= 50 ? "#f5a623" : "var(--secondary)";
         return `<div class="habit-preview-item">
           <span>${h.emoji} ${h.title}${h.boss_only ? ` <span style="font-size:10px;opacity:.6">👑</span>` : ""}</span>
-          ${pct != null ? `<span class="hpi-rate" style="color:${color}">${pct}%</span>` : ""}
+          ${hpct != null ? `<span class="hpi-rate" style="color:${color}">${hpct}%</span>` : ""}
         </div>`;
       }).join("")}
     </div>
+
+    ${hasPhotoHabit ? `
+    <div class="section-label">Progress Photos</div>
+    <div id="pp-strip-${c.id}" class="pp-strip"><div class="pp-loading">Loading photos…</div></div>
+    ` : ""}
+
     ${(c.status==="active"||c.status==="paused")?`
     <div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap">
       ${c.status==="active"?`<button class="secondary-button" data-edit-challenge="${c.id}">✏️ Edit</button>`:""}
@@ -1533,7 +1849,46 @@ function renderEditChallenge(c) {
         Weekly point goal
         <input id="ec-goal" type="number" value="${c.weeklyGoal}" min="10" max="500">
       </label>
-      <button class="primary-button" data-save-edit>Save Changes ✓</button>
+      <div class="section-label" style="margin:20px 0 8px">Habits</div>
+      <div class="custom-habits-list">
+        ${(editForm?.habits || []).map((h, i) => {
+          if (editForm?.habitEditIdx === i) {
+            // Inline edit row
+            return `
+            <div class="ech-edit-row">
+              <div class="ech-edit-top">
+                <input id="ech-emoji" class="emoji-input" type="text" value="${esc(h.emoji)}" maxlength="2" style="width:48px">
+                <input id="ech-title" type="text" value="${esc(h.title)}" placeholder="Habit name" style="flex:1">
+                <input id="ech-pts" type="number" value="${h.points}" min="1" max="10" style="width:52px">
+              </div>
+              <div class="ech-edit-flags">
+                <label class="ech-flag"><input type="checkbox" id="ech-minimum" ${h.minimum_day?"checked":""}> Minimum day</label>
+                <label class="ech-flag"><input type="checkbox" id="ech-boss" ${h.boss_only?"checked":""}> Boss only 👑</label>
+              </div>
+              <div class="ech-edit-actions">
+                <button class="pill-btn" data-ec-save-habit>Save ✓</button>
+                <button class="secondary-button" style="padding:6px 12px;font-size:13px" data-ec-cancel-habit-edit>Cancel</button>
+              </div>
+            </div>`;
+          }
+          return `
+          <div class="custom-habit-row">
+            <span class="custom-habit-emoji">${h.emoji}</span>
+            <span class="custom-habit-name">${h.title}</span>
+            <span class="custom-habit-pts">${h.points}pt</span>
+            <button class="icon-btn" data-ec-edit-habit="${i}" title="Edit">✏️</button>
+            <button class="icon-btn" data-ec-delete-habit="${i}" title="Delete" style="color:var(--secondary)">✕</button>
+          </div>`;
+        }).join("")}
+        <div class="add-habit-row">
+          <input id="ech-new-emoji" class="emoji-input" type="text" value="${esc(editForm?.newHabitEmoji||"⭐")}" maxlength="2" placeholder="⭐">
+          <input id="ech-new-title" type="text" value="${esc(editForm?.newHabitTitle||"")}" placeholder="New habit name" style="flex:1">
+          <input id="ech-new-pts" type="number" value="${editForm?.newHabitPoints||2}" min="1" max="10" style="width:52px">
+          <button class="pill-btn" data-ec-add-habit>Add</button>
+        </div>
+      </div>
+
+      <button class="primary-button" data-save-edit style="margin-top:20px">Save Changes ✓</button>
       <button class="secondary-button" style="margin-top:8px" data-close-edit>Cancel</button>
     </div>
   </main>`;
@@ -1573,6 +1928,77 @@ function renderWeekCard(c, week, isCurrent) {
       <span class="wc-pts">${pts} <span class="wc-goal-of">/ ${c.weeklyGoal} pts</span></span>
     </div>
     <div class="wc-goal-track"><div class="wc-goal-fill ${hitGoal?"wc-goal-done":""}" style="width:${goalPct}%"></div></div>
+  </div>`;
+}
+
+// ── Month Calendar Heatmap ────────────────────────────────────────────────
+
+function renderMonthCalendar(challenge) {
+  const today = todayKey();
+  // Determine which month to show
+  let refKey = calendarViewMonth;
+  if (!refKey) {
+    if (today >= challenge.startDate && today <= challenge.endDate) refKey = today;
+    else if (today > challenge.endDate) refKey = challenge.endDate;
+    else refKey = challenge.startDate;
+  }
+  const ref       = parseDate(refKey);
+  const year      = ref.getFullYear();
+  const month     = ref.getMonth();
+  const firstDay  = new Date(year, month, 1);
+  const lastDay   = new Date(year, month + 1, 0);
+  const padStart  = firstDay.getDay(); // 0=Sun
+
+  // Build cells (null = padding)
+  const cells = Array.from({length: padStart}, () => null);
+  for (let d = 1; d <= lastDay.getDate(); d++) cells.push(toKey(new Date(year, month, d)));
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  // Navigation bounds
+  const prevKey = toKey(new Date(year, month - 1, 1));
+  const nextKey = toKey(new Date(year, month + 1, 1));
+  const hasPrev = prevKey.slice(0,7) >= challenge.startDate.slice(0,7);
+  const hasNext = nextKey.slice(0,7) <= (today > challenge.endDate ? challenge.endDate : today).slice(0,7);
+  const monthLabel = formatDate(firstDay, { month: "long", year: "numeric" });
+
+  const cellHTML = cells.map(k => {
+    if (!k) return `<div class="cal-cell cal-pad"></div>`;
+    const dn      = parseDate(k).getDate();
+    const outside = k < challenge.startDate || k > challenge.endDate || k > today;
+    if (outside) return `<div class="cal-cell cal-outside">${dn}</div>`;
+    const day     = challenge.days[k];
+    const isToday = k === today;
+    const todayCls = isToday ? " cal-today" : "";
+    if (!day || (!day.done.length && !day.recovered && day.mode !== "rest" && !day.freezeUsed)) {
+      return `<div class="cal-cell cal-missed${todayCls}">${dn}</div>`;
+    }
+    const info = completionInfo(challenge, day);
+    if (day.mode === "rest")                             return `<div class="cal-cell cal-rest${todayCls}">😴</div>`;
+    if (day.freezeUsed && !day.done.length)              return `<div class="cal-cell cal-freeze${todayCls}">❄️</div>`;
+    if (day.mode === "boss" && info.percent === 100)     return `<div class="cal-cell cal-boss${todayCls}">👑</div>`;
+    if (info.percent === 100)                            return `<div class="cal-cell cal-full${todayCls}">${dn}</div>`;
+    return `<div class="cal-cell cal-partial${todayCls}">${dn}</div>`;
+  }).join("");
+
+  return `
+  <div class="month-cal">
+    <div class="cal-nav">
+      <button class="cal-nav-btn${hasPrev?"":" cal-nav-dis"}" data-cal-prev="${prevKey}" ${hasPrev?"":"disabled"}>‹</button>
+      <span class="cal-month-label">${monthLabel}</span>
+      <button class="cal-nav-btn${hasNext?"":" cal-nav-dis"}" data-cal-next="${nextKey}" ${hasNext?"":"disabled"}>›</button>
+    </div>
+    <div class="cal-header">
+      ${["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=>`<div class="cal-wd">${d}</div>`).join("")}
+    </div>
+    <div class="cal-grid">${cellHTML}</div>
+    <div class="cal-legend">
+      <span class="cal-leg full">✓ Full</span>
+      <span class="cal-leg partial">● Partial</span>
+      <span class="cal-leg boss">👑 Boss</span>
+      <span class="cal-leg rest">😴 Rest</span>
+      <span class="cal-leg freeze">❄️ Frozen</span>
+      <span class="cal-leg missed">— Missed</span>
+    </div>
   </div>`;
 }
 
@@ -1879,7 +2305,7 @@ function renderOnboarding() {
       <div class="ob-title">${step.title}</div>
       <div class="ob-body">${step.body}</div>
       <div class="ob-dots">${dots}</div>
-      <button class="primary-button" data-ob-next style="margin-top:16px">${isLast?"Let's go! 🚀":"Next →"}</button>
+      <button class="primary-button" data-ob-next style="margin-top:16px">${isLast?"Pick your first challenge →":"Next →"}</button>
       <button class="link-btn" data-ob-skip style="margin-top:8px;display:block;text-align:center">Skip tour</button>
     </section>
   </div>`;
@@ -1996,18 +2422,37 @@ function updateRingVisuals() {
 // ── Events ────────────────────────────────────────────────────────────────
 
 function bindEvents() {
-  on("[data-tab]",          el => { activeTab=el.dataset.tab; builderOpen=false; settingsOpen=false; viewChallengeId=null; editChallengeId=null; editForm=null; sheetOpen=false; bodyHistoryLimit=5; render(); });
+  on("[data-tab]",          el => { activeTab=el.dataset.tab; builderOpen=false; settingsOpen=false; viewChallengeId=null; editChallengeId=null; editForm=null; sheetOpen=false; bodyHistoryLimit=5; viewingDate=null; render(); });
   on("[data-mode]",         el => setMode(el.dataset.mode));
   on("[data-habit]",        el => toggleHabit(el.dataset.habit));
   on("[data-tier]",         el => selectTier(el.dataset.tier, el.dataset.tierVal));
   on("[data-chart]",        el => { activeChartTab=el.dataset.chart; render(); });
   on("[data-today-challenge]", el => { todayChallengeId=el.dataset.todayChallenge; render(); });
+  on("[data-date-back]", () => {
+    const cur = effectiveDate();
+    const prev = addDays(cur, -1);
+    const challenge = getActiveChallenges().find(c => c.id === todayChallengeId);
+    const minBack = addDays(todayKey(), -3);
+    const minDate = challenge && challenge.startDate > minBack ? challenge.startDate : minBack;
+    if (prev >= minDate) { viewingDate = prev; render(); }
+  });
+  on("[data-date-fwd]", () => {
+    if (!viewingDate) return;
+    const next = addDays(viewingDate, 1);
+    viewingDate = next >= todayKey() ? null : next;
+    render();
+  });
   on("[data-open-builder]", () => { builderOpen=true; builderStep="template"; builderForm=defaultBuilderForm(); render(); });
   on("[data-close-builder]",() => { builderOpen=false; render(); });
   on("[data-open-settings]",() => { settingsOpen=true; render(); });
   on("[data-close-settings]",()=>{ settingsOpen=false; render(); });
-  on("[data-view-challenge]",el=>{ viewChallengeId=el.dataset.viewChallenge; render(); });
-  on("[data-close-detail]", () => { viewChallengeId=null; render(); });
+  on("[data-view-challenge]",el=>{ viewChallengeId=el.dataset.viewChallenge; challengeDetailView="weeks"; calendarViewMonth=null; render(); });
+  on("[data-close-detail]", () => { viewChallengeId=null; challengeDetailView="weeks"; calendarViewMonth=null; render(); });
+  on("[data-detail-view]",  el => { challengeDetailView=el.dataset.detailView; render(); });
+  on("[data-cal-prev]",     el => { calendarViewMonth=el.dataset.calPrev; render(); });
+  on("[data-cal-next]",     el => { calendarViewMonth=el.dataset.calNext; render(); });
+  on("[data-use-freeze]",   () => useStreakFreeze());
+  on("[data-capture-photo]",el => captureProgressPhoto(el.dataset.capturePhoto));
   on("[data-open-sheet]",   () => { selectedMicro=pickRandom(microActions,3); sheetOpen=true; render(); });
   on("[data-close-sheet]",  (el,e) => { if(e.target.matches("[data-close-sheet]")){ sheetOpen=false; render(); }});
   on("[data-recovered]",    () => markRecovered());
@@ -2044,7 +2489,12 @@ function bindEvents() {
   on("[data-log-today-weight]", () => logTodayWeight());
   on("[data-edit-challenge]", el => {
     const c = getChallenge(el.dataset.editChallenge); if (!c) return;
-    editForm = { mode: c.mode };  // snapshot — so Cancel truly reverts
+    editForm = {
+      mode: c.mode,
+      habits: JSON.parse(JSON.stringify(c.habits)),  // deep copy — Cancel discards this
+      habitEditIdx: null,
+      newHabitEmoji: "⭐", newHabitTitle: "", newHabitPoints: 2,
+    };
     editChallengeId = el.dataset.editChallenge;
     viewChallengeId = null;
     render();
@@ -2052,6 +2502,53 @@ function bindEvents() {
   on("[data-close-edit]",    () => { viewChallengeId=editChallengeId; editChallengeId=null; editForm=null; render(); });
   on("[data-ec-mode]",       el => { if (editForm) { editForm.mode=el.dataset.ecMode; render(); } });
   on("[data-save-edit]",         () => saveEditChallenge());
+
+  // ── Habit CRUD inside Edit Challenge ──────────────────────────────────────
+  on("[data-ec-edit-habit]", el => {
+    if (!editForm) return;
+    editForm.habitEditIdx = Number(el.dataset.ecEditHabit);
+    render();
+  });
+  on("[data-ec-cancel-habit-edit]", () => {
+    if (!editForm) return;
+    editForm.habitEditIdx = null;
+    render();
+  });
+  on("[data-ec-save-habit]", () => {
+    if (!editForm || editForm.habitEditIdx == null) return;
+    const i = editForm.habitEditIdx;
+    const emoji = (document.getElementById("ech-emoji")?.value || "⭐").trim() || "⭐";
+    const title = (document.getElementById("ech-title")?.value || "").trim();
+    const pts   = Math.max(1, Math.min(10, Number(document.getElementById("ech-pts")?.value) || 2));
+    const minDay  = document.getElementById("ech-minimum")?.checked ?? true;
+    const bossOnly = document.getElementById("ech-boss")?.checked ?? false;
+    if (!title) { showToast("Habit needs a name."); return; }
+    editForm.habits[i] = { ...editForm.habits[i], emoji, title, points: pts, minimum_day: minDay, boss_only: bossOnly };
+    editForm.habitEditIdx = null;
+    render();
+  });
+  on("[data-ec-delete-habit]", el => {
+    if (!editForm) return;
+    const i = Number(el.dataset.ecDeleteHabit);
+    const h = editForm.habits[i];
+    if (!h) return;
+    if (!confirm(`Remove "${h.title}" from this challenge? Past logs for this habit will be cleared.`)) return;
+    editForm.habits.splice(i, 1);
+    if (editForm.habitEditIdx === i) editForm.habitEditIdx = null;
+    render();
+  });
+  on("[data-ec-add-habit]", () => {
+    if (!editForm) return;
+    const emoji = (document.getElementById("ech-new-emoji")?.value || "⭐").trim() || "⭐";
+    const title = (document.getElementById("ech-new-title")?.value || "").trim();
+    const pts   = Math.max(1, Math.min(10, Number(document.getElementById("ech-new-pts")?.value) || 2));
+    if (!title) { showToast("Enter a habit name."); return; }
+    editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "binary", minimum_day: true, boss_only: false, points: pts });
+    editForm.newHabitEmoji  = "⭐";
+    editForm.newHabitTitle  = "";
+    editForm.newHabitPoints = 2;
+    render();
+  });
   on("[data-pause-challenge]",        el => pauseChallenge(el.dataset.pauseChallenge));
   on("[data-abandon-challenge]",      el => abandonChallenge(el.dataset.abandonChallenge));
   on("[data-request-notif-permission]",  () => requestNotificationPermission());
@@ -2086,7 +2583,13 @@ function bindEvents() {
     onboardingStep++;
     const step = ONBOARDING_STEPS[onboardingStep];
     if (step?.tab) activeTab = step.tab;
-    if (onboardingStep >= ONBOARDING_STEPS.length) { onboardingStep = null; activeTab = "today"; }
+    if (onboardingStep >= ONBOARDING_STEPS.length) {
+      onboardingStep = null;
+      activeTab = "challenges";
+      builderOpen = true;
+      builderStep = "template";
+      builderForm = defaultBuilderForm();
+    }
     render();
   });
   on("[data-ob-skip]",         () => { onboardingStep = null; activeTab = "today"; render(); });
@@ -2112,6 +2615,25 @@ function bindEvents() {
     builderForm.endDate = addDays(builderForm.startDate, t.duration - 1);
     render();
   });
+  // Async-load progress photos into challenge detail strip
+  const ppStrip = document.querySelector('[id^="pp-strip-"]');
+  if (ppStrip) {
+    const cid = ppStrip.id.replace("pp-strip-", "");
+    PhotoDB.list(cid + "_").then(photos => {
+      if (!photos.length) {
+        ppStrip.innerHTML = `<p class="pp-empty">No photos yet — tap 📷 on the progress photo habit to capture one.</p>`;
+      } else {
+        ppStrip.innerHTML = `<div class="pp-grid">${
+          photos.slice(-9).reverse().map(p => {
+            const dateStr = p.key.split("_")[1] || "";
+            const label = dateStr ? formatDate(parseDate(dateStr), {month:"short", day:"numeric"}) : dateStr;
+            return `<div class="pp-item"><img src="${p.dataURL}" class="pp-img" alt="Progress ${label}"><div class="pp-date">${label}</div></div>`;
+          }).join("")
+        }</div>`;
+      }
+    }).catch(() => { ppStrip.innerHTML = ""; });
+  }
+
   // Day note: auto-save on blur without re-render
   const noteEl = document.getElementById("day-note");
   if (noteEl) {
@@ -2139,7 +2661,7 @@ function currentChallenge() {
 
 function setMode(mode) {
   const c = currentChallenge(); if (!c) return;
-  const day = getChallengeDay(c);
+  const day = getChallengeDay(c, effectiveDate());
   // Warn if switching to a more restrictive mode would uncheck logged habits
   if (mode === "minimum" && day.mode !== "minimum" && day.done.length > 0) {
     const willLose = day.done.filter(id => !c.habits.find(h=>h.id===id)?.minimum_day).length;
@@ -2159,7 +2681,7 @@ function setMode(mode) {
 function toggleHabit(id) {
   const c = currentChallenge(); if (!c) return;
   const habit = c.habits.find(h=>h.id===id); if (!habit) return;
-  const day = getChallengeDay(c);
+  const day = getChallengeDay(c, effectiveDate());
   if (day.mode==="minimum" && !habit.minimum_day) return;
   if (day.mode!=="boss"    &&  habit.boss_only)   return;
   if (day.done.includes(id)) { day.done = day.done.filter(x=>x!==id); _animHabitId = null; }
@@ -2172,7 +2694,7 @@ function toggleHabit(id) {
 function selectTier(habitId, rawVal) {
   const c = currentChallenge(); if (!c) return;
   const habit = c.habits.find(h=>h.id===habitId); if (!habit) return;
-  const day = getChallengeDay(c);
+  const day = getChallengeDay(c, effectiveDate());
   if (day.mode==="minimum" && !habit.minimum_day) return;
   if (day.mode!=="boss"    &&  habit.boss_only)   return;
   const val = isNaN(Number(rawVal)) ? rawVal : Number(rawVal);
@@ -2193,7 +2715,7 @@ function selectTier(habitId, rawVal) {
 
 function markRecovered() {
   const c = currentChallenge(); if (!c) return;
-  const day = getChallengeDay(c);
+  const day = getChallengeDay(c, effectiveDate());
   day.recovered = true;
   updateDayPoints(c, day);
   saveState(); sheetOpen=false;
@@ -2332,9 +2854,29 @@ function saveEditChallenge() {
   if (emoji) c.emoji      = emoji;
   c.startDate  = start;
   c.endDate    = end;
-  c.mode       = editForm?.mode || c.mode;   // use editForm snapshot, not a mutated c.mode
+  c.mode       = editForm?.mode || c.mode;
   if (goal > 0) c.weeklyGoal = goal;
+
+  // ── Apply habit changes ──────────────────────────────────────────────────
+  if (editForm?.habits) {
+    const newHabitIds = new Set(editForm.habits.map(h => h.id));
+    // Strip deleted habits from every logged day
+    for (const day of Object.values(c.days)) {
+      day.done  = day.done.filter(id => newHabitIds.has(id));
+      if (day.tiers) {
+        for (const id of Object.keys(day.tiers)) {
+          if (!newHabitIds.has(id)) delete day.tiers[id];
+        }
+      }
+      // Recalculate stored pts for this day
+      updateDayPoints(c, day);
+    }
+    c.habits = editForm.habits;
+    if (c.habits.length === 0) { showToast("Add at least one habit."); return; }
+  }
+
   saveState();
+  checkBadges(c);
   editChallengeId = null;
   editForm        = null;
   viewChallengeId = c.id;
@@ -2378,9 +2920,70 @@ function deleteChallenge(id) {
   showToast("Challenge deleted."); render();
 }
 
+function useStreakFreeze() {
+  const c = currentChallenge(); if (!c) return;
+  if ((c.streakFreezes || 0) <= 0) { showToast("No streak freezes available."); return; }
+  const yesterday = addDays(todayKey(), -1);
+  if (yesterday < c.startDate) { showToast("Nothing to freeze — challenge just started."); return; }
+  const day = getChallengeDay(c, yesterday);
+  if (dayLogged(day)) { showToast("Yesterday is already logged — no freeze needed."); return; }
+  day.freezeUsed = true;
+  c.streakFreezes--;
+  saveState();
+  showToast("❄️ Streak freeze applied! Yesterday is covered. Streak protected.");
+  render();
+}
+
+async function captureProgressPhoto(habitId) {
+  const input = document.createElement("input");
+  input.type = "file"; input.accept = "image/*"; input.capture = "environment";
+  Object.assign(input.style, { position:"absolute", width:"1px", height:"1px", opacity:"0", pointerEvents:"none" });
+  document.body.appendChild(input);
+  input.onchange = async e => {
+    const file = e.target.files?.[0];
+    document.body.removeChild(input);
+    if (!file) return;
+    showToast("Saving photo…");
+    const c = currentChallenge(); if (!c) return;
+    const dateKey = effectiveDate();
+    try {
+      const dataURL = await compressPhoto(file);
+      if (!dataURL) { showToast("Couldn't process photo — try again."); return; }
+      await PhotoDB.set(`${c.id}_${dateKey}`, dataURL);
+      const day = getChallengeDay(c, dateKey);
+      if (!day.done.includes(habitId)) {
+        day.done.push(habitId); _animHabitId = habitId;
+        updateDayPoints(c, day); saveState(); checkBadges(c);
+      }
+      showToast("📸 Progress photo saved!");
+      render();
+    } catch(err) { showToast("Couldn't save photo — try again."); }
+  };
+  input.click();
+}
+
+function compressPhoto(file) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const maxDim = 480;
+      const ratio  = Math.min(maxDim / img.width, maxDim / img.height, 1);
+      canvas.width  = Math.round(img.width  * ratio);
+      canvas.height = Math.round(img.height * ratio);
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL("image/jpeg", 0.72));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    img.src = url;
+  });
+}
+
 function saveNote() {
   const c = currentChallenge(); if (!c) return;
-  const day = getChallengeDay(c);
+  const day = getChallengeDay(c, effectiveDate());
   const el = document.getElementById("day-note");
   if (!el) return;
   day.note = el.value;
