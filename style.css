@@ -976,6 +976,12 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   background-clip: text;
 }
 
+.wc-km-badge {
+  font-size: 12px; font-weight: 600; color: var(--accent);
+  background: rgba(180,79,255,0.12); border-radius: 20px;
+  padding: 2px 8px; margin-left: auto;
+}
+
 .wc-goal-of {
   font-size: 11px;
   font-weight: 300;
@@ -2837,5 +2843,144 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   line-height: 1.6;
   text-align: center;
   margin-top: -8px;
+}
+
+/* ── Joker Day stepper (builder) ── */
+.joker-budget-row { display: flex; flex-direction: column; gap: 4px; }
+.joker-stepper {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface-2); border-radius: 10px;
+  padding: 8px 14px; width: fit-content;
+}
+.joker-step-btn {
+  background: var(--surface-3); border: none; color: var(--text);
+  width: 32px; height: 32px; border-radius: 8px;
+  font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.joker-step-btn:active { opacity: 0.7; }
+.joker-step-val { font-size: 22px; font-weight: 700; min-width: 24px; text-align: center; }
+
+/* ── Disabled / exhausted mode button ── */
+.mode-button.mode-btn-disabled {
+  opacity: 0.4; cursor: not-allowed; pointer-events: none;
+}
+
+/* ── Distance challenge habit input ── */
+.distance-habit-card {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface-2); border-radius: 14px;
+  padding: 14px 16px; margin-bottom: 8px;
+}
+.distance-input-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.distance-input {
+  width: 72px; background: var(--surface-3); border: 1.5px solid var(--border);
+  border-radius: 8px; color: var(--text); font-size: 16px; font-weight: 600;
+  padding: 6px 8px; text-align: right;
+}
+.distance-input:focus { border-color: var(--accent); outline: none; }
+.distance-unit { font-size: 13px; color: var(--text-dim); font-weight: 500; }
+.distance-activity-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.dist-pill {
+  font-size: 12px; padding: 3px 10px; border-radius: 20px;
+  border: 1.5px solid var(--border); background: transparent;
+  color: var(--text-dim); cursor: pointer;
+}
+.dist-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+/* ── Route progress (distance challenges) ── */
+.route-progress-section {
+  background: var(--surface-2); border-radius: 14px; padding: 16px;
+  margin-bottom: 12px;
+}
+.route-progress-header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 8px; margin-bottom: 8px;
+}
+.route-progress-name { font-size: 13px; font-weight: 600; color: var(--text-dim); }
+.route-progress-km { font-size: 18px; font-weight: 800; white-space: nowrap; }
+.route-progress-track {
+  position: relative; height: 8px; background: var(--surface-3);
+  border-radius: 4px; margin: 12px 0 8px; overflow: visible;
+}
+.route-progress-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.6s; }
+.route-milestone-dot {
+  position: absolute; top: 50%; transform: translate(-50%, -50%);
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--surface-3); border: 2px solid var(--border);
+  z-index: 1; transition: background 0.4s, border-color 0.4s;
+}
+.route-milestone-dot.done { background: var(--accent); border-color: var(--accent); }
+.route-pace { font-size: 12px; color: var(--text-dim); line-height: 1.4; }
+.route-milestone-banner {
+  display: flex; align-items: center; gap: 12px;
+  background: linear-gradient(135deg, #1a3a2a, #0a2a1a);
+  border: 1.5px solid #2a6a4a; border-radius: 12px;
+  padding: 12px 16px; margin-top: 12px;
+}
+.rmb-emoji { font-size: 28px; flex-shrink: 0; }
+.rmb-title { font-weight: 700; font-size: 15px; }
+.rmb-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+/* ── Expedition category chip ── */
+.tc-cat.expedition { background: rgba(180,120,255,0.15); color: #c090ff; }
+
+/* ── Route info card in builder ── */
+.route-info-card {
+  background: var(--surface-2); border-radius: 14px; padding: 16px;
+  margin-bottom: 16px;
+}
+.route-info-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+}
+.route-info-emoji { font-size: 32px; flex-shrink: 0; }
+.route-info-name { font-size: 16px; font-weight: 700; }
+.route-info-km { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+.route-milestones-preview {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.route-ms-chip {
+  font-size: 12px; padding: 3px 10px; border-radius: 20px;
+  background: var(--surface-3); color: var(--text-dim); white-space: nowrap;
+}
+
+/* ── Confirm modal (replaces window.confirm) ── */
+.confirm-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 300; padding: 24px;
+}
+.confirm-modal {
+  background: var(--surface-1); border-radius: 18px;
+  padding: 24px 20px 20px; max-width: 360px; width: 100%;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+.confirm-msg {
+  font-size: 15px; line-height: 1.5; margin: 0 0 20px;
+  color: var(--text-primary);
+}
+.confirm-btns {
+  display: flex; gap: 10px; justify-content: flex-end;
+}
+.confirm-btns .secondary-button { flex: 1; }
+.confirm-danger-btn {
+  flex: 1;
+  background: var(--secondary) !important;
+  color: #fff !important;
+}
+
+/* ── Progress photo delete button ── */
+.pp-item { position: relative; }
+.pp-delete {
+  position: absolute; top: 4px; right: 4px;
+  background: rgba(0,0,0,0.55); border: none; border-radius: 6px;
+  font-size: 13px; padding: 2px 5px; cursor: pointer;
+  opacity: 0; transition: opacity 0.15s;
+  color: #fff;
+}
+.pp-item:hover .pp-delete,
+.pp-item:focus-within .pp-delete { opacity: 1; }
+.pp-count {
+  font-size: 11px; color: var(--text-dim);
+  margin: 4px 0 0; text-align: right;
 }
 

@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.07.7";
+const APP_VERSION = "2026.06.08.4";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -12,7 +12,7 @@ const TEMPLATES = [
   {
     id: "cruise-control", name: "Mental Toughness", emoji: "🔱", category: "transformation",
     description: "86 days that change everything. Body, habits, and an unbreakable mind.",
-    duration: 86, weeklyGoal: 175, defaultMode: "soft",
+    duration: 86, weeklyGoal: 175, defaultMode: "soft", noRestDay: true,
     habits: [
       { id:"yoga",      title:"Morning yoga",              emoji:"🧘", quip:"Sets the tone for everything after.",           type:"binary", minimum_day:true,  boss_only:false, points:2 },
       { id:"gratitude", title:"Gratitude",                 emoji:"🙏", quip:"Three things. Two minutes. Changes everything.", type:"binary", minimum_day:true,  boss_only:false, points:2 },
@@ -33,7 +33,7 @@ const TEMPLATES = [
   {
     id: "75-hard", name: "75 Hard", emoji: "💪", category: "transformation",
     description: "The original mental toughness program. 75 days. Zero compromises.",
-    duration: 75, weeklyGoal: 140, defaultMode: "strict",
+    duration: 75, weeklyGoal: 140, defaultMode: "strict", noRestDay: true,
     habits: [
       { id:"w1",       title:"Workout 1 — 45 min",          emoji:"🏋️", quip:"First session done.",               type:"binary", minimum_day:true,  boss_only:false, points:3 },
       { id:"w2",       title:"Workout 2 — 45 min outdoors", emoji:"🌤️", quip:"Outdoor. No exceptions.",            type:"binary", minimum_day:true,  boss_only:false, points:3 },
@@ -268,92 +268,340 @@ const TEMPLATES = [
       { id:"ca-beast",    title:"30-min full core blast",     emoji:"🏆", quip:"Boss Day: all out. Burn.",               type:"binary", minimum_day:false, boss_only:true,  points:5 },
     ]
   },
+
+  // ── Expedition Routes ────────────────────────────────────────────────────
+  {
+    id: "everest-bc", name: "Everest Base Camp", emoji: "🏔️", category: "expedition",
+    description: "Trek 130 km through the Himalayas to the foot of the world's highest peak.",
+    duration: 45, weeklyGoal: 20, defaultMode: "soft", routeKm: 130,
+    milestones: [
+      { km: 10,  name: "Phakding",          emoji: "🏡" },
+      { km: 40,  name: "Namche Bazaar",      emoji: "🏙️" },
+      { km: 65,  name: "Tengboche",          emoji: "⛩️" },
+      { km: 100, name: "Gorak Shep",         emoji: "⛺" },
+      { km: 130, name: "Everest Base Camp",  emoji: "🏔️" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🏃", quip:"Walk, run, cycle, swim or row — it all counts.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
+    ],
+  },
+  {
+    id: "camino", name: "Camino de Santiago", emoji: "⛪", category: "expedition",
+    description: "Walk 790 km across Spain on the ancient pilgrimage route to Santiago de Compostela.",
+    duration: 90, weeklyGoal: 20, defaultMode: "soft", routeKm: 790,
+    milestones: [
+      { km: 75,  name: "Pamplona",               emoji: "🏟️" },
+      { km: 250, name: "Burgos",                  emoji: "🏰" },
+      { km: 400, name: "León",                    emoji: "🦁" },
+      { km: 590, name: "Ponferrada",              emoji: "🏯" },
+      { km: 790, name: "Santiago de Compostela",  emoji: "⛪" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🚶", quip:"Every step brings you closer to Santiago.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
+    ],
+  },
+  {
+    id: "appalachian", name: "Appalachian Trail", emoji: "🌲", category: "expedition",
+    description: "Hike the full 3,540 km from Georgia to Maine — one of the world's great long trails.",
+    duration: 365, weeklyGoal: 20, defaultMode: "soft", routeKm: 3540,
+    milestones: [
+      { km: 300,  name: "Shenandoah Valley",    emoji: "🌿" },
+      { km: 900,  name: "Pennsylvania",          emoji: "🪨" },
+      { km: 1800, name: "New England",           emoji: "🍂" },
+      { km: 2600, name: "White Mountains, NH",   emoji: "❄️" },
+      { km: 3540, name: "Mount Katahdin, Maine", emoji: "🏔️" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🥾", quip:"Miles in the legs. Wilderness in the soul.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
+    ],
+  },
+  {
+    id: "tour-de-france", name: "Tour de France", emoji: "🚴", category: "expedition",
+    description: "Ride the full 3,490 km route of the world's most iconic cycling race.",
+    duration: 120, weeklyGoal: 20, defaultMode: "soft", routeKm: 3490,
+    milestones: [
+      { km: 400,  name: "Brittany Coast",     emoji: "🌊" },
+      { km: 900,  name: "Massif Central",     emoji: "🗺️" },
+      { km: 1600, name: "The Pyrenees",       emoji: "⛰️" },
+      { km: 2400, name: "The Alps",           emoji: "🏔️" },
+      { km: 3490, name: "Paris — Champs-Élysées", emoji: "🗼" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🚴", quip:"Clip in. Every km is a stage.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
+    ],
+  },
+  {
+    id: "route66", name: "Route 66", emoji: "🚗", category: "expedition",
+    description: "Travel the 3,940 km Mother Road from Chicago, Illinois to Santa Monica, California.",
+    duration: 180, weeklyGoal: 20, defaultMode: "soft", routeKm: 3940,
+    milestones: [
+      { km: 500,  name: "Springfield, IL",   emoji: "🌽" },
+      { km: 1100, name: "Oklahoma City",      emoji: "🏙️" },
+      { km: 1900, name: "Amarillo, TX",       emoji: "🤠" },
+      { km: 2700, name: "Albuquerque, NM",    emoji: "🌵" },
+      { km: 3940, name: "Santa Monica Pier",  emoji: "🎡" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🚗", quip:"Get your kicks. Road is open.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
+    ],
+  },
+  {
+    id: "amazon-river", name: "Amazon River", emoji: "🌿", category: "expedition",
+    description: "Navigate 6,437 km down the world's greatest river from the Andes to the Atlantic.",
+    duration: 365, weeklyGoal: 20, defaultMode: "soft", routeKm: 6437,
+    milestones: [
+      { km: 500,  name: "Iquitos, Peru",   emoji: "🐊" },
+      { km: 1500, name: "Leticia",          emoji: "🦜" },
+      { km: 3000, name: "Manaus",           emoji: "🏙️" },
+      { km: 5000, name: "Santarém",         emoji: "🌊" },
+      { km: 6437, name: "Atlantic Ocean",   emoji: "🌊" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🚣", quip:"The river never stops. Neither do you.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
+    ],
+  },
 ];
 
 // ── Badge Definitions ──────────────────────────────────────────────────────
 
-const CHALLENGE_BADGES = [
-  { id:"first-wave",      label:"🌊 First Wave",        desc:"Complete all habits on Day 1.",                    test: c => c.dayNumber >= 1 && c.complete },
-  { id:"getting-started", label:"✨ Getting Started",   desc:"3-day streak.",                                    test: c => c.streak >= 3 },
-  { id:"work-week",       label:"📅 Work Week",         desc:"5-day streak.",                                    test: c => c.streak >= 5 },
-  { id:"on-fire",         label:"🔥 On Fire",           desc:"7-day streak.",                                    test: c => c.streak >= 7 },
-  { id:"iron-week",       label:"🦾 Iron Week",         desc:"14-day streak.",                                   test: c => c.streak >= 14 },
-  { id:"habit-locked",    label:"🧠 Habit Locked",      desc:"21-day streak. Neurologically, it's a habit now.", test: c => c.streak >= 21 },
-  { id:"locked-in",       label:"💪 Locked In",         desc:"30-day streak.",                                   test: c => c.streak >= 30 },
-  { id:"45-days",         label:"⚡ 45 Days Strong",    desc:"45-day streak.",                                   test: c => c.streak >= 45 },
-  { id:"two-months",      label:"📆 Two Months",        desc:"60-day streak.",                                   test: c => c.streak >= 60 },
-  { id:"75-complete",     label:"🏆 75 Complete",       desc:"75-day streak.",                                   test: c => c.streak >= 75 },
-  { id:"perfect-week",    label:"🌟 Perfect Week",      desc:"Log every single day for 7 days straight.",        test: c => c.loggedLast7 >= 7 },
-  { id:"halfway",         label:"🌊 Halfway",           desc:"Complete all habits on the halfway day.",          test: c => c.pctDone >= 50 && c.complete },
-  { id:"challenge-done",  label:"✅ Challenge Done",    desc:"Finish the entire challenge.",                     test: c => c.pctDone >= 99 && c.complete },
-  { id:"boss-energy",     label:"👑 Boss Energy",       desc:"Complete a Boss Day.",                             test: c => c.anyBoss },
-  { id:"boss-week",       label:"👑 Boss Week",         desc:"3+ Boss Days in one week.",                       test: c => c.bossWeek },
-  { id:"first-points",    label:"⭐ First Points",      desc:"Earn your first 10 points.",                       test: c => c.totalPts >= 10 },
-  { id:"century",         label:"💯 Century",           desc:"Earn 100 points in this challenge.",               test: c => c.totalPts >= 100 },
-  { id:"point-collector", label:"🏅 Point Collector",   desc:"Earn 250 points.",                                 test: c => c.totalPts >= 250 },
-  { id:"high-scorer",     label:"🏆 High Scorer",       desc:"Earn 500 points.",                                 test: c => c.totalPts >= 500 },
-  { id:"elite",           label:"💜 Elite",             desc:"Earn 750 points. Rare.",                           test: c => c.totalPts >= 750 },
-  { id:"comeback-kid",    label:"🧡 Comeback Kid",      desc:"Use the Save My Day recovery on a hard day.",      test: c => c.anyRecovered },
-  { id:"minimum-warrior", label:"⚡ Minimum Warrior",   desc:"Use Minimum Day mode 5 times.",                    test: c => c.minimumCompleted >= 5 },
-  { id:"first-run",       label:"👟 First Run",         desc:"Log your first run session.",                      test: c => c.runsLogged >= 1 },
-  { id:"five-runs",       label:"🏃 Five Runs",         desc:"Log 5 run sessions.",                              test: c => c.runsLogged >= 5 },
-  { id:"ten-runs",        label:"🔟 Ten Runs",          desc:"Log 10 run sessions.",                             test: c => c.runsLogged >= 10 },
-  { id:"twenty-runs",     label:"🏃 20 Runs",           desc:"Log 20 run sessions.",                             test: c => c.runsLogged >= 20 },
-  { id:"5k-done",         label:"🏅 5k Done",           desc:"Run at least 5 km in a single session.",           test: c => c.hasRun5k },
-  { id:"beyond-5k",       label:"🔥 Beyond 5k",         desc:"Run further than 5 km.",                           test: c => c.hasRun5kPlus },
-  { id:"on-the-scale",    label:"⚖️ On The Scale",      desc:"Log your first body check-in.",                   test: c => c.totalWeighIns >= 1 },
-  { id:"first-pound",     label:"📉 First Pound",       desc:"Lose at least 1 lb from your start weight.",       test: c => c.weightLost >= 1 },
-  { id:"5lbs-down",       label:"📉 5 lbs Down",        desc:"Lose 5 lbs from your start weight.",               test: c => c.weightLost >= 5 },
-  { id:"10lbs-down",      label:"💪 10 lbs Down",       desc:"Lose 10 lbs from your start weight.",              test: c => c.weightLost >= 10 },
-  { id:"15lbs-down",      label:"🔥 15 lbs Down",       desc:"Lose 15 lbs. Seriously impressive.",               test: c => c.weightLost >= 15 },
-  { id:"goal-reached",    label:"🎯 Goal Reached",      desc:"Hit your goal weight.",                            test: c => c.weightGoalReached },
-  { id:"downward-trend",  label:"📈 Downward Trend",    desc:"5 consecutive weigh-ins trending down.",           test: c => c.downwardTrend >= 5 },
-  { id:"week-1-done",     label:"📅 Week 1 Done",       desc:"Complete your first full week (hit the goal).",    test: c => c.completedWeeks >= 1 },
-  { id:"week-3-done",     label:"📅 3 Weeks Done",      desc:"Complete 3 full weeks.",                           test: c => c.completedWeeks >= 3 },
-  { id:"week-5-done",     label:"📆 5 Weeks Done",      desc:"Complete 5 full weeks.",                           test: c => c.completedWeeks >= 5 },
-  { id:"week-8-done",     label:"📆 8 Weeks Done",      desc:"Complete 8 full weeks — two months.",              test: c => c.completedWeeks >= 8 },
-  { id:"sober-week",      label:"🚫 Sober Week",        desc:"7-day alcohol-free streak.",                       test: c => c.soberStreak >= 7 },
-  { id:"sober-month",     label:"💎 Sober Month",       desc:"30-day alcohol-free streak.",                      test: c => c.soberStreak >= 30 },
-  { id:"data-driven",     label:"📊 Data Driven",       desc:"Log your weight 7 days in a row.",                 test: c => c.weighInStreak >= 7 },
-  // Cold Exposure
-  { id:"first-plunge",    label:"🧊 First Plunge",      desc:"Log your first cold shower.",                      test: c => c.coldShowersLogged >= 1 },
-  { id:"cold-warrior",    label:"❄️ Cold Warrior",      desc:"7-day cold shower streak. Your body's adapting.",  test: c => c.coldShowerStreak >= 7 },
-  { id:"ice-bath",        label:"🏔️ Ice Bath",           desc:"Complete a full cold plunge on Boss Day.",         test: c => c.hasColdPlunge },
-  // Meditation
-  { id:"first-sit",       label:"🧘 First Sit",          desc:"Log your first meditation session.",               test: c => c.meditationLogged >= 1 },
-  { id:"inner-peace",     label:"🌿 Inner Peace",        desc:"7-day meditation streak.",                         test: c => c.meditationStreak >= 7 },
-  // Strength
-  { id:"first-rep",       label:"🏋️ First Rep",          desc:"Log your first lift session.",                     test: c => c.hasLifted },
-  { id:"gym-rat",         label:"💪 Gym Rat",            desc:"Log 20 lift sessions.",                            test: c => c.liftsLogged >= 20 },
-  { id:"pr-hunter",       label:"⚡ PR Hunter",           desc:"Hit a personal record on Boss Day.",               test: c => c.hasPR },
-  // Sleep
-  { id:"lights-out",      label:"😴 Lights Out",         desc:"Complete your first sleep habit.",                 test: c => c.sleepHabitsLogged >= 1 },
-  { id:"deep-sleeper",    label:"🌙 Deep Sleeper",       desc:"7-day sleep streak. Your body thanks you.",        test: c => c.sleepStreak >= 7 },
-  // No Sugar
-  { id:"sugar-free-day",  label:"🚫 Sugar Free",         desc:"Log your first no-sugar day.",                    test: c => c.noSugarLogged >= 1 },
-  { id:"sweet-freedom",   label:"🍎 Sweet Freedom",      desc:"7-day no-sugar streak.",                          test: c => c.noSugarStreak >= 7 },
-  // Morning Routine
-  { id:"early-bird",      label:"🌅 Early Bird",         desc:"Complete your first morning routine.",             test: c => c.morningRoutineLogged >= 1 },
-  { id:"sunrise-club",    label:"☀️ Sunrise Club",        desc:"7-day morning routine streak.",                   test: c => c.morningRoutineStreak >= 7 },
-  // Digital Detox
-  { id:"unplugged",       label:"📵 Unplugged",          desc:"Complete your first digital detox day.",           test: c => c.detoxLogged >= 1 },
-  { id:"screen-free",     label:"🌳 Screen Free",        desc:"7-day detox streak. Your brain thanks you.",      test: c => c.detoxStreak >= 7 },
-  // Intermittent Fasting
-  { id:"first-fast",      label:"⏱️ First Fast",          desc:"Complete your first 16-hour fast.",               test: c => c.fastingLogged >= 1 },
-  { id:"fat-adapted",     label:"🔥 Fat Adapted",        desc:"14-day fasting streak.",                          test: c => c.fastingStreak >= 14 },
-  // Core & Abs
-  { id:"core-activated",  label:"💪 Core Activated",    desc:"Complete your first core session.",                test: c => c.coreLogged >= 1 },
-  { id:"iron-core",       label:"🔥 Iron Core",          desc:"Log 20 core sessions.",                           test: c => c.coreLogged >= 20 },
-  // Yoga
-  { id:"first-flow",      label:"🧘 First Flow",         desc:"Complete your first yoga session.",                test: c => c.yogaLogged >= 1 },
-  { id:"flexible-mind",   label:"🌿 Flexible Mind",      desc:"7-day yoga streak.",                              test: c => c.yogaStreak >= 7 },
+// Universal badges — earned once across all challenges (tracked in state.globalBadges)
+const UNIVERSAL_BADGES = [
+  // Streak milestones (best streak across any challenge)
+  { id:"u-3d",     label:"✨ Getting Started",   desc:"Reach a 3-day streak in any challenge.",              test: u => u.longestStreak >= 3 },
+  { id:"u-7d",     label:"🔥 On Fire",            desc:"7-day streak.",                                       test: u => u.longestStreak >= 7 },
+  { id:"u-14d",    label:"🦾 Iron Week",          desc:"14-day streak.",                                      test: u => u.longestStreak >= 14 },
+  { id:"u-21d",    label:"🧠 Habit Locked",       desc:"21-day streak. Neurologically, it's a habit now.",   test: u => u.longestStreak >= 21 },
+  { id:"u-30d",    label:"💪 Locked In",          desc:"30-day streak.",                                      test: u => u.longestStreak >= 30 },
+  { id:"u-60d",    label:"📆 Two Months",         desc:"60-day streak.",                                      test: u => u.longestStreak >= 60 },
+  { id:"u-75d",    label:"🏆 75 Streak",          desc:"75 consecutive days. Legendary.",                     test: u => u.longestStreak >= 75 },
+  // Points (all-time total across all challenges)
+  { id:"u-p10",    label:"⭐ First Points",       desc:"Earn your first 10 points.",                         test: u => u.totalPts >= 10 },
+  { id:"u-p100",   label:"💯 Century",            desc:"100 points total.",                                   test: u => u.totalPts >= 100 },
+  { id:"u-p500",   label:"🏅 Point Collector",    desc:"500 total points.",                                   test: u => u.totalPts >= 500 },
+  { id:"u-p1k",    label:"💜 Elite",              desc:"1,000 total points. Rare.",                           test: u => u.totalPts >= 1000 },
+  // Body tracking (global)
+  { id:"u-scale",  label:"⚖️ On The Scale",       desc:"Log your first weight check-in.",                    test: u => u.weighIns >= 1 },
+  { id:"u-1lb",    label:"📉 First Pound",        desc:"Lose 1 lb from your starting weight.",               test: u => u.weightLost >= 1 },
+  { id:"u-5lb",    label:"📉 5 lbs Down",         desc:"Lose 5 lbs.",                                        test: u => u.weightLost >= 5 },
+  { id:"u-10lb",   label:"💪 10 lbs Down",        desc:"Lose 10 lbs. Seriously impressive.",                 test: u => u.weightLost >= 10 },
+  { id:"u-wgoal",  label:"🎯 Goal Reached",       desc:"Hit your goal weight.",                               test: u => u.weightGoalReached },
+  // Modes & behaviour
+  { id:"u-boss1",  label:"👑 Boss Energy",        desc:"Complete a Boss Day.",                                test: u => u.bossCompleted >= 1 },
+  { id:"u-bossw",  label:"👑 Boss Week",          desc:"3+ Boss Days in one week.",                          test: u => u.bossWeek },
+  { id:"u-cmback", label:"🧡 Comeback Kid",       desc:"Use the Save My Day recovery.",                      test: u => u.anyRecovered },
+  { id:"u-min5",   label:"⚡ Minimum Warrior",    desc:"Use Minimum Day mode 5 times.",                      test: u => u.minimumUsed >= 5 },
+  // Challenge milestones
+  { id:"u-first",  label:"🌊 First Wave",         desc:"Complete 100% of habits on your very first day.",   test: u => u.anyFirstDay },
+  { id:"u-done1",  label:"✅ Challenge Done",     desc:"Finish your first challenge.",                        test: u => u.completedChallenges >= 1 },
+  { id:"u-done3",  label:"🏆 Triple Threat",      desc:"Complete 3 challenges.",                              test: u => u.completedChallenges >= 3 },
+  { id:"u-multi",  label:"🔀 Multi-Tasker",       desc:"Run 2 challenges at the same time.",                 test: u => u.activeChallenges >= 2 },
 ];
 
-const GLOBAL_BADGES = [
-  { id:"g-first-challenge",  label:"🚀 First Challenge",  desc:"Complete your first challenge.",              test: g => g.completedChallenges >= 1 },
-  { id:"g-triple-threat",    label:"🏆 Triple Threat",    desc:"Complete 3 challenges.",                      test: g => g.completedChallenges >= 3 },
-  { id:"g-multi-tasker",     label:"🔀 Multi-Tasker",     desc:"Run 2 challenges at the same time.",          test: g => g.activeChallenges >= 2 },
+// Lifetime achievements — cross-challenge milestones earned once (tracked in state.globalBadges)
+const LIFETIME_BADGES = [
+  { id:"lt-100h",   label:"📦 100 Habits",         desc:"Log 100 individual habits across all challenges.",  test: l => l.totalHabitsLogged >= 100 },
+  { id:"lt-500h",   label:"🔥 500 Habits",         desc:"Log 500 habits total. You're built different.",    test: l => l.totalHabitsLogged >= 500 },
+  { id:"lt-5c",     label:"🎖️ Serial Challenger",  desc:"Complete 5 challenges.",                            test: l => l.completedChallenges >= 5 },
+  { id:"lt-cats",   label:"🌍 Well Rounded",        desc:"Complete a challenge in all 3 categories.",        test: l => l.allCategoriesDone },
+  { id:"lt-wk10",   label:"📊 Consistent",          desc:"Hit the weekly goal 10 times across all challenges.", test: l => l.weeklyGoalsHit >= 10 },
+  { id:"lt-perf",   label:"💎 Perfect Run",         desc:"Complete a challenge without a single missed day.", test: l => l.perfectChallenge },
+  { id:"lt-freeze", label:"❄️ Ice Age",             desc:"Use a streak freeze to save a streak.",             test: l => l.freezeUsed },
 ];
+
+// Template-specific badges — 5 per template, only shown/counted for that challenge (tracked in challenge.badges)
+const TEMPLATE_BADGES = {
+  "cruise-control": [
+    { id:"cc-start",    label:"🌊 Day 1 Done",          desc:"Complete 100% on Day 1.",                          test: c => c.dayNumber >= 1 && c.complete },
+    { id:"cc-month",    label:"📅 One Month",            desc:"Complete 4 full weeks.",                           test: c => c.completedWeeks >= 4 },
+    { id:"cc-halfway",  label:"⚡ Halfway",              desc:"Reach the 43-day mark.",                           test: c => c.pctDone >= 50 },
+    { id:"cc-week8",    label:"📆 Two Months",           desc:"Complete 8 full weeks.",                           test: c => c.completedWeeks >= 8 },
+    { id:"cc-done",     label:"🔱 86 Days",              desc:"Complete the full 86-day transformation.",         test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "75-hard": [
+    { id:"hard-start",   label:"💪 Day 1",               desc:"Complete 100% on Day 1 of 75 Hard.",               test: c => c.dayNumber >= 1 && c.complete },
+    { id:"hard-3wk",     label:"📅 3 Weeks In",          desc:"Complete 3 full weeks. No compromises.",           test: c => c.completedWeeks >= 3 },
+    { id:"hard-photos",  label:"📸 7 Photo Days",        desc:"Log the progress photo habit 7 times.",            test: c => c.photosLogged >= 7 },
+    { id:"hard-halfway", label:"⚡ Halfway",             desc:"Day 37+. You're past the hard part.",              test: c => c.pctDone >= 50 },
+    { id:"hard-done",    label:"🏆 75 Hard Complete",    desc:"Finish all 75 days. Zero compromises.",            test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "75-soft": [
+    { id:"soft-start",   label:"🧘 Day 1",               desc:"Complete Day 1.",                                  test: c => c.dayNumber >= 1 && c.complete },
+    { id:"soft-month",   label:"📅 One Month",           desc:"Complete 4 full weeks.",                           test: c => c.completedWeeks >= 4 },
+    { id:"soft-halfway", label:"🌊 Halfway",             desc:"Day 37+.",                                         test: c => c.pctDone >= 50 },
+    { id:"soft-done",    label:"✅ 75 Soft Done",        desc:"Complete all 75 days.",                            test: c => c.pctDone >= 99 && c.complete },
+    { id:"soft-lvlup",   label:"⬆️ Level Up Ready",      desc:"Finished 75 Soft — now try 75 Hard.",              test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "30-pushups": [
+    { id:"pu-first",    label:"💥 First Rep",            desc:"Log your first push-up session.",                  test: c => c.daysLogged >= 1 },
+    { id:"pu-week",     label:"📅 Push-Up Week",         desc:"7 consecutive push-up days.",                      test: c => c.streak >= 7 },
+    { id:"pu-halfway",  label:"💪 Halfway",              desc:"15 days logged.",                                  test: c => c.daysLogged >= 15 },
+    { id:"pu-boss",     label:"👑 Beast Mode",           desc:"Complete 5 Boss Days.",                            test: c => c.bossCompleted >= 5 },
+    { id:"pu-done",     label:"💥 30 Days Strong",       desc:"Complete the full 30-day challenge.",               test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "dry-month": [
+    { id:"dm-day1",     label:"🚫 Day 1 Sober",          desc:"First alcohol-free day.",                          test: c => c.soberStreak >= 1 },
+    { id:"dm-week",     label:"🚫 Sober Week",           desc:"7-day alcohol-free streak.",                       test: c => c.soberStreak >= 7 },
+    { id:"dm-halfway",  label:"💧 Halfway",              desc:"15 days alcohol-free.",                            test: c => c.soberStreak >= 15 },
+    { id:"dm-month",    label:"💎 Sober Month",          desc:"30 days alcohol-free.",                            test: c => c.soberStreak >= 30 },
+    { id:"dm-done",     label:"✅ Dry Month Done",       desc:"Complete the full 30-day dry month.",              test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "reading": [
+    { id:"rd-first",    label:"📖 First Chapter",        desc:"Log your first reading session.",                  test: c => c.daysLogged >= 1 },
+    { id:"rd-week",     label:"📚 Reading Week",         desc:"7-day reading streak.",                            test: c => c.streak >= 7 },
+    { id:"rd-halfway",  label:"📖 Halfway",              desc:"15 reading sessions.",                             test: c => c.daysLogged >= 15 },
+    { id:"rd-bkworm",   label:"📚 Bookworm",             desc:"Log 20 reading sessions.",                         test: c => c.daysLogged >= 20 },
+    { id:"rd-done",     label:"✅ Reading Month Done",   desc:"Complete 30 days of reading.",                     test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "dog-walk": [
+    { id:"dw-first",    label:"🐕 First Walk",           desc:"Log your first dog walk.",                         test: c => c.daysLogged >= 1 },
+    { id:"dw-6km",      label:"🗺️ Adventure Walk",       desc:"Log a 6 km+ walk.",                               test: c => c.has6kmWalk },
+    { id:"dw-week",     label:"🌅 Walk Week",            desc:"7-day walking streak.",                            test: c => c.streak >= 7 },
+    { id:"dw-halfway",  label:"🐾 Halfway",              desc:"15 walks logged.",                                 test: c => c.daysLogged >= 15 },
+    { id:"dw-done",     label:"✅ 30 Walks Done",        desc:"Complete the full 30-day dog walk challenge.",     test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "cycling": [
+    { id:"cy-first",    label:"🚲 First Ride",           desc:"Log your first bike ride.",                        test: c => c.daysLogged >= 1 },
+    { id:"cy-50km",     label:"🏔️ Epic Ride",            desc:"Log a 50 km+ ride.",                              test: c => c.has50kmRide },
+    { id:"cy-week",     label:"🚴 Saddle Week",          desc:"7 consecutive riding days.",                       test: c => c.streak >= 7 },
+    { id:"cy-halfway",  label:"⚡ Halfway",              desc:"15 rides logged.",                                 test: c => c.daysLogged >= 15 },
+    { id:"cy-done",     label:"✅ 30 Days Cycling",      desc:"Complete the full 30-day challenge.",               test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "walking": [
+    { id:"wk-first",    label:"👟 First Steps",          desc:"Log your first walk.",                             test: c => c.daysLogged >= 1 },
+    { id:"wk-10km",     label:"⚡ 10 km Walk",           desc:"Log a 10 km+ walk.",                              test: c => c.has10kmWalk },
+    { id:"wk-week",     label:"🚶 Walk Week",            desc:"7-day walking streak.",                            test: c => c.streak >= 7 },
+    { id:"wk-halfway",  label:"🚶 Halfway",              desc:"15 walks logged.",                                 test: c => c.daysLogged >= 15 },
+    { id:"wk-done",     label:"✅ Walking Month Done",   desc:"Complete 30 days of walking.",                     test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "running": [
+    { id:"rn-first",    label:"👟 First Run",            desc:"Log your first run.",                              test: c => c.runsLogged >= 1 },
+    { id:"rn-5k",       label:"🏅 5k Done",              desc:"Run 5 km or further.",                             test: c => c.hasRun5k },
+    { id:"rn-10",       label:"🏃 Ten Runs",             desc:"Log 10 run sessions.",                             test: c => c.runsLogged >= 10 },
+    { id:"rn-halfway",  label:"🔥 Halfway",              desc:"15 runs logged.",                                  test: c => c.runsLogged >= 15 },
+    { id:"rn-done",     label:"✅ Running Month Done",   desc:"Complete 30 days of running.",                     test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "creative": [
+    { id:"cr-first",    label:"✨ First Creation",       desc:"Log your first creative session.",                 test: c => c.daysLogged >= 1 },
+    { id:"cr-week",     label:"🎨 Creative Week",        desc:"7-day creative streak.",                           test: c => c.streak >= 7 },
+    { id:"cr-boss",     label:"🚀 Shipped It",           desc:"Complete a Boss Day creative session.",             test: c => c.bossCompleted >= 1 },
+    { id:"cr-halfway",  label:"✨ Halfway",              desc:"15 creative sessions.",                            test: c => c.daysLogged >= 15 },
+    { id:"cr-done",     label:"✅ Creative Month Done",  desc:"Complete 30 days of creativity.",                  test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "strength": [
+    { id:"st-first",    label:"🏋️ First Rep",            desc:"Log your first lift session.",                     test: c => c.hasLifted },
+    { id:"st-pr",       label:"⚡ PR Hunter",             desc:"Hit a personal record on Boss Day.",               test: c => c.hasPR },
+    { id:"st-week",     label:"💪 Training Week",        desc:"7-day lifting streak.",                            test: c => c.streak >= 7 },
+    { id:"st-20",       label:"🏋️ Gym Rat",              desc:"Log 20 lift sessions.",                            test: c => c.liftsLogged >= 20 },
+    { id:"st-done",     label:"✅ Strength Month Done",  desc:"Complete 30 days of strength training.",           test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "meditation": [
+    { id:"med-first",   label:"🧘 First Sit",            desc:"Log your first meditation.",                       test: c => c.meditationLogged >= 1 },
+    { id:"med-week",    label:"🌿 Inner Peace",          desc:"7-day meditation streak.",                         test: c => c.meditationStreak >= 7 },
+    { id:"med-deep",    label:"🌊 Deep State",           desc:"Complete a Boss Day meditation.",                   test: c => c.bossCompleted >= 1 },
+    { id:"med-halfway", label:"🧘 Halfway",              desc:"15 meditation sessions.",                          test: c => c.meditationLogged >= 15 },
+    { id:"med-done",    label:"✅ Meditation Month Done",desc:"Complete 30 days of meditation.",                  test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "cold-exposure": [
+    { id:"ce-first",    label:"🧊 First Plunge",         desc:"Take your first cold shower.",                     test: c => c.coldShowersLogged >= 1 },
+    { id:"ce-week",     label:"❄️ Cold Warrior",         desc:"7-day cold shower streak.",                        test: c => c.coldShowerStreak >= 7 },
+    { id:"ce-plunge",   label:"🏔️ Ice Bath",             desc:"Complete a full cold plunge on Boss Day.",         test: c => c.hasColdPlunge },
+    { id:"ce-halfway",  label:"🧊 Halfway",              desc:"15 cold sessions.",                                test: c => c.coldShowersLogged >= 15 },
+    { id:"ce-done",     label:"✅ Cold Month Done",      desc:"Complete 30 days of cold exposure.",               test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "sleep-reset": [
+    { id:"sl-first",    label:"😴 Lights Out",           desc:"Log your first sleep habit.",                      test: c => c.sleepHabitsLogged >= 1 },
+    { id:"sl-week",     label:"🌙 Deep Sleeper",         desc:"7-day sleep streak.",                              test: c => c.sleepStreak >= 7 },
+    { id:"sl-boss",     label:"⭐ Perfect Night",        desc:"Complete a Boss Day sleep routine.",               test: c => c.bossCompleted >= 1 },
+    { id:"sl-halfway",  label:"😴 Halfway",              desc:"10+ days of sleep habits.",                        test: c => c.sleepHabitsLogged >= 10 },
+    { id:"sl-done",     label:"✅ Sleep Reset Done",     desc:"Complete all 21 days.",                            test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "no-sugar": [
+    { id:"ns-first",    label:"🚫 Sugar Free",           desc:"Your first no-sugar day.",                         test: c => c.noSugarLogged >= 1 },
+    { id:"ns-week",     label:"🍎 Sweet Freedom",        desc:"7-day no-sugar streak.",                           test: c => c.noSugarStreak >= 7 },
+    { id:"ns-halfway",  label:"🚫 Halfway",              desc:"15 sugar-free days.",                              test: c => c.noSugarLogged >= 15 },
+    { id:"ns-pure",     label:"💎 Pure",                 desc:"Complete a Boss Day with zero sweeteners.",         test: c => c.bossCompleted >= 1 },
+    { id:"ns-done",     label:"✅ No Sugar Done",        desc:"Complete 30 days without added sugar.",            test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "morning-routine": [
+    { id:"mr-first",    label:"🌅 Early Bird",           desc:"Complete your first morning routine.",             test: c => c.morningRoutineLogged >= 1 },
+    { id:"mr-week",     label:"☀️ Sunrise Club",         desc:"7-day morning streak.",                            test: c => c.morningRoutineStreak >= 7 },
+    { id:"mr-cold",     label:"🧊 Cold Morning",         desc:"Complete a Boss Day morning routine.",             test: c => c.bossCompleted >= 1 },
+    { id:"mr-halfway",  label:"🌅 Halfway",              desc:"15 mornings logged.",                              test: c => c.morningRoutineLogged >= 15 },
+    { id:"mr-done",     label:"✅ Morning Routine Done", desc:"Complete 30 days of morning routines.",            test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "yoga-flexibility": [
+    { id:"yf-first",    label:"🧘 First Flow",           desc:"Complete your first yoga session.",                 test: c => c.yogaLogged >= 1 },
+    { id:"yf-week",     label:"🌿 Flexible Mind",        desc:"7-day yoga streak.",                               test: c => c.yogaStreak >= 7 },
+    { id:"yf-flow",     label:"🌊 Full Flow",            desc:"Complete a Boss Day yoga session.",                 test: c => c.bossCompleted >= 1 },
+    { id:"yf-halfway",  label:"🧘 Halfway",              desc:"15 yoga sessions.",                                test: c => c.yogaLogged >= 15 },
+    { id:"yf-done",     label:"✅ Yoga Month Done",      desc:"Complete 30 days of yoga.",                        test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "digital-detox": [
+    { id:"dd-first",    label:"📵 Unplugged",            desc:"Complete your first detox day.",                    test: c => c.detoxLogged >= 1 },
+    { id:"dd-week",     label:"🌳 Screen Free",          desc:"7-day detox streak.",                              test: c => c.detoxStreak >= 7 },
+    { id:"dd-zero",     label:"🏆 Zero Social",          desc:"Complete a Boss Day with zero social media.",       test: c => c.bossCompleted >= 1 },
+    { id:"dd-halfway",  label:"📵 Halfway",              desc:"15 detox days.",                                   test: c => c.detoxLogged >= 15 },
+    { id:"dd-done",     label:"✅ Detox Done",           desc:"Complete 30 days of digital detox.",               test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "intermittent-fasting": [
+    { id:"if-first",    label:"⏱️ First Fast",            desc:"Complete your first 16-hour fast.",               test: c => c.fastingLogged >= 1 },
+    { id:"if-week",     label:"🔥 Fat Adapted",          desc:"7-day fasting streak.",                            test: c => c.fastingStreak >= 7 },
+    { id:"if-20hr",     label:"⚡ 20-Hour Fast",         desc:"Complete a Boss Day fast.",                         test: c => c.bossCompleted >= 1 },
+    { id:"if-halfway",  label:"⏱️ Halfway",              desc:"15 fasts completed.",                              test: c => c.fastingLogged >= 15 },
+    { id:"if-done",     label:"✅ Fasting Month Done",   desc:"Complete 30 days of fasting.",                     test: c => c.pctDone >= 99 && c.complete },
+  ],
+  "core-abs": [
+    { id:"ca-first",    label:"💪 Core Activated",       desc:"Log your first core session.",                     test: c => c.coreLogged >= 1 },
+    { id:"ca-week",     label:"🔥 Iron Core",            desc:"7-day core streak.",                               test: c => c.streak >= 7 },
+    { id:"ca-blast",    label:"🏆 Core Blast",           desc:"Complete a Boss Day core workout.",                 test: c => c.bossCompleted >= 1 },
+    { id:"ca-20",       label:"💪 20 Core Sessions",     desc:"Log 20 core workouts.",                            test: c => c.coreLogged >= 20 },
+    { id:"ca-done",     label:"✅ Core Month Done",      desc:"Complete 30 days of core training.",               test: c => c.pctDone >= 99 && c.complete },
+  ],
+
+  // Expedition routes — km-milestone badges
+  "everest-bc": [
+    { id:"ebc-start",     label:"🥾 First Steps",          desc:"Log your first km on the trail.",                  test: c => c.totalKm >= 1 },
+    { id:"ebc-phakding",  label:"🏡 Phakding",             desc:"Reach the first mountain village (10 km).",        test: c => c.totalKm >= 10 },
+    { id:"ebc-namche",    label:"🏙️ Namche Bazaar",        desc:"Climb to the Sherpa capital (40 km).",             test: c => c.totalKm >= 40 },
+    { id:"ebc-gorak",     label:"⛺ Gorak Shep",           desc:"Reach the highest camp (100 km).",                 test: c => c.totalKm >= 100 },
+    { id:"ebc-done",      label:"🏔️ Base Camp!",           desc:"Conquer Everest Base Camp — all 130 km.",          test: c => c.totalKm >= 130 },
+  ],
+  "camino": [
+    { id:"cam-start",     label:"🎒 Buen Camino",          desc:"Log your first km on the Way.",                    test: c => c.totalKm >= 1 },
+    { id:"cam-pamplona",  label:"🏟️ Pamplona",             desc:"Reach Pamplona (75 km).",                          test: c => c.totalKm >= 75 },
+    { id:"cam-burgos",    label:"🏰 Burgos",               desc:"Reach the Gothic city of Burgos (250 km).",        test: c => c.totalKm >= 250 },
+    { id:"cam-leon",      label:"🦁 León",                 desc:"Pass through the city of León (400 km).",          test: c => c.totalKm >= 400 },
+    { id:"cam-done",      label:"⛪ Santiago!",            desc:"Arrive at Santiago de Compostela — all 790 km.",   test: c => c.totalKm >= 790 },
+  ],
+  "appalachian": [
+    { id:"at-start",      label:"🌅 Georgia Start",        desc:"Log your first km on the AT.",                     test: c => c.totalKm >= 1 },
+    { id:"at-shenandoah", label:"🌿 Shenandoah",           desc:"Hike through Shenandoah Valley (300 km).",         test: c => c.totalKm >= 300 },
+    { id:"at-halfway",    label:"🪨 Halfway There",         desc:"Pass the halfway mark in Pennsylvania (900 km).",  test: c => c.totalKm >= 900 },
+    { id:"at-newengland", label:"🍂 New England",          desc:"Enter the final stretch (1,800 km).",              test: c => c.totalKm >= 1800 },
+    { id:"at-done",       label:"🏔️ Katahdin!",            desc:"Reach Mount Katahdin — all 3,540 km.",             test: c => c.totalKm >= 3540 },
+  ],
+  "tour-de-france": [
+    { id:"tdf-start",     label:"🟡 Maillot Jaune",        desc:"Clip in and log your first km.",                   test: c => c.totalKm >= 1 },
+    { id:"tdf-brittany",  label:"🌊 Brittany",             desc:"Clear the Brittany coast (400 km).",               test: c => c.totalKm >= 400 },
+    { id:"tdf-pyrenees",  label:"⛰️ Les Pyrénées",         desc:"Conquer the Pyrenees (1,600 km).",                 test: c => c.totalKm >= 1600 },
+    { id:"tdf-alps",      label:"🏔️ Les Alpes",            desc:"Survive the Alps (2,400 km).",                     test: c => c.totalKm >= 2400 },
+    { id:"tdf-done",      label:"🗼 Paris!",               desc:"Roll onto the Champs-Élysées — all 3,490 km.",     test: c => c.totalKm >= 3490 },
+  ],
+  "route66": [
+    { id:"r66-start",     label:"🛣️ Hit the Road",         desc:"Start the Mother Road — log your first km.",       test: c => c.totalKm >= 1 },
+    { id:"r66-springfield",label:"🌽 Springfield",         desc:"Roll through Springfield, IL (500 km).",           test: c => c.totalKm >= 500 },
+    { id:"r66-okc",       label:"🤠 Oklahoma City",        desc:"Reach Oklahoma City (1,100 km).",                  test: c => c.totalKm >= 1100 },
+    { id:"r66-abq",       label:"🌵 Albuquerque",          desc:"Cross the desert to Albuquerque (2,700 km).",      test: c => c.totalKm >= 2700 },
+    { id:"r66-done",      label:"🎡 Santa Monica!",        desc:"Reach the end of Route 66 — all 3,940 km.",        test: c => c.totalKm >= 3940 },
+  ],
+  "amazon-river": [
+    { id:"amz-start",     label:"🌿 Into the Jungle",      desc:"Launch onto the Amazon — log your first km.",      test: c => c.totalKm >= 1 },
+    { id:"amz-iquitos",   label:"🐊 Iquitos",              desc:"Pass through Iquitos, Peru (500 km).",              test: c => c.totalKm >= 500 },
+    { id:"amz-manaus",    label:"🏙️ Manaus",               desc:"Reach the heart of the Amazon (3,000 km).",        test: c => c.totalKm >= 3000 },
+    { id:"amz-santarem",  label:"🦜 Santarém",             desc:"Approach the Atlantic delta (5,000 km).",          test: c => c.totalKm >= 5000 },
+    { id:"amz-done",      label:"🌊 Atlantic!",            desc:"Flow into the Atlantic Ocean — all 6,437 km.",     test: c => c.totalKm >= 6437 },
+  ],
+};
 
 // ── Challenge Chains (what comes next after each template) ────────────────
 const CHALLENGE_CHAINS = {
@@ -412,6 +660,15 @@ const PhotoDB = {
       req.onerror   = () => reject(req.error);
     });
   },
+  async delete(key) {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("photos", "readwrite");
+      tx.objectStore("photos").delete(key);
+      tx.oncomplete = resolve;
+      tx.onerror    = () => reject(tx.error);
+    });
+  },
 };
 
 // ── State Management ───────────────────────────────────────────────────────
@@ -428,12 +685,15 @@ let viewChallengeId = null;
 let editChallengeId = null;
 let editForm = null;         // temp copy of edit fields so Cancel truly reverts
 let settingsOpen = false;
-let justCompletedId = null;
+let justCompletedId  = null;   // challenge shown in completion modal right now
+let justCompletedIds = [];     // queue of IDs waiting to be shown after the current one
+let _confirmDialog   = null;   // { msg, onConfirm } — replaces window.confirm()
 let reminderTimeout = null;
 let onboardingStep = null;   // null = done, 0-3 = active step
 let bodyHistoryLimit = 5;    // how many history rows to show in Body tab
 let _lastViewKey = "";       // for scroll-to-top on navigation changes
 let _animHabitId = null;     // habit that just got checked (for pop animation)
+let _eventsBound = false;        // event listeners are added once — not re-added on every render
 let viewingDate       = null;     // null = today; set to a past dateKey to backfill habits
 let challengeDetailView = "weeks"; // "weeks" | "calendar"
 let calendarViewMonth   = null;    // null = auto; or "YYYY-MM-DD" (first of month)
@@ -447,6 +707,7 @@ function defaultBuilderForm() {
     endDate: addDays(todayKey(), 29),
     mode: "soft",
     weeklyGoal: 100,
+    jokerBudget: 3,
     habits: [],
     newHabitEmoji: "⭐",
     newHabitName: "",
@@ -475,9 +736,27 @@ function normalizeDay(raw) {
     recovered:  raw.recovered  === true,
     pts:        typeof raw.pts === "number" ? raw.pts : 0,
     tiers:      (raw.tiers && typeof raw.tiers === "object") ? raw.tiers : {},
+    distances:  (raw.distances && typeof raw.distances === "object") ? raw.distances : {},
     note:       typeof raw.note === "string" ? raw.note : "",
     freezeUsed: raw.freezeUsed === true,
   };
+}
+
+function normalizeHabit(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const habit = {
+    id:          typeof raw.id === "string" && raw.id ? raw.id : uid(),
+    title:       typeof raw.title === "string" ? raw.title : "Habit",
+    emoji:       typeof raw.emoji === "string" ? raw.emoji : "⭐",
+    quip:        typeof raw.quip  === "string" ? raw.quip  : "",
+    type:        ["binary","tiered","distance"].includes(raw.type) ? raw.type : "binary",
+    minimum_day: raw.minimum_day !== false,
+    boss_only:   raw.boss_only   === true,
+    points:      typeof raw.points === "number" && raw.points >= 1 ? Math.round(raw.points) : 2,
+  };
+  if (typeof raw.unit === "string") habit.unit = raw.unit;
+  if (Array.isArray(raw.tiers))     habit.tiers = raw.tiers;
+  return habit;
 }
 
 function normalizeChallenge(raw) {
@@ -496,7 +775,7 @@ function normalizeChallenge(raw) {
     mode:       ["strict","soft"].includes(raw.mode) ? raw.mode : "soft",
     status:     ["active","completed","failed","paused"].includes(raw.status) ? raw.status : "active",
     weeklyGoal: typeof raw.weeklyGoal === "number" ? raw.weeklyGoal : 100,
-    habits:     Array.isArray(raw.habits) ? raw.habits : [],
+    habits:     Array.isArray(raw.habits) ? raw.habits.map(normalizeHabit).filter(Boolean) : [],
     days,
     badges:      Array.isArray(raw.badges) ? raw.badges : [],
     createdAt:   raw.createdAt || todayKey(),
@@ -506,6 +785,7 @@ function normalizeChallenge(raw) {
     totalPts:                 typeof raw.totalPts === "number" ? raw.totalPts : 0,
     streakFreezes:            typeof raw.streakFreezes === "number" ? raw.streakFreezes : 0,
     streakFreezeWeeksAwarded: Array.isArray(raw.streakFreezeWeeksAwarded) ? raw.streakFreezeWeeksAwarded : [],
+    jokerBudget:              typeof raw.jokerBudget === "number" ? raw.jokerBudget : 3,
   };
 }
 
@@ -576,7 +856,10 @@ function migrateCruiseMode(old, newState) {
       tiers:     { run: d.runKm ?? null, steps: d.stepsCount ?? null },
     };
   }
-  // Build the challenge
+  // Build the challenge — derive dates from actual logged data
+  const rawDayKeys  = Object.keys(newDays).sort();
+  const migrStart   = rawDayKeys[0]   || old.settings?.startDate || todayKey();
+  const migrEnd     = old.settings?.endDate || addDays(migrStart, 85);
   const template = TEMPLATES.find(t => t.id === "cruise-control");
   const c = normalizeChallenge({
     id: "cruise-migrated",
@@ -584,15 +867,15 @@ function migrateCruiseMode(old, newState) {
     emoji: "🚢",
     description: "Your original 86-day transformation challenge.",
     templateId: "cruise-control",
-    startDate: "2026-06-01",
-    endDate: "2026-08-25",
+    startDate: migrStart,
+    endDate:   migrEnd,
     mode: "soft",
     status: "active",
     weeklyGoal: 175,
     habits: template ? template.habits : [],
     days: newDays,
     badges: Array.isArray(old.badges) ? old.badges : [],
-    createdAt: "2026-06-01",
+    createdAt: migrStart,
   });
   newState.challenges[c.id] = c;
   // Body tracking
@@ -616,7 +899,12 @@ function saveState() {
     for (const d of Object.values(c.days)) total += d.pts || 0;
     c.totalPts = total;
   }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch(e) {
+    console.warn("saveState failed (storage quota?):", e);
+    showToast("⚠️ Storage full — export a backup to avoid losing data.");
+  }
 }
 
 // ── Date Helpers ───────────────────────────────────────────────────────────
@@ -654,7 +942,7 @@ function effectiveDate() { return viewingDate || todayKey(); }
 
 function getChallengeDay(challenge, key = todayKey()) {
   if (!challenge.days[key]) {
-    challenge.days[key] = { mode:"standard", done:[], recovered:false, pts:0, tiers:{} };
+    challenge.days[key] = { mode:"standard", done:[], recovered:false, pts:0, tiers:{}, distances:{} };
     saveState();
   }
   return challenge.days[key];
@@ -693,6 +981,16 @@ function completionInfo(challenge, day) {
   const points    = Math.round((basePoints + completionBonus) * multiplier);
   const maxPoints = Math.round((baseMax + 3) * multiplier);
   return { done, total, percent: total ? Math.round((done/total)*100) : 0, points, maxPoints, multiplier };
+}
+
+function challengeTotalKm(challenge) {
+  let total = 0;
+  for (const day of Object.values(challenge.days)) {
+    if (day.distances) {
+      for (const km of Object.values(day.distances)) total += Number(km) || 0;
+    }
+  }
+  return Math.round(total * 10) / 10;
 }
 
 function updateDayPoints(challenge, day) {
@@ -772,6 +1070,7 @@ function createChallenge(form) {
     mode: form.mode,
     status: "active",
     weeklyGoal: form.weeklyGoal || (template ? template.weeklyGoal : 100),
+    jokerBudget: template?.noRestDay ? 0 : (typeof form.jokerBudget === "number" ? form.jokerBudget : 3),
     habits,
     days: {},
     badges: [],
@@ -789,7 +1088,9 @@ function updateChallengeStatuses() {
     if (c.status === "active" && c.endDate < today) {
       c.finalStreak = calcChallengeStreak(c); // snapshot before status changes
       c.status = "completed";
+      // Queue — show first one immediately, rest after user dismisses
       if (!justCompletedId) justCompletedId = c.id;
+      else justCompletedIds.push(c.id);
       changed = true;
     }
   }
@@ -799,110 +1100,79 @@ function updateChallengeStatuses() {
 // ── Badge Checks ───────────────────────────────────────────────────────────
 
 function checkBadges(challenge) {
-  const today = todayKey();
-  const day   = getChallengeDay(challenge);
-  const info  = completionInfo(challenge, day);
-  const allDays = Object.values(challenge.days);
-  const streak  = calcChallengeStreak(challenge);
+  const today    = todayKey();
+  const day      = getChallengeDay(challenge);
+  const info     = completionInfo(challenge, day);
+  const allDays  = Object.values(challenge.days);
+  const streak   = calcChallengeStreak(challenge);
   const totalPts = allDays.reduce((s,d) => s+(d.pts||0), 0);
   const totalDays = diffDays(challenge.startDate, challenge.endDate) + 1;
   const dayNumber = challengeDayNumber(challenge);
   const pctDone   = Math.round((dayNumber / totalDays) * 100);
+  const daysLogged = allDays.filter(d => dayLogged(d)).length;
+  // Compute once — reused in completedWeeks (cCtx) and checkStreakFreezeAward
+  const myWeeks  = challengeWeeks(challenge);
 
-  // Template-agnostic habit detection
-  // Run habits: tiered with a 1 km tier (matches "run", "rn-run"; excludes cycling, walking, dog walk)
-  const _runIds  = challenge.habits.filter(h =>
+  // ── Habit-type detection (template-agnostic) ──────────────────────────────
+  const _runIds     = challenge.habits.filter(h =>
     h.type==="tiered" && h.tiers?.some(t => Number(t.value)===1 && /\bkm\b/i.test(t.label))
   ).map(h=>h.id);
-  // Sober habits: habits whose ID or title mentions alcohol
-  const _soberIds = challenge.habits.filter(h =>
+  const _soberIds   = challenge.habits.filter(h =>
     h.id==="noalcohol" || h.id==="noalc" || /alcohol/i.test(h.title)
   ).map(h=>h.id);
-  // Weigh-in habits: habits whose ID or title mentions weigh
-  const _weighIds = challenge.habits.filter(h =>
-    h.id==="weighin" || /weigh/i.test(h.title)
-  ).map(h=>h.id);
-  // Cold shower habits
-  const _coldIds = challenge.habits.filter(h =>
+  const _coldIds    = challenge.habits.filter(h =>
     h.id==="ce-cold" || /cold shower/i.test(h.title)
   ).map(h=>h.id);
-  const _coldBossIds = challenge.habits.filter(h =>
+  const _coldBoss   = challenge.habits.filter(h =>
     h.id==="ce-full" || (h.boss_only && /cold/i.test(h.title))
   ).map(h=>h.id);
-  // Meditation habits
-  const _meditationIds = challenge.habits.filter(h =>
+  const _medIds     = challenge.habits.filter(h =>
     h.id==="med-sit" || /meditat/i.test(h.title)
   ).map(h=>h.id);
-  // Lift/strength habits
-  const _liftIds = challenge.habits.filter(h =>
+  const _liftIds    = challenge.habits.filter(h =>
     h.id==="st-lift" || /lift session/i.test(h.title)
   ).map(h=>h.id);
-  const _prIds = challenge.habits.filter(h =>
+  const _prIds      = challenge.habits.filter(h =>
     h.id==="st-pr" || (h.boss_only && /personal record/i.test(h.title))
   ).map(h=>h.id);
-  // Sleep habits (matches "8+ hours sleep", "7+ hours sleep", "Sleep 7+ hours")
-  const _sleepIds = challenge.habits.filter(h =>
+  const _sleepIds   = challenge.habits.filter(h =>
     h.id==="sl-hours" || /\d\+.{0,8}sleep|sleep.{0,8}\d\+/i.test(h.title)
   ).map(h=>h.id);
-  // No Sugar
   const _noSugarIds = challenge.habits.filter(h =>
     h.id==="ns-nosugar" || /no.{0,6}sugar|zero.{0,6}sugar/i.test(h.title)
   ).map(h=>h.id);
-  // Morning Routine
   const _morningIds = challenge.habits.filter(h =>
     h.id==="mr-wake" || /wake up|no snooze/i.test(h.title)
   ).map(h=>h.id);
-  // Digital Detox
-  const _detoxIds = challenge.habits.filter(h =>
+  const _detoxIds   = challenge.habits.filter(h =>
     h.id==="dd-limit" || /social media|screen time/i.test(h.title)
   ).map(h=>h.id);
-  // Intermittent Fasting
   const _fastingIds = challenge.habits.filter(h =>
     h.id==="if-fast" || /fast completed|\d{2}-hour fast/i.test(h.title)
   ).map(h=>h.id);
-  // Core & Abs
-  const _coreIds = challenge.habits.filter(h =>
+  const _coreIds    = challenge.habits.filter(h =>
     h.id==="ca-core" || /core workout|ab workout/i.test(h.title)
   ).map(h=>h.id);
-  // Yoga
-  const _yogaIds = challenge.habits.filter(h =>
+  const _yogaIds    = challenge.habits.filter(h =>
     h.id==="yf-yoga" || /yoga session/i.test(h.title)
   ).map(h=>h.id);
+  const _photoIds   = challenge.habits.filter(h =>
+    h.id==="photo" || /progress\s*photo/i.test(h.title)
+  ).map(h=>h.id);
+  const _walkIds    = challenge.habits.filter(h =>
+    h.id==="dw-dist" || h.id==="wk-dist"
+  ).map(h=>h.id);
+  const _cycleIds   = challenge.habits.filter(h =>
+    h.id==="cy-ride"
+  ).map(h=>h.id);
 
-  const ctx = {
-    dayNumber, pctDone, streak, totalPts,
-    complete:         info.done === info.total && info.total > 0,
-    anyBoss:          allDays.some(d => d.mode==="boss" && d.done.length),
-    bossWeek:         lastNDays(7).filter(k => challenge.days[k]?.mode==="boss" && challenge.days[k]?.done.length).length >= 3,
-    anyRecovered:     allDays.some(d => d.recovered),
-    minimumCompleted: allDays.filter(d => d.mode==="minimum" && d.done.length > 0).length,
-    loggedLast7:      lastNDays(7).filter(k => { const d=challenge.days[k]; return d&&(d.done.length||d.recovered); }).length,
-    runsLogged:       _runIds.length ? allDays.filter(d => _runIds.some(id => d.done.includes(id))).length : 0,
-    hasRun5k:         _runIds.length ? allDays.some(d => _runIds.some(id => { const v=d.tiers?.[id]; return v==="5+"||Number(v)>=5; })) : false,
-    hasRun5kPlus:     _runIds.length ? allDays.some(d => _runIds.some(id => d.tiers?.[id]==="5+" || Number(d.tiers?.[id])>5)) : false,
-    soberStreak:      _soberIds.length ? Math.max(0,..._soberIds.map(id=>habitStreakCount(challenge,id))) : 0,
-    weighInStreak:    _weighIds.length ? Math.max(0,..._weighIds.map(id=>habitStreakCount(challenge,id))) : state.bodyTracking.entries.length,
-    totalWeighIns:    state.bodyTracking.entries.length,
-    weightLost:       (() => {
-      const sw = state.bodyTracking.startWeight;
-      const entries = state.bodyTracking.entries;
-      if (!sw || !entries.length) return 0;
-      return Math.max(0, sw - entries[entries.length-1].weight);
-    })(),
-    weightGoalReached: (() => {
-      const gw = state.bodyTracking.goalWeight;
-      const entries = state.bodyTracking.entries;
-      if (!gw || !entries.length) return false;
-      return entries[entries.length-1].weight <= gw;
-    })(),
-    downwardTrend: (() => {
-      let n=0;
-      const e = state.bodyTracking.entries;
-      for (let i=e.length-1;i>0;i--) { if(e[i].weight<e[i-1].weight) n++; else break; }
-      return n;
-    })(),
+  // ── 1. Template-specific context ─────────────────────────────────────────
+  const cCtx = {
+    dayNumber, pctDone, streak, totalPts, daysLogged,
+    complete:              info.done === info.total && info.total > 0,
+    bossCompleted:         allDays.filter(d => d.mode==="boss" && d.done.length > 0).length,
     completedWeeks: (() => {
-      return challengeWeeks(challenge).filter(w => {
+      return myWeeks.filter(w => {
         const lastDay = w.allDays[w.allDays.length-1];
         if (!lastDay || lastDay >= today) return false;
         return w.allDays.length > 0 && w.allDays.every(k => {
@@ -910,51 +1180,144 @@ function checkBadges(challenge) {
         });
       }).length;
     })(),
-    coldShowersLogged: _coldIds.length ? allDays.filter(d=>_coldIds.some(id=>d.done.includes(id))).length : 0,
-    coldShowerStreak:  _coldIds.length ? Math.max(0,..._coldIds.map(id=>habitStreakCount(challenge,id))) : 0,
-    hasColdPlunge:     _coldBossIds.length ? allDays.some(d=>_coldBossIds.some(id=>d.done.includes(id))) : false,
-    meditationLogged:  _meditationIds.length ? allDays.filter(d=>_meditationIds.some(id=>d.done.includes(id))).length : 0,
-    meditationStreak:  _meditationIds.length ? Math.max(0,..._meditationIds.map(id=>habitStreakCount(challenge,id))) : 0,
-    hasLifted:         _liftIds.length ? allDays.some(d=>_liftIds.some(id=>d.done.includes(id))) : false,
-    liftsLogged:       _liftIds.length ? allDays.filter(d=>_liftIds.some(id=>d.done.includes(id))).length : 0,
-    hasPR:             _prIds.length ? allDays.some(d=>_prIds.some(id=>d.done.includes(id))) : false,
-    sleepHabitsLogged: _sleepIds.length ? allDays.filter(d=>_sleepIds.some(id=>d.done.includes(id))).length : 0,
-    sleepStreak:       _sleepIds.length ? Math.max(0,..._sleepIds.map(id=>habitStreakCount(challenge,id))) : 0,
+    runsLogged:            _runIds.length     ? allDays.filter(d=>_runIds.some(id=>d.done.includes(id))).length : 0,
+    hasRun5k:              _runIds.length     ? allDays.some(d=>_runIds.some(id=>{ const v=d.tiers?.[id]; return v==="5+"||Number(v)>=5; })) : false,
+    soberStreak:           _soberIds.length   ? Math.max(0,..._soberIds.map(id=>habitStreakCount(challenge,id))) : 0,
+    coldShowersLogged:     _coldIds.length    ? allDays.filter(d=>_coldIds.some(id=>d.done.includes(id))).length : 0,
+    coldShowerStreak:      _coldIds.length    ? Math.max(0,..._coldIds.map(id=>habitStreakCount(challenge,id))) : 0,
+    hasColdPlunge:         _coldBoss.length   ? allDays.some(d=>_coldBoss.some(id=>d.done.includes(id))) : false,
+    meditationLogged:      _medIds.length     ? allDays.filter(d=>_medIds.some(id=>d.done.includes(id))).length : 0,
+    meditationStreak:      _medIds.length     ? Math.max(0,..._medIds.map(id=>habitStreakCount(challenge,id))) : 0,
+    hasLifted:             _liftIds.length    ? allDays.some(d=>_liftIds.some(id=>d.done.includes(id))) : false,
+    liftsLogged:           _liftIds.length    ? allDays.filter(d=>_liftIds.some(id=>d.done.includes(id))).length : 0,
+    hasPR:                 _prIds.length      ? allDays.some(d=>_prIds.some(id=>d.done.includes(id))) : false,
+    sleepHabitsLogged:     _sleepIds.length   ? allDays.filter(d=>_sleepIds.some(id=>d.done.includes(id))).length : 0,
+    sleepStreak:           _sleepIds.length   ? Math.max(0,..._sleepIds.map(id=>habitStreakCount(challenge,id))) : 0,
     noSugarLogged:         _noSugarIds.length ? allDays.filter(d=>_noSugarIds.some(id=>d.done.includes(id))).length : 0,
     noSugarStreak:         _noSugarIds.length ? Math.max(0,..._noSugarIds.map(id=>habitStreakCount(challenge,id))) : 0,
     morningRoutineLogged:  _morningIds.length ? allDays.filter(d=>_morningIds.some(id=>d.done.includes(id))).length : 0,
     morningRoutineStreak:  _morningIds.length ? Math.max(0,..._morningIds.map(id=>habitStreakCount(challenge,id))) : 0,
-    detoxLogged:           _detoxIds.length ? allDays.filter(d=>_detoxIds.some(id=>d.done.includes(id))).length : 0,
-    detoxStreak:           _detoxIds.length ? Math.max(0,..._detoxIds.map(id=>habitStreakCount(challenge,id))) : 0,
+    detoxLogged:           _detoxIds.length   ? allDays.filter(d=>_detoxIds.some(id=>d.done.includes(id))).length : 0,
+    detoxStreak:           _detoxIds.length   ? Math.max(0,..._detoxIds.map(id=>habitStreakCount(challenge,id))) : 0,
     fastingLogged:         _fastingIds.length ? allDays.filter(d=>_fastingIds.some(id=>d.done.includes(id))).length : 0,
     fastingStreak:         _fastingIds.length ? Math.max(0,..._fastingIds.map(id=>habitStreakCount(challenge,id))) : 0,
-    coreLogged:            _coreIds.length ? allDays.filter(d=>_coreIds.some(id=>d.done.includes(id))).length : 0,
-    yogaLogged:            _yogaIds.length ? allDays.filter(d=>_yogaIds.some(id=>d.done.includes(id))).length : 0,
-    yogaStreak:            _yogaIds.length ? Math.max(0,..._yogaIds.map(id=>habitStreakCount(challenge,id))) : 0,
+    coreLogged:            _coreIds.length    ? allDays.filter(d=>_coreIds.some(id=>d.done.includes(id))).length : 0,
+    yogaLogged:            _yogaIds.length    ? allDays.filter(d=>_yogaIds.some(id=>d.done.includes(id))).length : 0,
+    yogaStreak:            _yogaIds.length    ? Math.max(0,..._yogaIds.map(id=>habitStreakCount(challenge,id))) : 0,
+    photosLogged:          _photoIds.length   ? allDays.filter(d=>_photoIds.some(id=>d.done.includes(id))).length : 0,
+    has6kmWalk:            _walkIds.length    ? allDays.some(d=>_walkIds.some(id=>{ const v=d.tiers?.[id]; return Number(v)>=6; })) : false,
+    has50kmRide:           _cycleIds.length   ? allDays.some(d=>_cycleIds.some(id=>{ const v=d.tiers?.[id]; return Number(v)>=50; })) : false,
+    has10kmWalk:           _walkIds.length    ? allDays.some(d=>_walkIds.some(id=>{ const v=d.tiers?.[id]; return Number(v)>=10; })) : false,
+    totalKm:               challengeTotalKm(challenge),
   };
 
+  // Check template-specific badges
   let earned = false;
-  CHALLENGE_BADGES.forEach(b => {
-    if (!challenge.badges.includes(b.id) && b.test(ctx)) {
+  const tBadges = TEMPLATE_BADGES[challenge.templateId] || [];
+  tBadges.forEach(b => {
+    if (!challenge.badges.includes(b.id) && b.test(cCtx)) {
       challenge.badges.push(b.id);
       showToast(`${b.label} earned!`);
       earned = true;
-      if (b.id === "challenge-done" && !justCompletedId) {
+      // Completion badge → finalise challenge status and queue the modal
+      if (b.id.endsWith("-done") && challenge.status !== "completed") {
         challenge.finalStreak = calcChallengeStreak(challenge);
         challenge.status = "completed";
-        justCompletedId = challenge.id;
+        if (!justCompletedId) justCompletedId = challenge.id;
+        else justCompletedIds.push(challenge.id);
       }
     }
   });
 
-  // Global badges
-  const gCtx = {
-    completedChallenges: Object.values(state.challenges).filter(c=>c.status==="completed").length,
-    activeChallenges: getActiveChallenges().length,
-    longestStreak: Math.max(0, ...Object.values(state.challenges).map(c => calcChallengeStreak(c))),
+  // ── 2. Universal context (best/totals across all challenges) ─────────────
+  const allChallenges = Object.values(state.challenges);
+  const allDaysAll    = allChallenges.flatMap(c => Object.values(c.days));
+  const uCtx = {
+    longestStreak: Math.max(0, ...allChallenges.map(c =>
+      (c.status==="completed"||c.status==="failed") && c.finalStreak!=null
+        ? c.finalStreak : calcChallengeStreak(c)
+    )),
+    totalPts: allChallenges.reduce((s,c) =>
+      s + Object.values(c.days).reduce((ss,d) => ss+(d.pts||0), 0), 0
+    ),
+    weighIns:          state.bodyTracking.entries.length,
+    weightLost: (() => {
+      const sw = state.bodyTracking.startWeight;
+      const e  = state.bodyTracking.entries;
+      return (sw && e.length) ? Math.max(0, sw - e[e.length-1].weight) : 0;
+    })(),
+    weightGoalReached: (() => {
+      const gw = state.bodyTracking.goalWeight;
+      const e  = state.bodyTracking.entries;
+      return !!(gw && e.length && e[e.length-1].weight <= gw);
+    })(),
+    bossCompleted: allDaysAll.filter(d => d.mode==="boss" && d.done.length > 0).length,
+    bossWeek: allChallenges.some(c =>
+      challengeWeeks(c).some(w =>
+        w.allDays.filter(k => { const d=c.days[k]; return d&&d.mode==="boss"&&d.done.length>0; }).length >= 3
+      )
+    ),
+    anyRecovered:  allDaysAll.some(d => d.recovered),
+    minimumUsed:   allDaysAll.filter(d => d.mode==="minimum" && d.done.length > 0).length,
+    anyFirstDay: allChallenges.some(c => {
+      const fd = c.days[c.startDate];
+      if (!fd) return false;
+      const fi = completionInfo(c, fd);
+      return fi.percent === 100 && fi.total > 0;
+    }),
+    completedChallenges: allChallenges.filter(c => c.status==="completed").length,
+    activeChallenges:    getActiveChallenges().length,
   };
-  GLOBAL_BADGES.forEach(b => {
-    if (!state.globalBadges.includes(b.id) && b.test(gCtx)) {
+
+  UNIVERSAL_BADGES.forEach(b => {
+    if (!state.globalBadges.includes(b.id) && b.test(uCtx)) {
+      state.globalBadges.push(b.id);
+      showToast(`${b.label} earned!`);
+      earned = true;
+    }
+  });
+
+  // ── 3. Lifetime context (cumulative cross-challenge achievements) ─────────
+  const pb = computePersonalBests();
+  const lCtx = {
+    totalHabitsLogged: pb.totalHabits,
+    completedChallenges: allChallenges.filter(c => c.status==="completed").length,
+    allCategoriesDone: (() => {
+      const cats = new Set(
+        allChallenges
+          .filter(c => c.status==="completed" && c.templateId)
+          .map(c => TEMPLATES.find(t => t.id===c.templateId)?.category)
+          .filter(Boolean)
+      );
+      return ["transformation","movement","lifestyle"].every(cat => cats.has(cat));
+    })(),
+    weeklyGoalsHit: (() => {
+      let n = 0;
+      for (const c of allChallenges) {
+        for (const w of challengeWeeks(c)) {
+          const pts = w.days.reduce((s,k) => {
+            const d=c.days[k]; return s+(d?completionInfo(c,d).points:0);
+          }, 0);
+          if (pts >= c.weeklyGoal) n++;
+        }
+      }
+      return n;
+    })(),
+    perfectChallenge: allChallenges.filter(c => c.status==="completed").some(c => {
+      const start = parseDate(c.startDate), end = parseDate(c.endDate);
+      const cur = new Date(start);
+      while (cur <= end) {
+        const d = c.days[toKey(cur)];
+        if (!d || !dayLogged(d)) return false;
+        cur.setDate(cur.getDate()+1);
+      }
+      return true;
+    }),
+    freezeUsed: allChallenges.some(c => Object.values(c.days).some(d => d.freezeUsed)),
+  };
+
+  LIFETIME_BADGES.forEach(b => {
+    if (!state.globalBadges.includes(b.id) && b.test(lCtx)) {
       state.globalBadges.push(b.id);
       showToast(`${b.label} earned!`);
       earned = true;
@@ -962,12 +1325,12 @@ function checkBadges(challenge) {
   });
 
   if (earned) saveState();
-  checkStreakFreezeAward(challenge);
+  checkStreakFreezeAward(challenge, myWeeks);
 }
 
-function checkStreakFreezeAward(challenge) {
+function checkStreakFreezeAward(challenge, weeks) {
   const today = todayKey();
-  const weeks = challengeWeeks(challenge);
+  weeks = weeks || challengeWeeks(challenge);
   const curWeek = weeks.find(w => w.allDays.includes(today));
   if (!curWeek) return;
   const weekKey = curWeek.allDays[0]; // first day of week = unique ID
@@ -1000,6 +1363,27 @@ function habitStreakCount(challenge, habitId) {
 function lastNDays(n) {
   const d = parseDate(todayKey());
   return Array.from({length:n},()=>{ const k=toKey(d); d.setDate(d.getDate()-1); return k; });
+}
+
+// ── Confirm Modal (replaces window.confirm — works in standalone PWA) ─────
+
+function showConfirm(msg, onConfirm) {
+  _confirmDialog = { msg, onConfirm };
+  render();
+}
+
+function renderConfirmModal() {
+  if (!_confirmDialog) return "";
+  return `
+  <div class="confirm-overlay" data-confirm-overlay>
+    <div class="confirm-modal panel">
+      <p class="confirm-msg">${esc(_confirmDialog.msg)}</p>
+      <div class="confirm-btns">
+        <button class="secondary-button" data-confirm-cancel>Cancel</button>
+        <button class="pill-btn confirm-danger-btn" data-confirm-ok>Confirm</button>
+      </div>
+    </div>
+  </div>`;
 }
 
 // ── Render Core ────────────────────────────────────────────────────────────
@@ -1040,9 +1424,36 @@ function render() {
     if (_cc) html += renderCompletionModal(_cc);
   }
   if (onboardingStep !== null) html += renderOnboarding();
+  html += renderConfirmModal();
   app.innerHTML = html;
-  bindEvents();
-  requestAnimationFrame(() => { updateRingVisuals(); _animHabitId = null; });
+  if (!_eventsBound) { bindEvents(); _eventsBound = true; }
+  requestAnimationFrame(() => {
+    updateRingVisuals();
+    _animHabitId = null;
+    // Load progress photos into challenge detail strip (runs after every render so it works after navigation)
+    const ppStrip = document.querySelector('[id^="pp-strip-"]');
+    if (ppStrip && !ppStrip.dataset.loaded) {
+      ppStrip.dataset.loaded = "1";
+      const cid = ppStrip.id.replace("pp-strip-", "");
+      PhotoDB.list(cid + "_").then(photos => {
+        if (!photos.length) {
+          ppStrip.innerHTML = `<p class="pp-empty">No photos yet — tap 📷 on the progress photo habit to capture one.</p>`;
+        } else {
+          ppStrip.innerHTML = `<div class="pp-grid">${
+            photos.slice(-9).reverse().map(p => {
+              const dateStr = p.key.split("_")[1] || "";
+              const label = dateStr ? formatDate(parseDate(dateStr), {month:"short", day:"numeric"}) : dateStr;
+              return `<div class="pp-item">
+                <img src="${p.dataURL}" class="pp-img" alt="Progress ${label}">
+                <div class="pp-date">${label}</div>
+                <button class="pp-delete" data-delete-photo="${esc(p.key)}" title="Delete photo" aria-label="Delete photo">🗑</button>
+              </div>`;
+            }).join("")
+          }</div><p class="pp-count">${photos.length} photo${photos.length===1?"":"s"}</p>`;
+        }
+      }).catch(() => { ppStrip.innerHTML = ""; });
+    }
+  });
 }
 
 function renderTopbar() {
@@ -1140,7 +1551,7 @@ function renderToday() {
     </div>
     ${!isToday ? `<div class="backfill-banner">✏️ Editing ${formatDate(parseDate(effDate),{weekday:"long"})} — changes save immediately.</div>` : ""}
     <section class="hero">
-      <div class="day-label">${challenge.emoji} ${challenge.name}</div>
+      <div class="day-label">${esc(challenge.emoji)} ${esc(challenge.name)}</div>
       <div class="day-count">Day ${dayNumber} <span style="font-weight:300;font-size:0.55em;color:var(--text-dim)">of ${totalDays}</span></div>
       <div class="subtitle">${daysLeft > 0 ? daysLeft+" days remaining" : "Final day!"} · ${challenge.mode} mode</div>
       ${isToday ? `<div class="greeting">${currentGreeting()}</div>` : ""}
@@ -1153,32 +1564,45 @@ function renderToday() {
       ${isToday ? renderWeightWidget() : ""}
       ${isToday ? renderTodayWeightLog() : ""}
       ${renderCompleteBanner(day, info, challenge)}
-      ${info.done===0 ? `<p class="empty-copy">Nothing logged yet. What's first?</p>` : ""}
+      ${info.done===0 ? (() => {
+        const isExped = challenge.habits.some(h => h.type === "distance");
+        return `<p class="empty-copy">${isExped ? "No distance logged yet — enter your km below." : "Nothing logged yet. What's first?"}</p>`;
+      })() : ""}
     </section>
 
     <section>
       <div class="section-head">
         <div class="section-label" style="margin:0">Daily Mode</div>
       </div>
-      ${renderModeSelector(day)}
+      ${renderModeSelector(day, challenge)}
     </section>
 
     ${isToday ? renderWeeklyGoalBar(challenge) : ""}
 
     <section>
       <div class="section-head">
-        <div class="section-label" style="margin:0">Habits</div>
-        <div style="font-size:12px;font-weight:300;color:var(--text-dim)">${info.done} / ${info.total}</div>
+        ${challenge.habits.some(h => h.type === "distance")
+          ? `<div class="section-label" style="margin:0">Distance</div>`
+          : `<div class="section-label" style="margin:0">Habits</div>
+             <div style="font-size:12px;font-weight:300;color:var(--text-dim)">${info.done} / ${info.total}</div>`}
       </div>
       <div class="habit-list">
         ${challenge.habits.map(h => renderHabit(h, day, challenge)).join("")}
       </div>
-      ${(isToday && !day.recovered && info.done < info.total) ? `<button class="link-btn rough-day-link" data-open-sheet>Having a rough day?</button>` : ""}
+      ${(() => {
+        const tpl = challenge.templateId ? TEMPLATES.find(t=>t.id===challenge.templateId) : null;
+        return (isToday && !day.recovered && info.done < info.total && !tpl?.noRestDay)
+          ? `<button class="link-btn rough-day-link" data-open-sheet>Having a rough day?</button>` : "";
+      })()}
     </section>
+    ${(() => {
+      const tpl = challenge.templateId ? TEMPLATES.find(t=>t.id===challenge.templateId) : null;
+      return tpl?.routeKm ? renderRouteProgress(challenge, tpl) : "";
+    })()}
     ${renderDayNote(day)}
     ${renderPastNotes(challenge)}
   </main>
-  ${renderSaveDayButton(day, info)}`;
+  ${renderSaveDayButton(day, info, challenge)}`;
 }
 
 function renderChallengePills(active) {
@@ -1188,7 +1612,7 @@ function renderChallengePills(active) {
       const d = getChallengeDay(c);
       const info = completionInfo(c, d);
       return `<button class="c-pill ${c.id===todayChallengeId?"active":""}" data-today-challenge="${c.id}">
-        ${c.emoji} ${c.name} <span class="c-pill-pct">${info.percent}%</span>
+        ${esc(c.emoji)} ${esc(c.name)} <span class="c-pill-pct">${info.percent}%</span>
       </button>`;
     }).join("")}
   </div>`;
@@ -1244,8 +1668,13 @@ function renderNoChallenge() {
 }
 
 function renderRing(info, day, streak, challenge) {
-  const challengePts = challenge ? (challenge.totalPts || 0) : 0;
-  const gracePip = challenge && graceUsedYesterday(challenge);
+  const challengePts  = challenge ? (challenge.totalPts || 0) : 0;
+  const gracePip      = challenge && graceUsedYesterday(challenge);
+  const isExpedition  = challenge?.habits.some(h => h.type === "distance");
+  const tpl           = isExpedition && challenge.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
+  const todayKm       = isExpedition ? Object.values(day.distances || {}).reduce((s,v) => s + (Number(v)||0), 0) : null;
+  const totalKmVal    = isExpedition ? challengeTotalKm(challenge) : null;
+  const routeKm       = tpl?.routeKm || null;
   return `
   <div class="ring-wrap ${day.mode==="boss"?"boss":day.mode==="rest"?"rest":""}">
     <svg class="progress-ring" viewBox="0 0 220 220" aria-hidden="true">
@@ -1265,11 +1694,23 @@ function renderRing(info, day, streak, challenge) {
     <div class="ring-center">
       ${day.mode === "rest"
         ? `<div class="percent" style="font-size:2.2rem">😴</div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">rest day</div>`
-        : `<div class="percent">${info.percent}%</div><div class="ring-pts">${info.points}<span class="ring-pts-max">/${info.maxPoints}</span><span class="ring-pts-label"> pts</span></div>`
+        : isExpedition
+          ? `<div class="percent" style="font-size:${todayKm > 0 ? "1.6rem" : "2rem"}">${todayKm > 0 ? todayKm.toFixed(1) : "—"}</div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">${todayKm > 0 ? "km today" : "log distance"}</div>`
+          : `<div class="percent">${info.percent}%</div><div class="ring-pts">${info.points}<span class="ring-pts-max">/${info.maxPoints}</span><span class="ring-pts-label"> pts</span></div>`
       }
     </div>
   </div>
   <div class="ring-stats">
+    ${isExpedition ? `
+    <div class="ring-stat">
+      <div class="ring-stat-value">${totalKmVal !== null ? totalKmVal.toFixed(1) : "0"}<span class="ring-stat-sub"> km</span></div>
+      <div class="ring-stat-label">total distance</div>
+    </div>
+    <div class="ring-stat-sep"></div>
+    <div class="ring-stat">
+      <div class="ring-stat-value">${routeKm ? Math.min(100,Math.round((totalKmVal/routeKm)*100)) : "—"}<span class="ring-stat-sub">${routeKm ? "%" : ""}</span></div>
+      <div class="ring-stat-label">route done</div>
+    </div>` : `
     <div class="ring-stat">
       <div class="ring-stat-value">${info.done}<span class="ring-stat-sub">/${info.total}</span></div>
       <div class="ring-stat-label">habits</div>
@@ -1278,7 +1719,7 @@ function renderRing(info, day, streak, challenge) {
     <div class="ring-stat">
       <div class="ring-stat-value">${challengePts}${day.mode==="boss"?`<span class="boss-badge">×1.5</span>`:""}</div>
       <div class="ring-stat-label">challenge pts</div>
-    </div>
+    </div>`}
     <div class="ring-stat-sep"></div>
     <div class="ring-stat">
       <div class="ring-stat-value">${streak}${gracePip?`<span style="font-size:10px;color:#ffcc44;margin-left:2px" title="Grace day used yesterday — don't miss today!">🛟</span>`:""}</div>
@@ -1302,21 +1743,38 @@ function renderStreakFreezeUI(challenge) {
   </div>`;
 }
 
-function renderModeSelector(day) {
+function renderModeSelector(day, challenge) {
+  const template      = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
+  const noRestDay     = !!(template?.noRestDay);
+  const jokerBudget   = challenge?.jokerBudget ?? 3;
+  // Count rest days used (excluding today's current selection so user can toggle freely)
+  const todayIsRest   = day.mode === "rest";
+  const jokersUsed    = Object.values(challenge?.days || {}).filter(d => d.mode === "rest").length;
+  const jokersLeft    = Math.max(0, jokerBudget - jokersUsed + (todayIsRest ? 0 : 0));
+  const budgetExhausted = !todayIsRest && jokersUsed >= jokerBudget;
+
   const modeDesc = {
     minimum:  "Locks non-essential habits. Streak stays safe.",
     standard: "All habits available. Normal day.",
     boss:     "Every habit unlocked. Points × 1.5. Go all out.",
-    rest:     "Planned rest day. No habits required. Streak preserved.",
+    rest:     budgetExhausted
+      ? `No rest days left (${jokerBudget}/${jokerBudget} used).`
+      : `Rest day. No habits required. Streak preserved. (${jokersUsed}/${jokerBudget} used)`,
   };
+
+  const modes = noRestDay
+    ? [["minimum","Minimum"],["standard","Standard"],["boss","Boss Day"]]
+    : [["minimum","Minimum"],["standard","Standard"],["boss","Boss Day"],["rest", budgetExhausted ? `Rest (0 left)` : `Rest Day${jokerBudget > 0 ? ` (${jokerBudget - jokersUsed} left)` : ""}`]];
+
   return `
-  <div class="mode-selector">${[["minimum","Minimum"],["standard","Standard"],["boss","Boss Day"],["rest","Rest Day"]].map(([id,label]) =>
-    `<button class="mode-button ${id==="rest"?"rest-mode-btn":""} ${day.mode===id?"active":""}" data-mode="${id}">${label}</button>`).join("")}</div>
+  <div class="mode-selector">${modes.map(([id,label]) =>
+    `<button class="mode-button ${id==="rest"?"rest-mode-btn":""} ${day.mode===id?"active":""} ${id==="rest"&&budgetExhausted?"mode-btn-disabled":""}" data-mode="${id}" ${id==="rest"&&budgetExhausted?`aria-disabled="true"`:""} >${label}</button>`).join("")}</div>
   <p class="mode-desc">${modeDesc[day.mode]||""}</p>`;
 }
 
 function renderHabit(habit, day, challenge) {
-  if (habit.type === "tiered") return renderTieredHabit(habit, day, challenge);
+  if (habit.type === "tiered")   return renderTieredHabit(habit, day, challenge);
+  if (habit.type === "distance") return renderDistanceHabit(habit, day, challenge);
   const locked  = day.mode==="rest" || (day.mode==="minimum" && !habit.minimum_day) || (day.mode!=="boss" && habit.boss_only);
   const checked = day.done.includes(habit.id);
   const popping = _animHabitId === habit.id;
@@ -1326,10 +1784,10 @@ function renderHabit(habit, day, challenge) {
     return `
   <div class="habit-card photo-habit-card ${checked?"checked":""} ${popping?"habit-pop":""}">
     <span class="accent"></span>
-    <span class="habit-emoji">${habit.emoji}</span>
+    <span class="habit-emoji">${esc(habit.emoji)}</span>
     <span class="habit-info">
-      <span class="habit-title">${habit.title}${habit.boss_only?`<span class="boss-pip">👑</span>`:""}</span>
-      <span class="habit-quip">${checked ? "Photo logged ✓" : habit.quip}</span>
+      <span class="habit-title">${esc(habit.title)}${habit.boss_only?`<span class="boss-pip">👑</span>`:""}</span>
+      <span class="habit-quip">${checked ? "Photo logged ✓" : esc(habit.quip)}</span>
     </span>
     <div class="photo-habit-actions">
       <button class="camera-btn" data-capture-photo="${habit.id}" aria-label="Take progress photo">📷</button>
@@ -1340,10 +1798,10 @@ function renderHabit(habit, day, challenge) {
   return `
   <button class="habit-card ${checked?"checked":""} ${locked?"locked":""} ${popping?"habit-pop":""}" data-habit="${habit.id}" ${locked?`aria-disabled="true"`:""}>
     <span class="accent"></span>
-    <span class="habit-emoji">${locked?"🔒":habit.emoji}</span>
+    <span class="habit-emoji">${locked?"🔒":esc(habit.emoji)}</span>
     <span class="habit-info">
-      <span class="habit-title">${habit.title}${habit.boss_only?`<span class="boss-pip">👑</span>`:""}</span>
-      <span class="habit-quip">${locked?(day.mode==="rest"?"Rest Day — recover well.":day.mode==="minimum"?"Minimum Day — locked.":"Switch to Boss Day."):habit.quip}</span>
+      <span class="habit-title">${esc(habit.title)}${habit.boss_only?`<span class="boss-pip">👑</span>`:""}</span>
+      <span class="habit-quip">${locked?(day.mode==="rest"?"Rest Day — recover well.":day.mode==="minimum"?"Minimum Day — locked.":"Switch to Boss Day."):esc(habit.quip)}</span>
     </span>
     <span class="check-circle">${checked?"✓":""}</span>
   </button>`;
@@ -1358,7 +1816,7 @@ function renderTieredHabit(habit, day, challenge) {
     <span class="accent" style="${habit.boss_only?"background:linear-gradient(135deg,#ffcc44,#ff9500)":""}"></span>
     <span class="habit-emoji">${habit.boss_only?"👑":"🔒"}</span>
     <span class="habit-info">
-      <span class="habit-title">${habit.title}</span>
+      <span class="habit-title">${esc(habit.title)}</span>
       <span class="habit-quip">${day.mode==="rest"?"Rest Day — recover well.":day.mode==="minimum"?"Minimum Day — locked.":"Switch to Boss Day."}</span>
     </span>
     <span class="check-circle"></span>
@@ -1367,9 +1825,9 @@ function renderTieredHabit(habit, day, challenge) {
   return `
   <div class="habit-card run-habit ${checked?"checked":""} ${popping?"habit-pop":""}">
     <span class="accent" style="${habit.boss_only?"background:linear-gradient(135deg,#ffcc44,#ff9500)":""}"></span>
-    <span class="habit-emoji">${habit.emoji}</span>
+    <span class="habit-emoji">${esc(habit.emoji)}</span>
     <div class="run-body">
-      <span class="habit-title">${habit.title}${habit.boss_only?`<span class="boss-pip">👑</span>`:""}</span>
+      <span class="habit-title">${esc(habit.title)}${habit.boss_only?`<span class="boss-pip">👑</span>`:""}</span>
       <div class="run-distances">
         ${habit.tiers.map(t => `<button class="run-dist ${String(selVal)===String(t.value)?"active":""}" data-tier="${habit.id}" data-tier-val="${t.value}">${t.label}</button>`).join("")}
       </div>
@@ -1377,6 +1835,89 @@ function renderTieredHabit(habit, day, challenge) {
     </div>
     <span class="check-circle">${checked && selVal != null ? (tierPoints(habit,selVal)+"pts") : checked ? "✓" : ""}</span>
   </div>`;
+}
+
+function renderDistanceHabit(habit, day, challenge) {
+  const locked  = day.mode === "rest";
+  const km      = day.distances?.[habit.id] ?? 0;
+  const checked = day.done.includes(habit.id);
+  const tpl     = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
+  const totalKm = tpl?.routeKm ? challengeTotalKm(challenge) : 0;
+  const remaining = tpl?.routeKm ? Math.max(0, tpl.routeKm - totalKm) : null;
+  if (locked) return `
+  <div class="habit-card locked" aria-disabled="true">
+    <span class="accent"></span>
+    <span class="habit-emoji">🔒</span>
+    <span class="habit-info">
+      <span class="habit-title">${esc(habit.title)}</span>
+      <span class="habit-quip">Rest Day — recover well.</span>
+    </span>
+    <span class="check-circle"></span>
+  </div>`;
+  const quip = checked
+    ? `${km} km logged today ✓`
+    : remaining !== null && remaining === 0
+      ? "Route complete! 🎉"
+      : remaining !== null
+        ? `${remaining.toFixed(1)} km left on route`
+        : esc(habit.quip);
+  return `
+  <div class="habit-card distance-habit-card ${checked?"checked":""}">
+    <span class="accent"></span>
+    <span class="habit-emoji">${esc(habit.emoji)}</span>
+    <div class="habit-info">
+      <span class="habit-title">${esc(habit.title)}</span>
+      <span class="habit-quip">${quip}</span>
+    </div>
+    <div class="distance-input-wrap">
+      <input type="number" class="distance-input" data-distance-habit="${habit.id}"
+        value="${km > 0 ? km : ""}" min="0" max="9999" step="0.1" placeholder="0"
+        inputmode="decimal" aria-label="Distance in km">
+      <span class="distance-unit">km</span>
+    </div>
+  </div>`;
+}
+
+function renderRouteProgress(challenge, template) {
+  const totalKm  = challengeTotalKm(challenge);
+  const routeKm  = template.routeKm;
+  const pct      = Math.min(100, Math.round((totalKm / routeKm) * 100));
+  const remaining = Math.max(0, routeKm - totalKm);
+  const milestones = template.milestones || [];
+  // Find last milestone just reached
+  const reached = [...milestones].reverse().find(m => totalKm >= m.km);
+  // Find next upcoming milestone
+  const next = milestones.find(m => totalKm < m.km);
+  // Milestone marker positions
+  const markers = milestones.map(m => {
+    const mPct = Math.round((m.km / routeKm) * 100);
+    const done  = totalKm >= m.km;
+    return `<div class="route-milestone-dot ${done?"done":""}" style="left:${mPct}%" title="${m.name} (${m.km} km)"></div>`;
+  }).join("");
+  return `
+  <section class="route-progress-section panel">
+    <div class="route-progress-header">
+      <span class="route-progress-name">${template.emoji} ${template.name}</span>
+      <span class="route-progress-km">${totalKm.toFixed(1)} <span style="font-weight:300;color:var(--text-dim)">/ ${routeKm.toLocaleString()} km</span></span>
+    </div>
+    <div class="route-progress-track">
+      <div class="route-progress-fill" style="width:${pct}%"></div>
+      ${markers}
+    </div>
+    <div class="route-pace">
+      ${remaining > 0
+        ? `${remaining.toFixed(1)} km remaining${next ? ` · next stop: ${next.emoji} ${next.name}` : ""}`
+        : `🎉 Route complete! You conquered ${template.name}.`}
+    </div>
+    ${reached && totalKm > 0 ? `
+    <div class="route-milestone-banner">
+      <span class="rmb-emoji">${reached.emoji}</span>
+      <div>
+        <div class="rmb-title">${reached.name}</div>
+        <div class="rmb-sub">${reached.km} km checkpoint reached</div>
+      </div>
+    </div>` : ""}
+  </section>`;
 }
 
 function renderWeightWidget() {
@@ -1421,9 +1962,20 @@ function renderTodayWeightLog() {
 
 function renderCompleteBanner(day, info, challenge) {
   if (info.done!==info.total || info.total===0) return "";
-  const hasNote = !!(day.note?.trim());
+  const hasNote   = !!(day.note?.trim());
   const noteNudge = hasNote ? "" : `<button class="cb-note-nudge" onclick="document.getElementById('day-note')?.focus()">✍️ Add today's note</button>`;
-  if (day.mode==="rest")    return `<div class="complete-banner rest-complete"><span class="cb-icon">😴</span><div class="cb-body"><div class="cb-title">Rest Day</div><div class="cb-sub">Recover. Come back stronger.</div>${noteNudge}</div></div>`;
+  const isExpedition = challenge?.habits.some(h => h.type === "distance");
+  if (day.mode==="rest") return `<div class="complete-banner rest-complete"><span class="cb-icon">😴</span><div class="cb-body"><div class="cb-title">Rest Day</div><div class="cb-sub">Recover. Come back stronger.</div>${noteNudge}</div></div>`;
+  if (isExpedition) {
+    const todayKm  = Object.values(day.distances || {}).reduce((s,v) => s + (Number(v)||0), 0);
+    const totalKmVal = challengeTotalKm(challenge);
+    const tpl      = challenge.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
+    const remaining = tpl?.routeKm ? Math.max(0, tpl.routeKm - totalKmVal) : null;
+    const sub = remaining !== null
+      ? `${totalKmVal.toFixed(1)} km covered · ${remaining.toFixed(1)} km to go`
+      : `${totalKmVal.toFixed(1)} km covered`;
+    return `<div class="complete-banner"><span class="cb-icon">🗺️</span><div class="cb-body"><div class="cb-title">${todayKm.toFixed(1)} km today</div><div class="cb-sub">${sub}</div>${noteNudge}</div></div>`;
+  }
   if (day.mode==="minimum") return `<div class="complete-banner minimum-complete"><span class="cb-icon">🛡</span><div class="cb-body"><div class="cb-title">Minimum Day Done</div><div class="cb-sub">Streak protected.</div>${noteNudge}</div></div>`;
   if (day.mode==="boss")    return `<div class="complete-banner boss-complete"><span class="cb-icon">👑</span><div class="cb-body"><div class="cb-title">BOSS DAY COMPLETE</div><div class="cb-sub">${info.points} pts · Absolute unit.</div>${noteNudge}</div></div>`;
   return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">Full Send</div><div class="cb-sub">All habits done · ${info.points} pts</div>${noteNudge}</div></div>`;
@@ -1476,6 +2028,12 @@ function renderWeeklyRecap(challenge) {
     delta > 0 ? `<span class="wrc-delta up">↑ +${delta} vs last week</span>` :
     delta < 0 ? `<span class="wrc-delta down">↓ ${delta} vs last week</span>` :
                 `<span class="wrc-delta flat">= same as last week</span>`;
+  const isExpedition = challenge.habits.some(h => h.type === "distance");
+  const weekKm = isExpedition ? lastWeek.allDays.reduce((s,k) => {
+    const d = challenge.days[k];
+    if (!d?.distances) return s;
+    return s + Object.values(d.distances).reduce((ss,km) => ss + (Number(km)||0), 0);
+  }, 0) : null;
   const msgs = hitGoal
     ? ["Last week was strong. Build on it.", "Goal hit. That's what consistency looks like.", "Momentum is real — keep it going."]
     : ["Progress compounds. Keep stacking.", "New week, fresh start. Let's go.", "Every logged day is a win."];
@@ -1487,7 +2045,9 @@ function renderWeeklyRecap(challenge) {
       <button class="wrc-dismiss" data-dismiss-weekly-recap="${challenge.id}" aria-label="Dismiss">✕</button>
     </div>
     <div class="wrc-stats">
-      <div class="wrc-stat"><span class="wrc-val">${pts}</span><span class="wrc-lbl">pts</span></div>
+      ${isExpedition
+        ? `<div class="wrc-stat"><span class="wrc-val">${weekKm.toFixed(1)}</span><span class="wrc-lbl">km</span></div>`
+        : `<div class="wrc-stat"><span class="wrc-val">${pts}</span><span class="wrc-lbl">pts</span></div>`}
       <div class="wrc-sep"></div>
       <div class="wrc-stat"><span class="wrc-val">${logged}/${lastWeek.allDays.length}</span><span class="wrc-lbl">days</span></div>
       <div class="wrc-sep"></div>
@@ -1611,8 +2171,10 @@ function pbCard(label, value, unit) {
   </div>`;
 }
 
-function renderSaveDayButton(day, info) {
+function renderSaveDayButton(day, info, challenge) {
   if (info.done>=info.total || day.recovered || activeTab!=="today" || builderOpen) return "";
+  const template  = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
+  if (template?.noRestDay) return "";
   return `<button class="save-day" data-open-sheet>Save My Day</button>`;
 }
 
@@ -1648,19 +2210,26 @@ function shareAchievement(text) {
 }
 
 function renderCompletionModal(c) {
-  const totalDays   = diffDays(c.startDate, c.endDate) + 1;
-  const totalPts    = Object.values(c.days).reduce((s,d) => s+(d.pts||0), 0);
-  const finalStreak = c.finalStreak ?? calcChallengeStreak(c);
-  const canShare    = !!navigator.share || !!navigator.clipboard;
-  const nextId      = c.templateId && CHALLENGE_CHAINS[c.templateId];
-  const nextT       = nextId ? TEMPLATES.find(t => t.id === nextId) : null;
+  const totalDays    = diffDays(c.startDate, c.endDate) + 1;
+  const totalPts     = Object.values(c.days).reduce((s,d) => s+(d.pts||0), 0);
+  const finalStreak  = c.finalStreak ?? calcChallengeStreak(c);
+  const canShare     = !!navigator.share || !!navigator.clipboard;
+  const nextId       = c.templateId && CHALLENGE_CHAINS[c.templateId];
+  const nextT        = nextId ? TEMPLATES.find(t => t.id === nextId) : null;
+  const isExpedition = c.habits.some(h => h.type === "distance");
+  const totalKmVal   = isExpedition ? challengeTotalKm(c) : null;
+  const tpl          = isExpedition && c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
+  const routeFinished = tpl?.routeKm && totalKmVal >= tpl.routeKm;
+  const completionSub = isExpedition
+    ? `${totalKmVal.toFixed(1)} km covered · ${totalDays} days · ${finalStreak}-day streak.<br>${routeFinished ? "You finished the route. Legendary." : "You stayed the course. That's what commitment looks like."}`
+    : `${totalDays} days · ${totalPts} pts · ${finalStreak}-day streak.<br>That's what commitment looks like.`;
   return `
   <div class="sheet-backdrop" data-close-completion>
     <section class="sheet completion-modal" role="dialog">
-      <div class="completion-emoji">${c.emoji}</div>
-      <div class="completion-title">Challenge Complete!</div>
-      <div class="completion-name">${c.name}</div>
-      <div class="completion-sub">${totalDays} days · ${totalPts} pts · ${finalStreak}-day streak.<br>That's what commitment looks like.</div>
+      <div class="completion-emoji">${esc(c.emoji)}</div>
+      <div class="completion-title">${isExpedition && routeFinished ? "Route Complete!" : "Challenge Complete!"}</div>
+      <div class="completion-name">${esc(c.name)}</div>
+      <div class="completion-sub">${completionSub}</div>
       ${nextT ? `
       <button class="chain-cta" data-start-suggested="${nextT.id}">
         <span class="chain-cta-pre">Continue your journey</span>
@@ -1695,34 +2264,47 @@ function renderChallenges() {
 }
 
 function renderChallengeCard(c) {
-  const today = todayKey();
-  const totalDays = diffDays(c.startDate, c.endDate)+1;
-  const dayNumber = challengeDayNumber(c);
-  const pct = clamp(Math.round((dayNumber/totalDays)*100), 0, 100);
-  // Use stored finalStreak for finished challenges so it stays accurate
-  const streak = (c.status==="completed"||c.status==="failed") && c.finalStreak!=null
+  const today        = todayKey();
+  const totalDays    = diffDays(c.startDate, c.endDate)+1;
+  const dayNumber    = challengeDayNumber(c);
+  const pct          = clamp(Math.round((dayNumber/totalDays)*100), 0, 100);
+  const streak       = (c.status==="completed"||c.status==="failed") && c.finalStreak!=null
     ? c.finalStreak : calcChallengeStreak(c);
-  const day = c.days[today];
-  const todayInfo = day ? completionInfo(c, day) : null;
-  const statusColor = c.status==="completed"?"var(--success)":c.status==="failed"?"var(--secondary)":c.status==="paused"?"var(--text-dim)":"";
+  const day          = c.days[today];
+  const todayInfo    = day ? completionInfo(c, day) : null;
+  const statusColor  = c.status==="completed"?"var(--success)":c.status==="failed"?"var(--secondary)":c.status==="paused"?"var(--text-dim)":"";
+  const isExpedition = c.habits.some(h => h.type === "distance");
+  const tpl          = isExpedition && c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
+  const totalKmVal   = isExpedition ? challengeTotalKm(c) : null;
+  const routePct     = tpl?.routeKm ? Math.min(100, Math.round((totalKmVal / tpl.routeKm) * 100)) : null;
+  // For expedition today-indicator: show today's km
+  const todayKm      = isExpedition && day?.distances
+    ? Object.values(day.distances).reduce((s,v) => s + (Number(v)||0), 0) : null;
   return `
   <button class="challenge-card" data-view-challenge="${c.id}">
     <div class="cc-top">
-      <div class="cc-emoji">${c.emoji}</div>
+      <div class="cc-emoji">${esc(c.emoji)}</div>
       <div class="cc-info">
-        <div class="cc-name">${c.name}</div>
-        <div class="cc-meta">${totalDays}d · ${c.mode} · Day ${dayNumber}</div>
+        <div class="cc-name">${esc(c.name)}</div>
+        <div class="cc-meta">${isExpedition && tpl?.routeKm
+          ? `${totalKmVal.toFixed(1)} / ${tpl.routeKm.toLocaleString()} km · Day ${dayNumber}`
+          : `${totalDays}d · ${c.mode} · Day ${dayNumber}`}</div>
       </div>
       <div class="cc-right">
-        ${c.status!=="active"?`<div class="cc-status" style="color:${statusColor}">${c.status==="paused"?"⏸ paused":c.status}</div>`
-          :`<div class="cc-today">${todayInfo?todayInfo.percent+"%":"—"}</div>`}
+        ${c.status!=="active"
+          ? `<div class="cc-status" style="color:${statusColor}">${c.status==="paused"?"⏸ paused":c.status}</div>`
+          : isExpedition
+            ? `<div class="cc-today">${todayKm !== null && todayKm > 0 ? todayKm.toFixed(1)+" km" : "—"}</div>`
+            : `<div class="cc-today">${todayInfo?todayInfo.percent+"%":"—"}</div>`}
         <div class="cc-streak">🔥 ${streak}</div>
       </div>
     </div>
     <div class="cc-track">
-      <div class="cc-fill" style="width:${pct}%"></div>
+      <div class="cc-fill" style="width:${isExpedition && routePct !== null ? routePct : pct}%"></div>
     </div>
-    <div class="cc-sub">${pct}% complete · ${c.badges.length} badges</div>
+    <div class="cc-sub">${isExpedition && routePct !== null
+      ? `${routePct}% of route · ${c.badges.length} badges`
+      : `${pct}% complete · ${c.badges.length} badges`}</div>
   </button>`;
 }
 
@@ -1741,6 +2323,9 @@ function renderChallengeDetail(c) {
   const hasPhotoHabit = c.habits.some(h => h.id === "photo" || /progress\s*photo/i.test(h.title));
   const nextChainId   = c.templateId && CHALLENGE_CHAINS[c.templateId];
   const nextChainT    = nextChainId ? TEMPLATES.find(t => t.id === nextChainId) : null;
+  const tpl           = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
+  const isExpedition  = !!(tpl?.routeKm);
+  const totalKm       = isExpedition ? challengeTotalKm(c) : null;
   return `
   <main>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
@@ -1748,16 +2333,20 @@ function renderChallengeDetail(c) {
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       </button>
       <div>
-        <div style="font-size:18px;font-weight:700">${c.emoji} ${c.name}</div>
+        <div style="font-size:18px;font-weight:700">${esc(c.emoji)} ${esc(c.name)}</div>
         <div style="font-size:12px;color:var(--text-dim)">${c.startDate} → ${c.endDate}</div>
       </div>
     </div>
     <div class="stats-grid" style="margin-bottom:14px">
-      ${statCard("🔥 Streak",    streak,   "days")}
-      ${statCard("⭐ Total pts", totalPts, "")}
-      ${statCard("📅 Progress",  pct+"%",  "")}
-      ${statCard("🏅 Badges",    c.badges.length, "")}
+      ${statCard("🔥 Streak", streak, "days")}
+      ${isExpedition
+        ? statCard("🗺️ Distance", totalKm.toFixed(1), "km")
+        : statCard("⭐ Total pts", totalPts, "")}
+      ${statCard("📅 Progress", pct+"%", "")}
+      ${statCard("🏅 Badges", c.badges.length, "")}
     </div>
+    ${isExpedition ? renderRouteProgress(c, tpl) : ""}
+
 
     ${nextChainT && c.status !== "active" ? `
     <div class="chain-next-banner" data-start-suggested="${nextChainT.id}">
@@ -1783,6 +2372,17 @@ function renderChallengeDetail(c) {
     <div class="section-label">Habits</div>
     <div class="habit-preview-list" style="margin-bottom:14px">
       ${c.habits.map(h => {
+        if (h.type === "distance") {
+          const allDays = Object.values(c.days);
+          const kmTotal = allDays.reduce((s,d) => s + (Number(d.distances?.[h.id]) || 0), 0);
+          const daysLogged = allDays.filter(d => d.done.includes(h.id)).length;
+          const routeKm = tpl?.routeKm || 0;
+          const routePct = routeKm ? Math.min(100, Math.round((kmTotal / routeKm) * 100)) : null;
+          return `<div class="habit-preview-item">
+            <span>${esc(h.emoji)} ${esc(h.title)}</span>
+            <span class="hpi-rate" style="color:var(--accent)">${kmTotal.toFixed(1)} km${routePct !== null ? ` · ${routePct}% of route` : ` · ${daysLogged}d logged`}</span>
+          </div>`;
+        }
         const allDays = Object.values(c.days);
         const available = allDays.filter(d => {
           if (d.mode === "minimum" && !h.minimum_day) return false;
@@ -1793,7 +2393,7 @@ function renderChallengeDetail(c) {
         const hpct = available.length ? Math.round((done / available.length) * 100) : null;
         const color = hpct == null ? "var(--text-faint)" : hpct >= 80 ? "var(--success)" : hpct >= 50 ? "#f5a623" : "var(--secondary)";
         return `<div class="habit-preview-item">
-          <span>${h.emoji} ${h.title}${h.boss_only ? ` <span style="font-size:10px;opacity:.6">👑</span>` : ""}</span>
+          <span>${esc(h.emoji)} ${esc(h.title)}${h.boss_only ? ` <span style="font-size:10px;opacity:.6">👑</span>` : ""}</span>
           ${hpct != null ? `<span class="hpi-rate" style="color:${color}">${hpct}%</span>` : ""}
         </div>`;
       }).join("")}
@@ -1873,8 +2473,8 @@ function renderEditChallenge(c) {
           }
           return `
           <div class="custom-habit-row">
-            <span class="custom-habit-emoji">${h.emoji}</span>
-            <span class="custom-habit-name">${h.title}</span>
+            <span class="custom-habit-emoji">${esc(h.emoji)}</span>
+            <span class="custom-habit-name">${esc(h.title)}</span>
             <span class="custom-habit-pts">${h.points}pt</span>
             <button class="icon-btn" data-ec-edit-habit="${i}" title="Edit">✏️</button>
             <button class="icon-btn" data-ec-delete-habit="${i}" title="Delete" style="color:var(--secondary)">✕</button>
@@ -1907,6 +2507,13 @@ function renderWeekCard(c, week, isCurrent) {
   const logged = week.days.filter(k=>{ const d=c.days[k]; return d&&(d.done.length||d.recovered); }).length;
   const goalPct = Math.min(100,Math.round((pts/c.weeklyGoal)*100));
   const hitGoal = !isCurrent && pts>=c.weeklyGoal;
+  // Expedition: sum km across the week
+  const isExpedition = c.habits.some(h => h.type === "distance");
+  const weekKm = isExpedition ? week.allDays.reduce((s,k) => {
+    const d = c.days[k];
+    if (!d?.distances) return s;
+    return s + Object.values(d.distances).reduce((ss,km) => ss + (Number(km)||0), 0);
+  }, 0) : null;
   return `
   <div class="${isCurrent?"week-card week-card-current":"week-card"}">
     <div class="wc-top">
@@ -1926,6 +2533,7 @@ function renderWeekCard(c, week, isCurrent) {
     }).join("")}</div>
     <div class="wc-goal-row">
       <span class="wc-pts">${pts} <span class="wc-goal-of">/ ${c.weeklyGoal} pts</span></span>
+      ${weekKm !== null ? `<span class="wc-km-badge">${weekKm.toFixed(1)} km</span>` : ""}
     </div>
     <div class="wc-goal-track"><div class="wc-goal-fill ${hitGoal?"wc-goal-done":""}" style="width:${goalPct}%"></div></div>
   </div>`;
@@ -2025,14 +2633,21 @@ function renderBuilderTemplates() {
     { id:"transformation", label:"🔥 Transformation" },
     { id:"movement",       label:"🏃 Movement"       },
     { id:"lifestyle",      label:"🌱 Lifestyle"      },
+    { id:"expedition",     label:"🗺️ Expeditions"    },
   ];
-  const templateCard = t => `
-    <button class="template-card" data-select-template="${t.id}">
+  const templateCard = t => {
+    const isExpedition = t.category === "expedition";
+    const meta = isExpedition
+      ? `${t.routeKm.toLocaleString()} km · ${t.duration} days`
+      : `${t.duration} days · ${t.defaultMode}`;
+    return `
+    <button class="template-card${isExpedition?" tc-cat expedition":""}" data-select-template="${t.id}">
       <div class="tc-emoji">${t.emoji}</div>
       <div class="tc-name">${t.name}</div>
-      <div class="tc-meta">${t.duration} days · ${t.defaultMode}</div>
+      <div class="tc-meta">${meta}</div>
       <div class="tc-desc">${t.description}</div>
     </button>`;
+  };
   return cats.map(cat => {
     const group = TEMPLATES.filter(t => t.category === cat.id);
     if (!group.length) return "";
@@ -2075,10 +2690,38 @@ function renderBuilderCustomize() {
       <button class="mode-button ${builderForm.mode==="strict"?"active":""}" data-bf-mode="strict">Strict</button>
     </div>
     <p class="mode-desc" style="margin-bottom:14px">${builderForm.mode==="soft"?"One grace day allowed if you miss — streak stays alive.":"Zero misses. Every day counts. No exceptions."}</p>
+    ${template?.noRestDay ? `
+    <div class="joker-budget-row" style="margin-bottom:14px">
+      <span class="field-label">Rest Days</span>
+      <span class="mode-desc" style="margin:0">Zero — no rest days on this challenge.</span>
+    </div>` : `
+    <div class="joker-budget-row" style="margin-bottom:14px">
+      <div class="field-label">Rest Days (your budget)</div>
+      <div class="joker-stepper">
+        <button class="joker-step-btn" data-joker-adj="-1">−</button>
+        <span class="joker-step-val" id="joker-val">${builderForm.jokerBudget}</span>
+        <button class="joker-step-btn" data-joker-adj="1">+</button>
+      </div>
+      <p class="mode-desc" style="margin:4px 0 0">${builderForm.jokerBudget === 0 ? "Zero compromise — no rest days." : `${builderForm.jokerBudget} planned day${builderForm.jokerBudget===1?"":"s"} off. Use them wisely.`}</p>
+    </div>`}
     <label class="field" style="margin-bottom:16px">
       Weekly point goal
       <input id="bf-goal" type="number" value="${builderForm.weeklyGoal}" min="10" max="500">
     </label>
+    ${template?.routeKm ? `
+    <div class="route-info-card">
+      <div class="route-info-header">
+        <span class="route-info-emoji">${template.emoji}</span>
+        <div>
+          <div class="route-info-name">${template.name}</div>
+          <div class="route-info-km">${template.routeKm.toLocaleString()} km · ${template.milestones.length} milestones</div>
+        </div>
+      </div>
+      <div class="route-milestones-preview">
+        ${template.milestones.map(m => `<span class="route-ms-chip">${m.emoji} ${m.name}</span>`).join("")}
+      </div>
+      <p class="mode-desc" style="margin:8px 0 0">Log any distance each day — walking, running, cycling, swimming. It all counts toward your route.</p>
+    </div>` : `
     <div class="section-label" style="margin:0 0 8px">Habits (${template?template.habits.length:builderForm.habits.length})</div>
     ${template ? `
       <div class="habit-preview-list">
@@ -2087,8 +2730,8 @@ function renderBuilderCustomize() {
       <div class="custom-habits-list">
         ${builderForm.habits.map((h,i)=>`
           <div class="custom-habit-row">
-            <span class="custom-habit-emoji">${h.emoji}</span>
-            <span class="custom-habit-name">${h.title}</span>
+            <span class="custom-habit-emoji">${esc(h.emoji)}</span>
+            <span class="custom-habit-name">${esc(h.title)}</span>
             <span class="custom-habit-pts">${h.points}pt</span>
             <button class="icon-btn" data-remove-habit="${i}">✕</button>
           </div>`).join("")}
@@ -2099,6 +2742,7 @@ function renderBuilderCustomize() {
           <button class="pill-btn" data-add-habit>Add</button>
         </div>
       </div>`}
+    `}
     <button class="primary-button" style="margin-top:20px" data-start-challenge>
       Start Challenge 🚀
     </button>
@@ -2240,11 +2884,19 @@ function renderWeighInHistory(entries) {
 // ── Badges Tab ────────────────────────────────────────────────────────────
 
 function renderBadges() {
-  const allChallenges = getAllChallenges();
-  // Only count challenges that have at least one logged day (not empty shells or deleted)
-  const activeChallenges = allChallenges.filter(c => Object.keys(c.days).length > 0 || c.badges.length > 0);
-  const total  = GLOBAL_BADGES.length + CHALLENGE_BADGES.length * activeChallenges.length;
-  const earned = state.globalBadges.length + allChallenges.reduce((s,c) => s+c.badges.length, 0);
+  const allChallenges    = getAllChallenges();
+  // Only show/count template badges for challenges that have been started
+  const startedChallenges = allChallenges.filter(c => Object.keys(c.days).length > 0 || c.badges.length > 0);
+
+  // Honest denominator: fixed global pool + per-challenge template sets
+  const templateTotal = startedChallenges.reduce((s,c) => s + (TEMPLATE_BADGES[c.templateId]?.length || 0), 0);
+  const total  = UNIVERSAL_BADGES.length + LIFETIME_BADGES.length + templateTotal;
+
+  const universalEarned = state.globalBadges.filter(id => UNIVERSAL_BADGES.some(b=>b.id===id)).length;
+  const lifetimeEarned  = state.globalBadges.filter(id => LIFETIME_BADGES.some(b=>b.id===id)).length;
+  const templateEarned  = allChallenges.reduce((s,c) => s+c.badges.length, 0);
+  const earned = universalEarned + lifetimeEarned + templateEarned;
+
   const pct = total > 0 ? Math.round((earned/total)*100) : 0;
   return `
   <main>
@@ -2255,8 +2907,13 @@ function renderBadges() {
         <div class="badge-overview-label">badges earned</div>
       </div>
       <div class="badge-overall-track"><div class="badge-overall-fill" style="width:${pct}%"></div></div>
-      ${renderBadgeCat("🌍 Global", GLOBAL_BADGES, state.globalBadges)}
-      ${allChallenges.map(c=>renderBadgeCat(`${c.emoji} ${c.name}`, CHALLENGE_BADGES, c.badges)).join("")}
+      ${renderBadgeCat("🌍 Universal", UNIVERSAL_BADGES, state.globalBadges)}
+      ${renderBadgeCat("💎 Lifetime Achievements", LIFETIME_BADGES, state.globalBadges)}
+      ${startedChallenges.map(c => {
+        const tBadges = TEMPLATE_BADGES[c.templateId];
+        if (!tBadges) return "";
+        return renderBadgeCat(`${esc(c.emoji)} ${esc(c.name)}`, tBadges, c.badges);
+      }).join("")}
     </div>
     ${renderPersonalBests()}
   </main>`;
@@ -2473,18 +3130,35 @@ function bindEvents() {
   });
   on("[data-select-template]", el => selectTemplate(el.dataset.selectTemplate));
   on("[data-bf-mode]",      el => { saveBuilderFormFromDOM(); builderForm.mode=el.dataset.bfMode; render(); });
+  on("[data-joker-adj]",   el => {
+    const delta = Number(el.dataset.jokerAdj);
+    const dur = diffDays(builderForm.startDate, builderForm.endDate) + 1;
+    const max = Math.floor(dur * 0.3); // cap at 30% of challenge length
+    builderForm.jokerBudget = Math.max(0, Math.min(max, (builderForm.jokerBudget || 0) + delta));
+    const valEl = document.getElementById("joker-val");
+    if (valEl) valEl.textContent = builderForm.jokerBudget;
+    // update the desc text inline without full re-render
+    const row = el.closest(".joker-budget-row");
+    const desc = row?.querySelector(".mode-desc");
+    if (desc) desc.textContent = builderForm.jokerBudget === 0 ? "Zero compromise — no rest days." : `${builderForm.jokerBudget} planned day${builderForm.jokerBudget===1?"":"s"} off. Use them wisely.`;
+  });
   on("[data-builder-back]", () => { builderStep="template"; render(); });
   on("[data-start-challenge]",() => startChallenge());
   on("[data-add-habit]",    () => { saveBuilderFormFromDOM(); addCustomHabit(); });
   on("[data-remove-habit]", el => { saveBuilderFormFromDOM(); removeCustomHabit(Number(el.dataset.removeHabit)); });
-  on("[data-close-completion]",       (el,e) => { if(e.target.closest("[data-close-completion]")){ justCompletedId=null; render(); }});
-  on("[data-completion-new-challenge]",     () => { justCompletedId=null; builderOpen=true; builderStep="template"; builderForm=defaultBuilderForm(); render(); });
+  on("[data-close-completion]",       (el,e) => { if(e.target.closest("[data-close-completion]")){ justCompletedId = justCompletedIds.length ? justCompletedIds.shift() : null; render(); }});
+  on("[data-completion-new-challenge]",     () => { justCompletedId=null; justCompletedIds=[]; builderOpen=true; builderStep="template"; builderForm=defaultBuilderForm(); render(); });
   on("[data-share-completion]", () => {
     const c = justCompletedId ? getChallenge(justCompletedId) : null; if (!c) return;
-    const totalDays = diffDays(c.startDate, c.endDate) + 1;
-    const totalPts  = Object.values(c.days).reduce((s,d) => s+(d.pts||0), 0);
-    const streak    = c.finalStreak ?? calcChallengeStreak(c);
-    shareAchievement(`I just completed the ${c.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪`);
+    const totalDays   = diffDays(c.startDate, c.endDate) + 1;
+    const totalPts    = Object.values(c.days).reduce((s,d) => s+(d.pts||0), 0);
+    const streak      = c.finalStreak ?? calcChallengeStreak(c);
+    const isExpedition = c.habits.some(h => h.type === "distance");
+    const totalKmVal  = isExpedition ? challengeTotalKm(c) : null;
+    const text = isExpedition
+      ? `I just covered ${totalKmVal.toFixed(1)} km on the ${c.name} expedition on Conqur! 🗺️\n${totalDays} days · ${streak}-day streak.\nEvery km counts. 💪`
+      : `I just completed the ${c.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪`;
+    shareAchievement(text);
   });
   on("[data-log-today-weight]", () => logTodayWeight());
   on("[data-edit-challenge]", el => {
@@ -2532,10 +3206,14 @@ function bindEvents() {
     const i = Number(el.dataset.ecDeleteHabit);
     const h = editForm.habits[i];
     if (!h) return;
-    if (!confirm(`Remove "${h.title}" from this challenge? Past logs for this habit will be cleared.`)) return;
-    editForm.habits.splice(i, 1);
-    if (editForm.habitEditIdx === i) editForm.habitEditIdx = null;
-    render();
+    showConfirm(
+      `Remove "${h.title}" from this challenge? Past logs for this habit will be cleared.`,
+      () => {
+        editForm.habits.splice(i, 1);
+        if (editForm.habitEditIdx === i) editForm.habitEditIdx = null;
+        render();
+      }
+    );
   });
   on("[data-ec-add-habit]", () => {
     if (!editForm) return;
@@ -2560,25 +3238,29 @@ function bindEvents() {
   });
   on("[data-save-reminder]",   () => saveReminderTime());
   on("[data-export-data]",     () => exportData());
-  const importInput = document.getElementById("import-file-input");
-  if (importInput) {
-    importInput.addEventListener("change", e => {
-      const file = e.target.files?.[0]; if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        try {
-          const parsed = JSON.parse(ev.target.result);
-          const normalized = normalizeState(parsed);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
-          showToast("Backup restored! Reloading…");
-          setTimeout(() => window.location.reload(), 1200);
-        } catch(err) {
-          showToast("Invalid backup file — couldn't restore.");
+  // Import file — delegated so it works when settings panel opens after first render
+  document.addEventListener("change", e => {
+    if (!e.target.matches("#import-file-input")) return;
+    const file = e.target.files?.[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        // Basic shape check — must look like a Conqur backup
+        if (!parsed || typeof parsed !== "object" || !("challenges" in parsed)) {
+          showToast("That doesn't look like a Conqur backup file."); return;
         }
-      };
-      reader.readAsText(file);
-    });
-  }
+        const cCount = Object.keys(parsed.challenges || {}).length;
+        const normalized = normalizeState(parsed);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+        showToast(`Backup restored (${cCount} challenge${cCount===1?"":"s"})! Reloading…`);
+        setTimeout(() => window.location.reload(), 1400);
+      } catch(err) {
+        showToast("Invalid backup file — couldn't restore.");
+      }
+    };
+    reader.readAsText(file);
+  });
   on("[data-ob-next]",         () => {
     onboardingStep++;
     const step = ONBOARDING_STEPS[onboardingStep];
@@ -2593,6 +3275,20 @@ function bindEvents() {
     render();
   });
   on("[data-ob-skip]",         () => { onboardingStep = null; activeTab = "today"; render(); });
+  on("[data-confirm-ok]",      () => { const fn = _confirmDialog?.onConfirm; _confirmDialog = null; render(); if (fn) fn(); });
+  on("[data-confirm-cancel]",  () => { _confirmDialog = null; render(); });
+  on("[data-delete-photo]",    el => {
+    const key = el.dataset.deletePhoto;
+    showConfirm("Delete this progress photo? This can't be undone.", async () => {
+      try {
+        await PhotoDB.delete(key);
+        // Force the strip to re-load on next render
+        const strip = document.querySelector('[id^="pp-strip-"]');
+        if (strip) delete strip.dataset.loaded;
+        render();
+      } catch(e) { showToast("Couldn't delete photo — try again."); }
+    });
+  });
   on("[data-show-more-history]",() => { bodyHistoryLimit += 10; render(); });
   on("[data-delete-challenge]", el => deleteChallenge(el.dataset.deleteChallenge));
   on("[data-dismiss-weekly-recap]", el => {
@@ -2604,7 +3300,7 @@ function bindEvents() {
   on("[data-start-suggested]", el => {
     const t = TEMPLATES.find(t2 => t2.id === el.dataset.startSuggested);
     if (!t) return;
-    justCompletedId = null;
+    justCompletedId = null; justCompletedIds = [];
     builderOpen = true; builderStep = "customize";
     builderForm = defaultBuilderForm();
     builderForm.templateId = t.id;
@@ -2615,38 +3311,31 @@ function bindEvents() {
     builderForm.endDate = addDays(builderForm.startDate, t.duration - 1);
     render();
   });
-  // Async-load progress photos into challenge detail strip
-  const ppStrip = document.querySelector('[id^="pp-strip-"]');
-  if (ppStrip) {
-    const cid = ppStrip.id.replace("pp-strip-", "");
-    PhotoDB.list(cid + "_").then(photos => {
-      if (!photos.length) {
-        ppStrip.innerHTML = `<p class="pp-empty">No photos yet — tap 📷 on the progress photo habit to capture one.</p>`;
-      } else {
-        ppStrip.innerHTML = `<div class="pp-grid">${
-          photos.slice(-9).reverse().map(p => {
-            const dateStr = p.key.split("_")[1] || "";
-            const label = dateStr ? formatDate(parseDate(dateStr), {month:"short", day:"numeric"}) : dateStr;
-            return `<div class="pp-item"><img src="${p.dataURL}" class="pp-img" alt="Progress ${label}"><div class="pp-date">${label}</div></div>`;
-          }).join("")
-        }</div>`;
-      }
-    }).catch(() => { ppStrip.innerHTML = ""; });
-  }
+  // Day note — delegated so it works after tab switches and re-renders
+  document.addEventListener("blur", e => {
+    if (e.target.id === "day-note") saveNote();
+  }, true); // capture phase so blur (which doesn't bubble) is caught
+  document.addEventListener("input", e => {
+    if (e.target.id !== "day-note") return;
+    const hint = document.getElementById("day-note-hint");
+    if (hint) hint.textContent = `${e.target.value.length}/500`;
+  });
 
-  // Day note: auto-save on blur without re-render
-  const noteEl = document.getElementById("day-note");
-  if (noteEl) {
-    noteEl.addEventListener("blur", saveNote);
-    noteEl.addEventListener("input", () => {
-      const hint = document.getElementById("day-note-hint");
-      if (hint) hint.textContent = `${noteEl.value.length}/500`;
-    });
-  }
+  // Distance habit input — delegated change event (persists across re-renders)
+  document.addEventListener("change", e => {
+    if (!e.target.matches("[data-distance-habit]")) return;
+    const habitId = e.target.dataset.distanceHabit;
+    const km = Math.max(0, parseFloat(e.target.value) || 0);
+    logDistance(habitId, km);
+  });
 }
 
 function on(sel, fn) {
-  document.querySelectorAll(sel).forEach(el => el.addEventListener("click", e => fn(el,e)));
+  // Proper event delegation — works after DOM re-renders because the listener lives on document
+  document.addEventListener("click", e => {
+    const el = e.target.closest(sel);
+    if (el) fn(el, e);
+  });
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────
@@ -2661,12 +3350,37 @@ function currentChallenge() {
 
 function setMode(mode) {
   const c = currentChallenge(); if (!c) return;
+  // Block rest day if template forbids it, or if joker budget is exhausted
+  if (mode === "rest") {
+    const tpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
+    if (tpl?.noRestDay) { showToast("No rest days on this challenge — that's the point. 💪"); return; }
+    const dayKey = effectiveDate();
+    const alreadyRest = c.days[dayKey]?.mode === "rest";
+    if (!alreadyRest) {
+      const used = Object.values(c.days).filter(d => d.mode === "rest").length;
+      const budget = c.jokerBudget ?? 3;
+      if (used >= budget) {
+        showToast(`No rest days left — you used all ${budget}. Keep going. 💪`);
+        return;
+      }
+    }
+  }
   const day = getChallengeDay(c, effectiveDate());
   // Warn if switching to a more restrictive mode would uncheck logged habits
   if (mode === "minimum" && day.mode !== "minimum" && day.done.length > 0) {
     const willLose = day.done.filter(id => !c.habits.find(h=>h.id===id)?.minimum_day).length;
-    if (willLose > 0 && !confirm(`Switching to Minimum Day will uncheck ${willLose} logged habit${willLose>1?"s":""}. Continue?`)) return;
+    if (willLose > 0) {
+      showConfirm(
+        `Switching to Minimum Day will uncheck ${willLose} logged habit${willLose>1?"s":""}. Continue?`,
+        () => { applyMode(c, day, mode); }
+      );
+      return;
+    }
   }
+  applyMode(c, day, mode);
+}
+
+function applyMode(c, day, mode) {
   day.mode = mode;
   if (mode==="minimum") day.done = day.done.filter(id => c.habits.find(h=>h.id===id)?.minimum_day);
   if (mode==="standard") day.done = day.done.filter(id => !c.habits.find(h=>h.id===id)?.boss_only);
@@ -2689,6 +3403,26 @@ function toggleHabit(id) {
   updateDayPoints(c, day);
   saveState(); navigator.vibrate?.(10);
   checkBadges(c); render();
+}
+
+function logDistance(habitId, km) {
+  const c = currentChallenge(); if (!c) return;
+  const habit = c.habits.find(h => h.id === habitId); if (!habit) return;
+  if (habit.type !== "distance") return;
+  const day = getChallengeDay(c, effectiveDate());
+  if (day.mode === "rest") return;
+  if (!day.distances) day.distances = {};
+  day.distances[habitId] = km;
+  if (km > 0) {
+    if (!day.done.includes(habitId)) { day.done.push(habitId); _animHabitId = habitId; }
+  } else {
+    day.done = day.done.filter(id => id !== habitId);
+    _animHabitId = null;
+  }
+  updateDayPoints(c, day);
+  saveState();
+  checkBadges(c);
+  render();
 }
 
 function selectTier(habitId, rawVal) {
@@ -2868,6 +3602,11 @@ function saveEditChallenge() {
           if (!newHabitIds.has(id)) delete day.tiers[id];
         }
       }
+      if (day.distances) {
+        for (const id of Object.keys(day.distances)) {
+          if (!newHabitIds.has(id)) delete day.distances[id];
+        }
+      }
       // Recalculate stored pts for this day
       updateDayPoints(c, day);
     }
@@ -2905,19 +3644,27 @@ function pauseChallenge(id) {
 
 function abandonChallenge(id) {
   const c = getChallenge(id); if (!c) return;
-  if (!confirm(`Abandon "${c.name}"? Progress is kept but it will be marked as failed.`)) return;
-  c.finalStreak = calcChallengeStreak(c);
-  c.status = "failed";
-  saveState(); viewChallengeId=null;
-  showToast("Challenge abandoned."); render();
+  showConfirm(
+    `Abandon "${c.name}"? Progress is kept but the challenge will be marked as failed.`,
+    () => {
+      c.finalStreak = calcChallengeStreak(c);
+      c.status = "failed";
+      saveState(); viewChallengeId = null;
+      showToast("Challenge abandoned."); render();
+    }
+  );
 }
 
 function deleteChallenge(id) {
   const c = getChallenge(id); if (!c) return;
-  if (!confirm(`Delete "${c.name}"? All progress will be permanently removed.`)) return;
-  delete state.challenges[id];
-  saveState(); viewChallengeId=null;
-  showToast("Challenge deleted."); render();
+  showConfirm(
+    `Delete "${c.name}"? All progress will be permanently removed.`,
+    () => {
+      delete state.challenges[id];
+      saveState(); viewChallengeId = null;
+      showToast("Challenge deleted."); render();
+    }
+  );
 }
 
 function useStreakFreeze() {
@@ -3010,10 +3757,13 @@ function graceUsedYesterday(challenge) {
 
 function showToast(msg) {
   const stack = document.getElementById("toast-stack");
+  if (!stack) return;
+  // Cap simultaneous toasts so badge bursts don't stack endlessly
+  while (stack.children.length >= 3) stack.removeChild(stack.firstChild);
   const el = document.createElement("div");
   el.className = "toast"; el.textContent = msg;
   stack.appendChild(el);
-  setTimeout(()=>el.remove(), 2500);
+  setTimeout(() => el.remove(), 2500);
 }
 
 function currentGreeting() {
@@ -3100,7 +3850,10 @@ async function applyAppUpdate(next) {
   reloadForUpdate();
 }
 
+let _lastUpdateCheckTime = 0;
+
 async function checkForAppUpdate() {
+  _lastUpdateCheckTime = Date.now();
   try {
     const r = await fetch(`/app-version.json?t=${Date.now()}`,{cache:"no-store"});
     if (!r.ok) return;
@@ -3113,7 +3866,13 @@ function startUpdateChecks() {
   if (!("fetch" in window)) return;
   checkForAppUpdate();
   setInterval(checkForAppUpdate, UPDATE_CHECK_MS);
-  document.addEventListener("visibilitychange",()=>{ if(!document.hidden) { checkForAppUpdate(); scheduleReminder(); } });
+  // Throttle: skip visibility-triggered checks that happen within 5 min of the last one
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      if (Date.now() - _lastUpdateCheckTime > 5 * 60 * 1000) checkForAppUpdate();
+      scheduleReminder();
+    }
+  });
 }
 
 // ── Boot ──────────────────────────────────────────────────────────────────
@@ -3139,6 +3898,16 @@ function setDynamicIcon() {
 
 startUpdateChecks();
 updateChallengeStatuses();
+// Migration: badge system V2 — universal/lifetime/template architecture replaces single flat list
+if (!state.migrations["badgeSystemV2"]) {
+  for (const c of Object.values(state.challenges)) { c.badges = []; }
+  state.globalBadges = [];
+  for (const c of Object.values(state.challenges)) {
+    if (Object.keys(c.days).length > 0) checkBadges(c);
+  }
+  state.migrations["badgeSystemV2"] = true;
+  saveState();
+}
 // Show onboarding for truly new users (no challenges, never migrated)
 if (!Object.keys(state.challenges).length && !state.migrations["cruiseModeImport_v1"]) {
   onboardingStep = 0;
