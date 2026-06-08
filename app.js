@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.08.5";
+const APP_VERSION = "2026.06.08.6";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -8,11 +8,11 @@ const UPDATE_CHECK_MS = 30 * 60 * 1000;
 
 // ── WoW-style Rarity Tiers ────────────────────────────────────────────────
 const TIERS = {
-  common:    { label:"Common",    color:"#aaaaaa", border:"rgba(170,170,170,0.35)" },
-  uncommon:  { label:"Uncommon",  color:"#1eff00", border:"rgba(30,255,0,0.4)"    },
-  rare:      { label:"Rare",      color:"#4da6ff", border:"rgba(0,112,255,0.45)"  },
-  epic:      { label:"Epic",      color:"#c070ff", border:"rgba(163,53,238,0.45)" },
-  legendary: { label:"Legendary", color:"#ff8c00", border:"rgba(255,128,0,0.5)"   },
+  common:    { label:"Common",    color:"#86efac" }, // soft green
+  uncommon:  { label:"Uncommon",  color:"#1eff00" }, // WoW classic green
+  rare:      { label:"Rare",      color:"#4da6ff" }, // WoW blue
+  epic:      { label:"Epic",      color:"#c070ff" }, // WoW purple
+  legendary: { label:"Legendary", color:"#ff8c00" }, // WoW orange/gold
 };
 
 // Challenge template → tier
@@ -20,19 +20,19 @@ const TEMPLATE_TIERS = {
   // ── Common: 30-day-or-less lifestyle, beginner-friendly
   "dry-month":"common","reading":"common","creative":"common",
   "meditation":"common","sleep-reset":"common","yoga-flexibility":"common",
-  "digital-detox":"common","walking":"common",
+  "digital-detox":"common","walking":"common","journaling":"common",
   // ── Uncommon: 30-day fitness / requires real consistency
   "30-pushups":"uncommon","dog-walk":"uncommon","cycling":"uncommon",
   "running":"uncommon","strength":"uncommon","no-sugar":"uncommon",
   "morning-routine":"uncommon","core-abs":"uncommon",
   // ── Rare: mentally demanding, 75-day, or short expedition
   "cold-exposure":"rare","intermittent-fasting":"rare",
-  "75-soft":"rare","everest-bc":"rare",
+  "75-soft":"rare","everest-bc":"rare","monk-mode":"rare",
   // ── Epic: strict 75-day, 86-day transformation, long expeditions
   "75-hard":"epic","cruise-control":"epic","camino":"epic","tour-de-france":"epic",
   // ── Legendary: year-long or extreme challenges
   "appalachian":"legendary","route66":"legendary",
-  "amazon-river":"legendary","everest-stairmaster":"legendary",
+  "amazon-river":"legendary","everest-stairmaster":"legendary","pct":"legendary",
 };
 
 // Universal / Lifetime badge → tier (template badges inherit their template's tier)
@@ -316,6 +316,32 @@ const TEMPLATES = [
     ]
   },
 
+  {
+    id: "journaling", name: "Daily Journaling", emoji: "✍️", category: "lifestyle",
+    description: "30 days of daily writing. Process your thoughts, track your growth, find clarity.",
+    duration: 30, weeklyGoal: 70, defaultMode: "soft",
+    habits: [
+      { id:"jn-write",  title:"Write in journal",         emoji:"📓", quip:"Even five minutes counts. Just start.",          type:"binary", minimum_day:true,  boss_only:false, points:4 },
+      { id:"jn-prompt", title:"Answer a writing prompt",  emoji:"💡", quip:"A question asked is a thought unlocked.",        type:"binary", minimum_day:false, boss_only:false, points:2 },
+      { id:"jn-gratit", title:"List 3 gratitudes",        emoji:"🙏", quip:"What you appreciate, appreciates.",              type:"binary", minimum_day:false, boss_only:false, points:2 },
+      { id:"jn-review", title:"Review yesterday's entry", emoji:"🔄", quip:"Reflection compounds the learning.",            type:"binary", minimum_day:false, boss_only:false, points:1 },
+      { id:"jn-deep",   title:"Write 2+ full pages",      emoji:"📖", quip:"Boss Day: go deep. Let it all out.",             type:"binary", minimum_day:false, boss_only:true,  points:4 },
+    ]
+  },
+  {
+    id: "monk-mode", name: "Monk Mode", emoji: "🧠", category: "transformation",
+    description: "30 days of intense focus. No social media, no distractions — just deep work, learning, and execution.",
+    duration: 30, weeklyGoal: 120, defaultMode: "strict",
+    habits: [
+      { id:"mm-focus",   title:"Deep work — 2 hours",    emoji:"💻", quip:"Two hours. Zero distractions. Phone off.",        type:"binary", minimum_day:true,  boss_only:false, points:5 },
+      { id:"mm-nosocial",title:"No social media",        emoji:"📵", quip:"Your attention is your most valuable asset.",      type:"binary", minimum_day:true,  boss_only:false, points:3 },
+      { id:"mm-learn",   title:"Deliberate learning — 1h",emoji:"📚",quip:"One hour of intentional study every day.",        type:"binary", minimum_day:true,  boss_only:false, points:3 },
+      { id:"mm-move",    title:"Move your body",         emoji:"🏃", quip:"The mind needs a body that moves.",               type:"binary", minimum_day:false, boss_only:false, points:2 },
+      { id:"mm-reflect", title:"Evening reflection",     emoji:"✍️", quip:"What did you build today?",                       type:"binary", minimum_day:false, boss_only:false, points:2 },
+      { id:"mm-ultra",   title:"4-hour deep work block", emoji:"⚡", quip:"Boss Day: go full monk.",                          type:"binary", minimum_day:false, boss_only:true,  points:6 },
+    ]
+  },
+
   // ── Expedition Routes ────────────────────────────────────────────────────
   {
     id: "everest-bc", name: "Everest Base Camp", emoji: "🏔️", category: "expedition",
@@ -405,6 +431,24 @@ const TEMPLATES = [
     ],
     habits: [
       { id:"dist", title:"Log distance", emoji:"🚣", quip:"The river never stops. Neither do you.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
+    ],
+  },
+  {
+    id: "pct", name: "Pacific Crest Trail", emoji: "🌲", category: "expedition",
+    description: "Walk 4,286 km from the Mexican border to the Canadian border — through the Sierra Nevada and Cascades. 5 months. No shortcuts.",
+    duration: 150, weeklyGoal: 20, defaultMode: "soft", routeKm: 4286,
+    milestones: [
+      { km:  160, name: "San Diego foothills", emoji: "🌵" },
+      { km:  700, name: "Los Angeles area",    emoji: "🌆" },
+      { km: 1300, name: "Mojave Desert",       emoji: "☀️" },
+      { km: 2000, name: "Sierra Nevada",       emoji: "⛰️" },
+      { km: 2600, name: "Northern California", emoji: "🌲" },
+      { km: 3100, name: "Oregon",              emoji: "🌋" },
+      { km: 3800, name: "Washington",          emoji: "🏔️" },
+      { km: 4286, name: "Canadian Border",     emoji: "🍁" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🥾", quip:"Every step north is progress.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
     ],
   },
   {
@@ -671,6 +715,27 @@ const TEMPLATE_BADGES = {
     { id:"esm-2000",    label:"☠️ Death Zone",           desc:"2,000 floors. The air is dangerously thin.",         test: c => c.totalKm >= 2000  },
     { id:"esm-summit",  label:"🏔️ Everest Summit!",     desc:"2,903 floors. You climbed an entire mountain.",      test: c => c.totalKm >= 2903.2},
   ],
+  "journaling": [
+    { id:"jn-d1",    label:"✍️ First Entry",       desc:"Write your first journal entry.",                          test: c => c.dayNumber >= 1 && c.complete },
+    { id:"jn-d7",    label:"📓 One Week In",        desc:"Complete a full week of journaling.",                     test: c => c.streak >= 7 },
+    { id:"jn-d14",   label:"💡 Two Weeks Clear",    desc:"14 days of consistent reflection.",                       test: c => c.streak >= 14 },
+    { id:"jn-d21",   label:"🔄 21-Day Habit",       desc:"Science says habits form in 21 days. You did it.",       test: c => c.streak >= 21 },
+    { id:"jn-done",  label:"📖 Full Journal",       desc:"30 days. A complete record of who you became.",          test: c => c.complete && c.dayNumber >= 30 },
+  ],
+  "monk-mode": [
+    { id:"mm-d1",    label:"🧠 Monk's First Day",   desc:"Complete Day 1 in full focus mode.",                      test: c => c.dayNumber >= 1 && c.complete },
+    { id:"mm-d7",    label:"📵 Social-Free Week",   desc:"7 days without social media.",                            test: c => c.streak >= 7 },
+    { id:"mm-d14",   label:"💻 Deep Work Streak",   desc:"14 consecutive days of 2-hour deep work blocks.",        test: c => c.streak >= 14 },
+    { id:"mm-d21",   label:"⚡ Flow State",          desc:"21 days of monk mode — you've found your rhythm.",       test: c => c.streak >= 21 },
+    { id:"mm-done",  label:"🏆 Monk Certified",     desc:"30 days. You built a mind like a weapon.",               test: c => c.complete && c.dayNumber >= 30 },
+  ],
+  "pct": [
+    { id:"pct-start",  label:"🌵 Mexico Border",    desc:"Step off from the southern terminus. The journey begins.", test: c => c.totalKm >= 1    },
+    { id:"pct-sierra", label:"⛰️ High Sierra",      desc:"Enter the Sierra Nevada (2,000 km).",                     test: c => c.totalKm >= 2000 },
+    { id:"pct-oregon", label:"🌋 Into Oregon",      desc:"Cross into Oregon (3,100 km).",                           test: c => c.totalKm >= 3100 },
+    { id:"pct-wa",     label:"🏔️ Washington",       desc:"Enter the final state (3,800 km).",                       test: c => c.totalKm >= 3800 },
+    { id:"pct-done",   label:"🍁 Canada!",           desc:"4,286 km. You walked from Mexico to Canada.",            test: c => c.totalKm >= 4286 },
+  ],
 };
 
 // ── Challenge Chains (what comes next after each template) ────────────────
@@ -689,6 +754,9 @@ const CHALLENGE_CHAINS = {
   "dry-month":          "no-sugar",
   "yoga-flexibility":   "75-soft",
   "core-abs":           "strength",
+  "journaling":         "reading",
+  "monk-mode":          "cruise-control",
+  "pct":                "appalachian",
 };
 
 // ── PhotoDB — IndexedDB wrapper for progress photos ───────────────────────
@@ -2511,11 +2579,11 @@ function renderChallengeCard(c) {
   const tier         = tpl ? (TEMPLATE_TIERS[tpl.id] || "common") : null;
   const tierData     = tier ? TIERS[tier] : null;
   return `
-  <button class="challenge-card${tier?" tier-card-"+tier:""}" data-view-challenge="${c.id}"${tierData?` style="border-left:3px solid ${tierData.border}"`:""}>
+  <button class="challenge-card" data-view-challenge="${c.id}">
     <div class="cc-top">
       <div class="cc-emoji">${esc(c.emoji)}</div>
       <div class="cc-info">
-        <div class="cc-name">${esc(c.name)}${tierData?` <span class="tier-chip tier-${tier}">${tierData.label}</span>`:""}</div>
+        <div class="cc-name"${tierData?` style="color:${tierData.color}"`:""}>${esc(c.name)}</div>
         <div class="cc-meta">${isExpedition && tpl?.routeKm
           ? `${Math.round(totalKmVal * factor * 10)/10} / ${Math.round(tpl.routeKm * factor).toLocaleString()} ${dUnit} · Day ${dayNumber}`
           : `${totalDays}d · ${c.mode} · Day ${dayNumber}`}</div>
@@ -2569,11 +2637,8 @@ function renderChallengeDetail(c) {
       <button class="icon-btn" data-close-detail>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       </button>
-      <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
-          <span style="font-size:18px;font-weight:700">${esc(c.emoji)} ${esc(c.name)}</span>
-          ${(()=>{ const t=c.templateId?TEMPLATE_TIERS[c.templateId]:null; const td=t?TIERS[t]:null; return td?`<span class="tier-chip tier-${t}">${td.label}</span>`:""; })()}
-        </div>
+      <div>
+        <div style="font-size:18px;font-weight:700">${esc(c.emoji)} ${(()=>{ const t=c.templateId?TEMPLATE_TIERS[c.templateId]:null; const td=t?TIERS[t]:null; return td?`<span style="color:${td.color}">${esc(c.name)}</span>`:esc(c.name); })()}</div>
         <div style="font-size:12px;color:var(--text-dim)">${c.startDate} → ${c.endDate}</div>
       </div>
     </div>
@@ -2889,13 +2954,9 @@ function renderBuilderTemplates() {
     const tier     = TEMPLATE_TIERS[t.id] || "common";
     const tierData = TIERS[tier];
     return `
-    <button class="template-card${isExpedition?" tc-cat expedition":""}" data-select-template="${t.id}"
-      style="border-top:2px solid ${tierData.border}">
-      <div class="tc-top-row">
-        <div class="tc-emoji">${t.emoji}</div>
-        <span class="tier-chip tier-${tier}">${tierData.label}</span>
-      </div>
-      <div class="tc-name">${t.name}</div>
+    <button class="template-card${isExpedition?" tc-cat expedition":""}" data-select-template="${t.id}">
+      <div class="tc-emoji">${t.emoji}</div>
+      <div class="tc-name" style="color:${tierData.color}">${t.name}</div>
       <div class="tc-meta">${meta}</div>
       <div class="tc-desc">${t.description}</div>
     </button>`;

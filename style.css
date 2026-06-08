@@ -3000,18 +3000,6 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .tier-legendary { color: #ff8c00; border-color: rgba(255,128,0,0.5);  background: rgba(255,128,0,0.1);
                   box-shadow: 0 0 8px rgba(255,128,0,0.2); }
 
-/* Legendary challenge card pulse */
-.tier-card-legendary { animation: legendary-pulse 3s ease-in-out infinite; }
-@keyframes legendary-pulse {
-  0%, 100% { box-shadow: var(--card-shadow), 0 0 10px rgba(255,128,0,0.12); }
-  50%       { box-shadow: var(--card-shadow), 0 0 24px rgba(255,128,0,0.3); }
-}
-
-/* Template card — emoji + tier in one row */
-.tc-top-row {
-  display: flex; align-items: flex-start;
-  justify-content: space-between; margin-bottom: 4px;
-}
 
 /* Badge tier dot (tiny colored circle above earned badge label) */
 .badge-tier-dot {
