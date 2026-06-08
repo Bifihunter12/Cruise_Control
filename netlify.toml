@@ -1,6 +1,10 @@
 [build]
   publish = "."
 
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 # Service worker must never be cached — browsers need to check for updates
 [[headers]]
   for = "/sw.js"

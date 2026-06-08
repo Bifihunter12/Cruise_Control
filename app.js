@@ -1,10 +1,57 @@
 "use strict";
 
-const APP_VERSION = "2026.06.08.4";
+const APP_VERSION = "2026.06.08.5";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
 const UPDATE_CHECK_MS = 30 * 60 * 1000;
+
+// ── WoW-style Rarity Tiers ────────────────────────────────────────────────
+const TIERS = {
+  common:    { label:"Common",    color:"#aaaaaa", border:"rgba(170,170,170,0.35)" },
+  uncommon:  { label:"Uncommon",  color:"#1eff00", border:"rgba(30,255,0,0.4)"    },
+  rare:      { label:"Rare",      color:"#4da6ff", border:"rgba(0,112,255,0.45)"  },
+  epic:      { label:"Epic",      color:"#c070ff", border:"rgba(163,53,238,0.45)" },
+  legendary: { label:"Legendary", color:"#ff8c00", border:"rgba(255,128,0,0.5)"   },
+};
+
+// Challenge template → tier
+const TEMPLATE_TIERS = {
+  // ── Common: 30-day-or-less lifestyle, beginner-friendly
+  "dry-month":"common","reading":"common","creative":"common",
+  "meditation":"common","sleep-reset":"common","yoga-flexibility":"common",
+  "digital-detox":"common","walking":"common",
+  // ── Uncommon: 30-day fitness / requires real consistency
+  "30-pushups":"uncommon","dog-walk":"uncommon","cycling":"uncommon",
+  "running":"uncommon","strength":"uncommon","no-sugar":"uncommon",
+  "morning-routine":"uncommon","core-abs":"uncommon",
+  // ── Rare: mentally demanding, 75-day, or short expedition
+  "cold-exposure":"rare","intermittent-fasting":"rare",
+  "75-soft":"rare","everest-bc":"rare",
+  // ── Epic: strict 75-day, 86-day transformation, long expeditions
+  "75-hard":"epic","cruise-control":"epic","camino":"epic","tour-de-france":"epic",
+  // ── Legendary: year-long or extreme challenges
+  "appalachian":"legendary","route66":"legendary",
+  "amazon-river":"legendary","everest-stairmaster":"legendary",
+};
+
+// Universal / Lifetime badge → tier (template badges inherit their template's tier)
+const BADGE_TIERS = {
+  // Universal — streaks
+  "u-3d":"common","u-7d":"common","u-14d":"uncommon","u-21d":"uncommon",
+  "u-30d":"rare","u-60d":"epic","u-75d":"legendary",
+  // Universal — points
+  "u-p10":"common","u-p100":"uncommon","u-p500":"rare","u-p1k":"epic",
+  // Universal — body
+  "u-scale":"common","u-1lb":"common","u-5lb":"uncommon","u-10lb":"rare","u-wgoal":"epic",
+  // Universal — modes & behavior
+  "u-boss1":"common","u-bossw":"uncommon","u-cmback":"common","u-min5":"uncommon",
+  // Universal — challenge milestones
+  "u-first":"common","u-done1":"uncommon","u-done3":"rare","u-multi":"uncommon",
+  // Lifetime
+  "lt-100h":"uncommon","lt-500h":"rare","lt-5c":"epic","lt-cats":"rare",
+  "lt-wk10":"uncommon","lt-perf":"legendary","lt-freeze":"uncommon",
+};
 
 // ── Built-in Templates ─────────────────────────────────────────────────────
 
@@ -360,6 +407,22 @@ const TEMPLATES = [
       { id:"dist", title:"Log distance", emoji:"🚣", quip:"The river never stops. Neither do you.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
     ],
   },
+  {
+    id: "everest-stairmaster", name: "Everest StairMaster", emoji: "🏋️", category: "expedition",
+    description: "Climb 2,903 floors — the StairMaster equivalent of summiting Mount Everest from sea level. No oxygen tank. No shortcuts.",
+    duration: 365, weeklyGoal: 20, defaultMode: "strict", routeKm: 2903.2,
+    milestones: [
+      { km: 100,  name: "Foothills",             emoji: "⛰️" },
+      { km: 500,  name: "Camp I",                emoji: "⛺" },
+      { km: 1000, name: "Camp II",               emoji: "🏕️" },
+      { km: 1500, name: "Camp III",              emoji: "❄️" },
+      { km: 2000, name: "Death Zone",            emoji: "☠️" },
+      { km: 2903, name: "Summit — 8,849 m",     emoji: "🏔️" },
+    ],
+    habits: [
+      { id:"floors", title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 2,903 to go.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"floors" },
+    ],
+  },
 ];
 
 // ── Badge Definitions ──────────────────────────────────────────────────────
@@ -601,6 +664,13 @@ const TEMPLATE_BADGES = {
     { id:"amz-santarem",  label:"🦜 Santarém",             desc:"Approach the Atlantic delta (5,000 km).",          test: c => c.totalKm >= 5000 },
     { id:"amz-done",      label:"🌊 Atlantic!",            desc:"Flow into the Atlantic Ocean — all 6,437 km.",     test: c => c.totalKm >= 6437 },
   ],
+  "everest-stairmaster": [
+    { id:"esm-start",   label:"🏢 First Floor",        desc:"Log your first floor. The climb begins.",             test: c => c.totalKm >= 1     },
+    { id:"esm-100",     label:"⛰️ Foothills",           desc:"Reach 100 floors — the foothills.",                  test: c => c.totalKm >= 100   },
+    { id:"esm-1000",    label:"🏕️ Camp II",             desc:"1,000 floors deep. Basecamp II altitude.",           test: c => c.totalKm >= 1000  },
+    { id:"esm-2000",    label:"☠️ Death Zone",           desc:"2,000 floors. The air is dangerously thin.",         test: c => c.totalKm >= 2000  },
+    { id:"esm-summit",  label:"🏔️ Everest Summit!",     desc:"2,903 floors. You climbed an entire mountain.",      test: c => c.totalKm >= 2903.2},
+  ],
 };
 
 // ── Challenge Chains (what comes next after each template) ────────────────
@@ -688,7 +758,95 @@ let settingsOpen = false;
 let justCompletedId  = null;   // challenge shown in completion modal right now
 let justCompletedIds = [];     // queue of IDs waiting to be shown after the current one
 let _confirmDialog   = null;   // { msg, onConfirm } — replaces window.confirm()
+let _cloudAuthError   = "";    // error message for cloud auth form
+let _cloudAuthLoading = false; // loading spinner for cloud auth
+let _cloudPushTimer   = null;  // debounce timer for cloud push
+let _skipCloudPush    = false; // prevent redundant push after pull
 let reminderTimeout = null;
+
+// ── Cloud Sync (Netlify Functions + Blobs) ─────────────────────────────────
+const CloudSync = {
+  get token()    { return localStorage.getItem("conqur_token")  || null; },
+  get uid()      { return localStorage.getItem("conqur_uid")    || null; },
+  get userEmail(){ return localStorage.getItem("conqur_cemail") || null; },
+  get isSignedIn(){ return !!this.token && !!this.uid; },
+
+  async _api(path, method, body, token) {
+    const res = await fetch(`/.netlify/functions/${path}`, {
+      method: method || "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+      },
+      body: (method && method !== "GET" && body !== undefined) ? JSON.stringify(body) : undefined,
+    });
+    return res.json();
+  },
+
+  async signUp(email, password) {
+    const res = await this._api("auth", "POST", { action:"signup", email, password }).catch(e => ({ error: e.message }));
+    if (res.error) return { error: res.error };
+    localStorage.setItem("conqur_token",  res.token);
+    localStorage.setItem("conqur_uid",    res.uid);
+    localStorage.setItem("conqur_cemail", res.email);
+    this.push();
+    return {};
+  },
+
+  async signIn(email, password) {
+    const res = await this._api("auth", "POST", { action:"signin", email, password }).catch(e => ({ error: e.message }));
+    if (res.error) return { error: res.error };
+    localStorage.setItem("conqur_token",  res.token);
+    localStorage.setItem("conqur_uid",    res.uid);
+    localStorage.setItem("conqur_cemail", res.email);
+    await this.pull();
+    return {};
+  },
+
+  signOut() {
+    localStorage.removeItem("conqur_token");
+    localStorage.removeItem("conqur_uid");
+    localStorage.removeItem("conqur_cemail");
+    render();
+  },
+
+  async push() {
+    if (!this.isSignedIn) return;
+    try {
+      await fetch("/.netlify/functions/sync", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${this.token}`,
+        },
+        body: localStorage.getItem(STORAGE_KEY) || "{}",
+      });
+    } catch(e) { console.warn("Cloud push failed:", e); }
+  },
+
+  async pull() {
+    if (!this.isSignedIn) return;
+    try {
+      const res = await fetch("/.netlify/functions/sync", {
+        headers: { "Authorization": `Bearer ${this.token}` },
+      });
+      const remote = await res.json();
+      if (!remote || typeof remote !== "object" || !("challenges" in remote)) return;
+      const merged = normalizeState(remote);
+      // Merge: keep local challenges if they have more progress
+      for (const [id, c] of Object.entries(state.challenges)) {
+        if (!merged.challenges[id]) merged.challenges[id] = c;
+        else if ((c.totalPts || 0) > (merged.challenges[id].totalPts || 0)) merged.challenges[id] = c;
+      }
+      _skipCloudPush = true;
+      state = merged;
+      saveState();
+      _skipCloudPush = false;
+      render();
+      showToast("☁️ Data restored from cloud.");
+    } catch(e) { console.warn("Cloud pull failed:", e); }
+  },
+};
 let onboardingStep = null;   // null = done, 0-3 = active step
 let bodyHistoryLimit = 5;    // how many history rows to show in Body tab
 let _lastViewKey = "";       // for scroll-to-top on navigation changes
@@ -904,6 +1062,11 @@ function saveState() {
   } catch(e) {
     console.warn("saveState failed (storage quota?):", e);
     showToast("⚠️ Storage full — export a backup to avoid losing data.");
+  }
+  // Debounced cloud push — 5 s after last save so rapid taps don't spam
+  if (!_skipCloudPush && CloudSync.isSignedIn) {
+    clearTimeout(_cloudPushTimer);
+    _cloudPushTimer = setTimeout(() => CloudSync.push(), 5000);
   }
 }
 
@@ -1561,8 +1724,7 @@ function renderToday() {
     <section class="today-stage panel">
       ${renderRing(info, day, streak, challenge)}
       ${isToday ? renderStreakFreezeUI(challenge) : ""}
-      ${isToday ? renderWeightWidget() : ""}
-      ${isToday ? renderTodayWeightLog() : ""}
+      ${isToday ? renderWeightChip() : ""}
       ${renderCompleteBanner(day, info, challenge)}
       ${info.done===0 ? (() => {
         const isExped = challenge.habits.some(h => h.type === "distance");
@@ -1672,9 +1834,16 @@ function renderRing(info, day, streak, challenge) {
   const gracePip      = challenge && graceUsedYesterday(challenge);
   const isExpedition  = challenge?.habits.some(h => h.type === "distance");
   const tpl           = isExpedition && challenge.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
-  const todayKm       = isExpedition ? Object.values(day.distances || {}).reduce((s,v) => s + (Number(v)||0), 0) : null;
-  const totalKmVal    = isExpedition ? challengeTotalKm(challenge) : null;
+  const todayKmRaw    = isExpedition ? Object.values(day.distances || {}).reduce((s,v) => s + (Number(v)||0), 0) : null;
+  const totalKmNative = isExpedition ? challengeTotalKm(challenge) : null;
   const routeKm       = tpl?.routeKm || null;
+  // Unit conversion for ring display
+  const ringDistHabit = isExpedition ? challenge.habits.find(h => h.type === "distance") : null;
+  const ringIsFloors  = ringDistHabit?.unit === "floors";
+  const ringDUnit     = ringIsFloors ? "floors" : (state.settings.units.distance === "miles" ? "mi" : "km");
+  const ringFactor    = ringDUnit === "mi" ? 0.621371 : 1;
+  const todayKmD      = todayKmRaw !== null ? Math.round(todayKmRaw * ringFactor * 100) / 100 : null;
+  const totalKmD      = totalKmNative !== null ? Math.round(totalKmNative * ringFactor * 10) / 10 : null;
   return `
   <div class="ring-wrap ${day.mode==="boss"?"boss":day.mode==="rest"?"rest":""}">
     <svg class="progress-ring" viewBox="0 0 220 220" aria-hidden="true">
@@ -1695,7 +1864,7 @@ function renderRing(info, day, streak, challenge) {
       ${day.mode === "rest"
         ? `<div class="percent" style="font-size:2.2rem">😴</div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">rest day</div>`
         : isExpedition
-          ? `<div class="percent" style="font-size:${todayKm > 0 ? "1.6rem" : "2rem"}">${todayKm > 0 ? todayKm.toFixed(1) : "—"}</div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">${todayKm > 0 ? "km today" : "log distance"}</div>`
+          ? `<div class="percent" style="font-size:${todayKmD > 0 ? "1.6rem" : "2rem"}">${todayKmD > 0 ? todayKmD.toFixed(ringIsFloors?0:1) : "—"}</div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">${todayKmD > 0 ? ringDUnit+" today" : "log "+ringDUnit}</div>`
           : `<div class="percent">${info.percent}%</div><div class="ring-pts">${info.points}<span class="ring-pts-max">/${info.maxPoints}</span><span class="ring-pts-label"> pts</span></div>`
       }
     </div>
@@ -1703,12 +1872,12 @@ function renderRing(info, day, streak, challenge) {
   <div class="ring-stats">
     ${isExpedition ? `
     <div class="ring-stat">
-      <div class="ring-stat-value">${totalKmVal !== null ? totalKmVal.toFixed(1) : "0"}<span class="ring-stat-sub"> km</span></div>
+      <div class="ring-stat-value">${totalKmD !== null ? totalKmD.toFixed(ringIsFloors?0:1) : "0"}<span class="ring-stat-sub"> ${ringDUnit}</span></div>
       <div class="ring-stat-label">total distance</div>
     </div>
     <div class="ring-stat-sep"></div>
     <div class="ring-stat">
-      <div class="ring-stat-value">${routeKm ? Math.min(100,Math.round((totalKmVal/routeKm)*100)) : "—"}<span class="ring-stat-sub">${routeKm ? "%" : ""}</span></div>
+      <div class="ring-stat-value">${routeKm ? Math.min(100,Math.round((totalKmNative/routeKm)*100)) : "—"}<span class="ring-stat-sub">${routeKm ? "%" : ""}</span></div>
       <div class="ring-stat-label">route done</div>
     </div>` : `
     <div class="ring-stat">
@@ -1838,12 +2007,29 @@ function renderTieredHabit(habit, day, challenge) {
 }
 
 function renderDistanceHabit(habit, day, challenge) {
-  const locked  = day.mode === "rest";
-  const km      = day.distances?.[habit.id] ?? 0;
-  const checked = day.done.includes(habit.id);
-  const tpl     = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
-  const totalKm = tpl?.routeKm ? challengeTotalKm(challenge) : 0;
-  const remaining = tpl?.routeKm ? Math.max(0, tpl.routeKm - totalKm) : null;
+  const locked    = day.mode === "rest";
+  const storedVal = day.distances?.[habit.id] ?? 0; // always in habit's native unit
+  const habitUnit = habit.unit || "km";
+  const isFloors  = habitUnit === "floors";
+  // For km-type habits: respect the global distance unit setting
+  const MI_PER_KM  = 0.621371;
+  const KM_PER_MI  = 1.60934;
+  const globalDist = state.settings.units.distance || "km";
+  const displayUnit = isFloors ? "floors" : (globalDist === "miles" ? "mi" : "km");
+  // Convert stored km → display unit for input value
+  const displayVal = isFloors ? storedVal :
+    (displayUnit === "mi" ? Math.round(storedVal * MI_PER_KM * 100) / 100 : storedVal);
+
+  const tpl       = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
+  const totalNative  = tpl?.routeKm ? challengeTotalKm(challenge) : 0;
+  // Convert totals to display units for quip text
+  const totalDisplay = isFloors ? totalNative :
+    (displayUnit === "mi" ? Math.round(totalNative * MI_PER_KM * 10) / 10 : totalNative);
+  const routeDisplay = tpl?.routeKm
+    ? (isFloors ? tpl.routeKm : (displayUnit === "mi" ? Math.round(tpl.routeKm * MI_PER_KM * 10) / 10 : tpl.routeKm))
+    : null;
+  const remaining = routeDisplay !== null ? Math.max(0, routeDisplay - totalDisplay) : null;
+
   if (locked) return `
   <div class="habit-card locked" aria-disabled="true">
     <span class="accent"></span>
@@ -1854,12 +2040,13 @@ function renderDistanceHabit(habit, day, challenge) {
     </span>
     <span class="check-circle"></span>
   </div>`;
+  const checked = day.done.includes(habit.id);
   const quip = checked
-    ? `${km} km logged today ✓`
+    ? `${displayVal} ${displayUnit} logged today ✓`
     : remaining !== null && remaining === 0
-      ? "Route complete! 🎉"
+      ? `${isFloors ? "Summit" : "Route"} complete! 🎉`
       : remaining !== null
-        ? `${remaining.toFixed(1)} km left on route`
+        ? `${remaining.toFixed(1)} ${displayUnit} left`
         : esc(habit.quip);
   return `
   <div class="habit-card distance-habit-card ${checked?"checked":""}">
@@ -1871,34 +2058,47 @@ function renderDistanceHabit(habit, day, challenge) {
     </div>
     <div class="distance-input-wrap">
       <input type="number" class="distance-input" data-distance-habit="${habit.id}"
-        value="${km > 0 ? km : ""}" min="0" max="9999" step="0.1" placeholder="0"
-        inputmode="decimal" aria-label="Distance in km">
-      <span class="distance-unit">km</span>
+        value="${displayVal > 0 ? displayVal : ""}" min="0" max="99999"
+        step="${isFloors ? "1" : "0.1"}" placeholder="0"
+        inputmode="decimal" aria-label="Distance in ${displayUnit}">
+      ${isFloors
+        ? `<span class="distance-unit">floors</span>`
+        : `<select class="dist-unit-sel" data-dist-unit-sel="${habit.id}" aria-label="Unit">
+             <option value="km" ${displayUnit==="km"?"selected":""}>km</option>
+             <option value="mi" ${displayUnit==="mi"?"selected":""}>mi</option>
+           </select>`}
     </div>
   </div>`;
 }
 
 function renderRouteProgress(challenge, template) {
-  const totalKm  = challengeTotalKm(challenge);
-  const routeKm  = template.routeKm;
-  const pct      = Math.min(100, Math.round((totalKm / routeKm) * 100));
-  const remaining = Math.max(0, routeKm - totalKm);
+  const totalNative = challengeTotalKm(challenge); // always in native units (km or floors)
+  const routeNative = template.routeKm;
+  const distHabit   = challenge.habits.find(h => h.type === "distance");
+  const habitUnit   = distHabit?.unit || "km";
+  const isFloors    = habitUnit === "floors";
+  const MI_PER_KM   = 0.621371;
+  const globalDist  = state.settings.units.distance || "km";
+  const displayUnit = isFloors ? "floors" : (globalDist === "miles" ? "mi" : "km");
+  const factor      = (displayUnit === "mi") ? MI_PER_KM : 1;
+  const totalDisplay = Math.round(totalNative * factor * 10) / 10;
+  const routeDisplay = Math.round(routeNative * factor * 10) / 10;
+  const pct      = Math.min(100, Math.round((totalNative / routeNative) * 100));
+  const remaining = Math.max(0, routeDisplay - totalDisplay);
   const milestones = template.milestones || [];
-  // Find last milestone just reached
-  const reached = [...milestones].reverse().find(m => totalKm >= m.km);
-  // Find next upcoming milestone
-  const next = milestones.find(m => totalKm < m.km);
-  // Milestone marker positions
+  const reached = [...milestones].reverse().find(m => totalNative >= m.km);
+  const next    = milestones.find(m => totalNative < m.km);
   const markers = milestones.map(m => {
-    const mPct = Math.round((m.km / routeKm) * 100);
-    const done  = totalKm >= m.km;
-    return `<div class="route-milestone-dot ${done?"done":""}" style="left:${mPct}%" title="${m.name} (${m.km} km)"></div>`;
+    const mPct = Math.round((m.km / routeNative) * 100);
+    const done  = totalNative >= m.km;
+    const mDisplay = Math.round(m.km * factor * 10) / 10;
+    return `<div class="route-milestone-dot ${done?"done":""}" style="left:${mPct}%" title="${m.name} (${mDisplay} ${displayUnit})"></div>`;
   }).join("");
   return `
   <section class="route-progress-section panel">
     <div class="route-progress-header">
       <span class="route-progress-name">${template.emoji} ${template.name}</span>
-      <span class="route-progress-km">${totalKm.toFixed(1)} <span style="font-weight:300;color:var(--text-dim)">/ ${routeKm.toLocaleString()} km</span></span>
+      <span class="route-progress-km">${totalDisplay.toFixed(1)} <span style="font-weight:300;color:var(--text-dim)">/ ${routeDisplay.toLocaleString()} ${displayUnit}</span></span>
     </div>
     <div class="route-progress-track">
       <div class="route-progress-fill" style="width:${pct}%"></div>
@@ -1906,15 +2106,15 @@ function renderRouteProgress(challenge, template) {
     </div>
     <div class="route-pace">
       ${remaining > 0
-        ? `${remaining.toFixed(1)} km remaining${next ? ` · next stop: ${next.emoji} ${next.name}` : ""}`
-        : `🎉 Route complete! You conquered ${template.name}.`}
+        ? `${remaining.toFixed(1)} ${displayUnit} remaining${next ? ` · next: ${next.emoji} ${next.name}` : ""}`
+        : `🎉 ${isFloors ? "Summit reached" : "Route complete"}! You conquered ${template.name}.`}
     </div>
-    ${reached && totalKm > 0 ? `
+    ${reached && totalNative > 0 ? `
     <div class="route-milestone-banner">
       <span class="rmb-emoji">${reached.emoji}</span>
       <div>
         <div class="rmb-title">${reached.name}</div>
-        <div class="rmb-sub">${reached.km} km checkpoint reached</div>
+        <div class="rmb-sub">${Math.round(reached.km * factor * 10) / 10} ${displayUnit} checkpoint reached</div>
       </div>
     </div>` : ""}
   </section>`;
@@ -1960,6 +2160,14 @@ function renderTodayWeightLog() {
   </div>`;
 }
 
+// Minimal weight chip — only shown in Today if body tracking is active but today not yet logged
+function renderWeightChip() {
+  const bt = state.bodyTracking;
+  if (!bt.startWeight && !bt.entries.length) return ""; // weight tracking not set up
+  if (bt.entries.some(e => e.date === todayKey())) return ""; // already logged today
+  return `<button class="weight-chip" data-tab="body">⚖️ Log weight</button>`;
+}
+
 function renderCompleteBanner(day, info, challenge) {
   if (info.done!==info.total || info.total===0) return "";
   const hasNote   = !!(day.note?.trim());
@@ -1967,14 +2175,24 @@ function renderCompleteBanner(day, info, challenge) {
   const isExpedition = challenge?.habits.some(h => h.type === "distance");
   if (day.mode==="rest") return `<div class="complete-banner rest-complete"><span class="cb-icon">😴</span><div class="cb-body"><div class="cb-title">Rest Day</div><div class="cb-sub">Recover. Come back stronger.</div>${noteNudge}</div></div>`;
   if (isExpedition) {
-    const todayKm  = Object.values(day.distances || {}).reduce((s,v) => s + (Number(v)||0), 0);
-    const totalKmVal = challengeTotalKm(challenge);
-    const tpl      = challenge.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
-    const remaining = tpl?.routeKm ? Math.max(0, tpl.routeKm - totalKmVal) : null;
-    const sub = remaining !== null
-      ? `${totalKmVal.toFixed(1)} km covered · ${remaining.toFixed(1)} km to go`
-      : `${totalKmVal.toFixed(1)} km covered`;
-    return `<div class="complete-banner"><span class="cb-icon">🗺️</span><div class="cb-body"><div class="cb-title">${todayKm.toFixed(1)} km today</div><div class="cb-sub">${sub}</div>${noteNudge}</div></div>`;
+    const distHabit  = challenge.habits.find(h => h.type === "distance");
+    const habitUnit  = distHabit?.unit || "km";
+    const isFloors   = habitUnit === "floors";
+    const MI_PER_KM  = 0.621371;
+    const globalDist = state.settings.units.distance || "km";
+    const dUnit      = isFloors ? "floors" : (globalDist === "miles" ? "mi" : "km");
+    const factor     = (dUnit === "mi") ? MI_PER_KM : 1;
+    const todayNative = Object.values(day.distances || {}).reduce((s,v) => s + (Number(v)||0), 0);
+    const totalNative = challengeTotalKm(challenge);
+    const tpl         = challenge.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
+    const remNative   = tpl?.routeKm ? Math.max(0, tpl.routeKm - totalNative) : null;
+    const todayD = Math.round(todayNative * factor * 10) / 10;
+    const totalD = Math.round(totalNative * factor * 10) / 10;
+    const remD   = remNative !== null ? Math.round(remNative * factor * 10) / 10 : null;
+    const sub = remD !== null
+      ? `${totalD.toFixed(1)} ${dUnit} covered · ${remD.toFixed(1)} ${dUnit} to go`
+      : `${totalD.toFixed(1)} ${dUnit} covered`;
+    return `<div class="complete-banner"><span class="cb-icon">🗺️</span><div class="cb-body"><div class="cb-title">${todayD.toFixed(isFloors?0:1)} ${dUnit} today</div><div class="cb-sub">${sub}</div>${noteNudge}</div></div>`;
   }
   if (day.mode==="minimum") return `<div class="complete-banner minimum-complete"><span class="cb-icon">🛡</span><div class="cb-body"><div class="cb-title">Minimum Day Done</div><div class="cb-sub">Streak protected.</div>${noteNudge}</div></div>`;
   if (day.mode==="boss")    return `<div class="complete-banner boss-complete"><span class="cb-icon">👑</span><div class="cb-body"><div class="cb-title">BOSS DAY COMPLETE</div><div class="cb-sub">${info.points} pts · Absolute unit.</div>${noteNudge}</div></div>`;
@@ -2216,12 +2434,17 @@ function renderCompletionModal(c) {
   const canShare     = !!navigator.share || !!navigator.clipboard;
   const nextId       = c.templateId && CHALLENGE_CHAINS[c.templateId];
   const nextT        = nextId ? TEMPLATES.find(t => t.id === nextId) : null;
-  const isExpedition = c.habits.some(h => h.type === "distance");
-  const totalKmVal   = isExpedition ? challengeTotalKm(c) : null;
-  const tpl          = isExpedition && c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
-  const routeFinished = tpl?.routeKm && totalKmVal >= tpl.routeKm;
+  const isExpedition  = c.habits.some(h => h.type === "distance");
+  const totalKmNativeM = isExpedition ? challengeTotalKm(c) : null;
+  const tpl           = isExpedition && c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
+  const routeFinished = tpl?.routeKm && totalKmNativeM >= tpl.routeKm;
+  const mDistHabit    = isExpedition ? c.habits.find(h => h.type === "distance") : null;
+  const mIsFloors     = mDistHabit?.unit === "floors";
+  const mDUnit        = mIsFloors ? "floors" : (state.settings.units.distance === "miles" ? "mi" : "km");
+  const mFactor       = mDUnit === "mi" ? 0.621371 : 1;
+  const mTotalD       = isExpedition ? Math.round(totalKmNativeM * mFactor * 10) / 10 : null;
   const completionSub = isExpedition
-    ? `${totalKmVal.toFixed(1)} km covered · ${totalDays} days · ${finalStreak}-day streak.<br>${routeFinished ? "You finished the route. Legendary." : "You stayed the course. That's what commitment looks like."}`
+    ? `${mTotalD.toFixed(mIsFloors?0:1)} ${mDUnit} covered · ${totalDays} days · ${finalStreak}-day streak.<br>${routeFinished ? "You finished the route. Legendary." : "You stayed the course. That's what commitment looks like."}`
     : `${totalDays} days · ${totalPts} pts · ${finalStreak}-day streak.<br>That's what commitment looks like.`;
   return `
   <div class="sheet-backdrop" data-close-completion>
@@ -2274,27 +2497,34 @@ function renderChallengeCard(c) {
   const todayInfo    = day ? completionInfo(c, day) : null;
   const statusColor  = c.status==="completed"?"var(--success)":c.status==="failed"?"var(--secondary)":c.status==="paused"?"var(--text-dim)":"";
   const isExpedition = c.habits.some(h => h.type === "distance");
-  const tpl          = isExpedition && c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
+  const tpl          = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
   const totalKmVal   = isExpedition ? challengeTotalKm(c) : null;
   const routePct     = tpl?.routeKm ? Math.min(100, Math.round((totalKmVal / tpl.routeKm) * 100)) : null;
-  // For expedition today-indicator: show today's km
-  const todayKm      = isExpedition && day?.distances
+  const distHabit    = isExpedition ? c.habits.find(h => h.type === "distance") : null;
+  const isFloors     = distHabit?.unit === "floors";
+  const MI_PER_KM    = 0.621371;
+  const globalDist   = state.settings.units.distance || "km";
+  const dUnit        = isFloors ? "floors" : (globalDist === "miles" ? "mi" : "km");
+  const factor       = dUnit === "mi" ? MI_PER_KM : 1;
+  const todayNativeKm = isExpedition && day?.distances
     ? Object.values(day.distances).reduce((s,v) => s + (Number(v)||0), 0) : null;
+  const tier         = tpl ? (TEMPLATE_TIERS[tpl.id] || "common") : null;
+  const tierData     = tier ? TIERS[tier] : null;
   return `
-  <button class="challenge-card" data-view-challenge="${c.id}">
+  <button class="challenge-card${tier?" tier-card-"+tier:""}" data-view-challenge="${c.id}"${tierData?` style="border-left:3px solid ${tierData.border}"`:""}>
     <div class="cc-top">
       <div class="cc-emoji">${esc(c.emoji)}</div>
       <div class="cc-info">
-        <div class="cc-name">${esc(c.name)}</div>
+        <div class="cc-name">${esc(c.name)}${tierData?` <span class="tier-chip tier-${tier}">${tierData.label}</span>`:""}</div>
         <div class="cc-meta">${isExpedition && tpl?.routeKm
-          ? `${totalKmVal.toFixed(1)} / ${tpl.routeKm.toLocaleString()} km · Day ${dayNumber}`
+          ? `${Math.round(totalKmVal * factor * 10)/10} / ${Math.round(tpl.routeKm * factor).toLocaleString()} ${dUnit} · Day ${dayNumber}`
           : `${totalDays}d · ${c.mode} · Day ${dayNumber}`}</div>
       </div>
       <div class="cc-right">
         ${c.status!=="active"
           ? `<div class="cc-status" style="color:${statusColor}">${c.status==="paused"?"⏸ paused":c.status}</div>`
           : isExpedition
-            ? `<div class="cc-today">${todayKm !== null && todayKm > 0 ? todayKm.toFixed(1)+" km" : "—"}</div>`
+            ? `<div class="cc-today">${todayNativeKm !== null && todayNativeKm > 0 ? (Math.round(todayNativeKm*factor*10)/10)+" "+dUnit : "—"}</div>`
             : `<div class="cc-today">${todayInfo?todayInfo.percent+"%":"—"}</div>`}
         <div class="cc-streak">🔥 ${streak}</div>
       </div>
@@ -2325,22 +2555,32 @@ function renderChallengeDetail(c) {
   const nextChainT    = nextChainId ? TEMPLATES.find(t => t.id === nextChainId) : null;
   const tpl           = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
   const isExpedition  = !!(tpl?.routeKm);
-  const totalKm       = isExpedition ? challengeTotalKm(c) : null;
+  const totalNativeKm = isExpedition ? challengeTotalKm(c) : null;
+  const distHabitDet  = isExpedition ? c.habits.find(h => h.type === "distance") : null;
+  const isFloorsDet   = distHabitDet?.unit === "floors";
+  const MI_PER_KM_D   = 0.621371;
+  const globalDistD   = state.settings.units.distance || "km";
+  const dUnitDet      = isFloorsDet ? "floors" : (globalDistD === "miles" ? "mi" : "km");
+  const factorDet     = dUnitDet === "mi" ? MI_PER_KM_D : 1;
+  const totalKmDisplay = isExpedition ? Math.round(totalNativeKm * factorDet * 10) / 10 : null;
   return `
   <main>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
       <button class="icon-btn" data-close-detail>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       </button>
-      <div>
-        <div style="font-size:18px;font-weight:700">${esc(c.emoji)} ${esc(c.name)}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+          <span style="font-size:18px;font-weight:700">${esc(c.emoji)} ${esc(c.name)}</span>
+          ${(()=>{ const t=c.templateId?TEMPLATE_TIERS[c.templateId]:null; const td=t?TIERS[t]:null; return td?`<span class="tier-chip tier-${t}">${td.label}</span>`:""; })()}
+        </div>
         <div style="font-size:12px;color:var(--text-dim)">${c.startDate} → ${c.endDate}</div>
       </div>
     </div>
     <div class="stats-grid" style="margin-bottom:14px">
       ${statCard("🔥 Streak", streak, "days")}
       ${isExpedition
-        ? statCard("🗺️ Distance", totalKm.toFixed(1), "km")
+        ? statCard("🗺️ Distance", totalKmDisplay.toFixed(isFloorsDet?0:1), dUnitDet)
         : statCard("⭐ Total pts", totalPts, "")}
       ${statCard("📅 Progress", pct+"%", "")}
       ${statCard("🏅 Badges", c.badges.length, "")}
@@ -2637,12 +2877,24 @@ function renderBuilderTemplates() {
   ];
   const templateCard = t => {
     const isExpedition = t.category === "expedition";
+    const distHabit    = t.habits?.find(h => h.type === "distance");
+    const isFloors     = distHabit?.unit === "floors";
+    const MI_PER_KM    = 0.621371;
+    const globalDist   = state.settings.units.distance || "km";
+    const dUnit        = isFloors ? "floors" : (globalDist === "miles" ? "mi" : "km");
+    const factor       = dUnit === "mi" ? MI_PER_KM : 1;
     const meta = isExpedition
-      ? `${t.routeKm.toLocaleString()} km · ${t.duration} days`
+      ? `${Math.round(t.routeKm * factor).toLocaleString()} ${dUnit} · ${t.duration} days`
       : `${t.duration} days · ${t.defaultMode}`;
+    const tier     = TEMPLATE_TIERS[t.id] || "common";
+    const tierData = TIERS[tier];
     return `
-    <button class="template-card${isExpedition?" tc-cat expedition":""}" data-select-template="${t.id}">
-      <div class="tc-emoji">${t.emoji}</div>
+    <button class="template-card${isExpedition?" tc-cat expedition":""}" data-select-template="${t.id}"
+      style="border-top:2px solid ${tierData.border}">
+      <div class="tc-top-row">
+        <div class="tc-emoji">${t.emoji}</div>
+        <span class="tier-chip tier-${tier}">${tierData.label}</span>
+      </div>
       <div class="tc-name">${t.name}</div>
       <div class="tc-meta">${meta}</div>
       <div class="tc-desc">${t.description}</div>
@@ -2907,21 +3159,23 @@ function renderBadges() {
         <div class="badge-overview-label">badges earned</div>
       </div>
       <div class="badge-overall-track"><div class="badge-overall-fill" style="width:${pct}%"></div></div>
-      ${renderBadgeCat("🌍 Universal", UNIVERSAL_BADGES, state.globalBadges)}
-      ${renderBadgeCat("💎 Lifetime Achievements", LIFETIME_BADGES, state.globalBadges)}
+      ${renderBadgeCat("🌍 Universal", UNIVERSAL_BADGES, state.globalBadges, null)}
+      ${renderBadgeCat("💎 Lifetime Achievements", LIFETIME_BADGES, state.globalBadges, null)}
       ${startedChallenges.map(c => {
         const tBadges = TEMPLATE_BADGES[c.templateId];
         if (!tBadges) return "";
-        return renderBadgeCat(`${esc(c.emoji)} ${esc(c.name)}`, tBadges, c.badges);
+        return renderBadgeCat(`${esc(c.emoji)} ${esc(c.name)}`, tBadges, c.badges, c.templateId);
       }).join("")}
     </div>
     ${renderPersonalBests()}
   </main>`;
 }
 
-function renderBadgeCat(label, defs, earned) {
+function renderBadgeCat(label, defs, earned, templateId) {
   const earnedSet = new Set(earned);
   const count = defs.filter(b=>earnedSet.has(b.id)).length;
+  // Determine tier for badges in this category: template badges use template tier, others use BADGE_TIERS
+  const catTier = templateId ? (TEMPLATE_TIERS[templateId] || "common") : null;
   return `
   <div class="badge-cat">
     <div class="badge-cat-header">
@@ -2929,11 +3183,19 @@ function renderBadgeCat(label, defs, earned) {
       <span class="badge-cat-count">${count} / ${defs.length}</span>
     </div>
     <div class="badge-grid">
-      ${defs.map(b=>`
-      <div class="badge ${earnedSet.has(b.id)?"earned":""}">
+      ${defs.map(b => {
+        const isEarned = earnedSet.has(b.id);
+        const tier = catTier || BADGE_TIERS[b.id] || "common";
+        const td   = TIERS[tier];
+        const borderStyle = isEarned && td ? `border-color:${td.border};` : "";
+        const glowStyle   = isEarned && tier === "legendary" ? `box-shadow:0 0 10px ${td.border};` : "";
+        return `
+      <div class="badge ${isEarned?"earned":""}" style="${borderStyle}${glowStyle}">
+        ${isEarned && td ? `<span class="badge-tier-dot" style="background:${td.color}" title="${td.label}"></span>` : ""}
         <div class="badge-label">${b.label}</div>
         ${b.desc?`<div class="badge-desc">${b.desc}</div>`:""}
-      </div>`).join("")}
+      </div>`;
+      }).join("")}
     </div>
   </div>`;
 }
@@ -3022,6 +3284,45 @@ function renderReminderSettings() {
   <div class="more-card">${body}</div>`;
 }
 
+function renderCloudSync() {
+  if (CloudSync.isSignedIn) {
+    return `
+    <div class="section-label">☁️ Cloud Sync</div>
+    <div class="more-card" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:18px">✅</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text-primary)">${esc(CloudSync.userEmail || "")}</div>
+          <div style="font-size:11px;color:var(--text-dim)">Data auto-syncs after each save</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="secondary-button" style="flex:1" data-cloud-sync>${_cloudAuthLoading?"Syncing…":"Sync Now"}</button>
+        <button class="secondary-button" style="flex:1" data-cloud-signout>Sign Out</button>
+      </div>
+    </div>`;
+  }
+  return `
+  <div class="section-label">☁️ Cloud Sync</div>
+  <div class="more-card" style="margin-bottom:14px">
+    <p style="font-size:13px;color:var(--text-secondary);margin:0 0 12px">Save your data to the cloud. Survive a new phone, reinstall, or device switch — sign in to restore everything.</p>
+    ${_cloudAuthError ? `<div class="cloud-auth-error">${esc(_cloudAuthError)}</div>` : ""}
+    ${_cloudAuthLoading ? `<div style="text-align:center;padding:16px;color:var(--text-dim);font-size:14px">Loading…</div>` : `
+    <label class="field" style="margin-bottom:10px">
+      Email
+      <input id="cloud-email" type="email" placeholder="your@email.com" autocomplete="email" inputmode="email">
+    </label>
+    <label class="field" style="margin-bottom:14px">
+      Password <span style="font-size:11px;font-weight:400;color:var(--text-dim)">(min 8 characters)</span>
+      <input id="cloud-password" type="password" placeholder="••••••••" autocomplete="current-password">
+    </label>
+    <div style="display:flex;gap:8px">
+      <button class="secondary-button" style="flex:1" data-cloud-signin>Sign In</button>
+      <button class="primary-button" style="flex:1" data-cloud-signup>Create Account</button>
+    </div>`}
+  </div>`;
+}
+
 function renderSettings() {
   const u = state.settings.units;
   return `
@@ -3061,6 +3362,7 @@ function renderSettings() {
         </div>
       </div>
     </div>
+    ${renderCloudSync()}
     ${renderReminderSettings()}
     ${renderDataSettings()}
   </main>`;
@@ -3161,6 +3463,39 @@ function bindEvents() {
     shareAchievement(text);
   });
   on("[data-log-today-weight]", () => logTodayWeight());
+
+  // ── Cloud Sync auth handlers ───────────────────────────────────────────────
+  on("[data-cloud-signin]", async () => {
+    const email    = document.getElementById("cloud-email")?.value?.trim();
+    const password = document.getElementById("cloud-password")?.value;
+    if (!email || !password) { _cloudAuthError = "Email and password are required."; render(); return; }
+    _cloudAuthLoading = true; _cloudAuthError = ""; render();
+    const res = await CloudSync.signIn(email, password);
+    _cloudAuthLoading = false;
+    if (res.error) { _cloudAuthError = res.error; render(); return; }
+    showToast("✅ Signed in! Data restored.");
+    render();
+  });
+  on("[data-cloud-signup]", async () => {
+    const email    = document.getElementById("cloud-email")?.value?.trim();
+    const password = document.getElementById("cloud-password")?.value;
+    if (!email || !password) { _cloudAuthError = "Email and password are required."; render(); return; }
+    if (password.length < 8) { _cloudAuthError = "Password must be at least 8 characters."; render(); return; }
+    _cloudAuthLoading = true; _cloudAuthError = ""; render();
+    const res = await CloudSync.signUp(email, password);
+    _cloudAuthLoading = false;
+    if (res.error) { _cloudAuthError = res.error; render(); return; }
+    showToast("✅ Account created! Data syncing to cloud.");
+    render();
+  });
+  on("[data-cloud-signout]", () => { CloudSync.signOut(); _cloudAuthError = ""; render(); });
+  on("[data-cloud-sync]", async () => {
+    if (_cloudAuthLoading) return;
+    _cloudAuthLoading = true; render();
+    await CloudSync.push();
+    _cloudAuthLoading = false;
+    showToast("☁️ Data synced to cloud."); render();
+  });
   on("[data-edit-challenge]", el => {
     const c = getChallenge(el.dataset.editChallenge); if (!c) return;
     editForm = {
@@ -3324,9 +3659,17 @@ function bindEvents() {
   // Distance habit input — delegated change event (persists across re-renders)
   document.addEventListener("change", e => {
     if (!e.target.matches("[data-distance-habit]")) return;
-    const habitId = e.target.dataset.distanceHabit;
-    const km = Math.max(0, parseFloat(e.target.value) || 0);
-    logDistance(habitId, km);
+    const habitId  = e.target.dataset.distanceHabit;
+    const inputVal = Math.max(0, parseFloat(e.target.value) || 0);
+    // Read the unit selector if present; defaults to global setting
+    const unitSel   = document.querySelector(`[data-dist-unit-sel="${habitId}"]`);
+    const inputUnit = unitSel?.value || (state.settings.units.distance === "miles" ? "mi" : "km");
+    // Convert to km for storage (floor habits are stored as-is)
+    const c = currentChallenge();
+    const habit = c?.habits.find(h => h.id === habitId);
+    const habitUnit = habit?.unit || "km";
+    const storeVal  = (habitUnit === "km" && inputUnit === "mi") ? inputVal * 1.60934 : inputVal;
+    logDistance(habitId, Math.round(storeVal * 1000) / 1000);
   });
 }
 

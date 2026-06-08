@@ -2984,3 +2984,69 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   margin: 4px 0 0; text-align: right;
 }
 
+/* ── WoW-style Rarity Tier Chips ── */
+.tier-chip {
+  display: inline-block;
+  font-size: 9px; font-weight: 800;
+  letter-spacing: .5px; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 99px;
+  border: 1px solid; line-height: 1.5;
+  vertical-align: middle; white-space: nowrap;
+}
+.tier-common    { color: #aaa;    border-color: rgba(170,170,170,0.4); background: rgba(170,170,170,0.1); }
+.tier-uncommon  { color: #1eff00; border-color: rgba(30,255,0,0.4);   background: rgba(30,255,0,0.08);  }
+.tier-rare      { color: #4da6ff; border-color: rgba(0,112,255,0.45); background: rgba(0,112,255,0.08); }
+.tier-epic      { color: #c070ff; border-color: rgba(163,53,238,0.45);background: rgba(163,53,238,0.08);}
+.tier-legendary { color: #ff8c00; border-color: rgba(255,128,0,0.5);  background: rgba(255,128,0,0.1);
+                  box-shadow: 0 0 8px rgba(255,128,0,0.2); }
+
+/* Legendary challenge card pulse */
+.tier-card-legendary { animation: legendary-pulse 3s ease-in-out infinite; }
+@keyframes legendary-pulse {
+  0%, 100% { box-shadow: var(--card-shadow), 0 0 10px rgba(255,128,0,0.12); }
+  50%       { box-shadow: var(--card-shadow), 0 0 24px rgba(255,128,0,0.3); }
+}
+
+/* Template card — emoji + tier in one row */
+.tc-top-row {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; margin-bottom: 4px;
+}
+
+/* Badge tier dot (tiny colored circle above earned badge label) */
+.badge-tier-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  display: block; margin: 0 auto 4px;
+}
+
+/* ── Distance unit selector ── */
+.dist-unit-sel {
+  background: var(--surface-3);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; color: var(--text-secondary);
+  font-size: 13px; font-weight: 700;
+  padding: 4px 6px; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  min-width: 44px; text-align: center;
+}
+.dist-unit-sel:focus { outline: 2px solid var(--primary); }
+
+/* ── Weight chip (minimal nudge in Today) ── */
+.weight-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--surface-2); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px; padding: 5px 14px; margin: 8px 0 0;
+  font-size: 12px; color: var(--text-dim);
+  cursor: pointer; transition: opacity 0.15s;
+}
+.weight-chip:hover { opacity: 0.7; }
+
+/* ── Cloud Sync auth UI ── */
+.cloud-auth-error {
+  background: rgba(220,50,50,0.12);
+  border: 1px solid rgba(220,50,50,0.3);
+  border-radius: 10px; padding: 10px 12px;
+  font-size: 13px; color: #ff7070;
+  margin-bottom: 12px;
+}
+
