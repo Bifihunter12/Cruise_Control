@@ -288,7 +288,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 
 .ring-stat-sep {
@@ -333,7 +333,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--text-dim);
   margin: 20px 0 10px;
 }
 
@@ -502,7 +502,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 .tier-hint {
   font-size: 10px;
-  color: var(--text-faint);
+  color: var(--text-dim);
   margin-top: 4px;
   display: block;
   text-align: center;
@@ -565,7 +565,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--text-dim);
   margin-top: 3px;
 }
 
@@ -603,7 +603,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .ww-goal {
   font-size: 10px;
   font-weight: 400;
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 
 /* ── Completion banner ─────────────────────────────────── */
@@ -684,7 +684,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--text-dim);
   margin-bottom: 6px;
 }
 
@@ -706,7 +706,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   margin-top: 5px;
   font-size: 11px;
   font-weight: 400;
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 
 .metric-delta.good { color: var(--success); }
@@ -753,7 +753,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .chart-empty {
   font-size: 12px;
   font-weight: 300;
-  color: var(--text-faint);
+  color: var(--text-dim);
   text-align: center;
   padding: 24px 0 8px;
 }
@@ -923,7 +923,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .wc-days {
   font-size: 11px;
   font-weight: 400;
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 
 .wc-label {
@@ -985,8 +985,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .wc-goal-of {
   font-size: 11px;
   font-weight: 300;
-  color: var(--text-faint);
-  -webkit-text-fill-color: var(--text-faint);
+  color: var(--text-dim);
+  -webkit-text-fill-color: var(--text-dim);
 }
 
 .wc-runs {
@@ -1070,14 +1070,14 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .mc-unit {
   font-size: 10px;
   font-weight: 300;
-  color: var(--text-faint);
-  -webkit-text-fill-color: var(--text-faint);
+  color: var(--text-dim);
+  -webkit-text-fill-color: var(--text-dim);
 }
 
 .mc-sub {
   font-size: 10px;
   font-weight: 300;
-  color: var(--text-faint);
+  color: var(--text-dim);
   margin-top: 5px;
 }
 
@@ -1156,7 +1156,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--text-dim);
   margin-bottom: 12px;
 }
 
@@ -1201,7 +1201,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .badge-cat-count {
   font-size: 11px;
   font-weight: 400;
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 
 /* ── Badge tiles ─────────────────────────────────── */
@@ -1332,7 +1332,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   gap: 3px;
   min-height: 52px;
   border-radius: var(--radius-sm);
-  color: var(--text-faint);
+  color: var(--text-dim);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -1379,7 +1379,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 .empty-copy {
   margin-top: 10px;
-  color: var(--text-faint);
+  color: var(--text-dim);
   font-size: 13px;
   font-weight: 300;
   font-style: italic;
@@ -1519,7 +1519,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .welcome-hint {
   font-size: 12px;
   font-weight: 300;
-  color: var(--text-faint);
+  color: var(--text-dim);
   margin-top: -8px;
 }
 
@@ -1666,7 +1666,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   background: var(--gradient);
   transition: width 600ms cubic-bezier(0.2,0.8,0.2,1);
 }
-.cc-sub { font-size: 11px; font-weight: 300; color: var(--text-faint); }
+.cc-sub { font-size: 11px; font-weight: 300; color: var(--text-dim); }
 
 .empty-state {
   padding: 32px 0;
@@ -1704,7 +1704,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .tc-emoji { font-size: 28px; margin-bottom: 4px; }
 .tc-name  { font-size: 14px; font-weight: 700; }
 .tc-meta  { font-size: 11px; font-weight: 300; color: var(--text-dim); }
-.tc-desc  { font-size: 11px; font-weight: 300; color: var(--text-faint); line-height: 1.4; margin-top: 4px; }
+.tc-desc  { font-size: 11px; font-weight: 300; color: var(--text-dim); line-height: 1.4; margin-top: 4px; }
 
 .builder-form { display: flex; flex-direction: column; }
 
@@ -2093,10 +2093,10 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   margin-top: 12px;
   padding: 6px 0;
   font-size: 12px;
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 
-.rough-day-link:hover { color: var(--text-dim); }
+.rough-day-link:hover { color: var(--text); }
 
 /* ── Habit pop animation ────────────────────────────────────────────────── */
 
@@ -2121,7 +2121,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .badge-desc {
   font-size: 10px;
   font-weight: 300;
-  color: var(--text-faint);
+  color: var(--text-dim);
   margin-top: 3px;
   line-height: 1.3;
 }
@@ -2190,7 +2190,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 
 .wrc-sep {
@@ -2238,7 +2238,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .day-note-hint {
   margin-top: 5px;
   font-size: 10px;
-  color: var(--text-faint);
+  color: var(--text-dim);
   text-align: right;
   font-weight: 300;
 }
@@ -2297,7 +2297,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--text-dim);
   margin-bottom: 8px;
   text-align: center;
 }
@@ -2345,7 +2345,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 /* ── Body tab: current value annotation next to field label ── */
 .field-set-hint {
   font-size: 11px;
-  color: var(--text-faint);
+  color: var(--text-dim);
   margin-left: 6px;
   font-weight: 400;
   letter-spacing: 0;
@@ -2540,7 +2540,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 .freeze-bar-hint {
   font-size: 11px;
-  color: var(--text-faint);
+  color: var(--text-dim);
   font-weight: 300;
 }
 
@@ -2659,7 +2659,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .cal-leg {
   font-size: 10px;
   font-weight: 600;
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 .cal-leg.full    { color: var(--success); }
 .cal-leg.partial { color: #f5a623; }
@@ -2789,13 +2789,13 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 .pp-loading {
   font-size: 12px;
-  color: var(--text-faint);
+  color: var(--text-dim);
   padding: 8px 0;
 }
 
 .pp-empty {
   font-size: 13px;
-  color: var(--text-faint);
+  color: var(--text-dim);
   padding: 12px 14px;
   background: var(--surface-2);
   border-radius: var(--radius-sm);
@@ -2826,7 +2826,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 .pp-date {
   font-size: 9px;
-  color: var(--text-faint);
+  color: var(--text-dim);
   text-align: center;
   font-weight: 600;
   text-transform: uppercase;
@@ -3024,7 +3024,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .dist-unit-sel {
   background: var(--surface-3);
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px; color: var(--text-secondary);
+  border-radius: 8px; color: var(--text-dim);
   font-size: 13px; font-weight: 700;
   padding: 4px 6px; cursor: pointer;
   -webkit-appearance: none; appearance: none;

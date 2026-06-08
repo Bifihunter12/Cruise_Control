@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.08.7";
+const APP_VERSION = "2026.06.08.8";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -3180,8 +3180,8 @@ function renderBodyChart() {
     <path d="${area}" fill="url(#cga)"/>
     <path d="${line}" fill="none" stroke="url(#cg)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
     ${coords.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3" fill="url(#cg)"/>`).join("")}
-    <text x="${coords[0][0]}" y="${H-2}" fill="var(--text-faint)" font-size="9" text-anchor="middle">${vals[0].toFixed(1)}</text>
-    <text x="${coords[coords.length-1][0]}" y="${H-2}" fill="var(--text-faint)" font-size="9" text-anchor="middle">${vals[vals.length-1].toFixed(1)}</text>
+    <text x="${coords[0][0]}" y="${H-2}" fill="var(--text-dim)" font-size="9" text-anchor="middle">${vals[0].toFixed(1)}</text>
+    <text x="${coords[coords.length-1][0]}" y="${H-2}" fill="var(--text-dim)" font-size="9" text-anchor="middle">${vals[vals.length-1].toFixed(1)}</text>
   </svg>`;
 }
 
@@ -3311,7 +3311,7 @@ function renderDataSettings() {
         Restore backup ↑
         <input type="file" id="import-file-input" accept=".json" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none">
       </label>
-      <div style="font-size:12px;color:var(--text-faint);margin-top:8px">⚠️ Restoring will overwrite all current data.</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-top:8px">⚠️ Restoring will overwrite all current data.</div>
     </div>
   </div>`;
 }
@@ -3361,7 +3361,7 @@ function renderCloudSync() {
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
         <span style="font-size:18px">✅</span>
         <div>
-          <div style="font-size:13px;font-weight:700;color:var(--text-primary)">${esc(CloudSync.userEmail || "")}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">${esc(CloudSync.userEmail || "")}</div>
           <div style="font-size:11px;color:var(--text-dim)">Data auto-syncs after each save</div>
         </div>
       </div>
@@ -3374,7 +3374,7 @@ function renderCloudSync() {
   return `
   <div class="section-label">☁️ Cloud Sync</div>
   <div class="more-card" style="margin-bottom:14px">
-    <p style="font-size:13px;color:var(--text-secondary);margin:0 0 12px">Save your data to the cloud. Survive a new phone, reinstall, or device switch — sign in to restore everything.</p>
+    <p style="font-size:13px;color:var(--text-dim);margin:0 0 12px">Save your data to the cloud. Survive a new phone, reinstall, or device switch — sign in to restore everything.</p>
     ${_cloudAuthError ? `<div class="cloud-auth-error">${esc(_cloudAuthError)}</div>` : ""}
     ${_cloudAuthLoading ? `<div style="text-align:center;padding:16px;color:var(--text-dim);font-size:14px">Loading…</div>` : `
     <label class="field" style="margin-bottom:10px">
