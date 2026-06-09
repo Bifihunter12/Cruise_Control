@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.08.15";
+const APP_VERSION = "2026.06.08.16";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -3430,6 +3430,41 @@ function renderWeighInHistory(entries) {
 
 // ── Badges Tab ────────────────────────────────────────────────────────────
 
+function renderLevelProfile() {
+  const info  = getLevelInfo(state.xp);
+  const isMax = !info.next;
+  const toNext = isMax ? 0 : info.next.xp - state.xp;
+  const roadChunks = [];
+  // Show levels in rows of 5
+  for (let i = 0; i < XP_LEVELS.length; i += 5) {
+    roadChunks.push(XP_LEVELS.slice(i, i + 5));
+  }
+  return `
+  <div class="level-profile-card">
+    <div class="lp-top">
+      <div class="lp-level-num">⚡ Lv.${info.level}</div>
+      <div class="lp-level-name">${info.name}</div>
+    </div>
+    <div class="xp-bar-track lp-track">
+      <div class="xp-bar-fill" style="width:${info.pct}%"></div>
+    </div>
+    <div class="lp-xp-row">
+      <span>${state.xp.toLocaleString()} XP total</span>
+      <span>${isMax ? "Max Level 🏆" : `${toNext.toLocaleString()} XP to Lv.${info.next.level}`}</span>
+    </div>
+    <div class="level-road">
+      ${XP_LEVELS.map(lvl => {
+        const unlocked = state.xp >= lvl.xp;
+        const isCurrent = info.level === lvl.level;
+        return `<div class="lvl-node ${unlocked ? "unlocked" : ""} ${isCurrent ? "current" : ""}" title="Lv.${lvl.level} ${lvl.name}">
+          <div class="lvl-node-dot"></div>
+          <div class="lvl-node-num">${lvl.level}</div>
+        </div>`;
+      }).join("")}
+    </div>
+  </div>`;
+}
+
 function renderBadges() {
   const allChallenges    = getAllChallenges();
   // Only show/count template badges for challenges that have been started
@@ -3447,6 +3482,7 @@ function renderBadges() {
   const pct = total > 0 ? Math.round((earned/total)*100) : 0;
   return `
   <main>
+    ${renderLevelProfile()}
     <div class="section-label">Badges</div>
     <div class="more-card">
       <div class="badge-overview">
@@ -3601,6 +3637,9 @@ function renderDataSettings() {
     <a href="/privacy.html" target="_blank" style="font-size:12px;color:var(--text-dim);text-decoration:none">Privacy Policy</a>
     <span style="font-size:12px;color:var(--text-faint);margin:0 8px">·</span>
     <span style="font-size:12px;color:var(--text-faint)">v${APP_VERSION}</span>
+  </div>
+  <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);text-align:center">
+    <button class="link-btn" style="font-size:12px;color:var(--text-dim)" data-preview-onboarding>Replay intro screens</button>
   </div>`;
 }
 
@@ -3775,6 +3814,7 @@ function bindEvents() {
   on("[data-close-builder]",() => { builderOpen=false; render(); });
   on("[data-open-settings]",() => { settingsOpen=true; render(); });
   on("[data-close-settings]",()=>{ settingsOpen=false; render(); });
+  on("[data-preview-onboarding]", () => { settingsOpen=false; _obAuthError=""; _obAuthMode="signup"; onboardingStep=0; render(); });
   on("[data-view-challenge]",el=>{ viewChallengeId=el.dataset.viewChallenge; challengeDetailView="weeks"; calendarViewMonth=null; render(); });
   on("[data-close-detail]", () => { viewChallengeId=null; challengeDetailView="weeks"; calendarViewMonth=null; render(); });
   on("[data-detail-view]",  el => { challengeDetailView=el.dataset.detailView; render(); });
@@ -4193,6 +4233,7 @@ function logDistance(habitId, km) {
     _animHabitId = null;
   }
   updateDayPoints(c, day);
+  state.xp = recalcXP();
   saveState();
   checkBadges(c);
   render();
@@ -4216,6 +4257,12 @@ function selectTier(habitId, rawVal) {
     _animHabitId = habitId;
   }
   updateDayPoints(c, day);
+  const levelBefore2 = getLevelInfo(state.xp).level;
+  state.xp = recalcXP();
+  const lvlInfo2 = getLevelInfo(state.xp);
+  if (lvlInfo2.level > levelBefore2) {
+    setTimeout(() => showBigToast("⚡", `Level ${lvlInfo2.level} — ${lvlInfo2.name}!`, "You leveled up. Keep going."), 500);
+  }
   saveState(); navigator.vibrate?.(10);
   checkBadges(c); render();
 }

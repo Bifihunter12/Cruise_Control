@@ -3351,6 +3351,103 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   .xp-bar-fill { transition: none; }
 }
 
+/* ── Level Profile (Badges tab) ─────────────────────────────────────────── */
+
+.level-profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.lp-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.lp-level-num {
+  font-size: 22px;
+  font-weight: 900;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.lp-level-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.lp-track {
+  margin-bottom: 6px;
+}
+
+.lp-xp-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+
+/* Level road map */
+.level-road {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lvl-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  opacity: 0.3;
+}
+
+.lvl-node.unlocked { opacity: 0.65; }
+.lvl-node.current  { opacity: 1; }
+
+.lvl-node-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  border: 1.5px solid var(--border);
+  transition: background 0.2s;
+}
+
+.lvl-node.unlocked .lvl-node-dot {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.lvl-node.current .lvl-node-dot {
+  background: var(--gradient);
+  border-color: transparent;
+  box-shadow: 0 0 6px rgba(180, 79, 255, 0.6);
+  transform: scale(1.3);
+}
+
+.lvl-node-num {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.lvl-node.current .lvl-node-num {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* ── XP / Level Bar ──────────────────────────────────────────────────────── */
 
 .xp-bar-wrap {
