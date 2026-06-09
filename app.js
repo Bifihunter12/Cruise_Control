@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.08.16";
+const APP_VERSION = "2026.06.09.01";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -106,7 +106,7 @@ const BADGE_TIERS = {
   // Universal — body
   "u-scale":"common","u-1lb":"common","u-5lb":"uncommon","u-10lb":"rare","u-wgoal":"epic",
   // Universal — modes & behavior
-  "u-boss1":"common","u-bossw":"uncommon","u-cmback":"common","u-min5":"uncommon",
+  "u-cmback":"common",
   // Universal — challenge milestones
   "u-first":"common","u-done1":"uncommon","u-done3":"rare","u-multi":"uncommon",
   // Lifetime
@@ -122,19 +122,19 @@ const TEMPLATES = [
     description: "86 days that change everything. Body, habits, and an unbreakable mind.",
     duration: 86, weeklyGoal: 175, defaultMode: "soft", noRestDay: true,
     habits: [
-      { id:"yoga",      title:"Morning yoga",              emoji:"🧘", quip:"Sets the tone for everything after.",           type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"gratitude", title:"Gratitude",                 emoji:"🙏", quip:"Three things. Two minutes. Changes everything.", type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"weighin",   title:"Daily weigh-in",            emoji:"⚖️", quip:"Data beats guessing every time.",               type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"steps",     title:"Steps",                     emoji:"👟", quip:"8k min · 10k standard · 15k boss.",             type:"tiered", minimum_day:true,  boss_only:false, points:2,
+      { id:"yoga",      title:"Morning yoga",              emoji:"🧘", quip:"Sets the tone for everything after.",           type:"binary", points:2 },
+      { id:"gratitude", title:"Gratitude",                 emoji:"🙏", quip:"Three things. Two minutes. Changes everything.", type:"binary", points:2 },
+      { id:"weighin",   title:"Daily weigh-in",            emoji:"⚖️", quip:"Data beats guessing every time.",               type:"binary", points:2 },
+      { id:"steps",     title:"Steps",                     emoji:"👟", quip:"8k / 10k / 15k steps.",             type:"tiered", points:2,
         tiers:[{value:8,label:"8k",points:2},{value:10,label:"10k",points:3},{value:15,label:"15k",points:4}] },
-      { id:"protein",   title:"Protein at every meal",     emoji:"🥩", quip:"Protein keeps the muscle, drops the fat.",      type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"water",     title:"Drink 3L water",            emoji:"💧", quip:"Most hunger is just thirst.",                   type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"noalcohol", title:"No alcohol or liquid cals", emoji:"🚫", quip:"Empty calories in every form. Skip them.",      type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"nolate",    title:"Stop eating at 8pm",        emoji:"⏰", quip:"Kitchen closes at 8.",                          type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"sleep",     title:"7+ hours sleep",            emoji:"🌙", quip:"Sleep is the real supplement.",                 type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"mobility",  title:"Functional mobility",       emoji:"🦵", quip:"Recovery is training too.",                    type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"read",      title:"Read 10 pages",             emoji:"📖", quip:"10 pages a day is a book a month.",            type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"run",       title:"Run session",               emoji:"🏃", quip:"Boss Day fuel. Go further.",                   type:"tiered", minimum_day:false, boss_only:true,  points:2,
+      { id:"protein",   title:"Protein at every meal",     emoji:"🥩", quip:"Protein keeps the muscle, drops the fat.",      type:"binary", points:2 },
+      { id:"water",     title:"Drink 3L water",            emoji:"💧", quip:"Most hunger is just thirst.",                   type:"binary", points:2 },
+      { id:"noalcohol", title:"No alcohol or liquid cals", emoji:"🚫", quip:"Empty calories in every form. Skip them.",      type:"binary", points:2 },
+      { id:"nolate",    title:"Stop eating at 8pm",        emoji:"⏰", quip:"Kitchen closes at 8.",                          type:"binary", points:2 },
+      { id:"sleep",     title:"7+ hours sleep",            emoji:"🌙", quip:"Sleep is the real supplement.",                 type:"binary", points:2 },
+      { id:"mobility",  title:"Functional mobility",       emoji:"🦵", quip:"Recovery is training too.",                    type:"binary", points:2 },
+      { id:"read",      title:"Read 10 pages",             emoji:"📖", quip:"10 pages a day is a book a month.",            type:"binary", points:2 },
+      { id:"run",       title:"Run session",               emoji:"🏃", quip:"Push your pace. Every km counts.",                   type:"tiered",  points:2,
         tiers:[{value:1,label:"1 km",points:2},{value:3,label:"3 km",points:3},{value:5,label:"5 km",points:5},{value:"5+",label:"5 km+",points:7}] },
     ]
   },
@@ -143,12 +143,12 @@ const TEMPLATES = [
     description: "The original mental toughness program. 75 days. Zero compromises.",
     duration: 75, weeklyGoal: 140, defaultMode: "strict", noRestDay: true,
     habits: [
-      { id:"w1",       title:"Workout 1 — 45 min",          emoji:"🏋️", quip:"First session done.",               type:"binary", minimum_day:true,  boss_only:false, points:3 },
-      { id:"w2",       title:"Workout 2 — 45 min outdoors", emoji:"🌤️", quip:"Outdoor. No exceptions.",            type:"binary", minimum_day:true,  boss_only:false, points:3 },
-      { id:"water4l",  title:"Drink 4L water",              emoji:"💧", quip:"Non-negotiable.",                    type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"diet",     title:"Follow diet. No cheat meals.",emoji:"🥗", quip:"No alcohol. No cheat meals.",        type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"read10",   title:"Read 10 pages (non-fiction)", emoji:"📖", quip:"10 pages of growth.",               type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"photo",    title:"Progress photo",              emoji:"📸", quip:"Document the change.",               type:"binary", minimum_day:true,  boss_only:false, points:1 },
+      { id:"w1",       title:"Workout 1 — 45 min",          emoji:"🏋️", quip:"First session done.",               type:"binary", points:3 },
+      { id:"w2",       title:"Workout 2 — 45 min outdoors", emoji:"🌤️", quip:"Outdoor. No exceptions.",            type:"binary", points:3 },
+      { id:"water4l",  title:"Drink 4L water",              emoji:"💧", quip:"Non-negotiable.",                    type:"binary", points:2 },
+      { id:"diet",     title:"Follow diet. No cheat meals.",emoji:"🥗", quip:"No alcohol. No cheat meals.",        type:"binary", points:2 },
+      { id:"read10",   title:"Read 10 pages (non-fiction)", emoji:"📖", quip:"10 pages of growth.",               type:"binary", points:2 },
+      { id:"photo",    title:"Progress photo",              emoji:"📸", quip:"Document the change.",               type:"binary", points:1 },
     ]
   },
   {
@@ -156,10 +156,10 @@ const TEMPLATES = [
     description: "The balanced version. 75 days of consistent, sustainable habits.",
     duration: 75, weeklyGoal: 120, defaultMode: "soft",
     habits: [
-      { id:"workout",  title:"Workout 45 min",                  emoji:"🏃", quip:"Move your body.",               type:"binary", minimum_day:true,  boss_only:false, points:3 },
-      { id:"water3l",  title:"Drink 3L water",                  emoji:"💧", quip:"Most hunger is just thirst.",   type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"diet75s",  title:"Eat well (1 social meal/wk ok)",  emoji:"🥗", quip:"Balanced, not perfect.",        type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"read10s",  title:"Read 10 pages",                   emoji:"📖", quip:"10 pages a day.",              type:"binary", minimum_day:false, boss_only:false, points:2 },
+      { id:"workout",  title:"Workout 45 min",                  emoji:"🏃", quip:"Move your body.",               type:"binary", points:3 },
+      { id:"water3l",  title:"Drink 3L water",                  emoji:"💧", quip:"Most hunger is just thirst.",   type:"binary", points:2 },
+      { id:"diet75s",  title:"Eat well (1 social meal/wk ok)",  emoji:"🥗", quip:"Balanced, not perfect.",        type:"binary", points:2 },
+      { id:"read10s",  title:"Read 10 pages",                   emoji:"📖", quip:"10 pages a day.",              type:"binary", points:2 },
     ]
   },
   {
@@ -167,9 +167,9 @@ const TEMPLATES = [
     description: "Build upper body strength. Start at 10, end at 100.",
     duration: 30, weeklyGoal: 70, defaultMode: "strict",
     habits: [
-      { id:"pushups",  title:"Daily push-ups",              emoji:"💪", quip:"Do your push-ups.",                 type:"binary", minimum_day:true,  boss_only:false, points:5 },
-      { id:"sleep30",  title:"8+ hours sleep",              emoji:"🌙", quip:"Muscles grow at night.",            type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"prot30",   title:"Protein at every meal",       emoji:"🥩", quip:"Feed the muscle.",                 type:"binary", minimum_day:true,  boss_only:false, points:2 },
+      { id:"pushups",  title:"Daily push-ups",              emoji:"💪", quip:"Do your push-ups.",                 type:"binary", points:5 },
+      { id:"sleep30",  title:"8+ hours sleep",              emoji:"🌙", quip:"Muscles grow at night.",            type:"binary", points:2 },
+      { id:"prot30",   title:"Protein at every meal",       emoji:"🥩", quip:"Feed the muscle.",                 type:"binary", points:2 },
     ]
   },
   {
@@ -177,10 +177,10 @@ const TEMPLATES = [
     description: "30 days, zero alcohol. Feel the difference.",
     duration: 30, weeklyGoal: 80, defaultMode: "strict",
     habits: [
-      { id:"noalc",    title:"No alcohol",                  emoji:"🚫", quip:"Not today.",                        type:"binary", minimum_day:true,  boss_only:false, points:4 },
-      { id:"water30",  title:"Drink 2L water",              emoji:"💧", quip:"Replace the empty with essential.", type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"sleep30d", title:"7+ hours sleep",              emoji:"🌙", quip:"Sleep is better sober anyway.",    type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"journal",  title:"Journal 5 min",               emoji:"✍️", quip:"Write it out.",                   type:"binary", minimum_day:false, boss_only:false, points:2 },
+      { id:"noalc",    title:"No alcohol",                  emoji:"🚫", quip:"Not today.",                        type:"binary", points:4 },
+      { id:"water30",  title:"Drink 2L water",              emoji:"💧", quip:"Replace the empty with essential.", type:"binary", points:2 },
+      { id:"sleep30d", title:"7+ hours sleep",              emoji:"🌙", quip:"Sleep is better sober anyway.",    type:"binary", points:2 },
+      { id:"journal",  title:"Journal 5 min",               emoji:"✍️", quip:"Write it out.",                   type:"binary", points:2 },
     ]
   },
   {
@@ -188,9 +188,9 @@ const TEMPLATES = [
     description: "Read every day for 30 days. 10 pages minimum.",
     duration: 30, weeklyGoal: 60, defaultMode: "soft",
     habits: [
-      { id:"readpg",   title:"Read 10 pages",               emoji:"📖", quip:"10 pages a day is a book a month.", type:"binary", minimum_day:true,  boss_only:false, points:4 },
-      { id:"noscreen", title:"No screens 1 hr before bed",  emoji:"📵", quip:"Protect your sleep and focus.",    type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"reflect",  title:"Reflect on what you read",    emoji:"🧠", quip:"Understanding beats volume.",      type:"binary", minimum_day:false, boss_only:false, points:2 },
+      { id:"readpg",   title:"Read 10 pages",               emoji:"📖", quip:"10 pages a day is a book a month.", type:"binary", points:4 },
+      { id:"noscreen", title:"No screens 1 hr before bed",  emoji:"📵", quip:"Protect your sleep and focus.",    type:"binary", points:2 },
+      { id:"reflect",  title:"Reflect on what you read",    emoji:"🧠", quip:"Understanding beats volume.",      type:"binary", points:2 },
     ]
   },
   {
@@ -198,12 +198,12 @@ const TEMPLATES = [
     description: "30 days of daily walks with your dog. Fresh air, consistency, and happy paws.",
     duration: 30, weeklyGoal: 75, defaultMode: "soft",
     habits: [
-      { id:"dw-walk",    title:"Morning walk",              emoji:"🌅", quip:"Start the day right — both of you.", type:"binary", minimum_day:true,  boss_only:false, points:3 },
-      { id:"dw-dist",    title:"Walk distance",             emoji:"📍", quip:"Short is fine. Going is everything.", type:"tiered", minimum_day:true,  boss_only:false, points:2,
+      { id:"dw-walk",    title:"Morning walk",              emoji:"🌅", quip:"Start the day right — both of you.", type:"binary", points:3 },
+      { id:"dw-dist",    title:"Walk distance",             emoji:"📍", quip:"Short is fine. Going is everything.", type:"tiered", points:2,
         tiers:[{value:1,label:"1 km",points:2},{value:2,label:"2 km",points:3},{value:4,label:"4 km",points:4},{value:6,label:"6 km+",points:6}] },
-      { id:"dw-evening", title:"Evening walk",              emoji:"🌆", quip:"Wind down together.",               type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"dw-water",   title:"Fresh water for your dog",  emoji:"💧", quip:"Hydration matters for them too.",   type:"binary", minimum_day:true,  boss_only:false, points:1 },
-      { id:"dw-longwalk",title:"Long walk — 8 km+",         emoji:"🗺️", quip:"Adventure mode unlocked.",         type:"binary", minimum_day:false, boss_only:true,  points:5 },
+      { id:"dw-evening", title:"Evening walk",              emoji:"🌆", quip:"Wind down together.",               type:"binary", points:2 },
+      { id:"dw-water",   title:"Fresh water for your dog",  emoji:"💧", quip:"Hydration matters for them too.",   type:"binary", points:1 },
+      { id:"dw-longwalk",title:"Long walk — 8 km+",         emoji:"🗺️", quip:"Adventure mode unlocked.",         type:"binary",  points:5 },
     ]
   },
   {
@@ -211,11 +211,11 @@ const TEMPLATES = [
     description: "30 days in the saddle. Build endurance, torch calories, go farther than yesterday.",
     duration: 30, weeklyGoal: 90, defaultMode: "soft",
     habits: [
-      { id:"cy-ride",    title:"Bike ride",                 emoji:"🚲", quip:"Clip in. Show up.",                  type:"tiered", minimum_day:true,  boss_only:false, points:3,
+      { id:"cy-ride",    title:"Bike ride",                 emoji:"🚲", quip:"Clip in. Show up.",                  type:"tiered", points:3,
         tiers:[{value:5,label:"5 km",points:3},{value:15,label:"15 km",points:4},{value:30,label:"30 km",points:6},{value:50,label:"50 km+",points:9}] },
-      { id:"cy-stretch", title:"Stretch & recover",         emoji:"🦵", quip:"The ride you can do tomorrow depends on this.", type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"cy-water",   title:"Hydration 2L",              emoji:"💧", quip:"Drink before you're thirsty.",       type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"cy-bigride", title:"Epic ride — 50 km+",        emoji:"🏔️", quip:"Boss mode. Go the distance.",       type:"binary", minimum_day:false, boss_only:true,  points:6 },
+      { id:"cy-stretch", title:"Stretch & recover",         emoji:"🦵", quip:"The ride you can do tomorrow depends on this.", type:"binary", points:2 },
+      { id:"cy-water",   title:"Hydration 2L",              emoji:"💧", quip:"Drink before you're thirsty.",       type:"binary", points:2 },
+      { id:"cy-bigride", title:"Epic ride — 50 km+",        emoji:"🏔️", quip:"Go the distance.",       type:"binary",  points:6 },
     ]
   },
   {
@@ -223,12 +223,12 @@ const TEMPLATES = [
     description: "30 days of daily walking. The simplest habit with the biggest returns.",
     duration: 30, weeklyGoal: 80, defaultMode: "soft",
     habits: [
-      { id:"wk-dist",    title:"Daily walk",                emoji:"👟", quip:"Every step counts.",                 type:"tiered", minimum_day:true,  boss_only:false, points:2,
+      { id:"wk-dist",    title:"Daily walk",                emoji:"👟", quip:"Every step counts.",                 type:"tiered", points:2,
         tiers:[{value:2,label:"2 km",points:2},{value:5,label:"5 km",points:3},{value:8,label:"8 km",points:4},{value:10,label:"10 km+",points:6}] },
-      { id:"wk-morning", title:"Morning walk before work",  emoji:"🌅", quip:"Before the world gets loud.",       type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"wk-phone",   title:"Walk without your phone",   emoji:"📵", quip:"Just you and your thoughts.",       type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"wk-stairs",  title:"Take the stairs all day",   emoji:"🏢", quip:"Small choices add up.",             type:"binary", minimum_day:false, boss_only:false, points:1 },
-      { id:"wk-big",     title:"Power walk — 12 km+",       emoji:"⚡", quip:"Boss Day: go the distance.",         type:"binary", minimum_day:false, boss_only:true,  points:5 },
+      { id:"wk-morning", title:"Morning walk before work",  emoji:"🌅", quip:"Before the world gets loud.",       type:"binary", points:2 },
+      { id:"wk-phone",   title:"Walk without your phone",   emoji:"📵", quip:"Just you and your thoughts.",       type:"binary", points:2 },
+      { id:"wk-stairs",  title:"Take the stairs all day",   emoji:"🏢", quip:"Small choices add up.",             type:"binary", points:1 },
+      { id:"wk-big",     title:"Power walk — 12 km+",       emoji:"⚡", quip:"Go the distance.",         type:"binary",  points:5 },
     ]
   },
   {
@@ -236,12 +236,12 @@ const TEMPLATES = [
     description: "30 days of running. Build the habit, find the pace, feel the difference.",
     duration: 30, weeklyGoal: 100, defaultMode: "strict",
     habits: [
-      { id:"rn-run",     title:"Run session",               emoji:"👟", quip:"Shoes on. Door open. Go.",           type:"tiered", minimum_day:true,  boss_only:false, points:3,
+      { id:"rn-run",     title:"Run session",               emoji:"👟", quip:"Shoes on. Door open. Go.",           type:"tiered", points:3,
         tiers:[{value:1,label:"1 km",points:3},{value:3,label:"3 km",points:4},{value:5,label:"5 km",points:6},{value:10,label:"10 km+",points:9}] },
-      { id:"rn-stretch", title:"Post-run stretch",          emoji:"🧘", quip:"Skipping this is how injuries happen.", type:"binary", minimum_day:true, boss_only:false, points:2 },
-      { id:"rn-water",   title:"Hydration 2L",              emoji:"💧", quip:"Runners dehydrate fast.",            type:"binary", minimum_day:true,  boss_only:false, points:1 },
-      { id:"rn-sleep",   title:"Sleep 7+ hours",            emoji:"🌙", quip:"You grow between the runs.",         type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"rn-longrun", title:"Long run — 10 km+",         emoji:"🏅", quip:"Boss Day: leave it all out there.",  type:"binary", minimum_day:false, boss_only:true,  points:6 },
+      { id:"rn-stretch", title:"Post-run stretch",          emoji:"🧘", quip:"Skipping this is how injuries happen.", type:"binary", points:2 },
+      { id:"rn-water",   title:"Hydration 2L",              emoji:"💧", quip:"Runners dehydrate fast.",            type:"binary", points:1 },
+      { id:"rn-sleep",   title:"Sleep 7+ hours",            emoji:"🌙", quip:"You grow between the runs.",         type:"binary", points:2 },
+      { id:"rn-longrun", title:"Long run — 10 km+",         emoji:"🏅", quip:"Leave it all out there.",  type:"binary",  points:6 },
     ]
   },
   {
@@ -249,11 +249,11 @@ const TEMPLATES = [
     description: "30 days of daily creative practice. Write, draw, build, make — just create something.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"cr-create",  title:"Create something today",    emoji:"✨", quip:"It doesn't have to be good. It has to exist.", type:"binary", minimum_day:true,  boss_only:false, points:4 },
-      { id:"cr-idea",    title:"Brainstorm 10 ideas",       emoji:"💡", quip:"Most will be bad. That's the point.", type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"cr-study",   title:"Study your craft",          emoji:"📚", quip:"The greats never stop learning.",    type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"cr-noscroll",title:"No mindless scrolling",     emoji:"📵", quip:"Consumption kills creation.",        type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"cr-publish", title:"Share your work",           emoji:"🚀", quip:"Boss Day: put it out into the world.", type:"binary", minimum_day:false, boss_only:true,  points:4 },
+      { id:"cr-create",  title:"Create something today",    emoji:"✨", quip:"It doesn't have to be good. It has to exist.", type:"binary", points:4 },
+      { id:"cr-idea",    title:"Brainstorm 10 ideas",       emoji:"💡", quip:"Most will be bad. That's the point.", type:"binary", points:2 },
+      { id:"cr-study",   title:"Study your craft",          emoji:"📚", quip:"The greats never stop learning.",    type:"binary", points:2 },
+      { id:"cr-noscroll",title:"No mindless scrolling",     emoji:"📵", quip:"Consumption kills creation.",        type:"binary", points:2 },
+      { id:"cr-publish", title:"Share your work",           emoji:"🚀", quip:"Put it out into the world.", type:"binary",  points:4 },
     ]
   },
   {
@@ -261,11 +261,11 @@ const TEMPLATES = [
     description: "30 days of consistent lifting. Build the habit, then build the muscle.",
     duration: 30, weeklyGoal: 90, defaultMode: "strict",
     habits: [
-      { id:"st-lift",    title:"Lift session",              emoji:"🏋️", quip:"Show up. Lift. Repeat.",               type:"binary", minimum_day:true,  boss_only:false, points:5 },
-      { id:"st-protein", title:"Protein at every meal",     emoji:"🥩", quip:"Muscle is built in the kitchen too.",  type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"st-sleep",   title:"8+ hours sleep",            emoji:"🌙", quip:"Muscle grows when you sleep.",         type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"st-stretch", title:"Post-lift stretch",         emoji:"🦵", quip:"Skipping this is how injuries happen.",type:"binary", minimum_day:false, boss_only:false, points:1 },
-      { id:"st-pr",      title:"Hit a personal record",     emoji:"⚡", quip:"Boss Day: break your own record.",     type:"binary", minimum_day:false, boss_only:true,  points:5 },
+      { id:"st-lift",    title:"Lift session",              emoji:"🏋️", quip:"Show up. Lift. Repeat.",               type:"binary", points:5 },
+      { id:"st-protein", title:"Protein at every meal",     emoji:"🥩", quip:"Muscle is built in the kitchen too.",  type:"binary", points:2 },
+      { id:"st-sleep",   title:"8+ hours sleep",            emoji:"🌙", quip:"Muscle grows when you sleep.",         type:"binary", points:2 },
+      { id:"st-stretch", title:"Post-lift stretch",         emoji:"🦵", quip:"Skipping this is how injuries happen.",type:"binary", points:1 },
+      { id:"st-pr",      title:"Hit a personal record",     emoji:"⚡", quip:"Break your own record.",     type:"binary",  points:5 },
     ]
   },
   {
@@ -273,11 +273,11 @@ const TEMPLATES = [
     description: "30 days of daily stillness. Calm the mind, sharpen the focus.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"med-sit",    title:"Meditate 10 min",           emoji:"🧘", quip:"10 minutes. Eyes closed. Phone away.", type:"binary", minimum_day:true,  boss_only:false, points:4 },
-      { id:"med-breath", title:"Breathing exercise",        emoji:"💨", quip:"4-7-8 or box breathing. Just breathe.",type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"med-screen", title:"No screens 1h before bed",  emoji:"📵", quip:"Protect your sleep and mind.",         type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"med-journal",title:"Gratitude journal",         emoji:"✍️", quip:"Three things. Two minutes.",           type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"med-deep",   title:"20-min deep meditation",    emoji:"🌊", quip:"Boss Day: go deeper.",                 type:"binary", minimum_day:false, boss_only:true,  points:4 },
+      { id:"med-sit",    title:"Meditate 10 min",           emoji:"🧘", quip:"10 minutes. Eyes closed. Phone away.", type:"binary", points:4 },
+      { id:"med-breath", title:"Breathing exercise",        emoji:"💨", quip:"4-7-8 or box breathing. Just breathe.",type:"binary", points:2 },
+      { id:"med-screen", title:"No screens 1h before bed",  emoji:"📵", quip:"Protect your sleep and mind.",         type:"binary", points:2 },
+      { id:"med-journal",title:"Gratitude journal",         emoji:"✍️", quip:"Three things. Two minutes.",           type:"binary", points:2 },
+      { id:"med-deep",   title:"20-min deep meditation",    emoji:"🌊", quip:"Go deeper.",                 type:"binary",  points:4 },
     ]
   },
   {
@@ -285,10 +285,10 @@ const TEMPLATES = [
     description: "30 days of cold showers. Builds mental resilience like nothing else.",
     duration: 30, weeklyGoal: 75, defaultMode: "strict",
     habits: [
-      { id:"ce-cold",    title:"Cold shower",               emoji:"🧊", quip:"Get in. Don't think about it.",        type:"binary", minimum_day:true,  boss_only:false, points:5 },
-      { id:"ce-breath",  title:"Breathwork (Wim Hof)",      emoji:"💨", quip:"Breathe deep before you go cold.",     type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"ce-reflect", title:"Post-session reflection",   emoji:"🧠", quip:"Hardship processed becomes growth.",   type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"ce-full",    title:"5-min full cold plunge",    emoji:"❄️", quip:"Boss Day: no warm-up. Full cold.",     type:"binary", minimum_day:false, boss_only:true,  points:5 },
+      { id:"ce-cold",    title:"Cold shower",               emoji:"🧊", quip:"Get in. Don't think about it.",        type:"binary", points:5 },
+      { id:"ce-breath",  title:"Breathwork (Wim Hof)",      emoji:"💨", quip:"Breathe deep before you go cold.",     type:"binary", points:2 },
+      { id:"ce-reflect", title:"Post-session reflection",   emoji:"🧠", quip:"Hardship processed becomes growth.",   type:"binary", points:2 },
+      { id:"ce-full",    title:"5-min full cold plunge",    emoji:"❄️", quip:"No warm-up. Full cold.",     type:"binary",  points:5 },
     ]
   },
   {
@@ -296,11 +296,11 @@ const TEMPLATES = [
     description: "21 days to fix your sleep. Consistent schedule, no screens, real rest.",
     duration: 21, weeklyGoal: 80, defaultMode: "strict",
     habits: [
-      { id:"sl-hours",   title:"8+ hours sleep",            emoji:"🌙", quip:"Non-negotiable.",                      type:"binary", minimum_day:true,  boss_only:false, points:4 },
-      { id:"sl-screen",  title:"No screens after 9pm",      emoji:"📵", quip:"Blue light kills melatonin.",          type:"binary", minimum_day:true,  boss_only:false, points:3 },
-      { id:"sl-caffeine",title:"No caffeine after 2pm",     emoji:"☕", quip:"It stays in your system 6+ hours.",    type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"sl-routine", title:"Same wake-up time",         emoji:"⏰", quip:"Consistency locks the rhythm.",        type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"sl-perfect", title:"All habits, flawless",      emoji:"⭐", quip:"Boss Day: perfect sleep hygiene.",     type:"binary", minimum_day:false, boss_only:true,  points:4 },
+      { id:"sl-hours",   title:"8+ hours sleep",            emoji:"🌙", quip:"Non-negotiable.",                      type:"binary", points:4 },
+      { id:"sl-screen",  title:"No screens after 9pm",      emoji:"📵", quip:"Blue light kills melatonin.",          type:"binary", points:3 },
+      { id:"sl-caffeine",title:"No caffeine after 2pm",     emoji:"☕", quip:"It stays in your system 6+ hours.",    type:"binary", points:2 },
+      { id:"sl-routine", title:"Same wake-up time",         emoji:"⏰", quip:"Consistency locks the rhythm.",        type:"binary", points:2 },
+      { id:"sl-perfect", title:"All habits, flawless",      emoji:"⭐", quip:"Perfect sleep hygiene.",     type:"binary",  points:4 },
     ]
   },
   {
@@ -308,11 +308,11 @@ const TEMPLATES = [
     description: "30 days without added sugar. Clearer skin, better energy, no crashes.",
     duration: 30, weeklyGoal: 75, defaultMode: "strict",
     habits: [
-      { id:"ns-nosugar",  title:"Zero added sugar today",    emoji:"🚫", quip:"Read the label. It's in everything.",   type:"binary", minimum_day:true,  boss_only:false, points:5 },
-      { id:"ns-water",    title:"Drink 2L water",            emoji:"💧", quip:"Cravings are often just dehydration.",  type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"ns-fruit",    title:"Eat whole fruit (no juice)",emoji:"🍎", quip:"Fibre intact. Spike avoided.",          type:"binary", minimum_day:false, boss_only:false, points:1 },
-      { id:"ns-label",    title:"Read every food label",     emoji:"🔍", quip:"Knowledge is the weapon.",             type:"binary", minimum_day:false, boss_only:false, points:1 },
-      { id:"ns-nocheat",  title:"No sugar AND no sweeteners",emoji:"💎", quip:"Boss Day: pure. No substitutes.",       type:"binary", minimum_day:false, boss_only:true,  points:5 },
+      { id:"ns-nosugar",  title:"Zero added sugar today",    emoji:"🚫", quip:"Read the label. It's in everything.",   type:"binary", points:5 },
+      { id:"ns-water",    title:"Drink 2L water",            emoji:"💧", quip:"Cravings are often just dehydration.",  type:"binary", points:2 },
+      { id:"ns-fruit",    title:"Eat whole fruit (no juice)",emoji:"🍎", quip:"Fibre intact. Spike avoided.",          type:"binary", points:1 },
+      { id:"ns-label",    title:"Read every food label",     emoji:"🔍", quip:"Knowledge is the weapon.",             type:"binary", points:1 },
+      { id:"ns-nocheat",  title:"No sugar AND no sweeteners",emoji:"💎", quip:"Pure. No substitutes.",       type:"binary",  points:5 },
     ]
   },
   {
@@ -320,12 +320,12 @@ const TEMPLATES = [
     description: "30 days of owning the first hour. Win the morning, win the day.",
     duration: 30, weeklyGoal: 80, defaultMode: "soft",
     habits: [
-      { id:"mr-wake",     title:"Wake up on time — no snooze",emoji:"⏰", quip:"First decision of the day. Make it right.", type:"binary", minimum_day:true,  boss_only:false, points:3 },
-      { id:"mr-move",     title:"Move your body (10 min)",    emoji:"🏃", quip:"Anything counts. Don't overthink it.",  type:"binary", minimum_day:true,  boss_only:false, points:3 },
-      { id:"mr-nophone",  title:"No phone for first 30 min",  emoji:"📵", quip:"Protect your mind before the world gets in.", type:"binary", minimum_day:true, boss_only:false, points:2 },
-      { id:"mr-hydrate",  title:"Drink water before coffee",  emoji:"💧", quip:"You wake up dehydrated every time.",   type:"binary", minimum_day:false, boss_only:false, points:1 },
-      { id:"mr-journal",  title:"Write 3 priorities for today",emoji:"📓",quip:"Clear mind. Clear direction.",          type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"mr-cold",     title:"Cold shower",                emoji:"🧊", quip:"Boss Day: go cold. All the way.",       type:"binary", minimum_day:false, boss_only:true,  points:4 },
+      { id:"mr-wake",     title:"Wake up on time — no snooze",emoji:"⏰", quip:"First decision of the day. Make it right.", type:"binary", points:3 },
+      { id:"mr-move",     title:"Move your body (10 min)",    emoji:"🏃", quip:"Anything counts. Don't overthink it.",  type:"binary", points:3 },
+      { id:"mr-nophone",  title:"No phone for first 30 min",  emoji:"📵", quip:"Protect your mind before the world gets in.", type:"binary", points:2 },
+      { id:"mr-hydrate",  title:"Drink water before coffee",  emoji:"💧", quip:"You wake up dehydrated every time.",   type:"binary", points:1 },
+      { id:"mr-journal",  title:"Write 3 priorities for today",emoji:"📓",quip:"Clear mind. Clear direction.",          type:"binary", points:2 },
+      { id:"mr-cold",     title:"Cold shower",                emoji:"🧊", quip:"Go cold. All the way.",       type:"binary",  points:4 },
     ]
   },
   {
@@ -333,11 +333,11 @@ const TEMPLATES = [
     description: "30 days of daily yoga and stretching. Move better, recover faster, feel lighter.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"yf-yoga",     title:"Yoga session (20 min+)",     emoji:"🧘", quip:"Show up to the mat. That's the whole job.", type:"binary", minimum_day:true, boss_only:false, points:4 },
-      { id:"yf-stretch",  title:"Full-body stretch (10 min)", emoji:"🦵", quip:"Tight muscles are slow muscles.",        type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"yf-breathe",  title:"Breathwork (5 min)",         emoji:"💨", quip:"Breath controls everything else.",       type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"yf-hydrate",  title:"Hydration 2L",               emoji:"💧", quip:"Flexibility and dehydration don't mix.",  type:"binary", minimum_day:false, boss_only:false, points:1 },
-      { id:"yf-flow",     title:"45-min full flow class",     emoji:"🌊", quip:"Boss Day: commit to the full session.",   type:"binary", minimum_day:false, boss_only:true,  points:5 },
+      { id:"yf-yoga",     title:"Yoga session (20 min+)",     emoji:"🧘", quip:"Show up to the mat. That's the whole job.", type:"binary", points:4 },
+      { id:"yf-stretch",  title:"Full-body stretch (10 min)", emoji:"🦵", quip:"Tight muscles are slow muscles.",        type:"binary", points:2 },
+      { id:"yf-breathe",  title:"Breathwork (5 min)",         emoji:"💨", quip:"Breath controls everything else.",       type:"binary", points:2 },
+      { id:"yf-hydrate",  title:"Hydration 2L",               emoji:"💧", quip:"Flexibility and dehydration don't mix.",  type:"binary", points:1 },
+      { id:"yf-flow",     title:"45-min full flow class",     emoji:"🌊", quip:"Commit to the full session.",   type:"binary",  points:5 },
     ]
   },
   {
@@ -345,11 +345,11 @@ const TEMPLATES = [
     description: "30 days of intentional screen use. Take back your attention.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"dd-limit",    title:"Max 1h social media",        emoji:"📱", quip:"Your attention is the product. Guard it.", type:"binary", minimum_day:true, boss_only:false, points:4 },
-      { id:"dd-morning",  title:"No phone first 30 min",      emoji:"🌅", quip:"Start the day on your terms.",            type:"binary", minimum_day:true,  boss_only:false, points:3 },
-      { id:"dd-nobed",    title:"No phone in bed",            emoji:"🛏️", quip:"Better sleep starts here.",               type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"dd-outside",  title:"Spend 30 min outside",       emoji:"🌳", quip:"Real world. Real rest.",                  type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"dd-full",     title:"Zero social media today",    emoji:"🏆", quip:"Boss Day: no apps. Just presence.",       type:"binary", minimum_day:false, boss_only:true,  points:5 },
+      { id:"dd-limit",    title:"Max 1h social media",        emoji:"📱", quip:"Your attention is the product. Guard it.", type:"binary", points:4 },
+      { id:"dd-morning",  title:"No phone first 30 min",      emoji:"🌅", quip:"Start the day on your terms.",            type:"binary", points:3 },
+      { id:"dd-nobed",    title:"No phone in bed",            emoji:"🛏️", quip:"Better sleep starts here.",               type:"binary", points:2 },
+      { id:"dd-outside",  title:"Spend 30 min outside",       emoji:"🌳", quip:"Real world. Real rest.",                  type:"binary", points:2 },
+      { id:"dd-full",     title:"Zero social media today",    emoji:"🏆", quip:"No apps. Just presence.",       type:"binary",  points:5 },
     ]
   },
   {
@@ -357,11 +357,11 @@ const TEMPLATES = [
     description: "30 days of 16:8. Eat in an 8-hour window, fast for 16. Simple, effective.",
     duration: 30, weeklyGoal: 80, defaultMode: "strict",
     habits: [
-      { id:"if-fast",     title:"16-hour fast completed",     emoji:"⏱️", quip:"The window is the whole game.",          type:"binary", minimum_day:true,  boss_only:false, points:5 },
-      { id:"if-water",    title:"Drink water during fast",    emoji:"💧", quip:"Water, black coffee, and tea only.",     type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"if-nosnack",  title:"No snacking outside window", emoji:"🚫", quip:"Discipline between meals matters.",      type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"if-protein",  title:"Protein-first meal",         emoji:"🥩", quip:"Break the fast right.",                  type:"binary", minimum_day:false, boss_only:false, points:1 },
-      { id:"if-20",       title:"20-hour fast",               emoji:"⚡", quip:"Boss Day: extend the window.",           type:"binary", minimum_day:false, boss_only:true,  points:5 },
+      { id:"if-fast",     title:"16-hour fast completed",     emoji:"⏱️", quip:"The window is the whole game.",          type:"binary", points:5 },
+      { id:"if-water",    title:"Drink water during fast",    emoji:"💧", quip:"Water, black coffee, and tea only.",     type:"binary", points:2 },
+      { id:"if-nosnack",  title:"No snacking outside window", emoji:"🚫", quip:"Discipline between meals matters.",      type:"binary", points:2 },
+      { id:"if-protein",  title:"Protein-first meal",         emoji:"🥩", quip:"Break the fast right.",                  type:"binary", points:1 },
+      { id:"if-20",       title:"20-hour fast",               emoji:"⚡", quip:"Extend the window.",           type:"binary",  points:5 },
     ]
   },
   {
@@ -369,11 +369,11 @@ const TEMPLATES = [
     description: "30 days of daily core work. Planks, crunches, leg raises — build real strength.",
     duration: 30, weeklyGoal: 80, defaultMode: "strict",
     habits: [
-      { id:"ca-core",     title:"Core workout (15 min)",      emoji:"💪", quip:"15 minutes. No excuses.",                type:"binary", minimum_day:true,  boss_only:false, points:5 },
-      { id:"ca-plank",    title:"2-min plank hold",           emoji:"⏱️", quip:"The plank is honest.",                   type:"binary", minimum_day:true,  boss_only:false, points:2 },
-      { id:"ca-protein",  title:"Protein at every meal",      emoji:"🥩", quip:"Muscle needs fuel.",                     type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"ca-stretch",  title:"Hip flexor stretch",         emoji:"🦵", quip:"Core work tightens everything. Stretch.", type:"binary", minimum_day:false, boss_only:false, points:1 },
-      { id:"ca-beast",    title:"30-min full core blast",     emoji:"🏆", quip:"Boss Day: all out. Burn.",               type:"binary", minimum_day:false, boss_only:true,  points:5 },
+      { id:"ca-core",     title:"Core workout (15 min)",      emoji:"💪", quip:"15 minutes. No excuses.",                type:"binary", points:5 },
+      { id:"ca-plank",    title:"2-min plank hold",           emoji:"⏱️", quip:"The plank is honest.",                   type:"binary", points:2 },
+      { id:"ca-protein",  title:"Protein at every meal",      emoji:"🥩", quip:"Muscle needs fuel.",                     type:"binary", points:2 },
+      { id:"ca-stretch",  title:"Hip flexor stretch",         emoji:"🦵", quip:"Core work tightens everything. Stretch.", type:"binary", points:1 },
+      { id:"ca-beast",    title:"30-min full core blast",     emoji:"🏆", quip:"All out. Burn.",               type:"binary",  points:5 },
     ]
   },
 
@@ -382,11 +382,11 @@ const TEMPLATES = [
     description: "30 days of daily writing. Process your thoughts, track your growth, find clarity.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"jn-write",  title:"Write in journal",         emoji:"📓", quip:"Even five minutes counts. Just start.",          type:"binary", minimum_day:true,  boss_only:false, points:4 },
-      { id:"jn-prompt", title:"Answer a writing prompt",  emoji:"💡", quip:"A question asked is a thought unlocked.",        type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"jn-gratit", title:"List 3 gratitudes",        emoji:"🙏", quip:"What you appreciate, appreciates.",              type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"jn-review", title:"Review yesterday's entry", emoji:"🔄", quip:"Reflection compounds the learning.",            type:"binary", minimum_day:false, boss_only:false, points:1 },
-      { id:"jn-deep",   title:"Write 2+ full pages",      emoji:"📖", quip:"Boss Day: go deep. Let it all out.",             type:"binary", minimum_day:false, boss_only:true,  points:4 },
+      { id:"jn-write",  title:"Write in journal",         emoji:"📓", quip:"Even five minutes counts. Just start.",          type:"binary", points:4 },
+      { id:"jn-prompt", title:"Answer a writing prompt",  emoji:"💡", quip:"A question asked is a thought unlocked.",        type:"binary", points:2 },
+      { id:"jn-gratit", title:"List 3 gratitudes",        emoji:"🙏", quip:"What you appreciate, appreciates.",              type:"binary", points:2 },
+      { id:"jn-review", title:"Review yesterday's entry", emoji:"🔄", quip:"Reflection compounds the learning.",            type:"binary", points:1 },
+      { id:"jn-deep",   title:"Write 2+ full pages",      emoji:"📖", quip:"Go deep. Let it all out.",             type:"binary",  points:4 },
     ]
   },
   {
@@ -394,12 +394,12 @@ const TEMPLATES = [
     description: "30 days of intense focus. No social media, no distractions — just deep work, learning, and execution.",
     duration: 30, weeklyGoal: 120, defaultMode: "strict",
     habits: [
-      { id:"mm-focus",   title:"Deep work — 2 hours",    emoji:"💻", quip:"Two hours. Zero distractions. Phone off.",        type:"binary", minimum_day:true,  boss_only:false, points:5 },
-      { id:"mm-nosocial",title:"No social media",        emoji:"📵", quip:"Your attention is your most valuable asset.",      type:"binary", minimum_day:true,  boss_only:false, points:3 },
-      { id:"mm-learn",   title:"Deliberate learning — 1h",emoji:"📚",quip:"One hour of intentional study every day.",        type:"binary", minimum_day:true,  boss_only:false, points:3 },
-      { id:"mm-move",    title:"Move your body",         emoji:"🏃", quip:"The mind needs a body that moves.",               type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"mm-reflect", title:"Evening reflection",     emoji:"✍️", quip:"What did you build today?",                       type:"binary", minimum_day:false, boss_only:false, points:2 },
-      { id:"mm-ultra",   title:"4-hour deep work block", emoji:"⚡", quip:"Boss Day: go full monk.",                          type:"binary", minimum_day:false, boss_only:true,  points:6 },
+      { id:"mm-focus",   title:"Deep work — 2 hours",    emoji:"💻", quip:"Two hours. Zero distractions. Phone off.",        type:"binary", points:5 },
+      { id:"mm-nosocial",title:"No social media",        emoji:"📵", quip:"Your attention is your most valuable asset.",      type:"binary", points:3 },
+      { id:"mm-learn",   title:"Deliberate learning — 1h",emoji:"📚",quip:"One hour of intentional study every day.",        type:"binary", points:3 },
+      { id:"mm-move",    title:"Move your body",         emoji:"🏃", quip:"The mind needs a body that moves.",               type:"binary", points:2 },
+      { id:"mm-reflect", title:"Evening reflection",     emoji:"✍️", quip:"What did you build today?",                       type:"binary", points:2 },
+      { id:"mm-ultra",   title:"4-hour deep work block", emoji:"⚡", quip:"Go full monk.",                          type:"binary",  points:6 },
     ]
   },
 
@@ -416,7 +416,7 @@ const TEMPLATES = [
       { km: 130, name: "Everest Base Camp",  emoji: "🏔️" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🏃", quip:"Walk, run, cycle, swim or row — it all counts.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🏃", quip:"Walk, run, cycle, swim or row — it all counts.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
@@ -431,7 +431,7 @@ const TEMPLATES = [
       { km: 790, name: "Santiago de Compostela",  emoji: "⛪" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🚶", quip:"Every step brings you closer to Santiago.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🚶", quip:"Every step brings you closer to Santiago.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
@@ -446,7 +446,7 @@ const TEMPLATES = [
       { km: 3540, name: "Mount Katahdin, Maine", emoji: "🏔️" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🥾", quip:"Miles in the legs. Wilderness in the soul.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🥾", quip:"Miles in the legs. Wilderness in the soul.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
@@ -461,7 +461,7 @@ const TEMPLATES = [
       { km: 3490, name: "Paris — Champs-Élysées", emoji: "🗼" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🚴", quip:"Clip in. Every km is a stage.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🚴", quip:"Clip in. Every km is a stage.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
@@ -476,7 +476,7 @@ const TEMPLATES = [
       { km: 3940, name: "Santa Monica Pier",  emoji: "🎡" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🚗", quip:"Get your kicks. Road is open.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🚗", quip:"Get your kicks. Road is open.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
@@ -491,7 +491,7 @@ const TEMPLATES = [
       { km: 6437, name: "Atlantic Ocean",   emoji: "🌊" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🚣", quip:"The river never stops. Neither do you.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🚣", quip:"The river never stops. Neither do you.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
@@ -509,7 +509,7 @@ const TEMPLATES = [
       { km: 4286, name: "Canadian Border",     emoji: "🍁" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🥾", quip:"Every step north is progress.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🥾", quip:"Every step north is progress.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
@@ -525,7 +525,7 @@ const TEMPLATES = [
       { km: 2903, name: "Summit — 8,849 m",     emoji: "🏔️" },
     ],
     habits: [
-      { id:"floors", title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 2,903 to go.", type:"distance", minimum_day:true, boss_only:false, points:1, unit:"floors" },
+      { id:"floors", title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 2,903 to go.", type:"distance", points:1, unit:"floors" },
     ],
   },
 ];
@@ -554,10 +554,7 @@ const UNIVERSAL_BADGES = [
   { id:"u-10lb",   label:"💪 10 lbs Down",        desc:"Lose 10 lbs. Seriously impressive.",                 test: u => u.weightLost >= 10 },
   { id:"u-wgoal",  label:"🎯 Goal Reached",       desc:"Hit your goal weight.",                               test: u => u.weightGoalReached },
   // Modes & behaviour
-  { id:"u-boss1",  label:"👑 Boss Energy",        desc:"Complete a Boss Day.",                                test: u => u.bossCompleted >= 1 },
-  { id:"u-bossw",  label:"👑 Boss Week",          desc:"3+ Boss Days in one week.",                          test: u => u.bossWeek },
   { id:"u-cmback", label:"🧡 Comeback Kid",       desc:"Use the Save My Day recovery.",                      test: u => u.anyRecovered },
-  { id:"u-min5",   label:"⚡ Minimum Warrior",    desc:"Use Minimum Day mode 5 times.",                      test: u => u.minimumUsed >= 5 },
   // Challenge milestones
   { id:"u-first",  label:"🌊 First Wave",         desc:"Complete 100% of habits on your very first day.",   test: u => u.anyFirstDay },
   { id:"u-done1",  label:"✅ Challenge Done",     desc:"Finish your first challenge.",                        test: u => u.completedChallenges >= 1 },
@@ -603,7 +600,7 @@ const TEMPLATE_BADGES = {
     { id:"pu-first",    label:"💥 First Rep",            desc:"Log your first push-up session.",                  test: c => c.daysLogged >= 1 },
     { id:"pu-week",     label:"📅 Push-Up Week",         desc:"7 consecutive push-up days.",                      test: c => c.streak >= 7 },
     { id:"pu-halfway",  label:"💪 Halfway",              desc:"15 days logged.",                                  test: c => c.daysLogged >= 15 },
-    { id:"pu-boss",     label:"👑 Beast Mode",           desc:"Complete 5 Boss Days.",                            test: c => c.bossCompleted >= 5 },
+    { id:"pu-boss",     label:"💪 Beast Mode",           desc:"Log 25 push-up sessions.",                         test: c => c.daysLogged >= 25 },
     { id:"pu-done",     label:"💥 30 Days Strong",       desc:"Complete the full 30-day challenge.",               test: c => c.pctDone >= 99 && c.complete },
   ],
   "dry-month": [
@@ -651,13 +648,13 @@ const TEMPLATE_BADGES = {
   "creative": [
     { id:"cr-first",    label:"✨ First Creation",       desc:"Log your first creative session.",                 test: c => c.daysLogged >= 1 },
     { id:"cr-week",     label:"🎨 Creative Week",        desc:"7-day creative streak.",                           test: c => c.streak >= 7 },
-    { id:"cr-boss",     label:"🚀 Shipped It",           desc:"Complete a Boss Day creative session.",             test: c => c.bossCompleted >= 1 },
+    { id:"cr-boss",     label:"🚀 Shipped It",           desc:"Log 10 creative sessions.",                        test: c => c.daysLogged >= 10 },
     { id:"cr-halfway",  label:"✨ Halfway",              desc:"15 creative sessions.",                            test: c => c.daysLogged >= 15 },
     { id:"cr-done",     label:"✅ Creative Month Done",  desc:"Complete 30 days of creativity.",                  test: c => c.pctDone >= 99 && c.complete },
   ],
   "strength": [
     { id:"st-first",    label:"🏋️ First Rep",            desc:"Log your first lift session.",                     test: c => c.hasLifted },
-    { id:"st-pr",       label:"⚡ PR Hunter",             desc:"Hit a personal record on Boss Day.",               test: c => c.hasPR },
+    { id:"st-pr",       label:"⚡ PR Hunter",             desc:"Hit a personal record.",                           test: c => c.hasPR },
     { id:"st-week",     label:"💪 Training Week",        desc:"7-day lifting streak.",                            test: c => c.streak >= 7 },
     { id:"st-20",       label:"🏋️ Gym Rat",              desc:"Log 20 lift sessions.",                            test: c => c.liftsLogged >= 20 },
     { id:"st-done",     label:"✅ Strength Month Done",  desc:"Complete 30 days of strength training.",           test: c => c.pctDone >= 99 && c.complete },
@@ -665,21 +662,21 @@ const TEMPLATE_BADGES = {
   "meditation": [
     { id:"med-first",   label:"🧘 First Sit",            desc:"Log your first meditation.",                       test: c => c.meditationLogged >= 1 },
     { id:"med-week",    label:"🌿 Inner Peace",          desc:"7-day meditation streak.",                         test: c => c.meditationStreak >= 7 },
-    { id:"med-deep",    label:"🌊 Deep State",           desc:"Complete a Boss Day meditation.",                   test: c => c.bossCompleted >= 1 },
+    { id:"med-deep",    label:"🌊 Deep State",           desc:"Complete 20 meditation sessions.",                  test: c => c.meditationLogged >= 20 },
     { id:"med-halfway", label:"🧘 Halfway",              desc:"15 meditation sessions.",                          test: c => c.meditationLogged >= 15 },
     { id:"med-done",    label:"✅ Meditation Month Done",desc:"Complete 30 days of meditation.",                  test: c => c.pctDone >= 99 && c.complete },
   ],
   "cold-exposure": [
     { id:"ce-first",    label:"🧊 First Plunge",         desc:"Take your first cold shower.",                     test: c => c.coldShowersLogged >= 1 },
     { id:"ce-week",     label:"❄️ Cold Warrior",         desc:"7-day cold shower streak.",                        test: c => c.coldShowerStreak >= 7 },
-    { id:"ce-plunge",   label:"🏔️ Ice Bath",             desc:"Complete a full cold plunge on Boss Day.",         test: c => c.hasColdPlunge },
+    { id:"ce-plunge",   label:"🏔️ Ice Bath",             desc:"Complete a full 5-min cold plunge.",               test: c => c.hasColdPlunge },
     { id:"ce-halfway",  label:"🧊 Halfway",              desc:"15 cold sessions.",                                test: c => c.coldShowersLogged >= 15 },
     { id:"ce-done",     label:"✅ Cold Month Done",      desc:"Complete 30 days of cold exposure.",               test: c => c.pctDone >= 99 && c.complete },
   ],
   "sleep-reset": [
     { id:"sl-first",    label:"😴 Lights Out",           desc:"Log your first sleep habit.",                      test: c => c.sleepHabitsLogged >= 1 },
     { id:"sl-week",     label:"🌙 Deep Sleeper",         desc:"7-day sleep streak.",                              test: c => c.sleepStreak >= 7 },
-    { id:"sl-boss",     label:"⭐ Perfect Night",        desc:"Complete a Boss Day sleep routine.",               test: c => c.bossCompleted >= 1 },
+    { id:"sl-boss",     label:"⭐ Perfect Night",        desc:"Complete 15 sleep sessions.",                      test: c => c.sleepHabitsLogged >= 15 },
     { id:"sl-halfway",  label:"😴 Halfway",              desc:"10+ days of sleep habits.",                        test: c => c.sleepHabitsLogged >= 10 },
     { id:"sl-done",     label:"✅ Sleep Reset Done",     desc:"Complete all 21 days.",                            test: c => c.pctDone >= 99 && c.complete },
   ],
@@ -687,41 +684,41 @@ const TEMPLATE_BADGES = {
     { id:"ns-first",    label:"🚫 Sugar Free",           desc:"Your first no-sugar day.",                         test: c => c.noSugarLogged >= 1 },
     { id:"ns-week",     label:"🍎 Sweet Freedom",        desc:"7-day no-sugar streak.",                           test: c => c.noSugarStreak >= 7 },
     { id:"ns-halfway",  label:"🚫 Halfway",              desc:"15 sugar-free days.",                              test: c => c.noSugarLogged >= 15 },
-    { id:"ns-pure",     label:"💎 Pure",                 desc:"Complete a Boss Day with zero sweeteners.",         test: c => c.bossCompleted >= 1 },
+    { id:"ns-pure",     label:"💎 Pure",                 desc:"Log 25 sugar-free days.",                          test: c => c.noSugarLogged >= 25 },
     { id:"ns-done",     label:"✅ No Sugar Done",        desc:"Complete 30 days without added sugar.",            test: c => c.pctDone >= 99 && c.complete },
   ],
   "morning-routine": [
     { id:"mr-first",    label:"🌅 Early Bird",           desc:"Complete your first morning routine.",             test: c => c.morningRoutineLogged >= 1 },
     { id:"mr-week",     label:"☀️ Sunrise Club",         desc:"7-day morning streak.",                            test: c => c.morningRoutineStreak >= 7 },
-    { id:"mr-cold",     label:"🧊 Cold Morning",         desc:"Complete a Boss Day morning routine.",             test: c => c.bossCompleted >= 1 },
+    { id:"mr-cold",     label:"🧊 Cold Morning",         desc:"Log 20 morning routines.",                         test: c => c.morningRoutineLogged >= 20 },
     { id:"mr-halfway",  label:"🌅 Halfway",              desc:"15 mornings logged.",                              test: c => c.morningRoutineLogged >= 15 },
     { id:"mr-done",     label:"✅ Morning Routine Done", desc:"Complete 30 days of morning routines.",            test: c => c.pctDone >= 99 && c.complete },
   ],
   "yoga-flexibility": [
     { id:"yf-first",    label:"🧘 First Flow",           desc:"Complete your first yoga session.",                 test: c => c.yogaLogged >= 1 },
     { id:"yf-week",     label:"🌿 Flexible Mind",        desc:"7-day yoga streak.",                               test: c => c.yogaStreak >= 7 },
-    { id:"yf-flow",     label:"🌊 Full Flow",            desc:"Complete a Boss Day yoga session.",                 test: c => c.bossCompleted >= 1 },
+    { id:"yf-flow",     label:"🌊 Full Flow",            desc:"Log 20 yoga sessions.",                            test: c => c.yogaLogged >= 20 },
     { id:"yf-halfway",  label:"🧘 Halfway",              desc:"15 yoga sessions.",                                test: c => c.yogaLogged >= 15 },
     { id:"yf-done",     label:"✅ Yoga Month Done",      desc:"Complete 30 days of yoga.",                        test: c => c.pctDone >= 99 && c.complete },
   ],
   "digital-detox": [
     { id:"dd-first",    label:"📵 Unplugged",            desc:"Complete your first detox day.",                    test: c => c.detoxLogged >= 1 },
     { id:"dd-week",     label:"🌳 Screen Free",          desc:"7-day detox streak.",                              test: c => c.detoxStreak >= 7 },
-    { id:"dd-zero",     label:"🏆 Zero Social",          desc:"Complete a Boss Day with zero social media.",       test: c => c.bossCompleted >= 1 },
+    { id:"dd-zero",     label:"🏆 Zero Social",          desc:"Log 20 screen-free days.",                         test: c => c.detoxLogged >= 20 },
     { id:"dd-halfway",  label:"📵 Halfway",              desc:"15 detox days.",                                   test: c => c.detoxLogged >= 15 },
     { id:"dd-done",     label:"✅ Detox Done",           desc:"Complete 30 days of digital detox.",               test: c => c.pctDone >= 99 && c.complete },
   ],
   "intermittent-fasting": [
     { id:"if-first",    label:"⏱️ First Fast",            desc:"Complete your first 16-hour fast.",               test: c => c.fastingLogged >= 1 },
     { id:"if-week",     label:"🔥 Fat Adapted",          desc:"7-day fasting streak.",                            test: c => c.fastingStreak >= 7 },
-    { id:"if-20hr",     label:"⚡ 20-Hour Fast",         desc:"Complete a Boss Day fast.",                         test: c => c.bossCompleted >= 1 },
+    { id:"if-20hr",     label:"⚡ 20-Hour Fast",         desc:"Log 20 fasting days.",                             test: c => c.fastingLogged >= 20 },
     { id:"if-halfway",  label:"⏱️ Halfway",              desc:"15 fasts completed.",                              test: c => c.fastingLogged >= 15 },
     { id:"if-done",     label:"✅ Fasting Month Done",   desc:"Complete 30 days of fasting.",                     test: c => c.pctDone >= 99 && c.complete },
   ],
   "core-abs": [
     { id:"ca-first",    label:"💪 Core Activated",       desc:"Log your first core session.",                     test: c => c.coreLogged >= 1 },
     { id:"ca-week",     label:"🔥 Iron Core",            desc:"7-day core streak.",                               test: c => c.streak >= 7 },
-    { id:"ca-blast",    label:"🏆 Core Blast",           desc:"Complete a Boss Day core workout.",                 test: c => c.bossCompleted >= 1 },
+    { id:"ca-blast",    label:"🏆 Core Blast",           desc:"Log 15 core sessions.",                            test: c => c.coreLogged >= 15 },
     { id:"ca-20",       label:"💪 20 Core Sessions",     desc:"Log 20 core workouts.",                            test: c => c.coreLogged >= 20 },
     { id:"ca-done",     label:"✅ Core Month Done",      desc:"Complete 30 days of core training.",               test: c => c.pctDone >= 99 && c.complete },
   ],
@@ -1033,7 +1030,7 @@ function saveBuilderFormFromDOM() {
 function normalizeDay(raw) {
   if (!raw || typeof raw !== "object") raw = {};
   return {
-    mode:       ["minimum","standard","boss","rest"].includes(raw.mode) ? raw.mode : "standard",
+    mode:       raw.mode === "rest" ? "rest" : "standard", // minimum/boss → standard
     done:       Array.isArray(raw.done) ? raw.done : [],
     recovered:  raw.recovered  === true,
     pts:        typeof raw.pts === "number" ? raw.pts : 0,
@@ -1052,8 +1049,6 @@ function normalizeHabit(raw) {
     emoji:       typeof raw.emoji === "string" ? raw.emoji : "⭐",
     quip:        typeof raw.quip  === "string" ? raw.quip  : "",
     type:        ["binary","tiered","distance"].includes(raw.type) ? raw.type : "binary",
-    minimum_day: raw.minimum_day !== false,
-    boss_only:   raw.boss_only   === true,
     points:      typeof raw.points === "number" && raw.points >= 1 ? Math.round(raw.points) : 2,
   };
   if (typeof raw.unit === "string") habit.unit = raw.unit;
@@ -1153,7 +1148,7 @@ function migrateCruiseMode(old, newState) {
   for (const [k, d] of Object.entries(rawDays)) {
     if (!d || typeof d !== "object") continue;
     newDays[k] = {
-      mode:      ["minimum","standard","boss","rest"].includes(d.mode) ? d.mode : "standard",
+      mode:      d.mode === "rest" ? "rest" : "standard",
       done:      Array.isArray(d.done) ? d.done : [],
       recovered: d.recovered === true,
       pts:       typeof d.pts === "number" ? d.pts : 0,
@@ -1258,10 +1253,8 @@ function getChallengeDay(challenge, key = todayKey()) {
 }
 
 function activeHabits(challenge, day) {
-  if (day.mode === "rest")     return [];           // rest day: no habits required
-  if (day.mode === "minimum")  return challenge.habits.filter(h => h.minimum_day);
-  if (day.mode === "standard") return challenge.habits.filter(h => !h.boss_only);
-  return challenge.habits;
+  if (day.mode === "rest") return []; // rest day: no habits required
+  return challenge.habits;            // standard: all habits active
 }
 
 function tierPoints(habit, tierValue) {
@@ -1276,7 +1269,7 @@ function completionInfo(challenge, day) {
   const active = activeHabits(challenge, day);
   const done = day.done.filter(id => active.some(h => h.id === id)).length;
   const total = active.length;
-  const multiplier = day.mode === "boss" ? 1.5 : 1;
+  const multiplier = 1;
   const completionBonus = (done === total && total > 0) ? 3 : 0;
   const basePoints = active.reduce((s, h) => {
     if (!day.done.includes(h.id)) return s;
@@ -1433,7 +1426,7 @@ function checkBadges(challenge) {
     h.id==="ce-cold" || /cold shower/i.test(h.title)
   ).map(h=>h.id);
   const _coldBoss   = challenge.habits.filter(h =>
-    h.id==="ce-full" || (h.boss_only && /cold/i.test(h.title))
+    h.id==="ce-full"
   ).map(h=>h.id);
   const _medIds     = challenge.habits.filter(h =>
     h.id==="med-sit" || /meditat/i.test(h.title)
@@ -1442,7 +1435,7 @@ function checkBadges(challenge) {
     h.id==="st-lift" || /lift session/i.test(h.title)
   ).map(h=>h.id);
   const _prIds      = challenge.habits.filter(h =>
-    h.id==="st-pr" || (h.boss_only && /personal record/i.test(h.title))
+    h.id==="st-pr" || /personal record/i.test(h.title)
   ).map(h=>h.id);
   const _sleepIds   = challenge.habits.filter(h =>
     h.id==="sl-hours" || /\d\+.{0,8}sleep|sleep.{0,8}\d\+/i.test(h.title)
@@ -1479,7 +1472,6 @@ function checkBadges(challenge) {
   const cCtx = {
     dayNumber, pctDone, streak, totalPts, daysLogged,
     complete:              info.done === info.total && info.total > 0,
-    bossCompleted:         allDays.filter(d => d.mode==="boss" && d.done.length > 0).length,
     completedWeeks: (() => {
       return myWeeks.filter(w => {
         const lastDay = w.allDays[w.allDays.length-1];
@@ -1561,14 +1553,7 @@ function checkBadges(challenge) {
       const e  = state.bodyTracking.entries;
       return !!(gw && e.length && e[e.length-1].weight <= gw);
     })(),
-    bossCompleted: allDaysAll.filter(d => d.mode==="boss" && d.done.length > 0).length,
-    bossWeek: allChallenges.some(c =>
-      challengeWeeks(c).some(w =>
-        w.allDays.filter(k => { const d=c.days[k]; return d&&d.mode==="boss"&&d.done.length>0; }).length >= 3
-      )
-    ),
     anyRecovered:  allDaysAll.some(d => d.recovered),
-    minimumUsed:   allDaysAll.filter(d => d.mode==="minimum" && d.done.length > 0).length,
     anyFirstDay: allChallenges.some(c => {
       const fd = c.days[c.startDate];
       if (!fd) return false;
@@ -1978,8 +1963,6 @@ function renderToday() {
     <div class="comeback-banner">
       <strong>Welcome back.</strong> ${missedStreak} days missed — that's okay. Today still counts.
     </div>` : ""}
-    ${isToday && day.mode === "boss" ? `
-    <div class="boss-day-banner">👑 Boss Day — all points ×1.5 today</div>` : ""}
     <div class="date-nav">
       <button class="date-nav-arrow ${canGoBack?"":"disabled"}" data-date-back ${canGoBack?"":"disabled"} aria-label="Previous day">‹</button>
       <span class="date-nav-label ${!isToday?"date-nav-past":""}">
@@ -2079,7 +2062,7 @@ function renderNoChallenge() {
     <p class="welcome-desc">Build any habit in 21–86 days. Log daily, earn streaks and badges, and watch yourself change.</p>
     <div class="welcome-features">
       <div class="wf-item"><span class="wf-icon">🏆</span><span class="wf-text">28 challenges — 75 Hard, Cold Exposure, Morning Routine, Pacific Crest Trail and more</span></div>
-      <div class="wf-item"><span class="wf-icon">👑</span><span class="wf-text">Boss Days, Rest Days, Minimum Days — built for real life, not perfection</span></div>
+      <div class="wf-item"><span class="wf-icon">😴</span><span class="wf-text">Rest days built in — use your jokers wisely, streak stays safe</span></div>
       <div class="wf-item"><span class="wf-icon">🔥</span><span class="wf-text">Streaks, badges, streak freezes, and weekly recaps that keep you honest</span></div>
       <div class="wf-item"><span class="wf-icon">📵</span><span class="wf-text">Works offline. No ads. Your data stays on your device.</span></div>
     </div>` : ""}
@@ -2121,7 +2104,7 @@ function renderRing(info, day, streak, challenge) {
   const todayKmD      = todayKmRaw !== null ? Math.round(todayKmRaw * ringFactor * 100) / 100 : null;
   const totalKmD      = totalKmNative !== null ? Math.round(totalKmNative * ringFactor * 10) / 10 : null;
   return `
-  <div class="ring-wrap ${day.mode==="boss"?"boss":day.mode==="rest"?"rest":""}">
+  <div class="ring-wrap ${day.mode==="rest"?"rest":""}">
     <svg class="progress-ring" viewBox="0 0 220 220" aria-hidden="true">
       <defs>
         <linearGradient id="ring-gradient" x1="0" y1="0" x2="1" y2="1">
@@ -2134,7 +2117,7 @@ function renderRing(info, day, streak, challenge) {
         </linearGradient>
       </defs>
       <circle class="ring-track" cx="110" cy="110" r="90"/>
-      <circle class="ring-value ${day.mode==="boss"?"boss-mode":""} ${day.mode==="minimum"&&info.percent===100?"minimum-full":""} ${day.mode==="rest"?"rest-mode":""}" cx="110" cy="110" r="90" data-percent="${info.percent}"/>
+      <circle class="ring-value ${day.mode==="rest"?"rest-mode":""}" cx="110" cy="110" r="90" data-percent="${info.percent}"/>
     </svg>
     <div class="ring-center">
       ${day.mode === "rest"
@@ -2162,7 +2145,7 @@ function renderRing(info, day, streak, challenge) {
     </div>
     <div class="ring-stat-sep"></div>
     <div class="ring-stat">
-      <div class="ring-stat-value">${challengePts}${day.mode==="boss"?`<span class="boss-badge">×1.5</span>`:""}</div>
+      <div class="ring-stat-value">${challengePts}</div>
       <div class="ring-stat-label">challenge pts</div>
     </div>`}
     <div class="ring-stat-sep"></div>
@@ -2199,17 +2182,15 @@ function renderModeSelector(day, challenge) {
   const budgetExhausted = !todayIsRest && jokersUsed >= jokerBudget;
 
   const modeDesc = {
-    minimum:  "Locks non-essential habits. Streak stays safe.",
     standard: "All habits available. Normal day.",
-    boss:     "Every habit unlocked. Points × 1.5. Go all out.",
     rest:     budgetExhausted
       ? `No rest days left (${jokerBudget}/${jokerBudget} used).`
       : `Rest day. No habits required. Streak preserved. (${jokersUsed}/${jokerBudget} used)`,
   };
 
   const modes = noRestDay
-    ? [["minimum","Minimum"],["standard","Standard"],["boss","Boss Day"]]
-    : [["minimum","Minimum"],["standard","Standard"],["boss","Boss Day"],["rest", budgetExhausted ? `Rest (0 left)` : `Rest Day${jokerBudget > 0 ? ` (${jokerBudget - jokersUsed} left)` : ""}`]];
+    ? [["standard","Standard"]]
+    : [["standard","Standard"],["rest", budgetExhausted ? `Rest (0 left)` : `Rest Day${jokerBudget > 0 ? ` (${jokerBudget - jokersUsed} left)` : ""}`]];
 
   return `
   <div class="mode-selector">${modes.map(([id,label]) =>
@@ -2220,7 +2201,7 @@ function renderModeSelector(day, challenge) {
 function renderHabit(habit, day, challenge) {
   if (habit.type === "tiered")   return renderTieredHabit(habit, day, challenge);
   if (habit.type === "distance") return renderDistanceHabit(habit, day, challenge);
-  const locked  = day.mode==="rest" || (day.mode==="minimum" && !habit.minimum_day) || (day.mode!=="boss" && habit.boss_only);
+  const locked  = day.mode==="rest";
   const checked = day.done.includes(habit.id);
   const popping = _animHabitId === habit.id;
   // Photo habits get a camera capture button alongside the checkbox
@@ -2231,7 +2212,7 @@ function renderHabit(habit, day, challenge) {
     <span class="accent"></span>
     <span class="habit-emoji">${esc(habit.emoji)}</span>
     <span class="habit-info">
-      <span class="habit-title">${esc(habit.title)}${habit.boss_only?`<span class="boss-pip">👑</span>`:""}</span>
+      <span class="habit-title">${esc(habit.title)}</span>
       <span class="habit-quip">${checked ? "Photo logged ✓" : esc(habit.quip)}</span>
     </span>
     <div class="photo-habit-actions">
@@ -2245,34 +2226,34 @@ function renderHabit(habit, day, challenge) {
     <span class="accent"></span>
     <span class="habit-emoji">${locked?"🔒":esc(habit.emoji)}</span>
     <span class="habit-info">
-      <span class="habit-title">${esc(habit.title)}${habit.boss_only?`<span class="boss-pip">👑</span>`:""}</span>
-      <span class="habit-quip">${locked?(day.mode==="rest"?"Rest Day — recover well.":day.mode==="minimum"?"Minimum Day — locked.":"Switch to Boss Day."):esc(habit.quip)}</span>
+      <span class="habit-title">${esc(habit.title)}</span>
+      <span class="habit-quip">${locked?"Rest Day — recover well.":esc(habit.quip)}</span>
     </span>
     <span class="check-circle">${checked?"✓":""}</span>
   </button>`;
 }
 
 function renderTieredHabit(habit, day, challenge) {
-  const locked  = day.mode==="rest" || (day.mode==="minimum" && !habit.minimum_day) || (day.mode!=="boss" && habit.boss_only);
+  const locked  = day.mode==="rest";
   const checked = day.done.includes(habit.id);
   const selVal  = day.tiers?.[habit.id] ?? null;
   if (locked) return `
   <div class="habit-card locked" aria-disabled="true">
-    <span class="accent" style="${habit.boss_only?"background:linear-gradient(135deg,#ffcc44,#ff9500)":""}"></span>
-    <span class="habit-emoji">${habit.boss_only?"👑":"🔒"}</span>
+    <span class="accent"></span>
+    <span class="habit-emoji">🔒</span>
     <span class="habit-info">
       <span class="habit-title">${esc(habit.title)}</span>
-      <span class="habit-quip">${day.mode==="rest"?"Rest Day — recover well.":day.mode==="minimum"?"Minimum Day — locked.":"Switch to Boss Day."}</span>
+      <span class="habit-quip">Rest Day — recover well.</span>
     </span>
     <span class="check-circle"></span>
   </div>`;
   const popping = _animHabitId === habit.id;
   return `
   <div class="habit-card run-habit ${checked?"checked":""} ${popping?"habit-pop":""}">
-    <span class="accent" style="${habit.boss_only?"background:linear-gradient(135deg,#ffcc44,#ff9500)":""}"></span>
+    <span class="accent"></span>
     <span class="habit-emoji">${esc(habit.emoji)}</span>
     <div class="run-body">
-      <span class="habit-title">${esc(habit.title)}${habit.boss_only?`<span class="boss-pip">👑</span>`:""}</span>
+      <span class="habit-title">${esc(habit.title)}</span>
       <div class="run-distances">
         ${habit.tiers.map(t => `<button class="run-dist ${String(selVal)===String(t.value)?"active":""}" data-tier="${habit.id}" data-tier-val="${t.value}">${t.label}</button>`).join("")}
       </div>
@@ -2470,8 +2451,6 @@ function renderCompleteBanner(day, info, challenge) {
       : `${totalD.toFixed(1)} ${dUnit} covered`;
     return `<div class="complete-banner"><span class="cb-icon">🗺️</span><div class="cb-body"><div class="cb-title">${todayD.toFixed(isFloors?0:1)} ${dUnit} today</div><div class="cb-sub">${sub}</div>${noteNudge}</div></div>`;
   }
-  if (day.mode==="minimum") return `<div class="complete-banner minimum-complete"><span class="cb-icon">🛡</span><div class="cb-body"><div class="cb-title">Minimum Day Done</div><div class="cb-sub">Streak protected.</div>${noteNudge}</div></div>`;
-  if (day.mode==="boss")    return `<div class="complete-banner boss-complete"><span class="cb-icon">👑</span><div class="cb-body"><div class="cb-title">BOSS DAY COMPLETE</div><div class="cb-sub">${info.points} pts · Absolute unit.</div>${noteNudge}</div></div>`;
   return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">Full Send</div><div class="cb-sub">All habits done · ${info.points} pts</div>${noteNudge}</div></div>`;
 }
 
@@ -2918,16 +2897,12 @@ function renderChallengeDetail(c) {
           </div>`;
         }
         const allDays = Object.values(c.days);
-        const available = allDays.filter(d => {
-          if (d.mode === "minimum" && !h.minimum_day) return false;
-          if (h.boss_only && d.mode !== "boss") return false;
-          return d.done.length > 0 || d.recovered;
-        });
+        const available = allDays.filter(d => d.mode !== "rest" && (d.done.length > 0 || d.recovered));
         const done = available.filter(d => d.done.includes(h.id)).length;
         const hpct = available.length ? Math.round((done / available.length) * 100) : null;
         const color = hpct == null ? "var(--text-faint)" : hpct >= 80 ? "var(--success)" : hpct >= 50 ? "#f5a623" : "var(--secondary)";
         return `<div class="habit-preview-item">
-          <span>${esc(h.emoji)} ${esc(h.title)}${h.boss_only ? ` <span style="font-size:10px;opacity:.6">👑</span>` : ""}</span>
+          <span>${esc(h.emoji)} ${esc(h.title)}</span>
           ${hpct != null ? `<span class="hpi-rate" style="color:${color}">${hpct}%</span>` : ""}
         </div>`;
       }).join("")}
@@ -2995,10 +2970,6 @@ function renderEditChallenge(c) {
                 <input id="ech-title" type="text" value="${esc(h.title)}" placeholder="Habit name" style="flex:1">
                 <input id="ech-pts" type="number" value="${h.points}" min="1" max="10" style="width:52px">
               </div>
-              <div class="ech-edit-flags">
-                <label class="ech-flag"><input type="checkbox" id="ech-minimum" ${h.minimum_day?"checked":""}> Minimum day</label>
-                <label class="ech-flag"><input type="checkbox" id="ech-boss" ${h.boss_only?"checked":""}> Boss only 👑</label>
-              </div>
               <div class="ech-edit-actions">
                 <button class="pill-btn" data-ec-save-habit>Save ✓</button>
                 <button class="secondary-button" style="padding:6px 12px;font-size:13px" data-ec-cancel-habit-edit>Cancel</button>
@@ -3060,8 +3031,6 @@ function renderWeekCard(c, week, isCurrent) {
       const d=c.days[k];
       if(!d||(!d.done.length&&!d.recovered)) return `<span class="wdot empty ${k===today?"now":""}"></span>`;
       const inf=completionInfo(c,d);
-      if(d.mode==="boss"&&inf.percent===100) return `<span class="wdot boss"></span>`;
-      if(d.mode==="minimum"&&inf.percent===100) return `<span class="wdot min"></span>`;
       if(inf.percent===100) return `<span class="wdot full ${k===today?"now":""}"></span>`;
       return `<span class="wdot partial"></span>`;
     }).join("")}</div>
@@ -3117,7 +3086,6 @@ function renderMonthCalendar(challenge) {
     const info = completionInfo(challenge, day);
     if (day.mode === "rest")                             return `<div class="cal-cell cal-rest${todayCls}">😴</div>`;
     if (day.freezeUsed && !day.done.length)              return `<div class="cal-cell cal-freeze${todayCls}">❄️</div>`;
-    if (day.mode === "boss" && info.percent === 100)     return `<div class="cal-cell cal-boss${todayCls}">👑</div>`;
     if (info.percent === 100)                            return `<div class="cal-cell cal-full${todayCls}">${dn}</div>`;
     return `<div class="cal-cell cal-partial${todayCls}">${dn}</div>`;
   }).join("");
@@ -3136,7 +3104,6 @@ function renderMonthCalendar(challenge) {
     <div class="cal-legend">
       <span class="cal-leg full">✓ Full</span>
       <span class="cal-leg partial">● Partial</span>
-      <span class="cal-leg boss">👑 Boss</span>
       <span class="cal-leg rest">😴 Rest</span>
       <span class="cal-leg freeze">❄️ Frozen</span>
       <span class="cal-leg missed">— Missed</span>
@@ -3287,7 +3254,7 @@ function renderBuilderCustomize() {
     `}
     <div class="pts-explainer">
       <div class="pts-explainer-title">⭐ How points work</div>
-      <div class="pts-explainer-body">Check off habits to earn points. Boss Days give 1.5×. Hit your weekly goal to earn badges. Points reset every Monday — your streak doesn't.</div>
+      <div class="pts-explainer-body">Check off habits to earn points. Hit your weekly goal to earn badges. Points reset every Monday — your streak doesn't.</div>
     </div>
     <div class="builder-reminder-hint">💡 <strong>Set a daily reminder</strong> after you start — users who do are far more likely to finish. Find it in <em>More → Notifications</em>.</div>
     <button class="primary-button" style="margin-top:16px" data-start-challenge>
@@ -3537,7 +3504,7 @@ function renderBadgeCat(label, defs, earned, templateId) {
 
 const ONBOARDING_STEPS = [
   { emoji:"🎯", title:"Pick a challenge",  body:"Choose from 28 challenges — from Daily Journaling to the Pacific Crest Trail. Each one comes with daily habits to check off." },
-  { emoji:"⭐", title:"Earn points daily",  body:"Every habit you check earns points. Boss Days give 1.5×. Hit your weekly goal to unlock badges. Points reset Monday — your streak doesn't." },
+  { emoji:"⭐", title:"Earn points daily",  body:"Every habit you check earns points and XP. Hit your weekly goal to unlock badges. Points reset Monday — your streak and XP don't." },
   { emoji:"🔥", title:"Come back tomorrow", body:"Your streak grows every day you log. Miss a day? Soft mode gives you grace. Rest days are built in. One day at a time." },
 ];
 // onboardingStep: 0 = hero, 1-3 = info slides, 4 = account screen
@@ -3553,7 +3520,7 @@ function renderObHero() {
     <ul class="ob-features" aria-label="App features">
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">🎯</span><span>28 challenges — from journaling to epic trails</span></li>
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">⭐</span><span>Daily points, streaks &amp; badges</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">🔥</span><span>Boss Days, rest days &amp; soft mode</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">😴</span><span>Rest days &amp; streak protection built in</span></li>
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">📴</span><span>Works offline — no account required</span></li>
     </ul>
     <button class="primary-button ob-cta" data-ob-next>Let's go →</button>
@@ -3789,8 +3756,7 @@ function bindEvents() {
     if (day?.done.includes(habitId)) {
       const habit = c.habits.find(h => h.id === habitId);
       const pts   = habit?.points ?? 0;
-      const mult  = day.mode === "boss" ? 1.5 : 1;
-      if (pts > 0) showPtsAnim(Math.round(pts * mult), rect);
+      if (pts > 0) showPtsAnim(pts, rect);
     }
   });
   on("[data-tier]",         el => selectTier(el.dataset.tier, el.dataset.tierVal));
@@ -3950,10 +3916,8 @@ function bindEvents() {
     const emoji = (document.getElementById("ech-emoji")?.value || "⭐").trim() || "⭐";
     const title = (document.getElementById("ech-title")?.value || "").trim();
     const pts   = Math.max(1, Math.min(10, Number(document.getElementById("ech-pts")?.value) || 2));
-    const minDay  = document.getElementById("ech-minimum")?.checked ?? true;
-    const bossOnly = document.getElementById("ech-boss")?.checked ?? false;
     if (!title) { showToast("Habit needs a name."); return; }
-    editForm.habits[i] = { ...editForm.habits[i], emoji, title, points: pts, minimum_day: minDay, boss_only: bossOnly };
+    editForm.habits[i] = { ...editForm.habits[i], emoji, title, points: pts };
     editForm.habitEditIdx = null;
     render();
   });
@@ -3977,7 +3941,7 @@ function bindEvents() {
     const title = (document.getElementById("ech-new-title")?.value || "").trim();
     const pts   = Math.max(1, Math.min(10, Number(document.getElementById("ech-new-pts")?.value) || 2));
     if (!title) { showToast("Enter a habit name."); return; }
-    editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "binary", minimum_day: true, boss_only: false, points: pts });
+    editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "binary", points: pts });
     editForm.newHabitEmoji  = "⭐";
     editForm.newHabitTitle  = "";
     editForm.newHabitPoints = 2;
@@ -4171,28 +4135,15 @@ function setMode(mode) {
     }
   }
   const day = getChallengeDay(c, effectiveDate());
-  // Warn if switching to a more restrictive mode would uncheck logged habits
-  if (mode === "minimum" && day.mode !== "minimum" && day.done.length > 0) {
-    const willLose = day.done.filter(id => !c.habits.find(h=>h.id===id)?.minimum_day).length;
-    if (willLose > 0) {
-      showConfirm(
-        `Switching to Minimum Day will uncheck ${willLose} logged habit${willLose>1?"s":""}. Continue?`,
-        () => { applyMode(c, day, mode); }
-      );
-      return;
-    }
-  }
   applyMode(c, day, mode);
 }
 
 function applyMode(c, day, mode) {
   day.mode = mode;
-  if (mode==="minimum") day.done = day.done.filter(id => c.habits.find(h=>h.id===id)?.minimum_day);
-  if (mode==="standard") day.done = day.done.filter(id => !c.habits.find(h=>h.id===id)?.boss_only);
+  if (mode==="rest") day.done = [];
   updateDayPoints(c, day);
   saveState();
-  if (mode==="minimum") showToast("Minimum day set. Streak is safe.");
-  if (mode==="boss")    showToast("Boss Day unlocked. Go big.");
+  if (mode==="rest") showToast("Rest day set. Streak is safe.");
   checkBadges(c);
   render();
 }
@@ -4201,8 +4152,7 @@ function toggleHabit(id) {
   const c = currentChallenge(); if (!c) return;
   const habit = c.habits.find(h=>h.id===id); if (!habit) return;
   const day = getChallengeDay(c, effectiveDate());
-  if (day.mode==="minimum" && !habit.minimum_day) return;
-  if (day.mode!=="boss"    &&  habit.boss_only)   return;
+  if (day.mode==="rest") return;
   const levelBefore = getLevelInfo(state.xp).level;
   if (day.done.includes(id)) { day.done = day.done.filter(x=>x!==id); _animHabitId = null; }
   else { day.done.push(id); _animHabitId = id; }
@@ -4243,8 +4193,7 @@ function selectTier(habitId, rawVal) {
   const c = currentChallenge(); if (!c) return;
   const habit = c.habits.find(h=>h.id===habitId); if (!habit) return;
   const day = getChallengeDay(c, effectiveDate());
-  if (day.mode==="minimum" && !habit.minimum_day) return;
-  if (day.mode!=="boss"    &&  habit.boss_only)   return;
+  if (day.mode==="rest") return;
   const val = isNaN(Number(rawVal)) ? rawVal : Number(rawVal);
   if (!day.tiers) day.tiers = {};
   if (String(day.tiers[habitId])===String(val)) {
@@ -4385,7 +4334,7 @@ function addCustomHabit() {
   const name  = (document.getElementById("nh-name")?.value||"").trim();
   const pts   = Number(document.getElementById("nh-pts")?.value||2);
   if (!name) { showToast("Enter a habit name."); return; }
-  builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"binary", minimum_day:true, boss_only:false, points:pts });
+  builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"binary", points:pts });
   builderForm.newHabitEmoji = "⭐";
   builderForm.newHabitName  = "";
   builderForm.newHabitPoints = 2;
