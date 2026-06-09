@@ -1,10 +1,63 @@
 "use strict";
 
-const APP_VERSION = "2026.06.08.14";
+const APP_VERSION = "2026.06.08.15";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
 const UPDATE_CHECK_MS = 30 * 60 * 1000;
+
+// ── XP Level System ──────────────────────────────────────────────────────────
+const XP_LEVELS = [
+  { level: 1,  name: "Newcomer",     xp: 0      },
+  { level: 2,  name: "Seeker",       xp: 150    },
+  { level: 3,  name: "Committed",    xp: 400    },
+  { level: 4,  name: "Consistent",   xp: 800    },
+  { level: 5,  name: "Challenger",   xp: 1400   },
+  { level: 6,  name: "Disciplined",  xp: 2200   },
+  { level: 7,  name: "Driven",       xp: 3200   },
+  { level: 8,  name: "Warrior",      xp: 4500   },
+  { level: 9,  name: "Unbroken",     xp: 6000   },
+  { level: 10, name: "Champion",     xp: 8000   },
+  { level: 11, name: "Relentless",   xp: 10500  },
+  { level: 12, name: "Iron-Willed",  xp: 13500  },
+  { level: 13, name: "Elite",        xp: 17000  },
+  { level: 14, name: "Forged",       xp: 21000  },
+  { level: 15, name: "Legend",       xp: 26000  },
+  { level: 16, name: "Apex",         xp: 32000  },
+  { level: 17, name: "Unstoppable",  xp: 39000  },
+  { level: 18, name: "Master",       xp: 47000  },
+  { level: 19, name: "Titan",        xp: 56000  },
+  { level: 20, name: "Immortal",     xp: 66000  },
+  { level: 21, name: "Ascendant",    xp: 78000  },
+  { level: 22, name: "Mythic",       xp: 92000  },
+  { level: 23, name: "Conqueror",    xp: 108000 },
+  { level: 24, name: "Sovereign",    xp: 126000 },
+  { level: 25, name: "Transcendent", xp: 147000 },
+];
+
+function getLevelInfo(xp) {
+  let current = XP_LEVELS[0];
+  for (const lvl of XP_LEVELS) {
+    if (xp >= lvl.xp) current = lvl;
+    else break;
+  }
+  const nextIdx   = XP_LEVELS.indexOf(current) + 1;
+  const next      = XP_LEVELS[nextIdx] || null;
+  const xpInLevel = next ? xp - current.xp : 0;
+  const xpNeeded  = next ? next.xp - current.xp : 1;
+  const pct       = next ? Math.min(100, Math.round((xpInLevel / xpNeeded) * 100)) : 100;
+  return { ...current, next, xpInLevel, xpNeeded, pct };
+}
+
+function recalcXP() {
+  let total = 0;
+  for (const challenge of Object.values(state.challenges)) {
+    for (const day of Object.values(challenge.days)) {
+      total += completionInfo(challenge, day).points || 0;
+    }
+  }
+  return total;
+}
 
 // ── WoW-style Rarity Tiers ────────────────────────────────────────────────
 const TIERS = {
@@ -1069,6 +1122,7 @@ function normalizeState(raw) {
     globalBadges: Array.isArray(raw.globalBadges) ? raw.globalBadges : [],
     weeklyRecapDismissed: (raw.weeklyRecapDismissed && typeof raw.weeklyRecapDismissed === "object") ? raw.weeklyRecapDismissed : {},
     migrations:   (raw.migrations && typeof raw.migrations === "object") ? raw.migrations : {},
+    xp:           typeof raw.xp === "number" ? raw.xp : 0,
   };
 }
 
@@ -1942,6 +1996,7 @@ function renderToday() {
       <div class="journey-track"><div class="journey-fill" style="width:${journeyPct}%"></div></div>
     </section>
 
+    ${isToday ? renderXPBar() : ""}
     <section class="today-stage panel">
       ${renderRing(info, day, streak, challenge)}
       ${isToday ? renderStreakFreezeUI(challenge) : ""}
@@ -2418,6 +2473,22 @@ function renderCompleteBanner(day, info, challenge) {
   if (day.mode==="minimum") return `<div class="complete-banner minimum-complete"><span class="cb-icon">🛡</span><div class="cb-body"><div class="cb-title">Minimum Day Done</div><div class="cb-sub">Streak protected.</div>${noteNudge}</div></div>`;
   if (day.mode==="boss")    return `<div class="complete-banner boss-complete"><span class="cb-icon">👑</span><div class="cb-body"><div class="cb-title">BOSS DAY COMPLETE</div><div class="cb-sub">${info.points} pts · Absolute unit.</div>${noteNudge}</div></div>`;
   return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">Full Send</div><div class="cb-sub">All habits done · ${info.points} pts</div>${noteNudge}</div></div>`;
+}
+
+function renderXPBar() {
+  const info   = getLevelInfo(state.xp);
+  const isMax  = !info.next;
+  const toNext = isMax ? 0 : info.next.xp - state.xp;
+  return `
+  <div class="xp-bar-wrap">
+    <div class="xp-bar-header">
+      <span class="xp-level-badge">⚡ Lv.${info.level} <span class="xp-level-name">${info.name}</span></span>
+      <span class="xp-bar-to-next">${isMax ? "Max Level" : `${toNext.toLocaleString()} XP to Lv.${info.next.level}`}</span>
+    </div>
+    <div class="xp-bar-track" role="progressbar" aria-valuenow="${info.pct}" aria-valuemin="0" aria-valuemax="100">
+      <div class="xp-bar-fill" style="width:${info.pct}%"></div>
+    </div>
+  </div>`;
 }
 
 function renderWeeklyGoalBar(challenge) {
@@ -4092,9 +4163,15 @@ function toggleHabit(id) {
   const day = getChallengeDay(c, effectiveDate());
   if (day.mode==="minimum" && !habit.minimum_day) return;
   if (day.mode!=="boss"    &&  habit.boss_only)   return;
+  const levelBefore = getLevelInfo(state.xp).level;
   if (day.done.includes(id)) { day.done = day.done.filter(x=>x!==id); _animHabitId = null; }
   else { day.done.push(id); _animHabitId = id; }
   updateDayPoints(c, day);
+  state.xp = recalcXP();
+  const lvlInfo = getLevelInfo(state.xp);
+  if (lvlInfo.level > levelBefore) {
+    setTimeout(() => showBigToast("⚡", `Level ${lvlInfo.level} — ${lvlInfo.name}!`, "You leveled up. Keep going."), 500);
+  }
   saveState(); navigator.vibrate?.(10);
   checkBadges(c);
   checkMilestones(c);
@@ -4603,6 +4680,12 @@ if (!state.migrations["badgeSystemV2"]) {
     if (Object.keys(c.days).length > 0) checkBadges(c);
   }
   state.migrations["badgeSystemV2"] = true;
+  saveState();
+}
+// Migration: XP system — calculate initial XP from all existing challenge data
+if (!state.migrations["xpSystemV1"]) {
+  state.xp = recalcXP();
+  state.migrations["xpSystemV1"] = true;
   saveState();
 }
 // Show onboarding for truly new users (no challenges, never migrated)

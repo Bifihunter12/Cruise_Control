@@ -3348,5 +3348,57 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .pts-anim, .boss-day-banner, .install-banner, .big-toast { animation: none; }
+  .xp-bar-fill { transition: none; }
+}
+
+/* ── XP / Level Bar ──────────────────────────────────────────────────────── */
+
+.xp-bar-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px 12px;
+  margin-bottom: 14px;
+}
+
+.xp-bar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.xp-level-badge {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.xp-level-name {
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.xp-bar-to-next {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.xp-bar-track {
+  height: 7px;
+  background: var(--surface-3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background: var(--gradient);
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
