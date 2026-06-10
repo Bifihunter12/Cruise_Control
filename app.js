@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.10.01";
+const APP_VERSION = "2026.06.10.02";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -407,7 +407,7 @@ const TEMPLATES = [
   {
     id: "everest-bc", name: "Everest Base Camp", emoji: "🏔️", category: "expedition",
     description: "Trek 130 km through the Himalayas to the foot of the world's highest peak.",
-    duration: 45, weeklyGoal: 20, defaultMode: "soft", routeKm: 130,
+    duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 130,
     milestones: [
       { km: 10,  name: "Phakding",          emoji: "🏡" },
       { km: 40,  name: "Namche Bazaar",      emoji: "🏙️" },
@@ -422,7 +422,7 @@ const TEMPLATES = [
   {
     id: "camino", name: "Camino de Santiago", emoji: "⛪", category: "expedition",
     description: "Walk 790 km across Spain on the ancient pilgrimage route to Santiago de Compostela.",
-    duration: 90, weeklyGoal: 20, defaultMode: "soft", routeKm: 790,
+    duration: 90, weeklyGoal: 5, defaultMode: "soft", routeKm: 790,
     milestones: [
       { km: 75,  name: "Pamplona",               emoji: "🏟️" },
       { km: 250, name: "Burgos",                  emoji: "🏰" },
@@ -437,7 +437,7 @@ const TEMPLATES = [
   {
     id: "appalachian", name: "Appalachian Trail", emoji: "🌲", category: "expedition",
     description: "Hike the full 3,540 km from Georgia to Maine — one of the world's great long trails.",
-    duration: 365, weeklyGoal: 20, defaultMode: "soft", routeKm: 3540,
+    duration: 365, weeklyGoal: 5, defaultMode: "soft", routeKm: 3540,
     milestones: [
       { km: 300,  name: "Shenandoah Valley",    emoji: "🌿" },
       { km: 900,  name: "Pennsylvania",          emoji: "🪨" },
@@ -452,7 +452,7 @@ const TEMPLATES = [
   {
     id: "tour-de-france", name: "Tour de France", emoji: "🚴", category: "expedition",
     description: "Ride the full 3,490 km route of the world's most iconic cycling race.",
-    duration: 120, weeklyGoal: 20, defaultMode: "soft", routeKm: 3490,
+    duration: 120, weeklyGoal: 5, defaultMode: "soft", routeKm: 3490,
     milestones: [
       { km: 400,  name: "Brittany Coast",     emoji: "🌊" },
       { km: 900,  name: "Massif Central",     emoji: "🗺️" },
@@ -467,7 +467,7 @@ const TEMPLATES = [
   {
     id: "route66", name: "Route 66", emoji: "🚗", category: "expedition",
     description: "Travel the 3,940 km Mother Road from Chicago, Illinois to Santa Monica, California.",
-    duration: 180, weeklyGoal: 20, defaultMode: "soft", routeKm: 3940,
+    duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 3940,
     milestones: [
       { km: 500,  name: "Springfield, IL",   emoji: "🌽" },
       { km: 1100, name: "Oklahoma City",      emoji: "🏙️" },
@@ -482,7 +482,7 @@ const TEMPLATES = [
   {
     id: "amazon-river", name: "Amazon River", emoji: "🌿", category: "expedition",
     description: "Navigate 6,437 km down the world's greatest river from the Andes to the Atlantic.",
-    duration: 365, weeklyGoal: 20, defaultMode: "soft", routeKm: 6437,
+    duration: 365, weeklyGoal: 5, defaultMode: "soft", routeKm: 6437,
     milestones: [
       { km: 500,  name: "Iquitos, Peru",   emoji: "🐊" },
       { km: 1500, name: "Leticia",          emoji: "🦜" },
@@ -497,7 +497,7 @@ const TEMPLATES = [
   {
     id: "pct", name: "Pacific Crest Trail", emoji: "🌲", category: "expedition",
     description: "Walk 4,286 km from the Mexican border to the Canadian border — through the Sierra Nevada and Cascades. 5 months. No shortcuts.",
-    duration: 150, weeklyGoal: 20, defaultMode: "soft", routeKm: 4286,
+    duration: 150, weeklyGoal: 5, defaultMode: "soft", routeKm: 4286,
     milestones: [
       { km:  160, name: "San Diego foothills", emoji: "🌵" },
       { km:  700, name: "Los Angeles area",    emoji: "🌆" },
@@ -515,7 +515,7 @@ const TEMPLATES = [
   {
     id: "everest-stairmaster", name: "Everest StairMaster", emoji: "🏋️", category: "expedition",
     description: "Climb 2,903 floors — the StairMaster equivalent of summiting Mount Everest from sea level. No oxygen tank. No shortcuts.",
-    duration: 365, weeklyGoal: 20, defaultMode: "strict", routeKm: 2903.2,
+    duration: 365, weeklyGoal: 5, defaultMode: "strict", routeKm: 2903.2,
     milestones: [
       { km: 100,  name: "Foothills",             emoji: "⛰️" },
       { km: 500,  name: "Camp I",                emoji: "⛺" },
@@ -4529,6 +4529,7 @@ function logDistance(habitId, km) {
   state.xp = recalcXP();
   saveState();
   checkBadges(c);
+  checkMilestones(c);
   render();
 }
 
@@ -4549,14 +4550,18 @@ function selectTier(habitId, rawVal) {
     _animHabitId = habitId;
   }
   updateDayPoints(c, day);
+  const xpBefore2    = state.xp;
   const levelBefore2 = getLevelInfo(state.xp).level;
   state.xp = recalcXP();
+  const xpGain2  = state.xp - xpBefore2;
   const lvlInfo2 = getLevelInfo(state.xp);
   if (lvlInfo2.level > levelBefore2) {
     setTimeout(() => showBigToast("⚡", `Level ${lvlInfo2.level} — ${lvlInfo2.name}!`, "You leveled up. Keep going."), 500);
+  } else if (xpGain2 > 0) {
+    showToast(`⚡ +${xpGain2} XP`);
   }
   saveState(); navigator.vibrate?.(10);
-  checkBadges(c); render();
+  checkBadges(c); checkMilestones(c); render();
 }
 
 function markRecovered() {
@@ -4741,6 +4746,7 @@ function saveEditChallenge() {
     if (c.habits.length === 0) { showToast("Add at least one habit."); return; }
   }
 
+  state.xp = recalcXP();
   saveState();
   checkBadges(c);
   editChallengeId = null;
@@ -4827,7 +4833,7 @@ async function captureProgressPhoto(habitId) {
       const day = getChallengeDay(c, dateKey);
       if (!day.done.includes(habitId)) {
         day.done.push(habitId); _animHabitId = habitId;
-        updateDayPoints(c, day); saveState(); checkBadges(c);
+        updateDayPoints(c, day); state.xp = recalcXP(); saveState(); checkBadges(c);
       }
       showToast("📸 Progress photo saved!");
       render();
@@ -5049,6 +5055,25 @@ if (!state.migrations["badgeSystemV2"]) {
 if (!state.migrations["xpSystemV1"]) {
   state.xp = recalcXP();
   state.migrations["xpSystemV1"] = true;
+  saveState();
+}
+// Migration: recalculate all cached d.pts after bonus formula change (bonus now only for 3+ habit challenges)
+if (!state.migrations["dPtsRecalcV1"]) {
+  for (const c of Object.values(state.challenges)) {
+    for (const day of Object.values(c.days)) updateDayPoints(c, day);
+  }
+  state.xp = recalcXP();
+  state.migrations["dPtsRecalcV1"] = true;
+  saveState();
+}
+// Migration: fix expedition challenges with unreachable weeklyGoal of 20 (max achievable is 7)
+if (!state.migrations["expeditionGoalV1"]) {
+  for (const c of Object.values(state.challenges)) {
+    if (c.habits.length === 1 && c.habits[0].type === "distance" && c.weeklyGoal === 20) {
+      c.weeklyGoal = 5;
+    }
+  }
+  state.migrations["expeditionGoalV1"] = true;
   saveState();
 }
 // Show onboarding for truly new users (no challenges, never migrated)
