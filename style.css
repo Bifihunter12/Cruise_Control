@@ -3550,6 +3550,13 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   color: var(--text-dim);
 }
 
+.xp-bar-total {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-align: right;
+  margin-top: 4px;
+}
+
 .xp-bar-track {
   height: 7px;
   background: var(--surface-3);

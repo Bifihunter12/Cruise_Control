@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.09.05";
+const APP_VERSION = "2026.06.10.01";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -2523,6 +2523,7 @@ function renderXPBar() {
     <div class="xp-bar-track" role="progressbar" aria-valuenow="${info.pct}" aria-valuemin="0" aria-valuemax="100">
       <div class="xp-bar-fill" style="width:${info.pct}%"></div>
     </div>
+    <div class="xp-bar-total">${state.xp.toLocaleString()} XP total</div>
   </div>`;
 }
 
@@ -4490,14 +4491,19 @@ function toggleHabit(id) {
   const habit = c.habits.find(h=>h.id===id); if (!habit) return;
   const day = getChallengeDay(c, effectiveDate());
   if (day.mode==="rest") return;
+  const xpBefore    = state.xp;
   const levelBefore = getLevelInfo(state.xp).level;
-  if (day.done.includes(id)) { day.done = day.done.filter(x=>x!==id); _animHabitId = null; }
-  else { day.done.push(id); _animHabitId = id; }
+  const checking    = !day.done.includes(id);
+  if (checking) { day.done.push(id); _animHabitId = id; }
+  else          { day.done = day.done.filter(x=>x!==id); _animHabitId = null; }
   updateDayPoints(c, day);
   state.xp = recalcXP();
+  const xpGain  = state.xp - xpBefore;
   const lvlInfo = getLevelInfo(state.xp);
   if (lvlInfo.level > levelBefore) {
     setTimeout(() => showBigToast("⚡", `Level ${lvlInfo.level} — ${lvlInfo.name}!`, "You leveled up. Keep going."), 500);
+  } else if (xpGain > 0) {
+    showToast(`⚡ +${xpGain} XP`);
   }
   saveState(); navigator.vibrate?.(10);
   checkBadges(c);
