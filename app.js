@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.09.04";
+const APP_VERSION = "2026.06.09.05";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -1292,7 +1292,9 @@ function completionInfo(challenge, day) {
   const done = day.done.filter(id => active.some(h => h.id === id)).length;
   const total = active.length;
   const multiplier = 1;
-  const completionBonus = (done === total && total > 0) ? 3 : 0;
+  // Completion bonus only applies for challenges with 3+ habits to avoid doubling small challenges
+  const bonusAmt = total >= 3 ? 3 : 0;
+  const completionBonus = (done === total && total > 0) ? bonusAmt : 0;
   const basePoints = active.reduce((s, h) => {
     if (!day.done.includes(h.id)) return s;
     if (h.type === "tiered") return s + tierPoints(h, day.tiers?.[h.id]);
@@ -1303,7 +1305,7 @@ function completionInfo(challenge, day) {
     return s + h.points;
   }, 0);
   const points    = Math.round((basePoints + completionBonus) * multiplier);
-  const maxPoints = Math.round((baseMax + 3) * multiplier);
+  const maxPoints = Math.round((baseMax + bonusAmt) * multiplier);
   return { done, total, percent: total ? Math.round((done/total)*100) : 0, points, maxPoints, multiplier };
 }
 
@@ -3418,8 +3420,9 @@ function renderBuilderCustomize() {
         if (h.type === "tiered" && h.tiers?.length) return s + Math.max(...h.tiers.map(t=>t.points||0));
         return s + (h.points||0);
       }, 0);
-      const ptsPerWeek = maxPtsPerDay * 7;
-      return ptsPerWeek > 0 ? `<p class="mode-desc" style="margin-bottom:16px">~${ptsPerWeek} pts/week if all habits done daily</p>` : `<p style="margin-bottom:16px"></p>`;
+      const bonus = habits.length >= 3 ? 3 : 0;
+      const ptsPerWeek = (maxPtsPerDay + bonus) * 7;
+      return ptsPerWeek > 0 ? `<p class="mode-desc" style="margin-bottom:16px">~${ptsPerWeek} pts/week if all habits done daily${bonus ? " (incl. +3 completion bonus)" : ""}</p>` : `<p style="margin-bottom:16px"></p>`;
     })()}
     ${template?.routeKm ? `
     <div class="route-info-card">
