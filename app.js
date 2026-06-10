@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.09.01";
+const APP_VERSION = "2026.06.09.02";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -9,13 +9,13 @@ const UPDATE_CHECK_MS = 30 * 60 * 1000;
 // ── XP Level System ──────────────────────────────────────────────────────────
 const XP_LEVELS = [
   { level: 1,  name: "Newcomer",     xp: 0      },
-  { level: 2,  name: "Seeker",       xp: 150    },
-  { level: 3,  name: "Committed",    xp: 400    },
-  { level: 4,  name: "Consistent",   xp: 800    },
-  { level: 5,  name: "Challenger",   xp: 1400   },
-  { level: 6,  name: "Disciplined",  xp: 2200   },
-  { level: 7,  name: "Driven",       xp: 3200   },
-  { level: 8,  name: "Warrior",      xp: 4500   },
+  { level: 2,  name: "Seeker",       xp: 100    },
+  { level: 3,  name: "Committed",    xp: 250    },
+  { level: 4,  name: "Consistent",   xp: 500    },
+  { level: 5,  name: "Challenger",   xp: 900    },
+  { level: 6,  name: "Disciplined",  xp: 1500   },
+  { level: 7,  name: "Driven",       xp: 2300   },
+  { level: 8,  name: "Warrior",      xp: 3400   },
   { level: 9,  name: "Unbroken",     xp: 6000   },
   { level: 10, name: "Champion",     xp: 8000   },
   { level: 11, name: "Relentless",   xp: 10500  },
@@ -61,11 +61,11 @@ function recalcXP() {
 
 // ── WoW-style Rarity Tiers ────────────────────────────────────────────────
 const TIERS = {
-  common:    { label:"Common",    color:"#86efac" }, // soft green
-  uncommon:  { label:"Uncommon",  color:"#1eff00" }, // WoW classic green
-  rare:      { label:"Rare",      color:"#4da6ff" }, // WoW blue
-  epic:      { label:"Epic",      color:"#c070ff" }, // WoW purple
-  legendary: { label:"Legendary", color:"#ff8c00" }, // WoW orange/gold
+  common:    { label:"Common",    color:"#86efac", border:"#86efac" }, // soft green
+  uncommon:  { label:"Uncommon",  color:"#1eff00", border:"#1eff00" }, // WoW classic green
+  rare:      { label:"Rare",      color:"#4da6ff", border:"#4da6ff" }, // WoW blue
+  epic:      { label:"Epic",      color:"#c070ff", border:"#c070ff" }, // WoW purple
+  legendary: { label:"Legendary", color:"#ff8c00", border:"#ff8c00" }, // WoW orange/gold
 };
 
 // Returns an inline tag for epic/legendary challenges, empty string otherwise
@@ -886,6 +886,10 @@ let justCompletedIds = [];     // queue of IDs waiting to be shown after the cur
 let _confirmDialog   = null;   // { msg, onConfirm } — replaces window.confirm()
 let _cloudAuthError   = "";    // error message for cloud auth form (settings)
 let _cloudAuthLoading = false; // loading spinner for cloud auth (settings)
+let _shareModalChallenge = null;    // challenge shown in share card modal
+let _shareModalDone      = false;   // true = challenge completion card, false = streak card
+let _shareCardDataUrl    = null;    // cached base64 PNG of the last drawn share card
+let _notifNudgeDismissed = false;   // dismissal flag for the Day-3 notification nudge
 let _obAuthError      = "";    // error message for onboarding account screen
 let _obAuthLoading    = false; // loading spinner for onboarding account screen
 let _obAuthMode       = "signup"; // "signup" | "signin" on the account screen
@@ -1759,6 +1763,7 @@ function checkMilestones(challenge) {
   const day = challenge.days[today];
   if (!day) return;
   const info = completionInfo(challenge, day);
+  const streak = calcChallengeStreak(challenge);
 
   // Day 1 complete
   if (dayNumber === 1 && info.percent === 100 && !challenge.flags.day1done) {
@@ -1774,6 +1779,24 @@ function checkMilestones(challenge) {
   if (dayNumber >= Math.ceil(totalDays / 2) && info.percent === 100 && !challenge.flags.halfway) {
     challenge.flags.halfway = true;
     setTimeout(() => showBigToast("🎯", "Halfway there.", "Most people quit here. You didn't."), 600);
+  }
+  // Streak milestones — fire only when the streak just hit that number today
+  const STREAK_MILESTONES = [
+    { n:7,  icon:"🔥", title:"7-day streak!", sub:"One week straight. The habit is forming." },
+    { n:14, icon:"💪", title:"14 days!",       sub:"Two weeks. You're building something real." },
+    { n:21, icon:"⚡", title:"21-day streak!", sub:"Three weeks in. This is who you are now." },
+    { n:30, icon:"🏆", title:"30 days!",        sub:"One month. Elite 1% territory." },
+    { n:50, icon:"🌟", title:"50-day streak!", sub:"Fifty days of showing up. Unbelievable." },
+    { n:75, icon:"👑", title:"75 days!",        sub:"The full distance. You are unstoppable." },
+  ];
+  for (const ms of STREAK_MILESTONES) {
+    const flagKey = `streak${ms.n}`;
+    if (streak === ms.n && info.percent === 100 && !challenge.flags[flagKey]) {
+      challenge.flags[flagKey] = true;
+      const { icon, title, sub } = ms;
+      setTimeout(() => showBigToast(icon, title, sub), 700);
+      break; // only one streak toast per toggle
+    }
   }
 }
 
@@ -1820,6 +1843,7 @@ function render() {
     const _cc = getChallenge(justCompletedId);
     if (_cc) html += renderCompletionModal(_cc);
   }
+  html += renderShareModal();
   html += renderConfirmModal();
   if (_showInstallBanner && _pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
     html += `
@@ -1975,8 +1999,9 @@ function renderToday() {
       <div class="day-label">${esc(challenge.emoji)} ${esc(challenge.name)}</div>
       <div class="day-count">Day ${dayNumber} <span style="font-weight:300;font-size:0.55em;color:var(--text-dim)">of ${totalDays}</span></div>
       <div class="subtitle">${daysLeft > 0 ? daysLeft+" days remaining" : "Final day!"} · ${challenge.mode} mode</div>
-      ${isToday ? `<div class="greeting">${currentGreeting()}</div>` : ""}
+      ${isToday ? `<div class="greeting">${currentGreeting(challenge, dayNumber, streak)}</div>` : ""}
       <div class="journey-track"><div class="journey-fill" style="width:${journeyPct}%"></div></div>
+      ${isToday ? renderModeSelector(day, challenge) : ""}
     </section>
 
     ${isToday ? renderXPBar() : ""}
@@ -1987,16 +2012,20 @@ function renderToday() {
       ${renderCompleteBanner(day, info, challenge)}
       ${info.done===0 ? (() => {
         const isExped = challenge.habits.some(h => h.type === "distance");
-        return `<p class="empty-copy">${isExped ? "No distance logged yet — enter your km below." : "Nothing logged yet. What's first?"}</p>`;
+        if (isExped) return `<p class="empty-copy">No distance logged yet — enter your km below.</p>`;
+        if (dayNumber === 1) return `<p class="empty-copy">Day 1. Pick your first habit below. The journey starts now. 🚀</p>`;
+        if (streak >= 3)     return `<p class="empty-copy">Day ${dayNumber} — ${streak}-day streak. Keep it alive.</p>`;
+        if (dayNumber <= 7)  return `<p class="empty-copy">Day ${dayNumber}. Make today count.</p>`;
+        return `<p class="empty-copy">Nothing logged yet. What's first?</p>`;
       })() : ""}
     </section>
 
-    <section>
-      <div class="section-head">
-        <div class="section-label" style="margin:0">Daily Mode</div>
-      </div>
-      ${renderModeSelector(day, challenge)}
-    </section>
+    ${isToday && dayNumber >= 3 && !_notifNudgeDismissed && ("Notification" in window) && Notification.permission === "default" ? `
+    <div class="notif-nudge" data-notif-nudge>
+      <span class="notif-nudge-icon">🔔</span>
+      <span class="notif-nudge-text">Never miss a day — <button class="notif-nudge-link" data-request-notif-permission>enable reminders</button></span>
+      <button class="notif-nudge-close" data-dismiss-notif-nudge aria-label="Dismiss">×</button>
+    </div>` : ""}
 
     ${isToday ? renderWeeklyGoalBar(challenge) : ""}
 
@@ -2172,30 +2201,30 @@ function renderStreakFreezeUI(challenge) {
 }
 
 function renderModeSelector(day, challenge) {
-  const template      = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
-  const noRestDay     = !!(template?.noRestDay);
-  const jokerBudget   = challenge?.jokerBudget ?? 3;
-  // Count rest days used (excluding today's current selection so user can toggle freely)
-  const todayIsRest   = day.mode === "rest";
-  const jokersUsed    = Object.values(challenge?.days || {}).filter(d => d.mode === "rest").length;
-  const jokersLeft    = Math.max(0, jokerBudget - jokersUsed + (todayIsRest ? 0 : 0));
+  const template        = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
+  const noRestDay       = !!(template?.noRestDay);
+  const jokerBudget     = challenge?.jokerBudget ?? 3;
+  const todayIsRest     = day.mode === "rest";
+  const jokersUsed      = Object.values(challenge?.days || {}).filter(d => d.mode === "rest").length;
   const budgetExhausted = !todayIsRest && jokersUsed >= jokerBudget;
+  const jokersLeft      = Math.max(0, jokerBudget - jokersUsed);
 
-  const modeDesc = {
-    standard: "All habits available. Normal day.",
-    rest:     budgetExhausted
-      ? `No rest days left (${jokerBudget}/${jokerBudget} used).`
-      : `Rest day. No habits required. Streak preserved. (${jokersUsed}/${jokerBudget} used)`,
-  };
-
-  const modes = noRestDay
-    ? [["standard","Standard"]]
-    : [["standard","Standard"],["rest", budgetExhausted ? `Rest (0 left)` : `Rest Day${jokerBudget > 0 ? ` (${jokerBudget - jokersUsed} left)` : ""}`]];
-
+  // Compact single-line chip row
+  if (noRestDay) {
+    return `<div class="mode-chip-row"><span class="mode-chip mode-chip--active">✅ Standard Day</span></div>`;
+  }
+  const restLabel = todayIsRest
+    ? "😴 Rest Day — active"
+    : budgetExhausted
+      ? `😴 Rest (0 left)`
+      : `😴 Rest Day (${jokersLeft} left)`;
+  const restDisabled = budgetExhausted ? "mode-chip--disabled" : "";
+  const activeChip   = todayIsRest ? "mode-chip--rest-active" : "mode-chip--active";
   return `
-  <div class="mode-selector">${modes.map(([id,label]) =>
-    `<button class="mode-button ${id==="rest"?"rest-mode-btn":""} ${day.mode===id?"active":""} ${id==="rest"&&budgetExhausted?"mode-btn-disabled":""}" data-mode="${id}" ${id==="rest"&&budgetExhausted?`aria-disabled="true"`:""} >${label}</button>`).join("")}</div>
-  <p class="mode-desc">${modeDesc[day.mode]||""}</p>`;
+  <div class="mode-chip-row">
+    <button class="mode-chip ${!todayIsRest ? activeChip : ""}" data-mode="standard">✅ Standard</button>
+    <button class="mode-chip mode-chip--rest ${todayIsRest ? "mode-chip--rest-active" : ""} ${restDisabled}" data-mode="rest" ${budgetExhausted ? 'aria-disabled="true"' : ""}>${restLabel}</button>
+  </div>`;
 }
 
 function renderHabit(habit, day, challenge) {
@@ -2451,7 +2480,9 @@ function renderCompleteBanner(day, info, challenge) {
       : `${totalD.toFixed(1)} ${dUnit} covered`;
     return `<div class="complete-banner"><span class="cb-icon">🗺️</span><div class="cb-body"><div class="cb-title">${todayD.toFixed(isFloors?0:1)} ${dUnit} today</div><div class="cb-sub">${sub}</div>${noteNudge}</div></div>`;
   }
-  return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">Full Send</div><div class="cb-sub">All habits done · ${info.points} pts</div>${noteNudge}</div></div>`;
+  const currentStreak = challenge ? calcChallengeStreak(challenge) : 0;
+  const streakShare = currentStreak >= 2 ? `<button class="cb-share-btn" data-share-streak>📤 Share streak</button>` : "";
+  return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">Full Send</div><div class="cb-sub">All habits done · ${info.points} pts</div>${noteNudge}${streakShare}</div></div>`;
 }
 
 function renderXPBar() {
@@ -2701,6 +2732,115 @@ function shareAchievement(text) {
   } else {
     navigator.clipboard?.writeText(text).then(() => showToast("Copied to clipboard!")).catch(() => showToast(text));
   }
+}
+
+function showShareModal(challenge, isDone) {
+  _shareModalChallenge = challenge;
+  _shareModalDone = !!isDone;
+  _shareCardDataUrl = drawShareCard(challenge, !!isDone).toDataURL("image/png");
+  render();
+}
+
+function drawShareCard(challenge, isDone) {
+  const s = 1080;
+  const canvas = document.createElement("canvas");
+  canvas.width  = s;
+  canvas.height = s;
+  const ctx = canvas.getContext("2d");
+
+  // Background
+  ctx.fillStyle = "#09080f";
+  ctx.fillRect(0, 0, s, s);
+
+  // Gradient accent bar top
+  const grad = ctx.createLinearGradient(0, 0, s, 0);
+  grad.addColorStop(0, "#b44fff");
+  grad.addColorStop(1, "#ff4fa3");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, s, 10);
+
+  // Challenge emoji
+  ctx.font      = `${Math.round(s * 0.12)}px serif`;
+  ctx.textAlign = "center";
+  ctx.fillText(challenge.emoji || "🏆", s / 2, s * 0.25);
+
+  // Challenge name
+  ctx.fillStyle = "#f0eff8";
+  ctx.font      = `700 ${Math.round(s * 0.065)}px 'Arial', sans-serif`;
+  ctx.fillText(challenge.name, s / 2, s * 0.38);
+
+  // Stats pill
+  const streak     = calcChallengeStreak(challenge);
+  const totalPts   = Object.values(challenge.days).reduce((a, d) => a + (d.pts || 0), 0);
+  const dayNum     = challengeDayNumber(challenge);
+  const totalDays  = diffDays(challenge.startDate, challenge.endDate) + 1;
+
+  const statLine = isDone
+    ? `${totalDays} days · ${totalPts} pts · ${streak}-day streak`
+    : `Day ${dayNum} · ${streak}-day streak · ${totalPts} pts`;
+
+  // Pill background
+  const pillW = s * 0.78, pillH = s * 0.085, pillX = (s - pillW) / 2, pillY = s * 0.44;
+  ctx.fillStyle = "rgba(255,255,255,0.06)";
+  const pr = pillH / 2;
+  ctx.beginPath();
+  ctx.moveTo(pillX + pr, pillY);
+  ctx.lineTo(pillX + pillW - pr, pillY);
+  ctx.arcTo(pillX + pillW, pillY, pillX + pillW, pillY + pillH, pr);
+  ctx.lineTo(pillX + pillW, pillY + pillH - pr);
+  ctx.arcTo(pillX + pillW, pillY + pillH, pillX + pillW - pr, pillY + pillH, pr);
+  ctx.lineTo(pillX + pr, pillY + pillH);
+  ctx.arcTo(pillX, pillY + pillH, pillX, pillY + pillH - pr, pr);
+  ctx.lineTo(pillX, pillY + pr);
+  ctx.arcTo(pillX, pillY, pillX + pr, pillY, pr);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#c8c5e8";
+  ctx.font      = `400 ${Math.round(s * 0.038)}px 'Arial', sans-serif`;
+  ctx.fillText(statLine, s / 2, pillY + pillH * 0.64);
+
+  // Headline
+  const headline = isDone ? "Challenge complete. 🏆" : `${streak} days straight. 🔥`;
+  ctx.fillStyle = grad;
+  ctx.font      = `700 ${Math.round(s * 0.055)}px 'Arial', sans-serif`;
+  ctx.fillText(headline, s / 2, s * 0.65);
+
+  // Sub copy
+  ctx.fillStyle = "#9896b8";
+  ctx.font      = `400 ${Math.round(s * 0.033)}px 'Arial', sans-serif`;
+  ctx.fillText(isDone ? "Built the habit. Won the challenge." : "One day at a time. conqur.netlify.app", s / 2, s * 0.72);
+
+  // Watermark
+  ctx.fillStyle = "rgba(152,150,184,0.4)";
+  ctx.font      = `700 ${Math.round(s * 0.028)}px 'Arial', sans-serif`;
+  ctx.fillText("CONQUR", s / 2, s * 0.89);
+
+  return canvas;
+}
+
+function renderShareModal() {
+  if (!_shareModalChallenge || !_shareCardDataUrl) return "";
+  const streak    = calcChallengeStreak(_shareModalChallenge);
+  const totalPts  = Object.values(_shareModalChallenge.days).reduce((a, d) => a + (d.pts || 0), 0);
+  const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate) + 1;
+  const dayNum    = challengeDayNumber(_shareModalChallenge);
+  const shareText = _shareModalDone
+    ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\nconqur.netlify.app`
+    : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\nconqur.netlify.app`;
+
+  return `
+  <div class="share-modal-overlay" data-close-share-modal>
+    <div class="share-modal-inner" onclick="event.stopPropagation()">
+      <img src="${_shareCardDataUrl}" class="share-card-img" alt="Share card">
+      <div class="share-modal-actions">
+        <button class="primary-button" data-share-card-native style="margin-bottom:8px">📤 Share</button>
+        <button class="secondary-button" data-download-share-card>⬇️ Save image</button>
+        <button class="secondary-button" data-copy-share-text style="margin-top:8px">📋 Copy text</button>
+      </div>
+      <button class="share-modal-close" data-close-share-modal aria-label="Close">×</button>
+    </div>
+  </div>`;
 }
 
 function renderCompletionModal(c) {
@@ -3213,10 +3353,21 @@ function renderBuilderCustomize() {
       </div>
       <p class="mode-desc" style="margin:4px 0 0">${builderForm.jokerBudget === 0 ? "Zero compromise — no rest days." : `${builderForm.jokerBudget} day${builderForm.jokerBudget===1?"":"s"} you can skip without breaking your streak.`}</p>
     </div>`}
-    <label class="field" style="margin-bottom:16px">
+    <label class="field" style="margin-bottom:4px">
       Weekly point goal
       <input id="bf-goal" type="number" value="${builderForm.weeklyGoal}" min="10" max="500">
     </label>
+    ${(() => {
+      const habits = builderForm.templateId
+        ? (TEMPLATES.find(t=>t.id===builderForm.templateId)?.habits || [])
+        : builderForm.habits;
+      const maxPtsPerDay = habits.reduce((s,h) => {
+        if (h.type === "tiered" && h.tiers?.length) return s + Math.max(...h.tiers.map(t=>t.points||0));
+        return s + (h.points||0);
+      }, 0);
+      const ptsPerWeek = maxPtsPerDay * 7;
+      return ptsPerWeek > 0 ? `<p class="mode-desc" style="margin-bottom:16px">~${ptsPerWeek} pts/week if all habits done daily</p>` : `<p style="margin-bottom:16px"></p>`;
+    })()}
     ${template?.routeKm ? `
     <div class="route-info-card">
       <div class="route-info-header">
@@ -3472,29 +3623,37 @@ function renderBadges() {
 function renderBadgeCat(label, defs, earned, templateId) {
   const earnedSet = new Set(earned);
   const count = defs.filter(b=>earnedSet.has(b.id)).length;
-  // Determine tier for badges in this category: template badges use template tier, others use BADGE_TIERS
   const catTier = templateId ? (TEMPLATE_TIERS[templateId] || "common") : null;
+
+  const renderBadgeTile = (b) => {
+    const isEarned = earnedSet.has(b.id);
+    const tier = catTier || BADGE_TIERS[b.id] || "common";
+    const td   = TIERS[tier];
+    const borderStyle = isEarned && td ? `border-color:${td.border};` : "";
+    const glowStyle   = isEarned && tier === "legendary" ? `box-shadow:0 0 10px ${td.border};` : "";
+    return `
+    <div class="badge ${isEarned?"earned":""}" style="${borderStyle}${glowStyle}">
+      ${isEarned && td ? `<span class="badge-tier-dot" style="background:${td.color}" title="${td.label}"></span>` : ""}
+      <div class="badge-label">${b.label}</div>
+      ${b.desc?`<div class="badge-desc">${b.desc}</div>`:""}
+    </div>`;
+  };
+
+  const earnedDefs  = defs.filter(b =>  earnedSet.has(b.id));
+  const lockedDefs  = defs.filter(b => !earnedSet.has(b.id));
+
   return `
   <div class="badge-cat">
     <div class="badge-cat-header">
       <span class="badge-cat-name">${label}</span>
       <span class="badge-cat-count">${count} / ${defs.length}</span>
     </div>
-    <div class="badge-grid">
-      ${defs.map(b => {
-        const isEarned = earnedSet.has(b.id);
-        const tier = catTier || BADGE_TIERS[b.id] || "common";
-        const td   = TIERS[tier];
-        const borderStyle = isEarned && td ? `border-color:${td.border};` : "";
-        const glowStyle   = isEarned && tier === "legendary" ? `box-shadow:0 0 10px ${td.border};` : "";
-        return `
-      <div class="badge ${isEarned?"earned":""}" style="${borderStyle}${glowStyle}">
-        ${isEarned && td ? `<span class="badge-tier-dot" style="background:${td.color}" title="${td.label}"></span>` : ""}
-        <div class="badge-label">${b.label}</div>
-        ${b.desc?`<div class="badge-desc">${b.desc}</div>`:""}
-      </div>`;
-      }).join("")}
-    </div>
+    ${earnedDefs.length ? `<div class="badge-grid">${earnedDefs.map(renderBadgeTile).join("")}</div>` : ""}
+    ${lockedDefs.length ? `
+    <details class="badge-locked-details">
+      <summary class="badge-locked-summary">${count === 0 ? "Show all" : "Show locked"} (${lockedDefs.length})</summary>
+      <div class="badge-grid badge-grid--locked">${lockedDefs.map(renderBadgeTile).join("")}</div>
+    </details>` : ""}
   </div>`;
 }
 
@@ -3828,16 +3987,52 @@ function bindEvents() {
   on("[data-completion-new-challenge]",     () => { justCompletedId=null; justCompletedIds=[]; builderOpen=true; builderStep="template"; builderForm=defaultBuilderForm(); render(); });
   on("[data-share-completion]", () => {
     const c = justCompletedId ? getChallenge(justCompletedId) : null; if (!c) return;
-    const totalDays   = diffDays(c.startDate, c.endDate) + 1;
-    const totalPts    = Object.values(c.days).reduce((s,d) => s+(d.pts||0), 0);
-    const streak      = c.finalStreak ?? calcChallengeStreak(c);
-    const isExpedition = c.habits.some(h => h.type === "distance");
-    const totalKmVal  = isExpedition ? challengeTotalKm(c) : null;
-    const text = isExpedition
-      ? `I just covered ${totalKmVal.toFixed(1)} km on the ${c.name} expedition on Conqur! 🗺️\n${totalDays} days · ${streak}-day streak.\nEvery km counts. 💪`
-      : `I just completed the ${c.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪`;
-    shareAchievement(text);
+    showShareModal(c, true);
   });
+  on("[data-share-streak]", () => {
+    const c = currentChallenge(); if (!c) return;
+    showShareModal(c, false);
+  });
+  on("[data-close-share-modal]", () => { _shareModalChallenge = null; _shareCardDataUrl = null; render(); });
+  on("[data-share-card-native]", () => {
+    if (!_shareModalChallenge || !_shareCardDataUrl) return;
+    const streak    = calcChallengeStreak(_shareModalChallenge);
+    const totalPts  = Object.values(_shareModalChallenge.days).reduce((a,d)=>a+(d.pts||0),0);
+    const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate)+1;
+    const dayNum    = challengeDayNumber(_shareModalChallenge);
+    const text = _shareModalDone
+      ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\nconqur.netlify.app`
+      : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\nconqur.netlify.app`;
+    if (navigator.share) {
+      fetch(_shareCardDataUrl).then(r=>r.blob()).then(blob => {
+        const file = new File([blob], "conqur-share.png", { type:"image/png" });
+        const shareData = { title:"Conqur", text };
+        if (navigator.canShare?.({files:[file]})) shareData.files = [file];
+        navigator.share(shareData).catch(()=>{});
+      }).catch(() => shareAchievement(text));
+    } else {
+      shareAchievement(text);
+    }
+  });
+  on("[data-download-share-card]", () => {
+    if (!_shareCardDataUrl || !_shareModalChallenge) return;
+    const a = document.createElement("a");
+    a.href     = _shareCardDataUrl;
+    a.download = `${(_shareModalChallenge.name||"conqur").replace(/\s+/g,"-")}-day${challengeDayNumber(_shareModalChallenge)}.png`;
+    a.click();
+  });
+  on("[data-copy-share-text]", () => {
+    if (!_shareModalChallenge) return;
+    const streak    = calcChallengeStreak(_shareModalChallenge);
+    const totalPts  = Object.values(_shareModalChallenge.days).reduce((a,d)=>a+(d.pts||0),0);
+    const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate)+1;
+    const dayNum    = challengeDayNumber(_shareModalChallenge);
+    const text = _shareModalDone
+      ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\nconqur.netlify.app`
+      : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\nconqur.netlify.app`;
+    navigator.clipboard?.writeText(text).then(() => showToast("Copied!")).catch(() => showToast(text));
+  });
+  on("[data-dismiss-notif-nudge]", () => { _notifNudgeDismissed = true; render(); });
   on("[data-log-today-weight]", () => logTodayWeight());
 
   // ── Cloud Sync auth handlers ───────────────────────────────────────────────
@@ -4536,10 +4731,20 @@ function showToast(msg) {
   setTimeout(() => el.remove(), 2500);
 }
 
-function currentGreeting() {
+function currentGreeting(challenge, dayNumber, streak) {
   const h = new Date().getHours();
-  if (h<12) return "Good morning — the mission continues.";
-  if (h<18) return "Afternoon check-in — how are we doing?";
+  const timeOfDay = h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
+  // Streak-based greetings (highest priority)
+  if (streak >= 30) return `🔥 ${streak}-day streak. Legendary.`;
+  if (streak >= 14) return `⚡ ${streak} days straight. You're on fire.`;
+  if (streak >= 7)  return `🏆 ${streak}-day streak. Don't stop now.`;
+  if (streak >= 3)  return `🔥 ${streak} days in a row. Keep it alive.`;
+  // Day-number based
+  if (dayNumber === 1) return timeOfDay === "morning" ? "Good morning — Day 1 starts now." : `Good ${timeOfDay} — Day 1. Make it count.`;
+  if (dayNumber <= 5)  return `Day ${dayNumber} — you're building momentum.`;
+  // Time-of-day fallback
+  if (timeOfDay === "morning")   return "Good morning — the mission continues.";
+  if (timeOfDay === "afternoon") return "Afternoon check-in — how are we doing?";
   return "Evening — let's close this out.";
 }
 
