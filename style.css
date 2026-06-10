@@ -1727,6 +1727,132 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 .add-habit-row input:focus { outline: none; border-color: var(--primary); }
 
+/* ── Tiered habit builder form ─────────────────────────────────────────── */
+
+.add-habit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.add-habit-top-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.add-habit-top-row input[type="text"],
+.add-habit-top-row input[type="number"] {
+  min-height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+  color: var(--text);
+  padding: 0 10px;
+  font: inherit;
+  font-size: 14px;
+}
+.add-habit-top-row input:focus { outline: none; border-color: var(--primary); }
+
+.habit-type-toggle {
+  display: flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.ht-btn {
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms, color 150ms;
+}
+
+.ht-btn.active {
+  background: rgba(180,79,255,0.2);
+  border-color: rgba(180,79,255,0.5);
+  color: #c890ff;
+}
+
+.tier-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+}
+
+.tier-inputs-header {
+  display: grid;
+  grid-template-columns: 1fr 52px 24px;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 2px;
+}
+
+.tier-row {
+  display: grid;
+  grid-template-columns: 1fr 52px 24px;
+  gap: 4px;
+  align-items: center;
+}
+
+.tier-label-input,
+.tier-pts-input {
+  min-height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 0 8px;
+  font: inherit;
+  font-size: 13px;
+}
+.tier-label-input:focus,
+.tier-pts-input:focus { outline: none; border-color: var(--primary); }
+
+.tier-inputs-simple {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+.tier-inputs-simple input {
+  min-height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-3);
+  color: var(--text);
+  padding: 0 8px;
+  font: inherit;
+  font-size: 14px;
+}
+.tier-inputs-simple input:focus { outline: none; border-color: var(--primary); }
+
+/* small "✏️ Edit" link in Today hero subtitle */
+.hero-settings-link {
+  font-size: inherit;
+  color: var(--text-dim);
+  opacity: 0.7;
+  text-decoration: none;
+  font-weight: 400;
+}
+.hero-settings-link:hover { opacity: 1; }
+
 /* ── Edit Challenge: inline habit edit row ── */
 .ech-edit-row {
   padding: 10px 12px;

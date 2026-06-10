@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.09.02";
+const APP_VERSION = "2026.06.09.03";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -1015,6 +1015,12 @@ function defaultBuilderForm() {
     newHabitEmoji: "⭐",
     newHabitName: "",
     newHabitPoints: 2,
+    newHabitType: "binary",
+    newHabitTiers: [
+      { label: "", points: 1 },
+      { label: "", points: 2 },
+      { label: "", points: 3 },
+    ],
   };
 }
 
@@ -1029,6 +1035,18 @@ function saveBuilderFormFromDOM() {
   if (endEl?.value)          builderForm.endDate    = endEl.value;
   if (goalEl)                builderForm.weeklyGoal = Number(goalEl.value) || builderForm.weeklyGoal;
   if (emojiEl?.value.trim()) builderForm.emoji      = emojiEl.value.trim();
+  // Persist new-habit input fields so they survive re-render
+  const nhName  = document.getElementById("nh-name");
+  const nhEmoji = document.getElementById("nh-emoji");
+  const nhPts   = document.getElementById("nh-pts");
+  if (nhName)  builderForm.newHabitName  = nhName.value;
+  if (nhEmoji) builderForm.newHabitEmoji = nhEmoji.value;
+  if (nhPts)   builderForm.newHabitPoints = Number(nhPts.value) || builderForm.newHabitPoints;
+  builderForm.newHabitTiers = builderForm.newHabitTiers.map((t, i) => ({
+    ...t,
+    label:  document.getElementById(`nh-tier-${i}-label`)?.value ?? t.label,
+    points: Number(document.getElementById(`nh-tier-${i}-pts`)?.value)  || t.points,
+  }));
 }
 
 function normalizeDay(raw) {
@@ -1998,7 +2016,7 @@ function renderToday() {
     <section class="hero">
       <div class="day-label">${esc(challenge.emoji)} ${esc(challenge.name)}</div>
       <div class="day-count">Day ${dayNumber} <span style="font-weight:300;font-size:0.55em;color:var(--text-dim)">of ${totalDays}</span></div>
-      <div class="subtitle">${daysLeft > 0 ? daysLeft+" days remaining" : "Final day!"} · ${challenge.mode} mode</div>
+      <div class="subtitle">${daysLeft > 0 ? daysLeft+" days remaining" : "Final day!"} · ${challenge.mode} mode · <button class="link-btn hero-settings-link" data-view-challenge="${challenge.id}">✏️ Edit</button></div>
       ${isToday ? `<div class="greeting">${currentGreeting(challenge, dayNumber, streak)}</div>` : ""}
       <div class="journey-track"><div class="journey-fill" style="width:${journeyPct}%"></div></div>
       ${isToday ? renderModeSelector(day, challenge) : ""}
@@ -2056,13 +2074,18 @@ function renderToday() {
 }
 
 function renderChallengePills(active) {
+  const today = todayKey();
   return `
   <div class="challenge-pills">
     ${active.map(c => {
-      const d = getChallengeDay(c);
-      const info = completionInfo(c, d);
+      const totalDays  = diffDays(c.startDate, c.endDate) + 1;
+      const dayNum     = challengeDayNumber(c);
+      const journeyPct = clamp(Math.round((dayNum / totalDays) * 100), 0, 100);
+      const todayD     = c.days[today];
+      const todayInfo  = completionInfo(c, todayD || normalizeDay({}, c));
+      const todayDot   = todayInfo.percent === 100 ? "✅" : todayInfo.percent > 0 ? "🔸" : "";
       return `<button class="c-pill ${c.id===todayChallengeId?"active":""}" data-today-challenge="${c.id}">
-        ${esc(c.emoji)} ${esc(c.name)} <span class="c-pill-pct">${info.percent}%</span>
+        ${todayDot}${esc(c.emoji)} ${esc(c.name)} <span class="c-pill-pct">${journeyPct}%</span>
       </button>`;
     }).join("")}
   </div>`;
@@ -3120,17 +3143,43 @@ function renderEditChallenge(c) {
           <div class="custom-habit-row">
             <span class="custom-habit-emoji">${esc(h.emoji)}</span>
             <span class="custom-habit-name">${esc(h.title)}</span>
-            <span class="custom-habit-pts">${h.points}pt</span>
+            <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points}–${h.tiers[h.tiers.length-1].points}pt` : h.points+"pt"}</span>
             <button class="icon-btn" data-ec-edit-habit="${i}" title="Edit">✏️</button>
             <button class="icon-btn" data-ec-delete-habit="${i}" title="Delete" style="color:var(--secondary)">✕</button>
           </div>`;
         }).join("")}
-        <div class="add-habit-row">
-          <input id="ech-new-emoji" class="emoji-input" type="text" value="${esc(editForm?.newHabitEmoji||"⭐")}" maxlength="2" placeholder="⭐">
-          <input id="ech-new-title" type="text" value="${esc(editForm?.newHabitTitle||"")}" placeholder="New habit name" style="flex:1">
-          <input id="ech-new-pts" type="number" value="${editForm?.newHabitPoints||2}" min="1" max="10" style="width:52px">
-          <button class="pill-btn" data-ec-add-habit>Add</button>
-        </div>
+        ${(() => {
+          const ef = editForm || {};
+          const newType  = ef.newHabitType  || "binary";
+          const newTiers = ef.newHabitTiers || [{label:"",points:1},{label:"",points:2},{label:"",points:3}];
+          return `
+        <div class="add-habit-form">
+          <div class="add-habit-top-row">
+            <input id="ech-new-emoji" class="emoji-input" type="text" value="${esc(ef.newHabitEmoji||"⭐")}" maxlength="2" placeholder="⭐" style="width:46px">
+            <input id="ech-new-title" type="text" value="${esc(ef.newHabitTitle||"")}" placeholder="New habit name" style="flex:1">
+            <div class="habit-type-toggle">
+              <button class="ht-btn ${newType!=="tiered"?"active":""}" data-ech-type="binary">Simple</button>
+              <button class="ht-btn ${newType==="tiered"?"active":""}" data-ech-type="tiered">Tiered</button>
+            </div>
+          </div>
+          ${newType === "tiered" ? `
+          <div class="tier-inputs">
+            <div class="tier-inputs-header"><span>Label</span><span>Pts</span>${newTiers.length>2?"<span></span>":""}</div>
+            ${newTiers.map((t,i)=>`
+            <div class="tier-row">
+              <input class="tier-label-input" id="ech-tier-${i}-label" type="text" value="${esc(t.label)}" placeholder="e.g. 3 km">
+              <input class="tier-pts-input" id="ech-tier-${i}-pts" type="number" value="${t.points}" min="1" max="20">
+              ${newTiers.length>2?`<button class="icon-btn" data-ech-remove-tier="${i}" style="font-size:11px">✕</button>`:""}
+            </div>`).join("")}
+            ${newTiers.length<5?`<button class="link-btn" data-ech-add-tier style="font-size:12px;margin-top:2px">+ Add tier</button>`:""}
+          </div>` : `
+          <div class="tier-inputs-simple">
+            <span style="font-size:12px;color:var(--text-dim)">Points</span>
+            <input id="ech-new-pts" type="number" value="${ef.newHabitPoints||2}" min="1" max="20" style="width:60px">
+          </div>`}
+          <button class="pill-btn" data-ec-add-habit style="margin-top:8px;width:100%">+ Add habit</button>
+        </div>`;
+        })()}
       </div>
 
       <button class="primary-button" data-save-edit style="margin-top:20px">Save Changes ✓</button>
@@ -3392,14 +3441,34 @@ function renderBuilderCustomize() {
           <div class="custom-habit-row">
             <span class="custom-habit-emoji">${esc(h.emoji)}</span>
             <span class="custom-habit-name">${esc(h.title)}</span>
-            <span class="custom-habit-pts">${h.points}pt</span>
+            <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points}–${h.tiers[h.tiers.length-1].points}pt` : h.points+"pt"}</span>
             <button class="icon-btn" data-remove-habit="${i}">✕</button>
           </div>`).join("")}
-        <div class="add-habit-row">
-          <input id="nh-emoji" class="emoji-input" type="text" value="${esc(builderForm.newHabitEmoji)}" maxlength="2" placeholder="⭐">
-          <input id="nh-name" type="text" value="${esc(builderForm.newHabitName)}" placeholder="Habit name" style="flex:1">
-          <input id="nh-pts" type="number" value="${builderForm.newHabitPoints}" min="1" max="10" style="width:52px">
-          <button class="pill-btn" data-add-habit>Add</button>
+        <div class="add-habit-form">
+          <div class="add-habit-top-row">
+            <input id="nh-emoji" class="emoji-input" type="text" value="${esc(builderForm.newHabitEmoji)}" maxlength="2" placeholder="⭐" style="width:46px">
+            <input id="nh-name" type="text" value="${esc(builderForm.newHabitName)}" placeholder="Habit name" style="flex:1">
+            <div class="habit-type-toggle">
+              <button class="ht-btn ${builderForm.newHabitType!=="tiered"?"active":""}" data-nh-type="binary">Simple</button>
+              <button class="ht-btn ${builderForm.newHabitType==="tiered"?"active":""}" data-nh-type="tiered">Tiered</button>
+            </div>
+          </div>
+          ${builderForm.newHabitType === "tiered" ? `
+          <div class="tier-inputs">
+            <div class="tier-inputs-header"><span>Label</span><span>Pts</span>${builderForm.newHabitTiers.length>2?"<span></span>":""}</div>
+            ${builderForm.newHabitTiers.map((t,i)=>`
+            <div class="tier-row">
+              <input class="tier-label-input" id="nh-tier-${i}-label" type="text" value="${esc(t.label)}" placeholder="e.g. 1 km">
+              <input class="tier-pts-input" id="nh-tier-${i}-pts" type="number" value="${t.points}" min="1" max="20">
+              ${builderForm.newHabitTiers.length>2?`<button class="icon-btn" data-nh-remove-tier="${i}" style="font-size:11px">✕</button>`:""}
+            </div>`).join("")}
+            ${builderForm.newHabitTiers.length<5?`<button class="link-btn" data-nh-add-tier style="font-size:12px;margin-top:2px">+ Add tier</button>`:""}
+          </div>` : `
+          <div class="tier-inputs-simple">
+            <span style="font-size:12px;color:var(--text-dim)">Points</span>
+            <input id="nh-pts" type="number" value="${builderForm.newHabitPoints}" min="1" max="20" style="width:60px">
+          </div>`}
+          <button class="pill-btn" data-add-habit style="margin-top:8px;width:100%">+ Add habit</button>
         </div>
       </div>`}
     `}
@@ -4085,6 +4154,8 @@ function bindEvents() {
       habits: JSON.parse(JSON.stringify(c.habits)),  // deep copy — Cancel discards this
       habitEditIdx: null,
       newHabitEmoji: "⭐", newHabitTitle: "", newHabitPoints: 2,
+      newHabitType: "binary",
+      newHabitTiers: [{ label:"", points:1 }, { label:"", points:2 }, { label:"", points:3 }],
     };
     editChallengeId = el.dataset.editChallenge;
     viewChallengeId = null;
@@ -4134,12 +4205,71 @@ function bindEvents() {
     if (!editForm) return;
     const emoji = (document.getElementById("ech-new-emoji")?.value || "⭐").trim() || "⭐";
     const title = (document.getElementById("ech-new-title")?.value || "").trim();
-    const pts   = Math.max(1, Math.min(10, Number(document.getElementById("ech-new-pts")?.value) || 2));
     if (!title) { showToast("Enter a habit name."); return; }
-    editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "binary", points: pts });
+    if (editForm.newHabitType === "tiered") {
+      const tiers = (editForm.newHabitTiers || []).map((t, i) => ({
+        label:  (document.getElementById(`ech-tier-${i}-label`)?.value || t.label || `Tier ${i+1}`).trim() || `Tier ${i+1}`,
+        value:  i,
+        points: Math.max(1, Math.min(20, Number(document.getElementById(`ech-tier-${i}-pts`)?.value) || t.points)),
+      }));
+      if (tiers.filter(t => t.label).length < 2) { showToast("Fill in at least 2 tier labels."); return; }
+      editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "tiered", points: tiers[0].points, tiers });
+    } else {
+      const pts = Math.max(1, Math.min(20, Number(document.getElementById("ech-new-pts")?.value) || 2));
+      editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "binary", points: pts });
+    }
     editForm.newHabitEmoji  = "⭐";
     editForm.newHabitTitle  = "";
     editForm.newHabitPoints = 2;
+    editForm.newHabitType   = "binary";
+    editForm.newHabitTiers  = [{ label:"", points:1 }, { label:"", points:2 }, { label:"", points:3 }];
+    render();
+  });
+  // Habit type toggles in builder
+  on("[data-nh-type]", el => {
+    saveBuilderFormFromDOM();
+    builderForm.newHabitType = el.dataset.nhType;
+    render();
+  });
+  on("[data-nh-add-tier]", () => {
+    saveBuilderFormFromDOM();
+    if (builderForm.newHabitTiers.length < 5) {
+      const lastPts = builderForm.newHabitTiers[builderForm.newHabitTiers.length - 1]?.points || 1;
+      builderForm.newHabitTiers.push({ label: "", points: lastPts + 1 });
+    }
+    render();
+  });
+  on("[data-nh-remove-tier]", el => {
+    saveBuilderFormFromDOM();
+    builderForm.newHabitTiers.splice(Number(el.dataset.nhRemoveTier), 1);
+    render();
+  });
+  // Habit type toggles in edit challenge
+  on("[data-ech-type]", el => {
+    if (!editForm) return;
+    const newTitle = document.getElementById("ech-new-title")?.value || "";
+    const newEmoji = document.getElementById("ech-new-emoji")?.value || "⭐";
+    editForm.newHabitTiers = (editForm.newHabitTiers || []).map((t, i) => ({
+      ...t,
+      label:  document.getElementById(`ech-tier-${i}-label`)?.value ?? t.label,
+      points: Number(document.getElementById(`ech-tier-${i}-pts`)?.value) || t.points,
+    }));
+    editForm.newHabitTitle = newTitle;
+    editForm.newHabitEmoji = newEmoji;
+    editForm.newHabitType  = el.dataset.echType;
+    render();
+  });
+  on("[data-ech-add-tier]", () => {
+    if (!editForm) return;
+    if ((editForm.newHabitTiers || []).length < 5) {
+      const last = editForm.newHabitTiers[editForm.newHabitTiers.length - 1]?.points || 1;
+      editForm.newHabitTiers.push({ label: "", points: last + 1 });
+    }
+    render();
+  });
+  on("[data-ech-remove-tier]", el => {
+    if (!editForm) return;
+    editForm.newHabitTiers.splice(Number(el.dataset.echRemoveTier), 1);
     render();
   });
   on("[data-pause-challenge]",        el => pauseChallenge(el.dataset.pauseChallenge));
@@ -4527,12 +4657,26 @@ function startChallenge() {
 function addCustomHabit() {
   const emoji = (document.getElementById("nh-emoji")?.value||"⭐").trim()||"⭐";
   const name  = (document.getElementById("nh-name")?.value||"").trim();
-  const pts   = Number(document.getElementById("nh-pts")?.value||2);
   if (!name) { showToast("Enter a habit name."); return; }
-  builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"binary", points:pts });
-  builderForm.newHabitEmoji = "⭐";
-  builderForm.newHabitName  = "";
+
+  if (builderForm.newHabitType === "tiered") {
+    const tiers = builderForm.newHabitTiers.map((t, i) => ({
+      label:  (document.getElementById(`nh-tier-${i}-label`)?.value || t.label || `Tier ${i+1}`).trim() || `Tier ${i+1}`,
+      value:  i,
+      points: Math.max(1, Math.min(20, Number(document.getElementById(`nh-tier-${i}-pts`)?.value) || t.points)),
+    }));
+    if (tiers.filter(t => t.label).length < 2) { showToast("Fill in at least 2 tier labels."); return; }
+    builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"tiered", points:tiers[0].points, tiers });
+  } else {
+    const pts = Math.max(1, Math.min(20, Number(document.getElementById("nh-pts")?.value)||2));
+    builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"binary", points:pts });
+  }
+
+  builderForm.newHabitEmoji  = "⭐";
+  builderForm.newHabitName   = "";
   builderForm.newHabitPoints = 2;
+  builderForm.newHabitType   = "binary";
+  builderForm.newHabitTiers  = [{ label:"", points:1 }, { label:"", points:2 }, { label:"", points:3 }];
   render();
 }
 
