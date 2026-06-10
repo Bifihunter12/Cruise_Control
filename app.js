@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.09.03";
+const APP_VERSION = "2026.06.09.04";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -2082,7 +2082,7 @@ function renderChallengePills(active) {
       const dayNum     = challengeDayNumber(c);
       const journeyPct = clamp(Math.round((dayNum / totalDays) * 100), 0, 100);
       const todayD     = c.days[today];
-      const todayInfo  = completionInfo(c, todayD || normalizeDay({}, c));
+      const todayInfo  = completionInfo(c, todayD || normalizeDay({}));
       const todayDot   = todayInfo.percent === 100 ? "✅" : todayInfo.percent > 0 ? "🔸" : "";
       return `<button class="c-pill ${c.id===todayChallengeId?"active":""}" data-today-challenge="${c.id}">
         ${todayDot}${esc(c.emoji)} ${esc(c.name)} <span class="c-pill-pct">${journeyPct}%</span>
@@ -3126,13 +3126,17 @@ function renderEditChallenge(c) {
         ${(editForm?.habits || []).map((h, i) => {
           if (editForm?.habitEditIdx === i) {
             // Inline edit row
+            const isTiered = h.type === "tiered";
             return `
             <div class="ech-edit-row">
               <div class="ech-edit-top">
                 <input id="ech-emoji" class="emoji-input" type="text" value="${esc(h.emoji)}" maxlength="2" style="width:48px">
                 <input id="ech-title" type="text" value="${esc(h.title)}" placeholder="Habit name" style="flex:1">
-                <input id="ech-pts" type="number" value="${h.points}" min="1" max="10" style="width:52px">
+                ${isTiered
+                  ? `<span class="custom-habit-pts" style="font-size:11px">${h.tiers.map(t=>t.label||`Tier`).join(" / ")}</span>`
+                  : `<input id="ech-pts" type="number" value="${h.points}" min="1" max="20" style="width:52px">`}
               </div>
+              ${isTiered ? `<p style="font-size:11px;color:var(--text-dim);margin:0">Tiered habit — to change tiers, delete and re-add.</p>` : ""}
               <div class="ech-edit-actions">
                 <button class="pill-btn" data-ec-save-habit>Save ✓</button>
                 <button class="secondary-button" style="padding:6px 12px;font-size:13px" data-ec-cancel-habit-edit>Cancel</button>
@@ -4179,11 +4183,16 @@ function bindEvents() {
   on("[data-ec-save-habit]", () => {
     if (!editForm || editForm.habitEditIdx == null) return;
     const i = editForm.habitEditIdx;
+    const h = editForm.habits[i];
     const emoji = (document.getElementById("ech-emoji")?.value || "⭐").trim() || "⭐";
     const title = (document.getElementById("ech-title")?.value || "").trim();
-    const pts   = Math.max(1, Math.min(10, Number(document.getElementById("ech-pts")?.value) || 2));
     if (!title) { showToast("Habit needs a name."); return; }
-    editForm.habits[i] = { ...editForm.habits[i], emoji, title, points: pts };
+    if (h.type === "tiered") {
+      editForm.habits[i] = { ...h, emoji, title };
+    } else {
+      const pts = Math.max(1, Math.min(20, Number(document.getElementById("ech-pts")?.value) || 2));
+      editForm.habits[i] = { ...h, emoji, title, points: pts };
+    }
     editForm.habitEditIdx = null;
     render();
   });
