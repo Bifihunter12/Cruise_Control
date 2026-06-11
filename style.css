@@ -3817,3 +3817,317 @@ details[open] .badge-locked-summary::before {
   opacity: 0.6;
 }
 
+/* ── Difficulty badge in builder templates ──────────────────────────────── */
+
+.tc-difficulty {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  opacity: .8;
+  margin-bottom: 2px;
+}
+
+/* ── Onboarding goal picker ─────────────────────────────────────────────── */
+
+.ob-goal-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto 16px;
+}
+
+.ob-goal-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 180ms, background 180ms;
+}
+
+.ob-goal-btn:active { background: var(--surface-2); border-color: var(--accent); }
+
+.ob-goal-emoji { font-size: 24px; flex-shrink: 0; }
+
+.ob-goal-info { flex: 1; min-width: 0; }
+
+.ob-goal-label {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 1px;
+}
+
+.ob-goal-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.ob-goal-arrow {
+  font-size: 16px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+/* ── All-challenges today view ───────────────────────────────────────────── */
+
+.all-today-banner {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.atb-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.atb-stats {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.all-today-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: border-color 180ms;
+}
+
+.all-today-card:active { border-color: var(--accent); }
+
+.atc-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.atc-emoji { font-size: 22px; flex-shrink: 0; }
+
+.atc-info { flex: 1; min-width: 0; }
+
+.atc-name {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.atc-dots { display: flex; gap: 4px; flex-wrap: wrap; }
+
+.atc-dot {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.atc-dot--done { color: var(--success); }
+
+.atc-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.atc-pct {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-dim);
+}
+
+.atc-done { color: var(--success); }
+
+.atc-cta {
+  font-size: 10px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Sparkline chart ─────────────────────────────────────────────────────── */
+
+.sparkline {
+  display: block;
+  margin-top: 6px;
+  overflow: visible;
+}
+
+.habit-preview-meas {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.hpm-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.hpi-goal {
+  font-size: 11px;
+  color: var(--warning);
+  margin-top: 2px;
+  display: block;
+}
+
+.hpi-goal--reached { color: var(--success); }
+
+/* ── XP bar freeze badge ─────────────────────────────────────────────────── */
+
+.xp-freeze-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: #7dd3fc;
+  background: rgba(125, 211, 252, 0.12);
+  border: 1px solid rgba(125, 211, 252, 0.25);
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+
+/* ── Date-nav hint ────────────────────────────────────────────────────────── */
+
+.date-nav-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.date-nav-hint {
+  font-size: 10px;
+  color: var(--text-faint);
+  font-weight: 400;
+}
+
+/* ── Challenge card wrapper (for pin button) ─────────────────────────────── */
+
+.challenge-card-wrap {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.challenge-card-wrap .challenge-card {
+  margin-bottom: 0;
+}
+
+.pin-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  opacity: .35;
+  padding: 4px;
+  transition: opacity 180ms;
+  line-height: 1;
+}
+
+.pin-btn:hover, .pin-btn--active { opacity: 1; }
+
+.resume-nudge {
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warning) 30%, transparent);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--warning);
+}
+
+/* ── Ongoing challenge badge ─────────────────────────────────────────────── */
+
+.ongoing-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--success);
+  border: 1px solid var(--success);
+  border-radius: 20px;
+  padding: 1px 6px;
+  margin-left: 4px;
+  opacity: .8;
+  vertical-align: middle;
+}
+
+.ongoing-toggle { display: flex; align-items: center; }
+
+.ongoing-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+/* ── Device-only data nudge ─────────────────────────────────────────────── */
+
+.device-only-nudge {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: color-mix(in srgb, var(--warning) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warning) 25%, transparent);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin: 14px 0 0;
+  font-size: 12px;
+  color: var(--text-dim);
+  max-width: 320px;
+  text-align: left;
+}
+
+.don-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── Detail view progress bar ───────────────────────────────────────────── */
+
+.detail-progress-bar {
+  background: var(--track);
+  border-radius: 4px;
+  height: 6px;
+  position: relative;
+  overflow: visible;
+}
+
+.detail-progress-fill {
+  height: 100%;
+  background: var(--gradient);
+  border-radius: 4px;
+  transition: width 400ms ease;
+}
+
+.detail-progress-label {
+  position: absolute;
+  right: 0;
+  top: 10px;
+  font-size: 10px;
+  color: var(--text-dim);
+  font-weight: 600;
+  white-space: nowrap;
+}
+

@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.11.06";
+const APP_VERSION = "2026.06.11.07";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -66,6 +66,24 @@ const TIERS = {
   rare:      { label:"Rare",      color:"#4da6ff", border:"#4da6ff" }, // WoW blue
   epic:      { label:"Epic",      color:"#c070ff", border:"#c070ff" }, // WoW purple
   legendary: { label:"Legendary", color:"#ff8c00", border:"#ff8c00" }, // WoW orange/gold
+};
+
+// Plain-English descriptions of each tier for the builder
+const TIER_DESC = {
+  common:    "Beginner-friendly",
+  uncommon:  "Requires consistency",
+  rare:      "Demanding",
+  epic:      "Elite-level",
+  legendary: "Extreme athletes only",
+};
+
+// Reference ranges for health measurement units
+const UNIT_RANGES = {
+  "mmHg":   "Normal: <120/80 mmHg",
+  "mg/dL":  "Fasting normal: 70–99 mg/dL",
+  "hrs":    "Recommended: 7–9 hrs",
+  "/10":    "Log from 1 (awful) to 10 (perfect)",
+  "%":      null,
 };
 
 // Returns an inline tag for epic/legendary challenges, empty string otherwise
@@ -1373,6 +1391,8 @@ function defaultBuilderForm() {
     mode: "soft",
     weeklyGoal: 100,
     jokerBudget: 3,
+    noEndDate: false,
+    goalWeight: null,
     habits: [],
     newHabitEmoji: "⭐",
     newHabitName: "",
@@ -1392,11 +1412,15 @@ function saveBuilderFormFromDOM() {
   const endEl   = document.getElementById("bf-end");
   const goalEl  = document.getElementById("bf-goal");
   const emojiEl = document.getElementById("bf-emoji");
+  const ongoingEl    = document.getElementById("bf-ongoing");
+  const goalWeightEl = document.getElementById("bf-goalweight");
   if (nameEl)                builderForm.name       = nameEl.value;
   if (startEl?.value)        builderForm.startDate  = startEl.value;
-  if (endEl?.value)          builderForm.endDate    = endEl.value;
+  if (ongoingEl)             builderForm.noEndDate  = ongoingEl.checked;
+  if (endEl?.value && !builderForm.noEndDate) builderForm.endDate = endEl.value;
   if (goalEl)                builderForm.weeklyGoal = Number(goalEl.value) || builderForm.weeklyGoal;
   if (emojiEl?.value.trim()) builderForm.emoji      = emojiEl.value.trim();
+  if (goalWeightEl?.value)   builderForm.goalWeight = parseFloat(goalWeightEl.value) || null;
   // Persist new-habit input fields so they survive re-render
   const nhName  = document.getElementById("nh-name");
   const nhEmoji = document.getElementById("nh-emoji");
@@ -1469,6 +1493,10 @@ function normalizeChallenge(raw) {
     streakFreezeWeeksAwarded: Array.isArray(raw.streakFreezeWeeksAwarded) ? raw.streakFreezeWeeksAwarded : [],
     jokerBudget:              typeof raw.jokerBudget === "number" ? raw.jokerBudget : 3,
     flags:                    (raw.flags && typeof raw.flags === "object" && !Array.isArray(raw.flags)) ? raw.flags : {},
+    noEndDate:                raw.noEndDate === true,
+    pinned:                   raw.pinned === true,
+    resumeReminderDate:       raw.resumeReminderDate || null,
+    goalWeight:               raw.goalWeight ?? null,
   };
 }
 
@@ -1608,8 +1636,10 @@ function uid() { return Math.random().toString(36).slice(2,10); }
 // Returns the effective day number accounting for paused days
 function challengeDayNumber(c, dateKey) {
   const d = dateKey || todayKey();
+  const raw = diffDays(c.startDate, d) + 1 - (c.pausedDays || 0);
+  if (c.noEndDate) return Math.max(1, raw);
   const totalDays = diffDays(c.startDate, c.endDate) + 1;
-  return clamp(diffDays(c.startDate, d) + 1 - (c.pausedDays || 0), 1, totalDays);
+  return clamp(raw, 1, totalDays);
 }
 
 // ── Challenge Engine ───────────────────────────────────────────────────────
@@ -1617,8 +1647,8 @@ function challengeDayNumber(c, dateKey) {
 function getActiveChallenges() {
   const today = todayKey();
   return Object.values(state.challenges).filter(c =>
-    c.status === "active" && c.startDate <= today && c.endDate >= today
-  );
+    c.status === "active" && c.startDate <= today && (c.noEndDate || c.endDate >= today)
+  ).sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 }
 
 function getAllChallenges() {
@@ -1724,7 +1754,10 @@ function calcChallengeStreak(challenge) {
 
 function challengeWeeks(challenge) {
   const start  = parseDate(challenge.startDate);
-  const end    = parseDate(challenge.endDate);
+  const rawEnd = parseDate(challenge.endDate);
+  // Cap ongoing challenges at today so week list stays finite
+  const today  = parseDate(todayKey());
+  const end    = challenge.noEndDate && rawEnd > today ? today : rawEnd;
   const weeks  = [];
   const cursor = new Date(start);
   let   num    = 1;
@@ -1760,6 +1793,8 @@ function createChallenge(form) {
     status: "active",
     weeklyGoal: form.weeklyGoal || (template ? template.weeklyGoal : 100),
     jokerBudget: template?.noRestDay ? 0 : (typeof form.jokerBudget === "number" ? form.jokerBudget : 3),
+    noEndDate: form.noEndDate === true,
+    goalWeight: form.goalWeight ?? null,
     habits,
     days: {},
     badges: [],
@@ -1774,7 +1809,7 @@ function updateChallengeStatuses() {
   const today = todayKey();
   let changed = false;
   for (const c of Object.values(state.challenges)) {
-    if (c.status === "active" && c.endDate < today) {
+    if (c.status === "active" && !c.noEndDate && c.endDate < today) {
       c.finalStreak = calcChallengeStreak(c); // snapshot before status changes
       c.status = "completed";
       // Queue — show first one immediately, rest after user dismisses
@@ -2371,10 +2406,13 @@ function renderToday() {
   const active = getActiveChallenges();
   if (!active.length) return renderNoChallenge();
 
-  // Auto-select first challenge if none selected or selection invalid
-  if (!todayChallengeId || !active.find(c => c.id === todayChallengeId)) {
+  // Auto-select first challenge if none selected or selection invalid (but keep __all__)
+  if (!todayChallengeId || (todayChallengeId !== "__all__" && !active.find(c => c.id === todayChallengeId))) {
     todayChallengeId = active[0].id;
   }
+
+  // Unified all-challenges view
+  if (todayChallengeId === "__all__") return renderTodayAll(active);
   const challenge = active.find(c => c.id === todayChallengeId);
   const today    = todayKey();
   const effDate  = effectiveDate();
@@ -2387,10 +2425,10 @@ function renderToday() {
 
   const day  = getChallengeDay(challenge, effDate);
   const info = completionInfo(challenge, day);
-  const totalDays  = diffDays(challenge.startDate, challenge.endDate)+1;
+  const totalDays  = challenge.noEndDate ? null : diffDays(challenge.startDate, challenge.endDate)+1;
   const dayNumber  = challengeDayNumber(challenge, effDate);
-  const daysLeft   = Math.max(0, diffDays(today, challenge.endDate));
-  const journeyPct = clamp(Math.round((dayNumber/totalDays)*100), 0, 100);
+  const daysLeft   = challenge.noEndDate ? null : Math.max(0, diffDays(today, challenge.endDate));
+  const journeyPct = totalDays ? clamp(Math.round((dayNumber/totalDays)*100), 0, 100) : null;
   const streak     = calcChallengeStreak(challenge);
   const phaseInfo  = getChallengePhaseInfo(challenge, dayNumber);
 
@@ -2416,19 +2454,22 @@ function renderToday() {
     </div>` : ""}
     <div class="date-nav">
       <button class="date-nav-arrow ${canGoBack?"":"disabled"}" data-date-back ${canGoBack?"":"disabled"} aria-label="Previous day">‹</button>
-      <span class="date-nav-label ${!isToday?"date-nav-past":""}">
-        ${isToday ? "Today" : formatDate(parseDate(effDate), {weekday:"short", month:"short", day:"numeric"})}
-      </span>
+      <div class="date-nav-center">
+        <span class="date-nav-label ${!isToday?"date-nav-past":""}">
+          ${isToday ? "Today" : formatDate(parseDate(effDate), {weekday:"short", month:"short", day:"numeric"})}
+        </span>
+        ${isToday && canGoBack ? `<span class="date-nav-hint">‹ tap to log a past day</span>` : ""}
+      </div>
       <button class="date-nav-arrow ${canGoFwd?"":"disabled"}" data-date-fwd ${canGoFwd?"":"disabled"} aria-label="Next day">›</button>
     </div>
     ${!isToday ? `<div class="backfill-banner">✏️ Editing ${formatDate(parseDate(effDate),{weekday:"long"})} — changes save immediately.</div>` : ""}
     <section class="hero">
       <div class="day-label">${esc(challenge.emoji)} ${esc(challenge.name)}</div>
-      <div class="day-count">Day ${dayNumber} <span style="font-weight:300;font-size:0.55em;color:var(--text-dim)">of ${totalDays}</span></div>
+      <div class="day-count">Day ${dayNumber}${totalDays ? ` <span style="font-weight:300;font-size:0.55em;color:var(--text-dim)">of ${totalDays}</span>` : ""}</div>
       ${phaseInfo ? `<div class="phase-chip">🏔 Phase ${phaseInfo.phaseIndex}/${phaseInfo.totalPhases} — ${phaseInfo.phase.name}</div>` : ""}
-      <div class="subtitle">${daysLeft > 0 ? daysLeft+" days remaining" : "Final day!"} · ${challenge.mode} mode · <button class="link-btn hero-settings-link" data-view-challenge="${challenge.id}">✏️ Edit</button></div>
+      <div class="subtitle">${challenge.noEndDate ? "Ongoing" : daysLeft > 0 ? daysLeft+" days remaining" : "Final day!"} · ${challenge.mode} mode · <button class="link-btn hero-settings-link" data-view-challenge="${challenge.id}">✏️ Edit</button></div>
       ${isToday ? `<div class="greeting">${currentGreeting(challenge, dayNumber, streak)}</div>` : ""}
-      <div class="journey-track"><div class="journey-fill" style="width:${journeyPct}%"></div></div>
+      ${journeyPct !== null ? `<div class="journey-track"><div class="journey-fill" style="width:${journeyPct}%"></div></div>` : ""}
       ${isToday ? renderModeSelector(day, challenge) : ""}
     </section>
 
@@ -2474,10 +2515,58 @@ function renderToday() {
   </main>`;
 }
 
+function renderTodayAll(active) {
+  const effDate = effectiveDate();
+  const today = todayKey();
+  const isToday = effDate === today;
+  let totalDone = 0, totalHabits = 0;
+  for (const c of active) {
+    const day = c.days[effDate] || normalizeDay({});
+    const info = completionInfo(c, day);
+    totalDone += info.done;
+    totalHabits += info.total;
+  }
+  const allPct = totalHabits ? Math.round((totalDone / totalHabits) * 100) : 0;
+  return `
+  <main>
+    ${renderChallengePills(active)}
+    ${isToday ? renderXPBar() : ""}
+    <div class="all-today-banner">
+      <div class="atb-title">📋 All Active Challenges</div>
+      <div class="atb-stats">${totalDone} / ${totalHabits} habits done today · ${allPct}%</div>
+    </div>
+    ${active.map(c => {
+      const day = c.days[effDate] || normalizeDay({});
+      const info = completionInfo(c, day);
+      const dots = c.habits
+        .filter(h => h.type !== "distance")
+        .map(h => `<span class="atc-dot${day.done.includes(h.id)?" atc-dot--done":""}">${day.done.includes(h.id)?"✓":"○"}</span>`)
+        .join("");
+      return `
+      <button class="all-today-card" data-today-challenge="${c.id}">
+        <div class="atc-row">
+          <span class="atc-emoji">${esc(c.emoji)}</span>
+          <div class="atc-info">
+            <div class="atc-name">${esc(c.name)}</div>
+            <div class="atc-dots">${dots}</div>
+          </div>
+          <div class="atc-right">
+            <div class="atc-pct${info.percent===100?" atc-done":""}">${info.percent}%</div>
+            <div class="atc-cta">Log →</div>
+          </div>
+        </div>
+        <div class="cc-track"><div class="cc-fill" style="width:${info.percent}%"></div></div>
+      </button>`;
+    }).join("")}
+  </main>`;
+}
+
 function renderChallengePills(active) {
   const today = todayKey();
+  const showAll = active.length > 1;
   return `
   <div class="challenge-pills">
+    ${showAll ? `<button class="c-pill ${todayChallengeId==="__all__"?"active":""}" data-today-challenge="__all__">All <span class="c-pill-pct">${active.length}</span></button>` : ""}
     ${active.map(c => {
       const totalDays  = diffDays(c.startDate, c.endDate) + 1;
       const dayNum     = challengeDayNumber(c);
@@ -2522,7 +2611,7 @@ function renderNoChallenge() {
     ${isFirstTime ? `
     <p class="welcome-desc">Build any habit in 21–86 days. Log daily, earn streaks and badges, and watch yourself change.</p>
     <div class="welcome-features">
-      <div class="wf-item"><span class="wf-icon">🏆</span><span class="wf-text">28 challenges — 75 Hard, Cold Exposure, Morning Routine, Pacific Crest Trail and more</span></div>
+      <div class="wf-item"><span class="wf-icon">🏆</span><span class="wf-text">50+ challenges — 75 Hard, Cold Exposure, Morning Routine, Pacific Crest Trail and more</span></div>
       <div class="wf-item"><span class="wf-icon">😴</span><span class="wf-text">Rest days built in — use your jokers wisely, streak stays safe</span></div>
       <div class="wf-item"><span class="wf-icon">🔥</span><span class="wf-text">Streaks, badges, streak freezes, and weekly recaps that keep you honest</span></div>
       <div class="wf-item"><span class="wf-icon">📵</span><span class="wf-text">Works offline. No ads. Your data stays on your device.</span></div>
@@ -2545,6 +2634,11 @@ function renderNoChallenge() {
     <button class="primary-button" style="max-width:280px;margin:0 auto" data-open-builder>
       ${hasPast || upcoming.length ? "Start New Challenge" : "Start Your First Challenge"}
     </button>
+    ${isFirstTime && !CloudSync.isSignedIn ? `
+    <div class="device-only-nudge">
+      <span class="don-icon">💾</span>
+      <div>Your data lives on this device only. <button class="link-btn" data-open-settings>Create a free account</button> to back it up.</div>
+    </div>` : ""}
     ${isFirstTime ? `<p class="welcome-hint">No ads. No tracking. Just you and the challenge.</p>` : ""}
   </main>`;
 }
@@ -2810,9 +2904,10 @@ function renderMeasurementHabit(habit, day) {
   </div>`;
 
   const checked = day.done.includes(habit.id);
+  const refRange = UNIT_RANGES[unit] || null;
   const quip = checked
     ? `${stored.toFixed(decimals)} ${unit} logged ✓`
-    : esc(habit.quip);
+    : refRange ? refRange : esc(habit.quip);
 
   return `
   <div class="habit-card measurement-habit-card ${checked?"checked":""}">
@@ -2959,14 +3054,19 @@ function renderCompleteBanner(day, info, challenge) {
 }
 
 function renderXPBar() {
-  const info   = getLevelInfo(state.xp);
-  const isMax  = !info.next;
-  const toNext = isMax ? 0 : info.next.xp - state.xp;
+  const info    = getLevelInfo(state.xp);
+  const isMax   = !info.next;
+  const toNext  = isMax ? 0 : info.next.xp - state.xp;
+  const c       = currentChallenge();
+  const freezes = c ? (c.streakFreezes || 0) : 0;
   return `
   <div class="xp-bar-wrap">
     <div class="xp-bar-header">
       <span class="xp-level-badge">⚡ Lv.${info.level} <span class="xp-level-name">${info.name}</span></span>
-      <span class="xp-bar-to-next">${isMax ? "Max Level" : `${toNext.toLocaleString()} XP to Lv.${info.next.level}`}</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${freezes > 0 ? `<span class="xp-freeze-badge" title="Streak freezes — use one to protect a missed day">❄️ ${freezes}</span>` : ""}
+        <span class="xp-bar-to-next">${isMax ? "Max Level" : `${toNext.toLocaleString()} XP to Lv.${info.next.level}`}</span>
+      </div>
     </div>
     <div class="xp-bar-track" role="progressbar" aria-valuenow="${info.pct}" aria-valuemin="0" aria-valuemax="100">
       <div class="xp-bar-fill" style="width:${info.pct}%"></div>
@@ -2995,7 +3095,7 @@ function renderWeeklyGoalBar(challenge) {
     </div>
     <div class="wgb-track"><div class="wgb-fill ${hit?"wgb-done":""}" style="width:${pct}%"></div></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
-      ${hit ? `<span style="font-size:11px;color:var(--success)">Week badge unlocked 🏅</span>` : `<span style="font-size:11px;color:var(--text-dim)">Hit the goal to unlock week badges 🏅</span>`}
+      ${hit ? `<span style="font-size:11px;color:var(--success)">Week badge unlocked 🏅</span>` : `<span style="font-size:11px;color:var(--text-dim)">Hit the goal → badge + streak freeze 🏅</span>`}
       ${bestLabel}
     </div>
   </div>`;
@@ -3004,7 +3104,6 @@ function renderWeeklyGoalBar(challenge) {
 // ── Weekly Recap (Sunday card) ────────────────────────────────────────────
 
 function renderWeeklyRecap(challenge) {
-  if (new Date().getDay() !== 0) return "";                    // only Sundays
   if (state.weeklyRecapDismissed?.[challenge.id] === todayKey()) return "";  // already dismissed today
   const todayK = todayKey();
   const weeks = challengeWeeks(challenge);
@@ -3324,9 +3423,9 @@ function renderChallenges() {
 
 function renderChallengeCard(c) {
   const today        = todayKey();
-  const totalDays    = diffDays(c.startDate, c.endDate)+1;
+  const totalDays    = c.noEndDate ? null : diffDays(c.startDate, c.endDate)+1;
   const dayNumber    = challengeDayNumber(c);
-  const pct          = clamp(Math.round((dayNumber/totalDays)*100), 0, 100);
+  const pct          = totalDays ? clamp(Math.round((dayNumber/totalDays)*100), 0, 100) : 0;
   const streak       = (c.status==="completed"||c.status==="failed") && c.finalStreak!=null
     ? c.finalStreak : calcChallengeStreak(c);
   const day          = c.days[today];
@@ -3346,32 +3445,57 @@ function renderChallengeCard(c) {
     ? Object.values(day.distances).reduce((s,v) => s + (Number(v)||0), 0) : null;
   const tier         = tpl ? (TEMPLATE_TIERS[tpl.id] || "common") : null;
   const tierData     = tier ? TIERS[tier] : null;
+  const resumeNudge = c.status === "paused" && c.resumeReminderDate && c.resumeReminderDate <= today;
   return `
-  <button class="challenge-card" data-view-challenge="${c.id}">
-    <div class="cc-top">
-      <div class="cc-emoji">${esc(c.emoji)}</div>
-      <div class="cc-info">
-        <div class="cc-name"${tierData?` style="color:${tierData.color}"`:""}>${esc(c.name)}${tierTag(c.templateId)}</div>
-        <div class="cc-meta">${isExpedition && tpl?.routeKm
-          ? `${Math.round(totalKmVal * factor * 10)/10} / ${Math.round(tpl.routeKm * factor).toLocaleString()} ${dUnit} · Day ${dayNumber}`
-          : `${totalDays}d · ${c.mode} · Day ${dayNumber}`}</div>
+  <div class="challenge-card-wrap">
+    <button class="challenge-card" data-view-challenge="${c.id}">
+      <div class="cc-top">
+        <div class="cc-emoji">${esc(c.emoji)}</div>
+        <div class="cc-info">
+          <div class="cc-name"${tierData?` style="color:${tierData.color}"`:""}>${esc(c.name)}${tierTag(c.templateId)}${c.noEndDate?` <span class="ongoing-badge">Ongoing</span>`:""}</div>
+          <div class="cc-meta">${isExpedition && tpl?.routeKm
+            ? `${Math.round(totalKmVal * factor * 10)/10} / ${Math.round(tpl.routeKm * factor).toLocaleString()} ${dUnit} · Day ${dayNumber}`
+            : c.noEndDate ? `Ongoing · ${c.mode} · Day ${dayNumber}` : `${totalDays}d · ${c.mode} · Day ${dayNumber}`}</div>
+        </div>
+        <div class="cc-right">
+          ${c.status!=="active"
+            ? `<div class="cc-status" style="color:${statusColor}">${c.status==="paused"?"⏸ paused":c.status}</div>`
+            : isExpedition
+              ? `<div class="cc-today">${todayNativeKm !== null && todayNativeKm > 0 ? (Math.round(todayNativeKm*factor*10)/10)+" "+dUnit : "—"}</div>`
+              : `<div class="cc-today">${todayInfo?todayInfo.percent+"%":"—"}</div>`}
+          <div class="cc-streak">🔥 ${streak}</div>
+        </div>
       </div>
-      <div class="cc-right">
-        ${c.status!=="active"
-          ? `<div class="cc-status" style="color:${statusColor}">${c.status==="paused"?"⏸ paused":c.status}</div>`
-          : isExpedition
-            ? `<div class="cc-today">${todayNativeKm !== null && todayNativeKm > 0 ? (Math.round(todayNativeKm*factor*10)/10)+" "+dUnit : "—"}</div>`
-            : `<div class="cc-today">${todayInfo?todayInfo.percent+"%":"—"}</div>`}
-        <div class="cc-streak">🔥 ${streak}</div>
+      <div class="cc-track">
+        <div class="cc-fill" style="width:${isExpedition && routePct !== null ? routePct : pct}%"></div>
       </div>
-    </div>
-    <div class="cc-track">
-      <div class="cc-fill" style="width:${isExpedition && routePct !== null ? routePct : pct}%"></div>
-    </div>
-    <div class="cc-sub">${isExpedition && routePct !== null
-      ? `🗺 ${routePct}% dist · ✓ ${todayInfo ? todayInfo.percent : 0}% today · ⏱ ${pct}% time`
-      : `${pct}% complete · ${c.badges.length} badges`}</div>
-  </button>`;
+      <div class="cc-sub">${isExpedition && routePct !== null
+        ? `🗺 ${routePct}% dist · ✓ ${todayInfo ? todayInfo.percent : 0}% today · ⏱ ${pct}% time`
+        : `${pct}% complete · ${c.badges.length} badges`}</div>
+    </button>
+    ${c.status === "active" ? `<button class="pin-btn${c.pinned?" pin-btn--active":""}" data-pin-challenge="${c.id}" aria-label="${c.pinned?"Unpin":"Pin"} challenge" title="${c.pinned?"Unpin":"Pin to top"}">📌</button>` : ""}
+    ${resumeNudge ? `<div class="resume-nudge">⏰ Reminder to resume! <button class="link-btn" data-pause-challenge="${c.id}">Resume now →</button></div>` : ""}
+  </div>`;
+}
+
+// ── Sparkline helper ─────────────────────────────────────────────────────
+
+function renderSparkline(values, w = 88, h = 28) {
+  const pts = values.filter(v => v != null && v > 0);
+  if (pts.length < 2) return "";
+  const min = Math.min(...pts), max = Math.max(...pts);
+  const range = max - min || 1;
+  const coords = pts.map((v, i) => {
+    const x = Math.round((i / (pts.length - 1)) * w);
+    const y = Math.round(h - ((v - min) / range) * (h - 4) - 2);
+    return `${x},${y}`;
+  }).join(" ");
+  const lastX = Math.round(((pts.length - 1) / (pts.length - 1)) * w);
+  const lastY = Math.round(h - ((pts[pts.length-1] - min) / range) * (h - 4) - 2);
+  return `<svg class="sparkline" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">
+    <polyline fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" points="${coords}"/>
+    <circle cx="${lastX}" cy="${lastY}" r="2.5" fill="var(--accent)"/>
+  </svg>`;
 }
 
 // ── Challenge Detail ──────────────────────────────────────────────────────
@@ -3380,11 +3504,15 @@ function renderChallengeDetail(c) {
   if (!c) return `<main><div class="empty-state">Challenge not found.</div></main>`;
   const today     = todayKey();
   const weeks     = challengeWeeks(c);
-  const totalDays = diffDays(c.startDate, c.endDate)+1;
+  const totalDays = c.noEndDate ? null : diffDays(c.startDate, c.endDate)+1;
   const dayNumber = challengeDayNumber(c);
-  const pct       = clamp(Math.round((dayNumber/totalDays)*100), 0, 100);
+  const pct       = totalDays ? clamp(Math.round((dayNumber/totalDays)*100), 0, 100) : null;
   const streak    = calcChallengeStreak(c);
   const totalPts  = Object.values(c.days).reduce((s,d)=>s+(d.pts||0),0);
+  const activeDays = Object.values(c.days).filter(d => d.mode !== "rest" && (d.done.length > 0 || d.recovered));
+  const activeDaysDone = activeDays.filter(d => d.done.length > 0 || d.recovered).length;
+  const activeTotal = Object.values(c.days).filter(d => d.mode !== "rest").length;
+  const activeCompPct = activeTotal ? Math.round((activeDaysDone / activeTotal) * 100) : 0;
   const curWeekIdx = weeks.findIndex(w=>w.allDays.includes(today));
   const hasPhotoHabit = c.habits.some(h => h.id === "photo" || /progress\s*photo/i.test(h.title));
   const nextChainId   = c.templateId && CHALLENGE_CHAINS[c.templateId];
@@ -3407,7 +3535,7 @@ function renderChallengeDetail(c) {
       </button>
       <div>
         <div style="font-size:18px;font-weight:700">${esc(c.emoji)} ${(()=>{ const t=c.templateId?TEMPLATE_TIERS[c.templateId]:null; const td=t?TIERS[t]:null; return td?`<span style="color:${td.color}">${esc(c.name)}</span>${tierTag(c.templateId)}`:esc(c.name); })()}</div>
-        <div style="font-size:12px;color:var(--text-dim)">${c.startDate} → ${c.endDate}</div>
+        <div style="font-size:12px;color:var(--text-dim)">${c.startDate}${c.noEndDate ? " · Ongoing" : ` → ${c.endDate}`}</div>
       </div>
     </div>
     <div class="stats-grid" style="margin-bottom:14px">
@@ -3415,9 +3543,10 @@ function renderChallengeDetail(c) {
       ${isExpedition
         ? statCard("🗺️ Distance", totalKmDisplay.toFixed(isFloorsDet?0:1), dUnitDet)
         : statCard("⭐ Total pts", totalPts, "")}
-      ${statCard("📅 Progress", pct+"%", "")}
+      ${statCard("✅ Active days", `${activeDaysDone}/${activeTotal}`, "")}
       ${statCard("🏅 Badges", c.badges.length, "")}
     </div>
+    ${pct !== null ? `<div class="detail-progress-bar" style="margin-bottom:14px"><div class="detail-progress-fill" style="width:${pct}%"></div><div class="detail-progress-label">${pct}% journey complete</div></div>` : `<div class="detail-progress-bar" style="margin-bottom:14px"><div class="detail-progress-label">Day ${dayNumber} · Ongoing</div></div>`}
     ${isExpedition ? renderRouteProgress(c, tpl) : ""}
 
 
@@ -3457,17 +3586,29 @@ function renderChallengeDetail(c) {
           </div>`;
         }
         if (h.type === "measurement") {
-          const allDays = Object.values(c.days);
+          const sortedDays = Object.entries(c.days)
+            .filter(([k]) => /^\d{4}-\d{2}-\d{2}$/.test(k))
+            .sort(([a],[b]) => a.localeCompare(b))
+            .map(([,d]) => d);
           const decimals = typeof h.decimals === "number" ? h.decimals : 1;
           const unit = h.unit === "weight" ? (state.settings.units.weight || "kg") : (h.unit || "");
-          const vals = allDays.map(d => d.distances?.[h.id]).filter(v => v != null && v > 0);
+          const vals = sortedDays.map(d => d.distances?.[h.id]).filter(v => v != null && v > 0);
           const latest = vals.length ? vals[vals.length - 1] : null;
           const avg = vals.length > 1 ? vals.reduce((a,b) => a+b, 0) / vals.length : null;
-          return `<div class="habit-preview-item">
-            <span>${esc(h.emoji)} ${esc(h.title)}</span>
-            <span class="hpi-rate" style="color:var(--accent)">
-              ${latest != null ? `Latest: ${latest.toFixed(decimals)} ${unit}` : "No entries"}${avg != null ? ` · Avg: ${avg.toFixed(decimals)}` : ""}
-            </span>
+          const sparkData = sortedDays.map(d => d.distances?.[h.id] ?? null);
+          const goalW = (h.unit === "weight" || h.unit === "lbs" || h.unit === "kg") && c.goalWeight ? c.goalWeight : null;
+          const goalLine = goalW && latest != null
+            ? `<span class="hpi-goal ${latest <= goalW ? "hpi-goal--reached":""}">${latest <= goalW ? "✓ Goal reached!" : `${Math.abs(latest - goalW).toFixed(decimals)} ${unit} to goal`}</span>`
+            : "";
+          return `<div class="habit-preview-item habit-preview-meas">
+            <div class="hpm-top">
+              <span>${esc(h.emoji)} ${esc(h.title)}</span>
+              <span class="hpi-rate" style="color:var(--accent)">
+                ${latest != null ? `${latest.toFixed(decimals)} ${unit}` : "No entries"}${avg != null ? ` · avg ${avg.toFixed(decimals)}` : ""}
+              </span>
+            </div>
+            ${goalLine}
+            ${renderSparkline(sparkData)}
           </div>`;
         }
         const allDays = Object.values(c.days);
@@ -3766,6 +3907,7 @@ function renderBuilderTemplates() {
     <button class="template-card${isExpedition?" tc-cat expedition":""}" data-select-template="${t.id}">
       <div class="tc-emoji">${t.emoji}</div>
       <div class="tc-name" style="color:${tierData.color}">${t.name}${tierTag(t.id)}</div>
+      <div class="tc-difficulty" style="color:${tierData.color}">${tierData.label} · ${TIER_DESC[tier]}</div>
       <div class="tc-meta">${meta}</div>
       <div class="tc-desc">${t.description}</div>
     </button>`;
@@ -3802,9 +3944,15 @@ function renderBuilderCustomize() {
       Challenge name
       <input id="bf-name" type="text" value="${esc(builderForm.name)}" placeholder="${template?template.name:"My Challenge"}" maxlength="40">
     </label>
-    <div class="field-grid" style="margin-bottom:14px">
+    <div class="field-grid" style="margin-bottom:6px">
       <label class="field">Start date<input id="bf-start" type="date" value="${builderForm.startDate}"></label>
-      <label class="field">End date<input id="bf-end" type="date" value="${builderForm.endDate}"></label>
+      ${builderForm.noEndDate ? `<label class="field" style="opacity:.4">End date<input type="date" disabled value="—"></label>` : `<label class="field">End date<input id="bf-end" type="date" value="${builderForm.endDate}"></label>`}
+    </div>
+    <div class="ongoing-toggle" style="margin-bottom:14px">
+      <label class="ongoing-toggle-label">
+        <input type="checkbox" id="bf-ongoing" ${builderForm.noEndDate?"checked":""} style="width:16px;height:16px;accent-color:var(--accent)">
+        <span>Ongoing habit — no end date</span>
+      </label>
     </div>
     <div class="section-label" style="margin:0 0 8px">Challenge Mode</div>
     <div class="mode-selector" style="margin-bottom:6px">
@@ -3826,6 +3974,16 @@ function renderBuilderCustomize() {
       </div>
       <p class="mode-desc" style="margin:4px 0 0">${builderForm.jokerBudget === 0 ? "Zero compromise — no rest days." : `${builderForm.jokerBudget} day${builderForm.jokerBudget===1?"":"s"} you can skip without breaking your streak.`}</p>
     </div>`}
+    ${(() => {
+      const tpl = builderForm.templateId ? TEMPLATES.find(t=>t.id===builderForm.templateId) : null;
+      const hasWeightHabit = (tpl?.habits || builderForm.habits).some(h => h.unit === "weight" || h.unit === "lbs" || h.unit === "kg");
+      if (!hasWeightHabit) return "";
+      const wUnit = state.settings.units.weight || "lbs";
+      return `<label class="field" style="margin-bottom:14px">
+        Goal weight (${wUnit}) <span style="font-size:11px;color:var(--text-dim)">optional — shown as progress in the app</span>
+        <input id="bf-goalweight" type="number" value="${builderForm.goalWeight || ""}" min="0" max="999" step="0.1" placeholder="e.g. 150">
+      </label>`;
+    })()}
     <label class="field" style="margin-bottom:4px">
       Weekly point goal
       <input id="bf-goal" type="number" value="${builderForm.weeklyGoal}" min="10" max="500">
@@ -4156,8 +4314,8 @@ function renderBadgeCat(label, defs, earned, templateId) {
 // ── Onboarding ────────────────────────────────────────────────────────────
 
 const ONBOARDING_STEPS = [
-  { emoji:"🎯", title:"Pick a challenge",  body:"Choose from 28 challenges — from Daily Journaling to the Pacific Crest Trail. Each one comes with daily habits to check off." },
-  { emoji:"⭐", title:"Earn points daily",  body:"Every habit you check earns points and XP. Hit your weekly goal to unlock badges. Points reset Monday — your streak and XP don't." },
+  { emoji:"🎯", title:"Pick a challenge",  body:"Choose from 50+ challenges — from Daily Journaling to the Pacific Crest Trail. Each one comes with daily habits to check off." },
+  { emoji:"⭐", title:"Earn points daily",  body:"Every habit you check earns points and XP. Hit your weekly goal to unlock a badge and a streak freeze. Points reset Monday — streaks and XP don't." },
   { emoji:"🔥", title:"Come back tomorrow", body:"Your streak grows every day you log. Miss a day? Soft mode gives you grace. Rest days are built in. One day at a time." },
 ];
 // onboardingStep: 0 = hero, 1-3 = info slides, 4 = account screen
@@ -4171,7 +4329,7 @@ function renderObHero() {
       <div class="ob-hero-tagline">Build the habits.<br>Win the challenge.</div>
     </div>
     <ul class="ob-features" aria-label="App features">
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">🎯</span><span>28 challenges — from journaling to epic trails</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">🎯</span><span>50+ challenges — from journaling to epic trails</span></li>
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">⭐</span><span>Daily points, streaks &amp; badges</span></li>
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">😴</span><span>Rest days &amp; streak protection built in</span></li>
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">📴</span><span>Works offline — no account required</span></li>
@@ -4181,10 +4339,42 @@ function renderObHero() {
   </div>`;
 }
 
+function renderObGoal() {
+  const goals = [
+    { emoji:"🏃", label:"Get Active",          desc:"Walking, running, cycling",              template:"walking" },
+    { emoji:"💪", label:"Transform My Body",    desc:"75 Hard, nutrition, strength",           template:"75-soft" },
+    { emoji:"❤️", label:"Track My Health",      desc:"Weight, BP, glucose, sleep",             template:"sleep-tracker" },
+    { emoji:"🌱", label:"Build Better Habits",  desc:"Morning routine, journaling, focus",     template:"morning-routine" },
+    { emoji:"🏆", label:"Train for an Event",   desc:"Half marathon, ironman, OCR race",       template:"half-marathon-prep" },
+    { emoji:"🗺️", label:"Conquer a Route",      desc:"Pacific Crest Trail, Camino, UTMB",     template:"camino" },
+  ];
+  return `
+  <div class="ob-screen ob-screen--slide" role="main">
+    <div class="ob-slide-inner">
+      <div class="ob-emoji" aria-hidden="true">🎯</div>
+      <div class="ob-title">What's your main goal?</div>
+      <div class="ob-body">We'll open your recommended challenge — ready to start.</div>
+    </div>
+    <div class="ob-goal-grid">
+      ${goals.map(g => `
+      <button class="ob-goal-btn" data-ob-goal="${g.template}">
+        <span class="ob-goal-emoji">${g.emoji}</span>
+        <div class="ob-goal-info">
+          <div class="ob-goal-label">${g.label}</div>
+          <div class="ob-goal-desc">${g.desc}</div>
+        </div>
+        <span class="ob-goal-arrow">→</span>
+      </button>`).join("")}
+    </div>
+    <button class="link-btn ob-link" data-ob-next>Skip — I'll choose myself →</button>
+  </div>`;
+}
+
 function renderObSlide() {
-  const step = ONBOARDING_STEPS[onboardingStep - 1];
+  const step = ONBOARDING_STEPS[onboardingStep - 2]; // slides start at step 2
   const dots = ONBOARDING_STEPS.map((_,i) =>
-    `<span class="ob-dot ${i === onboardingStep - 1 ? "active" : ""}"></span>`).join("");
+    `<span class="ob-dot ${i === onboardingStep - 2 ? "active" : ""}"></span>`).join("");
+  const isLast = onboardingStep === ONBOARDING_STEPS.length + 1;
   return `
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
@@ -4193,8 +4383,8 @@ function renderObSlide() {
       <div class="ob-body">${step.body}</div>
     </div>
     <div class="ob-dots" aria-hidden="true">${dots}</div>
-    <button class="primary-button ob-cta" data-ob-next>Next →</button>
-    <button class="link-btn ob-link" data-ob-skip>Skip to account setup</button>
+    <button class="primary-button ob-cta" data-ob-next>${isLast ? "Let's go →" : "Next →"}</button>
+    <button class="link-btn ob-link" data-ob-skip>Skip intro →</button>
   </div>`;
 }
 
@@ -4254,8 +4444,9 @@ function renderObAccount() {
 function renderOnboarding() {
   if (onboardingStep === null) return "";
   if (onboardingStep === 0) return renderObHero();
-  if (onboardingStep <= ONBOARDING_STEPS.length) return renderObSlide();
-  if (onboardingStep === ONBOARDING_STEPS.length + 1) return renderObName();
+  if (onboardingStep === 1) return renderObGoal();
+  if (onboardingStep <= ONBOARDING_STEPS.length + 1) return renderObSlide();
+  if (onboardingStep === ONBOARDING_STEPS.length + 2) return renderObName();
   return renderObAccount();
 }
 
@@ -4483,6 +4674,18 @@ function bindEvents() {
   });
   on("[data-select-template]", el => selectTemplate(el.dataset.selectTemplate));
   on("[data-bf-mode]",      el => { saveBuilderFormFromDOM(); builderForm.mode=el.dataset.bfMode; render(); });
+  on("[data-pin-challenge]", el => {
+    const c = getChallenge(el.dataset.pinChallenge); if (!c) return;
+    c.pinned = !c.pinned;
+    saveState(); render();
+  });
+  document.addEventListener("change", e => {
+    if (!e.target.matches("#bf-ongoing")) return;
+    saveBuilderFormFromDOM();
+    builderForm.noEndDate = e.target.checked;
+    if (builderForm.noEndDate) builderForm.endDate = "9999-12-31";
+    render();
+  }, true);
   on("[data-joker-adj]",   el => {
     const delta = Number(el.dataset.jokerAdj);
     const dur = diffDays(builderForm.startDate, builderForm.endDate) + 1;
@@ -4765,15 +4968,34 @@ function bindEvents() {
     render();
   });
   on("[data-ob-skip]", () => {
-    // Skip info slides → jump straight to account screen
-    onboardingStep = ONBOARDING_STEPS.length + 1;
+    // Skip info slides → jump straight to name screen
+    onboardingStep = ONBOARDING_STEPS.length + 2;
     _obAuthError = "";
     render();
   });
   on("[data-ob-to-signin]", () => {
     _obAuthMode = "signin";
-    onboardingStep = ONBOARDING_STEPS.length + 2; // skip name step for returning users
+    onboardingStep = ONBOARDING_STEPS.length + 3; // skip name step for returning users
     _obAuthError = "";
+    render();
+  });
+  on("[data-ob-goal]", el => {
+    const templateId = el.dataset.obGoal;
+    const tpl = TEMPLATES.find(t => t.id === templateId);
+    onboardingStep = null;
+    activeTab = "challenges";
+    builderOpen = true;
+    builderStep = "customize";
+    builderForm = defaultBuilderForm();
+    if (tpl) {
+      builderForm.templateId = templateId;
+      builderForm.name       = tpl.name;
+      builderForm.emoji      = tpl.emoji;
+      builderForm.endDate    = addDays(todayKey(), tpl.duration - 1);
+      builderForm.weeklyGoal = tpl.weeklyGoal;
+      builderForm.mode       = tpl.defaultMode || "soft";
+      builderForm.jokerBudget = tpl.noRestDay ? 0 : 3;
+    }
     render();
   });
   on("[data-ob-save-name]", () => {
@@ -5126,15 +5348,21 @@ function selectTemplate(id) {
 }
 
 function startChallenge() {
-  const nameEl  = document.getElementById("bf-name");
-  const startEl = document.getElementById("bf-start");
-  const endEl   = document.getElementById("bf-end");
-  const goalEl  = document.getElementById("bf-goal");
-  if (nameEl)  builderForm.name      = nameEl.value.trim();
-  if (startEl) builderForm.startDate = startEl.value;
-  if (endEl)   builderForm.endDate   = endEl.value;
-  if (goalEl)  builderForm.weeklyGoal= Number(goalEl.value)||100;
-  if (!builderForm.startDate||!builderForm.endDate) { showToast("Set start and end dates."); return; }
+  const nameEl       = document.getElementById("bf-name");
+  const startEl      = document.getElementById("bf-start");
+  const endEl        = document.getElementById("bf-end");
+  const goalEl       = document.getElementById("bf-goal");
+  const ongoingEl    = document.getElementById("bf-ongoing");
+  const goalWeightEl = document.getElementById("bf-goalweight");
+  if (nameEl)       builderForm.name      = nameEl.value.trim();
+  if (startEl)      builderForm.startDate = startEl.value;
+  if (ongoingEl)    builderForm.noEndDate = ongoingEl.checked;
+  if (endEl && !builderForm.noEndDate) builderForm.endDate = endEl.value;
+  if (builderForm.noEndDate) builderForm.endDate = "9999-12-31";
+  if (goalEl)       builderForm.weeklyGoal = Number(goalEl.value) || 100;
+  if (goalWeightEl?.value) builderForm.goalWeight = parseFloat(goalWeightEl.value) || null;
+  if (!builderForm.startDate) { showToast("Set a start date."); return; }
+  if (!builderForm.noEndDate && !builderForm.endDate) { showToast("Set an end date or enable Ongoing."); return; }
   const template = builderForm.templateId ? TEMPLATES.find(t=>t.id===builderForm.templateId) : null;
   const habitCount = template ? template.habits.length : builderForm.habits.length;
   if (habitCount === 0) { showToast("Add at least one habit first."); return; }
@@ -5240,7 +5468,15 @@ function pauseChallenge(id) {
   } else {
     c.status = "paused";
     c.pausedOn = todayKey();
-    showToast("Challenge paused. End date will adjust when you resume.");
+    // Prompt for resume reminder (non-blocking)
+    const days = parseInt(window.prompt("Remind you to resume in how many days? (leave blank to skip)", "7") || "0", 10);
+    if (days > 0) {
+      c.resumeReminderDate = addDays(todayKey(), days);
+      showToast(`Challenge paused. Reminder set for ${c.resumeReminderDate}.`);
+    } else {
+      c.resumeReminderDate = null;
+      showToast("Challenge paused. End date will adjust when you resume.");
+    }
   }
   saveState(); render();
 }
