@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.11.01";
+const APP_VERSION = "2026.06.11.05";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -8,31 +8,31 @@ const UPDATE_CHECK_MS = 30 * 60 * 1000;
 
 // ── XP Level System ──────────────────────────────────────────────────────────
 const XP_LEVELS = [
-  { level: 1,  name: "Base Camp",       xp: 0      },
-  { level: 2,  name: "Trail Head",      xp: 100    },
-  { level: 3,  name: "First Footing",   xp: 250    },
-  { level: 4,  name: "Steady Pace",     xp: 500    },
-  { level: 5,  name: "Ridge Seeker",    xp: 900    },
-  { level: 6,  name: "Alpine Start",    xp: 1500   },
-  { level: 7,  name: "Above the Trees", xp: 2300   },
-  { level: 8,  name: "Storm Tested",    xp: 3400   },
-  { level: 9,  name: "Rock Face",       xp: 6000   },
-  { level: 10, name: "High Camp",       xp: 8000   },
-  { level: 11, name: "Snow Line",       xp: 10500  },
-  { level: 12, name: "Crevasse Jumper", xp: 13500  },
-  { level: 13, name: "Thin Air",        xp: 17000  },
-  { level: 14, name: "White Out",       xp: 21000  },
-  { level: 15, name: "False Summit",    xp: 26000  },
-  { level: 16, name: "Last Camp",       xp: 32000  },
-  { level: 17, name: "Final Push",      xp: 39000  },
-  { level: 18, name: "Summit Ridge",    xp: 47000  },
-  { level: 19, name: "Summit Bound",    xp: 56000  },
-  { level: 20, name: "The Summit",      xp: 66000  },
-  { level: 21, name: "Beyond the Peak", xp: 78000  },
-  { level: 22, name: "Pathfinder",      xp: 92000  },
-  { level: 23, name: "Seven Summits",   xp: 108000 },
-  { level: 24, name: "Cloud Walker",    xp: 126000 },
-  { level: 25, name: "Everest",         xp: 147000 },
+  { level: 1,  name: "Rookie",               xp: 0      },
+  { level: 2,  name: "Wanderer",             xp: 100    },
+  { level: 3,  name: "Trailblazer",          xp: 250    },
+  { level: 4,  name: "Scout",                xp: 500    },
+  { level: 5,  name: "Ranger",               xp: 900    },
+  { level: 6,  name: "Climber",              xp: 1500   },
+  { level: 7,  name: "Adventurer",           xp: 2300   },
+  { level: 8,  name: "Ice Breaker",          xp: 3400   },
+  { level: 9,  name: "Mountaineer",          xp: 6000   },
+  { level: 10, name: "Storm Rider",          xp: 8000   },
+  { level: 11, name: "Blizzard Born",        xp: 10500  },
+  { level: 12, name: "Crevasse Jumper",      xp: 13500  },
+  { level: 13, name: "Altitude Master",      xp: 17000  },
+  { level: 14, name: "Peak Hunter",          xp: 21000  },
+  { level: 15, name: "Snow Titan",           xp: 26000  },
+  { level: 16, name: "Elite Climber",        xp: 32000  },
+  { level: 17, name: "Summit Seeker",        xp: 39000  },
+  { level: 18, name: "Mountain Legend",      xp: 47000  },
+  { level: 19, name: "The Immortal",         xp: 56000  },
+  { level: 20, name: "The Untouchable",      xp: 66000  },
+  { level: 21, name: "Summit Overlord",      xp: 78000  },
+  { level: 22, name: "Mountain Champion",    xp: 92000  },
+  { level: 23, name: "Everest Bound",        xp: 108000 },
+  { level: 24, name: "Everest Champion",     xp: 126000 },
+  { level: 25, name: "Conqueror of Everest", xp: 147000 },
 ];
 
 function getLevelInfo(xp) {
@@ -99,6 +99,17 @@ const TEMPLATE_TIERS = {
   "run-jogle":"epic","danube-row":"epic",
   // ── Rare: shorter expedition routes
   "run-5-marathons":"rare","raid-pyrenees":"rare","thames-row":"rare",
+  "comrades-ultra":"rare",
+  // ── Health tracking
+  "weight-loss-30":"common","sleep-tracker":"common",
+  "blood-pressure":"uncommon","glucose-control":"uncommon",
+  "body-composition":"rare",
+  // ── Endurance sport training
+  "half-marathon-prep":"uncommon","marathon-training":"rare",
+  "tough-mudder":"rare","spartan-race":"epic",
+  "ironman-703":"epic","ironman-full":"legendary",
+  // ── Epic expedition
+  "utmb":"epic",
 };
 
 // Universal / Lifetime badge → tier (template badges inherit their template's tier)
@@ -408,6 +419,143 @@ const TEMPLATES = [
     ]
   },
 
+  // ── Endurance Sport Training ─────────────────────────────────────────────
+  {
+    id: "half-marathon-prep", name: "Half Marathon Prep", emoji: "🏃", category: "endurance",
+    description: "12 weeks to race day. Build your base, sharpen your speed, and cross that finish line.",
+    duration: 84, weeklyGoal: 75, defaultMode: "soft",
+    habits: [
+      { id:"hm-run",    title:"Run session",          emoji:"🏃", quip:"Every km counts.",                         type:"binary", points:5 },
+      { id:"hm-xt",     title:"Cross-train",          emoji:"🚴", quip:"Swim, bike, yoga — anything non-run.",      type:"binary", points:3 },
+      { id:"hm-stretch",title:"Stretch & recover",    emoji:"🦵", quip:"Tight hips = slower times.",               type:"binary", points:2 },
+      { id:"hm-sleep",  title:"Sleep 8+ hours",       emoji:"🌙", quip:"Sleep is the best performance drug.",       type:"binary", points:2 },
+      { id:"hm-fuel",   title:"Eat & hydrate clean",  emoji:"🥗", quip:"Fuel the engine right.",                   type:"binary", points:3 },
+    ]
+  },
+  {
+    id: "marathon-training", name: "Marathon Training", emoji: "🏅", category: "endurance",
+    description: "16 weeks of structured training to get you to the 42.2 km finish line.",
+    duration: 112, weeklyGoal: 70, defaultMode: "soft",
+    habits: [
+      { id:"mt-run",    title:"Run session",           emoji:"🏃", quip:"Miles in the bank.",                       type:"binary", points:5 },
+      { id:"mt-xt",     title:"Cross-train",           emoji:"🏊", quip:"Active recovery is still recovery.",       type:"binary", points:3 },
+      { id:"mt-stretch",title:"Stretch & foam roll",   emoji:"🦵", quip:"15 min saves your IT bands.",              type:"binary", points:2 },
+      { id:"mt-sleep",  title:"Sleep 8+ hours",        emoji:"🌙", quip:"Legs rebuild at night.",                   type:"binary", points:2 },
+      { id:"mt-fuel",   title:"Fuel & hydrate",        emoji:"🍌", quip:"Carbs are your friend on long-run days.",  type:"binary", points:3 },
+    ]
+  },
+  {
+    id: "ironman-703", name: "Ironman 70.3", emoji: "🏊", category: "endurance",
+    description: "20 weeks of swim, bike, run. Half the distance — all the glory.",
+    duration: 140, weeklyGoal: 70, defaultMode: "soft",
+    habits: [
+      { id:"703-swim",   title:"Swim session",         emoji:"🏊", quip:"Smooth strokes save energy.",              type:"binary", points:5 },
+      { id:"703-bike",   title:"Bike session",         emoji:"🚴", quip:"The bike is where races are won.",         type:"binary", points:5 },
+      { id:"703-run",    title:"Run session",          emoji:"🏃", quip:"Hold form when it hurts.",                 type:"binary", points:5 },
+      { id:"703-recover",title:"Recovery & stretch",   emoji:"🦵", quip:"Three sports means three ways to injure.", type:"binary", points:2 },
+      { id:"703-sleep",  title:"Sleep 8+ hours",       emoji:"🌙", quip:"Training stress + sleep = adaptation.",    type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "ironman-full", name: "Full Ironman", emoji: "🏅", category: "endurance",
+    description: "24 weeks to conquer 3.8 km swim, 180 km bike, and a full marathon. The ultimate endurance test.",
+    duration: 168, weeklyGoal: 65, defaultMode: "soft",
+    habits: [
+      { id:"im-swim",    title:"Swim session",         emoji:"🏊", quip:"Technique beats thrashing every time.",    type:"binary", points:5 },
+      { id:"im-bike",    title:"Bike session",         emoji:"🚴", quip:"Ride smart — you still have to run.",      type:"binary", points:5 },
+      { id:"im-run",     title:"Run session",          emoji:"🏃", quip:"Brick runs build race-day legs.",          type:"binary", points:5 },
+      { id:"im-strength",title:"Strength training",    emoji:"🏋️", quip:"Injury prevention starts in the gym.",    type:"binary", points:3 },
+      { id:"im-recover", title:"Recovery protocol",    emoji:"🛁", quip:"Ice bath, compression, elevation.",        type:"binary", points:2 },
+      { id:"im-sleep",   title:"Sleep 8+ hours",       emoji:"🌙", quip:"Ironman is built in the hours you sleep.", type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "tough-mudder", name: "Tough Mudder Prep", emoji: "🪖", category: "endurance",
+    description: "8 weeks to become obstacle-ready. Mud, walls, electric shocks — bring it on.",
+    duration: 56, weeklyGoal: 80, defaultMode: "strict",
+    habits: [
+      { id:"tm-cardio",  title:"Cardio session",       emoji:"🏃", quip:"You'll be running 16–19 km on race day.",  type:"binary", points:5 },
+      { id:"tm-strength",title:"Strength & lift",      emoji:"🏋️", quip:"Carry your teammates over walls.",        type:"binary", points:5 },
+      { id:"tm-grip",    title:"Grip & obstacle drills",emoji:"🧗", quip:"Monkey bars are harder than they look.",  type:"binary", points:4 },
+      { id:"tm-cold",    title:"Cold exposure",        emoji:"🧊", quip:"Ice water is just part of the course.",    type:"binary", points:3 },
+      { id:"tm-mental",  title:"No excuses today",     emoji:"🧠", quip:"Mindset separates finishers from quitters.",type:"binary",points:3 },
+    ]
+  },
+  {
+    id: "spartan-race", name: "Spartan Race Prep", emoji: "⚔️", category: "endurance",
+    description: "12 weeks of OCR training. 30 burpees per missed obstacle — don't miss any.",
+    duration: 84, weeklyGoal: 75, defaultMode: "strict",
+    habits: [
+      { id:"sr-wod",     title:"Spartan WOD",          emoji:"⚔️", quip:"AROO!",                                   type:"binary", points:5 },
+      { id:"sr-obstacle",title:"Obstacle conditioning", emoji:"🧗", quip:"Spear throw, rope climb, sandbag carry.", type:"binary", points:4 },
+      { id:"sr-run",     title:"Trail or road run",    emoji:"🏃", quip:"Spartans run on rough terrain.",           type:"binary", points:5 },
+      { id:"sr-strength",title:"Strength circuit",     emoji:"🏋️", quip:"Burpees count. Weakness does not.",       type:"binary", points:3 },
+      { id:"sr-fuel",    title:"Fuel clean",           emoji:"🥩", quip:"Real food only. Spartan diet.",            type:"binary", points:3 },
+    ]
+  },
+
+  // ── Health Tracking ──────────────────────────────────────────────────────
+  {
+    id: "weight-loss-30", name: "Weight Loss 30", emoji: "⚖️", category: "health",
+    description: "30 days of daily weigh-ins and healthy habits. Track your weight, build the routine.",
+    duration: 30, weeklyGoal: 80, defaultMode: "soft",
+    habits: [
+      { id:"wl-weight",  title:"Log weight",         emoji:"⚖️", quip:"Same time each morning. Consistency beats precision.", type:"measurement", unit:"weight", decimals:1 },
+      { id:"wl-deficit", title:"Calorie deficit day", emoji:"🥗", quip:"Eat less than you burn. Simple, not easy.",           type:"binary",      points:5 },
+      { id:"wl-exercise",title:"Exercise 30 min",    emoji:"🏃", quip:"Cardio, weights, walk — it all counts.",              type:"binary",      points:5 },
+      { id:"wl-water",   title:"Drink 3L water",     emoji:"💧", quip:"Hunger is often thirst in disguise.",                 type:"binary",      points:3 },
+      { id:"wl-sleep",   title:"Sleep 8+ hours",     emoji:"🌙", quip:"Sleep deprivation kills fat loss.",                   type:"binary",      points:2 },
+    ]
+  },
+  {
+    id: "body-composition", name: "Body Composition", emoji: "📊", category: "health",
+    description: "90 days tracking weight, body fat %, and lean muscle mass. Know your numbers.",
+    duration: 90, weeklyGoal: 70, defaultMode: "soft",
+    habits: [
+      { id:"bc-weight",  title:"Log weight",         emoji:"⚖️", quip:"Weekly is fine — daily is better.",                  type:"measurement", unit:"weight",  decimals:1 },
+      { id:"bc-fat",     title:"Log body fat %",     emoji:"📉", quip:"DEXA, calipers, smart scale — pick one and stick to it.", type:"measurement", unit:"%",      decimals:1 },
+      { id:"bc-lean",    title:"Log lean mass",      emoji:"💪", quip:"Lean mass = weight × (1 − fat% / 100).",             type:"measurement", unit:"weight",  decimals:1 },
+      { id:"bc-protein", title:"Hit protein goal",   emoji:"🥩", quip:"1g per lb of bodyweight. Non-negotiable.",           type:"binary",      points:5 },
+      { id:"bc-lift",    title:"Lift session",       emoji:"🏋️", quip:"Muscle doesn't build itself.",                       type:"binary",      points:5 },
+    ]
+  },
+  {
+    id: "blood-pressure", name: "Blood Pressure Monitor", emoji: "🩺", category: "health",
+    description: "30 days of daily blood pressure logging plus heart-healthy habits. Share the data with your doctor.",
+    duration: 30, weeklyGoal: 85, defaultMode: "strict",
+    habits: [
+      { id:"bp-sys",     title:"Log systolic (top #)",   emoji:"❤️", quip:"Normal: below 120 mmHg.",                        type:"measurement", unit:"mmHg",    decimals:0 },
+      { id:"bp-dia",     title:"Log diastolic (bottom #)",emoji:"💙", quip:"Normal: below 80 mmHg.",                        type:"measurement", unit:"mmHg",    decimals:0 },
+      { id:"bp-walk",    title:"30-min walk",            emoji:"🚶", quip:"Regular walks lower BP more than most meds.",    type:"binary",      points:5 },
+      { id:"bp-sodium",  title:"Low sodium today",       emoji:"🧂", quip:"Under 1,500 mg Na/day for high-BP.",             type:"binary",      points:5 },
+      { id:"bp-stress",  title:"Stress management",      emoji:"🧘", quip:"Meditation, breathing, or just a quiet 10 min.", type:"binary",      points:3 },
+    ]
+  },
+  {
+    id: "glucose-control", name: "Glucose Control", emoji: "🩸", category: "health",
+    description: "60 days of fasting glucose tracking and blood-sugar-friendly habits. Export to share with your doctor.",
+    duration: 60, weeklyGoal: 85, defaultMode: "strict",
+    habits: [
+      { id:"gc-glucose",title:"Log fasting glucose",    emoji:"🩸", quip:"Measure before eating, first thing in the morning.", type:"measurement", unit:"mg/dL",  decimals:0 },
+      { id:"gc-lowcarb",title:"Low-carb meals",         emoji:"🥦", quip:"Aim for under 50g net carbs.",                      type:"binary",      points:5 },
+      { id:"gc-exercise",title:"Exercise 30 min",       emoji:"🏃", quip:"Muscle is the biggest glucose sink in the body.",    type:"binary",      points:5 },
+      { id:"gc-sugar",   title:"No added sugar",        emoji:"🚫", quip:"Check labels. Sugar hides everywhere.",             type:"binary",      points:5 },
+      { id:"gc-sleep",   title:"Sleep 8+ hours",        emoji:"🌙", quip:"One bad night raises fasting glucose the next day.",type:"binary",      points:3 },
+    ]
+  },
+  {
+    id: "sleep-tracker", name: "Sleep Tracker", emoji: "💤", category: "health",
+    description: "30 days of sleep logging plus habits that actually improve sleep quality.",
+    duration: 30, weeklyGoal: 85, defaultMode: "strict",
+    habits: [
+      { id:"st-hours",  title:"Log hours slept",       emoji:"😴", quip:"Aim for 7–9 hours. Log it honestly.",              type:"measurement", unit:"hrs",     decimals:1 },
+      { id:"st-quality",title:"Log sleep quality 1–10",emoji:"⭐", quip:"How rested do you feel? 10 = fully charged.",       type:"measurement", unit:"/10",     decimals:0 },
+      { id:"st-bedtime",title:"Consistent bedtime",    emoji:"⏰", quip:"Same time ±30 min — even weekends.",               type:"binary",      points:5 },
+      { id:"st-screen", title:"No screens 1h before bed",emoji:"📵",quip:"Blue light delays melatonin by 90 min.",          type:"binary",      points:5 },
+      { id:"st-light",  title:"Morning sunlight 10 min",emoji:"☀️",quip:"Sets your circadian clock for the next 24 hours.", type:"binary",      points:3 },
+    ]
+  },
+
   // ── Expedition Routes ────────────────────────────────────────────────────
   {
     id: "everest-bc", name: "Everest Base Camp", emoji: "🏔️", category: "expedition",
@@ -535,6 +683,37 @@ const TEMPLATES = [
   },
 
   // ── Running Expeditions ──────────────────────────────────────────────────
+  {
+    id: "comrades-ultra", name: "Comrades Ultra", emoji: "🏃", category: "expedition",
+    description: "Run the legendary 89 km Comrades Marathon from Pietermaritzburg to Durban, South Africa.",
+    duration: 21, weeklyGoal: 5, defaultMode: "soft", routeKm: 89,
+    milestones: [
+      { km: 17,  name: "Drummond",     emoji: "🌿" },
+      { km: 36,  name: "Botha's Hill", emoji: "⛰️" },
+      { km: 55,  name: "Fields Hill",  emoji: "🏔️" },
+      { km: 82,  name: "Tollgate",     emoji: "🚦" },
+      { km: 89,  name: "Durban!",      emoji: "🌊" },
+    ],
+    habits: [
+      { id:"cu-run", title:"Running", emoji:"🏃", quip:"Every step toward Durban.", type:"distance", unit:"km" },
+    ]
+  },
+  {
+    id: "utmb", name: "Ultra Trail du Mont Blanc", emoji: "⛰️", category: "expedition",
+    description: "Tackle the 171 km UTMB course circling Mont Blanc through France, Italy and Switzerland.",
+    duration: 40, weeklyGoal: 5, defaultMode: "soft", routeKm: 171,
+    milestones: [
+      { km: 22,  name: "Les Houches",  emoji: "🌲" },
+      { km: 50,  name: "Courmayeur",   emoji: "🇮🇹" },
+      { km: 80,  name: "Champex-Lac",  emoji: "🏊" },
+      { km: 122, name: "Vallorcine",   emoji: "🏔️" },
+      { km: 152, name: "La Flégère",   emoji: "⛷️" },
+      { km: 171, name: "Chamonix!",    emoji: "🎉" },
+    ],
+    habits: [
+      { id:"utmb-run", title:"Running", emoji:"🏃", quip:"The mountains are waiting.", type:"distance", unit:"km" },
+    ]
+  },
   {
     id: "run-5-marathons", name: "5 Marathon Challenge", emoji: "🏃", category: "expedition",
     description: "Run the equivalent of 5 consecutive marathons — 211 km total. Pace doesn't matter. Showing up does.",
@@ -984,11 +1163,19 @@ const CHALLENGE_CHAINS = {
   "thames-row":         "danube-row",
   "danube-row":         "amazon-river",
   // Running expedition progression
+  "comrades-ultra":     "utmb",
+  "utmb":               "run-5-marathons",
   "run-5-marathons":    "run-jogle",
   "run-jogle":          "run-trans-america",
   // Cycling expedition progression
   "raid-pyrenees":      "tour-de-france",
   "tour-de-france":     "trans-am-bike",
+  // Endurance training progression
+  "half-marathon-prep": "marathon-training",
+  "marathon-training":  "ironman-703",
+  "ironman-703":        "ironman-full",
+  "tough-mudder":       "spartan-race",
+  "spartan-race":       "ironman-703",
 };
 
 // ── PhotoDB — IndexedDB wrapper for progress photos ───────────────────────
@@ -1045,6 +1232,7 @@ const PhotoDB = {
 
 let state = loadState();
 let activeTab = "today";
+let challengeSubTab = "habits";
 let activeChartTab = "weight";
 let sheetOpen = false;
 let todayChallengeId = null;
@@ -1244,11 +1432,12 @@ function normalizeHabit(raw) {
     title:       typeof raw.title === "string" ? raw.title : "Habit",
     emoji:       typeof raw.emoji === "string" ? raw.emoji : "⭐",
     quip:        typeof raw.quip  === "string" ? raw.quip  : "",
-    type:        ["binary","tiered","distance"].includes(raw.type) ? raw.type : "binary",
+    type:        ["binary","tiered","distance","measurement"].includes(raw.type) ? raw.type : "binary",
     points:      typeof raw.points === "number" && raw.points >= 1 ? Math.round(raw.points) : 2,
   };
-  if (typeof raw.unit === "string") habit.unit = raw.unit;
-  if (Array.isArray(raw.tiers))     habit.tiers = raw.tiers;
+  if (typeof raw.unit     === "string") habit.unit     = raw.unit;
+  if (typeof raw.decimals === "number") habit.decimals = raw.decimals;
+  if (Array.isArray(raw.tiers))         habit.tiers    = raw.tiers;
   return habit;
 }
 
@@ -2296,8 +2485,16 @@ function renderChallengePills(active) {
       const todayD     = c.days[today];
       const todayInfo  = completionInfo(c, todayD || normalizeDay({}));
       const todayDot   = todayInfo.percent === 100 ? "✅" : todayInfo.percent > 0 ? "🔸" : "";
+      const isExp      = c.habits.some(h => h.type === "distance");
+      const expTpl     = isExp && c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
+      const distPct    = expTpl?.routeKm
+        ? Math.min(100, Math.round((challengeTotalKm(c) / expTpl.routeKm) * 100))
+        : null;
+      const pctStr     = isExp && distPct !== null
+        ? `🗺${distPct}% ⏱${journeyPct}%`
+        : `${journeyPct}%`;
       return `<button class="c-pill ${c.id===todayChallengeId?"active":""}" data-today-challenge="${c.id}">
-        ${todayDot}${esc(c.emoji)} ${esc(c.name)} <span class="c-pill-pct">${journeyPct}%</span>
+        ${todayDot}${esc(c.emoji)} ${esc(c.name)} <span class="c-pill-pct">${pctStr}</span>
       </button>`;
     }).join("")}
   </div>`;
@@ -2463,8 +2660,9 @@ function renderModeSelector(day, challenge) {
 }
 
 function renderHabit(habit, day, challenge) {
-  if (habit.type === "tiered")   return renderTieredHabit(habit, day, challenge);
-  if (habit.type === "distance") return renderDistanceHabit(habit, day, challenge);
+  if (habit.type === "tiered")      return renderTieredHabit(habit, day, challenge);
+  if (habit.type === "distance")    return renderDistanceHabit(habit, day, challenge);
+  if (habit.type === "measurement") return renderMeasurementHabit(habit, day);
   const locked  = day.mode==="rest";
   const checked = day.done.includes(habit.id);
   const popping = _animHabitId === habit.id;
@@ -2588,6 +2786,48 @@ function renderDistanceHabit(habit, day, challenge) {
              <option value="km" ${displayUnit==="km"?"selected":""}>km</option>
              <option value="mi" ${displayUnit==="mi"?"selected":""}>mi</option>
            </select>`}
+    </div>
+  </div>`;
+}
+
+function renderMeasurementHabit(habit, day) {
+  const locked   = day.mode === "rest";
+  const rawUnit  = habit.unit || "";
+  // "weight" is a sentinel — resolve to the user's weight unit setting
+  const unit     = rawUnit === "weight" ? (state.settings.units.weight || "kg") : rawUnit;
+  const decimals = typeof habit.decimals === "number" ? habit.decimals : 1;
+  const stored   = day.distances?.[habit.id] ?? 0;
+
+  if (locked) return `
+  <div class="habit-card locked" aria-disabled="true">
+    <span class="accent"></span>
+    <span class="habit-emoji">🔒</span>
+    <span class="habit-info">
+      <span class="habit-title">${esc(habit.title)}</span>
+      <span class="habit-quip">Rest Day — recover well.</span>
+    </span>
+    <span class="check-circle"></span>
+  </div>`;
+
+  const checked = day.done.includes(habit.id);
+  const quip = checked
+    ? `${stored.toFixed(decimals)} ${unit} logged ✓`
+    : esc(habit.quip);
+
+  return `
+  <div class="habit-card measurement-habit-card ${checked?"checked":""}">
+    <span class="accent"></span>
+    <span class="habit-emoji">${esc(habit.emoji)}</span>
+    <div class="habit-info">
+      <span class="habit-title">${esc(habit.title)}</span>
+      <span class="habit-quip">${quip}</span>
+    </div>
+    <div class="measurement-input-wrap">
+      <input type="number" class="measurement-input" data-measurement-habit="${habit.id}"
+        value="${stored > 0 ? stored.toFixed(decimals) : ""}" min="0" max="99999"
+        step="${decimals === 0 ? "1" : "0.1"}" placeholder="—"
+        inputmode="decimal" aria-label="${esc(habit.title)} in ${unit}">
+      <span class="measurement-unit">${esc(unit)}</span>
     </div>
   </div>`;
 }
@@ -3056,19 +3296,29 @@ function renderCompletionModal(c) {
 // ── Challenges Tab ────────────────────────────────────────────────────────
 
 function renderChallenges() {
-  const all    = getAllChallenges();
-  const active = all.filter(c => c.status==="active");
-  const paused = all.filter(c => c.status==="paused");
-  const past   = all.filter(c => c.status!=="active" && c.status!=="paused");
+  const all   = getAllChallenges();
+  const isExp = c => c.habits.some(h => h.type === "distance");
+  const inSub = c => challengeSubTab === "expeditions" ? isExp(c) : !isExp(c);
+  const view  = all.filter(inSub);
+  const active = view.filter(c => c.status==="active");
+  const paused = view.filter(c => c.status==="paused");
+  const past   = view.filter(c => c.status!=="active" && c.status!=="paused");
+  const emptyMsg = challengeSubTab === "expeditions"
+    ? `No expedition running. <button class="link-btn" data-open-builder>Pick a route?</button>`
+    : `No challenge running. <button class="link-btn" data-open-builder>Ready to start something?</button>`;
   return `
   <main>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div class="section-label" style="margin:0">Active Challenges</div>
-      <button class="pill-btn" data-open-builder>+ New</button>
+    <div class="challenge-sub-tabs">
+      <button class="csub-btn${challengeSubTab==="habits"?" active":""}" data-challenge-sub="habits">🎯 Habits</button>
+      <button class="csub-btn${challengeSubTab==="expeditions"?" active":""}" data-challenge-sub="expeditions">🗺️ Expeditions</button>
     </div>
-    ${active.length ? active.map(c=>renderChallengeCard(c)).join("") : `<div class="empty-state">No challenge running. <button class="link-btn" data-open-builder>Ready to start something?</button></div>`}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="section-label" style="margin:0">${challengeSubTab==="expeditions"?"Active Routes":"Active Challenges"}</div>
+      <button class="pill-btn" data-open-builder>${challengeSubTab==="expeditions"?"+ Route":"+ New"}</button>
+    </div>
+    ${active.length ? active.map(c=>renderChallengeCard(c)).join("") : `<div class="empty-state">${emptyMsg}</div>`}
     ${paused.length ? `<div class="section-label">⏸ Paused</div>${paused.map(c=>renderChallengeCard(c)).join("")}` : ""}
-    ${past.length   ? `<div class="section-label">Past Challenges</div>${past.map(c=>renderChallengeCard(c)).join("")}` : ""}
+    ${past.length   ? `<div class="section-label">Past</div>${past.map(c=>renderChallengeCard(c)).join("")}` : ""}
   </main>`;
 }
 
@@ -3119,7 +3369,7 @@ function renderChallengeCard(c) {
       <div class="cc-fill" style="width:${isExpedition && routePct !== null ? routePct : pct}%"></div>
     </div>
     <div class="cc-sub">${isExpedition && routePct !== null
-      ? `${routePct}% of route · ${c.badges.length} badges`
+      ? `🗺 ${routePct}% dist · ✓ ${todayInfo ? todayInfo.percent : 0}% today · ⏱ ${pct}% time`
       : `${pct}% complete · ${c.badges.length} badges`}</div>
   </button>`;
 }
@@ -3206,6 +3456,20 @@ function renderChallengeDetail(c) {
             <span class="hpi-rate" style="color:var(--accent)">${kmTotal.toFixed(1)} km${routePct !== null ? ` · ${routePct}% of route` : ` · ${daysLogged}d logged`}</span>
           </div>`;
         }
+        if (h.type === "measurement") {
+          const allDays = Object.values(c.days);
+          const decimals = typeof h.decimals === "number" ? h.decimals : 1;
+          const unit = h.unit === "weight" ? (state.settings.units.weight || "kg") : (h.unit || "");
+          const vals = allDays.map(d => d.distances?.[h.id]).filter(v => v != null && v > 0);
+          const latest = vals.length ? vals[vals.length - 1] : null;
+          const avg = vals.length > 1 ? vals.reduce((a,b) => a+b, 0) / vals.length : null;
+          return `<div class="habit-preview-item">
+            <span>${esc(h.emoji)} ${esc(h.title)}</span>
+            <span class="hpi-rate" style="color:var(--accent)">
+              ${latest != null ? `Latest: ${latest.toFixed(decimals)} ${unit}` : "No entries"}${avg != null ? ` · Avg: ${avg.toFixed(decimals)}` : ""}
+            </span>
+          </div>`;
+        }
         const allDays = Object.values(c.days);
         const available = allDays.filter(d => d.mode !== "rest" && (d.done.length > 0 || d.recovered));
         const done = available.filter(d => d.done.includes(h.id)).length;
@@ -3223,8 +3487,12 @@ function renderChallengeDetail(c) {
     <div id="pp-strip-${c.id}" class="pp-strip"><div class="pp-loading">Loading photos…</div></div>
     ` : ""}
 
+    ${c.habits.some(h => h.type === "measurement") ? `
+    <div style="margin-top:16px">
+      <button class="secondary-button" data-export-health="${c.id}">📊 Export Health Data (CSV)</button>
+    </div>` : ""}
     ${(c.status==="active"||c.status==="paused")?`
-    <div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap">
+    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
       ${c.status==="active"?`<button class="secondary-button" data-edit-challenge="${c.id}">✏️ Edit</button>`:""}
       <button class="secondary-button" data-pause-challenge="${c.id}">${c.status==="paused"?"▶️ Resume":"⏸ Pause"}</button>
       <button class="secondary-button danger" data-abandon-challenge="${c.id}">Abandon</button>
@@ -3473,9 +3741,14 @@ function renderBuilderTemplates() {
   const cats = [
     { id:"transformation", label:"🔥 Transformation" },
     { id:"movement",       label:"🏃 Movement"       },
+    { id:"endurance",      label:"🏆 Endurance"      },
+    { id:"health",         label:"❤️ Health"         },
     { id:"lifestyle",      label:"🌱 Lifestyle"      },
     { id:"expedition",     label:"🗺️ Expeditions"    },
   ];
+  const orderedCats = challengeSubTab === "expeditions"
+    ? [cats.find(c => c.id === "expedition"), ...cats.filter(c => c.id !== "expedition")]
+    : cats;
   const templateCard = t => {
     const isExpedition = t.category === "expedition";
     const distHabit    = t.habits?.find(h => h.type === "distance");
@@ -3497,7 +3770,7 @@ function renderBuilderTemplates() {
       <div class="tc-desc">${t.description}</div>
     </button>`;
   };
-  return cats.map(cat => {
+  return orderedCats.map(cat => {
     const group = TEMPLATES.filter(t => t.category === cat.id);
     if (!group.length) return "";
     return `
@@ -4104,11 +4377,18 @@ function renderSettings() {
     </div>
     <div class="section-label">Units</div>
     <div class="more-card">
-      <div>
+      <div style="margin-bottom:14px">
         <div style="font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:8px">Distance</div>
         <div class="mode-selector">
           <button class="mode-button ${u.distance==="km"?"active":""}" data-unit-distance="km">km</button>
           <button class="mode-button ${u.distance==="miles"?"active":""}" data-unit-distance="miles">miles</button>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:8px">Weight</div>
+        <div class="mode-selector">
+          <button class="mode-button ${u.weight==="kg"?"active":""}" data-unit-weight="kg">kg</button>
+          <button class="mode-button ${u.weight==="lbs"?"active":""}" data-unit-weight="lbs">lbs</button>
         </div>
       </div>
     </div>
@@ -4141,7 +4421,8 @@ function updateRingVisuals() {
 // ── Events ────────────────────────────────────────────────────────────────
 
 function bindEvents() {
-  on("[data-tab]",          el => { activeTab=el.dataset.tab; builderOpen=false; settingsOpen=false; viewChallengeId=null; editChallengeId=null; editForm=null; viewingDate=null; render(); });
+  on("[data-tab]",          el => { activeTab=el.dataset.tab; challengeSubTab="habits"; builderOpen=false; settingsOpen=false; viewChallengeId=null; editChallengeId=null; editForm=null; viewingDate=null; render(); });
+  on("[data-challenge-sub]",el => { challengeSubTab=el.dataset.challengeSub; render(); });
   on("[data-mode]",         el => setMode(el.dataset.mode));
   on("[data-habit]",        el => {
     const habitId = el.dataset.habit;
@@ -4559,7 +4840,8 @@ function bindEvents() {
     });
   });
   on("[data-show-more-history]",() => { bodyHistoryLimit += 10; render(); });
-  on("[data-delete-challenge]", el => deleteChallenge(el.dataset.deleteChallenge));
+  on("[data-delete-challenge]",  el => deleteChallenge(el.dataset.deleteChallenge));
+  on("[data-export-health]",    el => { const c = getChallenge(el.dataset.exportHealth); if (c) exportHealthCSV(c); });
   on("[data-dismiss-weekly-recap]", el => {
     const cid = el.dataset.dismissWeeklyRecap;
     if (!state.weeklyRecapDismissed) state.weeklyRecapDismissed = {};
@@ -4579,6 +4861,13 @@ function bindEvents() {
     builderForm.weeklyGoal = t.weeklyGoal;
     builderForm.endDate = addDays(builderForm.startDate, t.duration - 1);
     render();
+  });
+  // Measurement habit input
+  document.addEventListener("change", e => {
+    if (!e.target.matches("[data-measurement-habit]")) return;
+    const habitId  = e.target.dataset.measurementHabit;
+    const inputVal = Math.max(0, parseFloat(e.target.value) || 0);
+    logMeasurement(habitId, inputVal);
   });
   // Distance habit input — delegated change event (persists across re-renders)
   document.addEventListener("change", e => {
@@ -4668,6 +4957,27 @@ function toggleHabit(id) {
   saveState(); navigator.vibrate?.(10);
   checkBadges(c);
   checkMilestones(c);
+  render();
+}
+
+function logMeasurement(habitId, value) {
+  const c = currentChallenge(); if (!c) return;
+  const habit = c.habits.find(h => h.id === habitId); if (!habit) return;
+  if (habit.type !== "measurement") return;
+  const day = getChallengeDay(c, effectiveDate());
+  if (day.mode === "rest") return;
+  if (!day.distances) day.distances = {};
+  day.distances[habitId] = value;
+  if (value > 0) {
+    if (!day.done.includes(habitId)) { day.done.push(habitId); _animHabitId = habitId; }
+  } else {
+    day.done = day.done.filter(id => id !== habitId);
+    _animHabitId = null;
+  }
+  updateDayPoints(c, day);
+  state.xp = recalcXP();
+  saveState();
+  checkBadges(c);
   render();
 }
 
@@ -4946,6 +5256,31 @@ function abandonChallenge(id) {
       showToast("Challenge abandoned."); render();
     }
   );
+}
+
+function exportHealthCSV(challenge) {
+  const mHabits = challenge.habits.filter(h => h.type === "measurement");
+  if (!mHabits.length) return;
+  const resolveUnit = h => h.unit === "weight" ? (state.settings.units.weight || "kg") : (h.unit || "");
+  const cols = mHabits.map(h => `"${h.title} (${resolveUnit(h)})"`).join(",");
+  const rows = [`Date,${cols}`];
+  const sortedDays = Object.entries(challenge.days)
+    .filter(([k]) => /^\d{4}-\d{2}-\d{2}$/.test(k))
+    .sort(([a],[b]) => a.localeCompare(b));
+  for (const [date, day] of sortedDays) {
+    const vals = mHabits.map(h => {
+      const v = day.distances?.[h.id];
+      return (v != null && v > 0) ? v : "";
+    });
+    if (vals.some(v => v !== "")) rows.push(`${date},${vals.join(",")}`);
+  }
+  const blob = new Blob([rows.join("\n")], { type: "text/csv" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `${challenge.name.replace(/[^a-z0-9]/gi,"-")}-health-data.csv`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
 function deleteChallenge(id) {
