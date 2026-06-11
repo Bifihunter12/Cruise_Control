@@ -3673,6 +3673,13 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   pointer-events: none;
 }
 
+.mode-chip-no-rest {
+  font-size: 10px;
+  opacity: 0.5;
+  font-weight: 400;
+  margin-left: 2px;
+}
+
 /* ── Notification nudge banner ──────────────────────────────────────────── */
 
 .notif-nudge {

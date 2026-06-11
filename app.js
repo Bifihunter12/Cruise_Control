@@ -158,7 +158,7 @@ const TEMPLATES = [
     habits: [
       { id:"yoga",      title:"Morning yoga",              emoji:"🧘", quip:"Sets the tone for everything after.",           type:"binary", points:2 },
       { id:"gratitude", title:"Gratitude",                 emoji:"🙏", quip:"Three things. Two minutes. Changes everything.", type:"binary", points:2 },
-      { id:"weighin",   title:"Daily weigh-in",            emoji:"⚖️", quip:"Data beats guessing every time.",               type:"binary", points:2 },
+      { id:"weighin",   title:"Daily weigh-in",            emoji:"⚖️", quip:"Same time each morning — consistency wins.",    type:"measurement", unit:"weight", decimals:1 },
       { id:"steps",     title:"Steps",                     emoji:"👟", quip:"8k / 10k / 15k steps.",             type:"tiered", points:2,
         tiers:[{value:8,label:"8k",points:2},{value:10,label:"10k",points:3},{value:15,label:"15k",points:4}] },
       { id:"protein",   title:"Protein at every meal",     emoji:"🥩", quip:"Protein keeps the muscle, drops the fat.",      type:"binary", points:2 },
@@ -175,7 +175,7 @@ const TEMPLATES = [
   {
     id: "75-hard", name: "75 Hard", emoji: "💪", category: "transformation",
     description: "The original mental toughness program. 75 days. Zero compromises.",
-    duration: 75, weeklyGoal: 140, defaultMode: "strict", noRestDay: true,
+    duration: 75, weeklyGoal: 98, defaultMode: "strict", noRestDay: true,
     habits: [
       { id:"w1",       title:"Workout 1 — 45 min",          emoji:"🏋️", quip:"First session done.",               type:"binary", points:3 },
       { id:"w2",       title:"Workout 2 — 45 min outdoors", emoji:"🌤️", quip:"Outdoor. No exceptions.",            type:"binary", points:3 },
@@ -188,7 +188,7 @@ const TEMPLATES = [
   {
     id: "75-soft", name: "75 Soft", emoji: "🧘", category: "transformation",
     description: "The balanced version. 75 days of consistent, sustainable habits.",
-    duration: 75, weeklyGoal: 120, defaultMode: "soft",
+    duration: 75, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"workout",  title:"Workout 45 min",                  emoji:"🏃", quip:"Move your body.",               type:"binary", points:3 },
       { id:"water3l",  title:"Drink 3L water",                  emoji:"💧", quip:"Most hunger is just thirst.",   type:"binary", points:2 },
@@ -2737,7 +2737,7 @@ function renderModeSelector(day, challenge) {
 
   // Compact single-line chip row
   if (noRestDay) {
-    return `<div class="mode-chip-row"><span class="mode-chip mode-chip--active">🎯 Standard Day</span></div>`;
+    return `<div class="mode-chip-row"><button class="mode-chip mode-chip--active" data-mode="rest" title="No rest days on this challenge">🎯 Standard Day <span class="mode-chip-no-rest">· no rest days</span></button></div>`;
   }
   const restLabel = todayIsRest
     ? "😴 Rest Day — active"
@@ -4059,7 +4059,7 @@ function renderBuilderCustomize() {
       <div class="pts-explainer-title">⭐ How points work</div>
       <div class="pts-explainer-body">Check off habits to earn points. Hit your weekly goal to earn badges. Points reset every Monday — your streak doesn't.</div>
     </div>
-    <div class="builder-reminder-hint">💡 <strong>Set a daily reminder</strong> after you start — users who do are far more likely to finish. Find it in <em>More → Notifications</em>.</div>
+    <div class="builder-reminder-hint">💡 <strong>Set a daily reminder</strong> after you start — users who do are far more likely to finish. Find it in <em>⚙️ Settings → Reminders</em>.</div>
     <button class="primary-button" style="margin-top:16px" data-start-challenge>
       Start Challenge 🚀
     </button>
@@ -4585,7 +4585,7 @@ function renderSettings() {
     </div>
     <div class="section-label" style="margin-top:20px">How Conqur Works</div>
     <div class="more-card" style="font-size:13px;line-height:1.65;color:var(--text-dim)">
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">🎯 Challenges</strong> — Pick one of 28 challenges. Each has daily habits to check off. Complete all habits for the day to earn full points.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">🎯 Challenges</strong> — Pick one of 50+ challenges. Each has daily habits to check off. Complete all habits for the day to earn full points.</div>
       <div style="margin-bottom:12px"><strong style="color:var(--text)">⭐ Points &amp; Weekly Goal</strong> — Each habit is worth points. Hit your weekly goal to earn a streak freeze. Points reset each Monday; XP and streaks don't.</div>
       <div style="margin-bottom:12px"><strong style="color:var(--text)">🔥 Streaks</strong> — Your streak grows every day you log all habits. Soft mode gives you one grace day before it breaks. Rest days don't break streaks.</div>
       <div style="margin-bottom:12px"><strong style="color:var(--text)">😴 Rest Days</strong> — Each challenge allows up to 3 rest days. They're planned recovery — not failures.</div>
