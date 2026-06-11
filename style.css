@@ -133,6 +133,20 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   color: var(--text-dim);
 }
 
+.phase-chip {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 2px 9px;
+  border-radius: 20px;
+  margin-bottom: 6px;
+  opacity: .85;
+}
+
 .greeting {
   margin-top: 2px;
   font-size: 12px;

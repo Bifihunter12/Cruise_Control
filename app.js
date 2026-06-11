@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.10.02";
+const APP_VERSION = "2026.06.11.01";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -8,31 +8,31 @@ const UPDATE_CHECK_MS = 30 * 60 * 1000;
 
 // ── XP Level System ──────────────────────────────────────────────────────────
 const XP_LEVELS = [
-  { level: 1,  name: "Newcomer",     xp: 0      },
-  { level: 2,  name: "Seeker",       xp: 100    },
-  { level: 3,  name: "Committed",    xp: 250    },
-  { level: 4,  name: "Consistent",   xp: 500    },
-  { level: 5,  name: "Challenger",   xp: 900    },
-  { level: 6,  name: "Disciplined",  xp: 1500   },
-  { level: 7,  name: "Driven",       xp: 2300   },
-  { level: 8,  name: "Warrior",      xp: 3400   },
-  { level: 9,  name: "Unbroken",     xp: 6000   },
-  { level: 10, name: "Champion",     xp: 8000   },
-  { level: 11, name: "Relentless",   xp: 10500  },
-  { level: 12, name: "Iron-Willed",  xp: 13500  },
-  { level: 13, name: "Elite",        xp: 17000  },
-  { level: 14, name: "Forged",       xp: 21000  },
-  { level: 15, name: "Legend",       xp: 26000  },
-  { level: 16, name: "Apex",         xp: 32000  },
-  { level: 17, name: "Unstoppable",  xp: 39000  },
-  { level: 18, name: "Master",       xp: 47000  },
-  { level: 19, name: "Titan",        xp: 56000  },
-  { level: 20, name: "Immortal",     xp: 66000  },
-  { level: 21, name: "Ascendant",    xp: 78000  },
-  { level: 22, name: "Mythic",       xp: 92000  },
-  { level: 23, name: "Conqueror",    xp: 108000 },
-  { level: 24, name: "Sovereign",    xp: 126000 },
-  { level: 25, name: "Transcendent", xp: 147000 },
+  { level: 1,  name: "Base Camp",       xp: 0      },
+  { level: 2,  name: "Trail Head",      xp: 100    },
+  { level: 3,  name: "First Footing",   xp: 250    },
+  { level: 4,  name: "Steady Pace",     xp: 500    },
+  { level: 5,  name: "Ridge Seeker",    xp: 900    },
+  { level: 6,  name: "Alpine Start",    xp: 1500   },
+  { level: 7,  name: "Above the Trees", xp: 2300   },
+  { level: 8,  name: "Storm Tested",    xp: 3400   },
+  { level: 9,  name: "Rock Face",       xp: 6000   },
+  { level: 10, name: "High Camp",       xp: 8000   },
+  { level: 11, name: "Snow Line",       xp: 10500  },
+  { level: 12, name: "Crevasse Jumper", xp: 13500  },
+  { level: 13, name: "Thin Air",        xp: 17000  },
+  { level: 14, name: "White Out",       xp: 21000  },
+  { level: 15, name: "False Summit",    xp: 26000  },
+  { level: 16, name: "Last Camp",       xp: 32000  },
+  { level: 17, name: "Final Push",      xp: 39000  },
+  { level: 18, name: "Summit Ridge",    xp: 47000  },
+  { level: 19, name: "Summit Bound",    xp: 56000  },
+  { level: 20, name: "The Summit",      xp: 66000  },
+  { level: 21, name: "Beyond the Peak", xp: 78000  },
+  { level: 22, name: "Pathfinder",      xp: 92000  },
+  { level: 23, name: "Seven Summits",   xp: 108000 },
+  { level: 24, name: "Cloud Walker",    xp: 126000 },
+  { level: 25, name: "Everest",         xp: 147000 },
 ];
 
 function getLevelInfo(xp) {
@@ -1818,17 +1818,62 @@ function checkMilestones(challenge) {
       break; // only one streak toast per toggle
     }
   }
+  // Phase completion toasts (all phases except the last — challenge completion has its own moment)
+  const phases = getChallengePhases(challenge);
+  if (phases && info.percent === 100) {
+    for (let i = 0; i < phases.length - 1; i++) {
+      const flagKey = `phase${i + 1}done`;
+      if (dayNumber === phases[i].end && !challenge.flags[flagKey]) {
+        challenge.flags[flagKey] = true;
+        const nextPhase = phases[i + 1];
+        setTimeout(() => showBigToast("🏔️", `Phase ${i + 1} complete!`, `Up next: ${nextPhase.name}`), 800);
+        break;
+      }
+    }
+  }
+}
+
+function getChallengePhases(challenge) {
+  const totalDays = diffDays(challenge.startDate, challenge.endDate) + 1;
+  if (totalDays <= 30) return null;
+  if (totalDays <= 60) {
+    const mid = Math.round(totalDays / 2);
+    return [
+      { name: "Getting Started", start: 1,       end: mid },
+      { name: "Making It Stick", start: mid + 1, end: totalDays },
+    ];
+  }
+  if (totalDays <= 90) {
+    const t = Math.round(totalDays / 3);
+    return [
+      { name: "Foundation", start: 1,           end: t },
+      { name: "Rising",     start: t + 1,       end: t * 2 },
+      { name: "The Ascent", start: t * 2 + 1,   end: totalDays },
+    ];
+  }
+  const q = Math.round(totalDays / 4);
+  return [
+    { name: "Foundation",  start: 1,           end: q },
+    { name: "Building",    start: q + 1,       end: q * 2 },
+    { name: "The Climb",   start: q * 2 + 1,   end: q * 3 },
+    { name: "Summit Push", start: q * 3 + 1,   end: totalDays },
+  ];
+}
+
+function getChallengePhaseInfo(challenge, dayNumber) {
+  const phases = getChallengePhases(challenge);
+  if (!phases) return null;
+  for (let i = 0; i < phases.length; i++) {
+    if (dayNumber <= phases[i].end) {
+      return { phase: phases[i], phaseIndex: i + 1, totalPhases: phases.length };
+    }
+  }
+  return { phase: phases[phases.length - 1], phaseIndex: phases.length, totalPhases: phases.length };
 }
 
 // ── Render Core ────────────────────────────────────────────────────────────
 
 function render() {
-  // Persist note before DOM replacement — prevents content loss when tapping habits mid-typing
-  const _noteEl = document.getElementById("day-note");
-  if (_noteEl) {
-    const _nc = currentChallenge();
-    if (_nc) { const _nd = getChallengeDay(_nc, effectiveDate()); if (_nd.note !== _noteEl.value) { _nd.note = _noteEl.value; saveState(); } }
-  }
   const app = document.getElementById("app");
   // Full-screen onboarding — render only the onboarding screen
   if (onboardingStep !== null) {
@@ -1854,9 +1899,7 @@ function render() {
   } else {
     html += activeTab === "today"      ? renderToday()      : "";
     html += activeTab === "challenges" ? renderChallenges() : "";
-    html += activeTab === "body"       ? renderBody()       : "";
     html += activeTab === "badges"     ? renderBadges()     : "";
-    html += sheetOpen                  ? renderSaveDaySheet() : "";
   }
   html += renderNav();
   if (justCompletedId) {
@@ -1949,7 +1992,7 @@ const NAV_ICONS = {
 };
 
 function renderNav() {
-  const tabs = [["today","Today"],["challenges","Challenges"],["body","Body"],["badges","Badges"]];
+  const tabs = [["today","Today"],["challenges","Challenges"],["badges","Badges"]];
   return `
   <nav class="bottom-nav" aria-label="Conqur sections">
     ${tabs.map(([id,label]) => `
@@ -1986,6 +2029,7 @@ function renderToday() {
   const daysLeft   = Math.max(0, diffDays(today, challenge.endDate));
   const journeyPct = clamp(Math.round((dayNumber/totalDays)*100), 0, 100);
   const streak     = calcChallengeStreak(challenge);
+  const phaseInfo  = getChallengePhaseInfo(challenge, dayNumber);
 
   const canGoBack  = addDays(effDate, -1) >= minDate;
   const canGoFwd   = !isToday;
@@ -2018,6 +2062,7 @@ function renderToday() {
     <section class="hero">
       <div class="day-label">${esc(challenge.emoji)} ${esc(challenge.name)}</div>
       <div class="day-count">Day ${dayNumber} <span style="font-weight:300;font-size:0.55em;color:var(--text-dim)">of ${totalDays}</span></div>
+      ${phaseInfo ? `<div class="phase-chip">🏔 Phase ${phaseInfo.phaseIndex}/${phaseInfo.totalPhases} — ${phaseInfo.phase.name}</div>` : ""}
       <div class="subtitle">${daysLeft > 0 ? daysLeft+" days remaining" : "Final day!"} · ${challenge.mode} mode · <button class="link-btn hero-settings-link" data-view-challenge="${challenge.id}">✏️ Edit</button></div>
       ${isToday ? `<div class="greeting">${currentGreeting(challenge, dayNumber, streak)}</div>` : ""}
       <div class="journey-track"><div class="journey-fill" style="width:${journeyPct}%"></div></div>
@@ -2028,7 +2073,6 @@ function renderToday() {
     <section class="today-stage panel">
       ${renderRing(info, day, streak, challenge)}
       ${isToday ? renderStreakFreezeUI(challenge) : ""}
-      ${isToday ? renderWeightChip() : ""}
       ${renderCompleteBanner(day, info, challenge)}
       ${info.done===0 ? (() => {
         const isExped = challenge.habits.some(h => h.type === "distance");
@@ -2059,20 +2103,12 @@ function renderToday() {
       <div class="habit-list">
         ${challenge.habits.map(h => renderHabit(h, day, challenge)).join("")}
       </div>
-      ${(() => {
-        const tpl = challenge.templateId ? TEMPLATES.find(t=>t.id===challenge.templateId) : null;
-        return (isToday && !day.recovered && info.done < info.total && !tpl?.noRestDay)
-          ? `<button class="link-btn rough-day-link" data-open-sheet>Having a rough day?</button>` : "";
-      })()}
     </section>
     ${(() => {
       const tpl = challenge.templateId ? TEMPLATES.find(t=>t.id===challenge.templateId) : null;
       return tpl?.routeKm ? renderRouteProgress(challenge, tpl) : "";
     })()}
-    ${renderDayNote(day)}
-    ${renderPastNotes(challenge)}
-  </main>
-  ${renderSaveDayButton(day, info, challenge)}`;
+  </main>`;
 }
 
 function renderChallengePills(active) {
@@ -2236,7 +2272,7 @@ function renderModeSelector(day, challenge) {
 
   // Compact single-line chip row
   if (noRestDay) {
-    return `<div class="mode-chip-row"><span class="mode-chip mode-chip--active">✅ Standard Day</span></div>`;
+    return `<div class="mode-chip-row"><span class="mode-chip mode-chip--active">🎯 Standard Day</span></div>`;
   }
   const restLabel = todayIsRest
     ? "😴 Rest Day — active"
@@ -2247,7 +2283,7 @@ function renderModeSelector(day, challenge) {
   const activeChip   = todayIsRest ? "mode-chip--rest-active" : "mode-chip--active";
   return `
   <div class="mode-chip-row">
-    <button class="mode-chip ${!todayIsRest ? activeChip : ""}" data-mode="standard">✅ Standard</button>
+    <button class="mode-chip ${!todayIsRest ? activeChip : ""}" data-mode="standard">🎯 Standard</button>
     <button class="mode-chip mode-chip--rest ${todayIsRest ? "mode-chip--rest-active" : ""} ${restDisabled}" data-mode="rest" ${budgetExhausted ? 'aria-disabled="true"' : ""}>${restLabel}</button>
   </div>`;
 }
@@ -2481,10 +2517,8 @@ function renderWeightChip() {
 
 function renderCompleteBanner(day, info, challenge) {
   if (info.done!==info.total || info.total===0) return "";
-  const hasNote   = !!(day.note?.trim());
-  const noteNudge = hasNote ? "" : `<button class="cb-note-nudge" onclick="document.getElementById('day-note')?.focus()">✍️ Add today's note</button>`;
   const isExpedition = challenge?.habits.some(h => h.type === "distance");
-  if (day.mode==="rest") return `<div class="complete-banner rest-complete"><span class="cb-icon">😴</span><div class="cb-body"><div class="cb-title">Rest Day</div><div class="cb-sub">Recover. Come back stronger.</div>${noteNudge}</div></div>`;
+  if (day.mode==="rest") return `<div class="complete-banner rest-complete"><span class="cb-icon">😴</span><div class="cb-body"><div class="cb-title">Rest Day</div><div class="cb-sub">Recover. Come back stronger.</div></div></div>`;
   if (isExpedition) {
     const distHabit  = challenge.habits.find(h => h.type === "distance");
     const habitUnit  = distHabit?.unit || "km";
@@ -2503,11 +2537,11 @@ function renderCompleteBanner(day, info, challenge) {
     const sub = remD !== null
       ? `${totalD.toFixed(1)} ${dUnit} covered · ${remD.toFixed(1)} ${dUnit} to go`
       : `${totalD.toFixed(1)} ${dUnit} covered`;
-    return `<div class="complete-banner"><span class="cb-icon">🗺️</span><div class="cb-body"><div class="cb-title">${todayD.toFixed(isFloors?0:1)} ${dUnit} today</div><div class="cb-sub">${sub}</div>${noteNudge}</div></div>`;
+    return `<div class="complete-banner"><span class="cb-icon">🗺️</span><div class="cb-body"><div class="cb-title">${todayD.toFixed(isFloors?0:1)} ${dUnit} today</div><div class="cb-sub">${sub}</div></div></div>`;
   }
   const currentStreak = challenge ? calcChallengeStreak(challenge) : 0;
   const streakShare = currentStreak >= 2 ? `<button class="cb-share-btn" data-share-streak>📤 Share streak</button>` : "";
-  return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">Full Send</div><div class="cb-sub">All habits done · ${info.points} pts</div>${noteNudge}${streakShare}</div></div>`;
+  return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">Full Send</div><div class="cb-sub">All habits done · ${info.points} pts</div>${streakShare}</div></div>`;
 }
 
 function renderXPBar() {
@@ -2609,41 +2643,6 @@ function renderWeeklyRecap(challenge) {
   </div>`;
 }
 
-// ── Day Note ──────────────────────────────────────────────────────────────
-
-function renderDayNote(day) {
-  const len = (day.note || "").length;
-  return `
-  <section style="margin-top:6px">
-    <div class="section-label">📝 Today's Note</div>
-    <div class="day-note-card">
-      <textarea class="day-note-input" id="day-note" placeholder="How did today go? Wins, struggles, anything…" maxlength="500">${esc(day.note || "")}</textarea>
-      <div class="day-note-hint" id="day-note-hint">${len}/500</div>
-    </div>
-  </section>`;
-}
-
-function renderPastNotes(challenge) {
-  const today = todayKey();
-  // Collect last 7 days with notes (excluding today)
-  const entries = [];
-  for (let i = 1; i <= 7; i++) {
-    const k = addDays(today, -i);
-    if (k < challenge.startDate) break;
-    const d = challenge.days[k];
-    if (d?.note?.trim()) entries.push({ key: k, note: d.note.trim() });
-  }
-  if (!entries.length) return "";
-  return `
-  <section style="margin-top:2px">
-    <div class="section-label" style="margin-bottom:6px">Past Notes</div>
-    ${entries.map(e => `
-    <div class="past-note-card">
-      <div class="pnc-date">${formatDate(parseDate(e.key), {weekday:"short",month:"short",day:"numeric"})}</div>
-      <div class="pnc-text">${esc(e.note.length > 160 ? e.note.slice(0,160)+"…" : e.note)}</div>
-    </div>`).join("")}
-  </section>`;
-}
 
 // ── Challenge Suggestions (post-completion) ───────────────────────────────
 
@@ -2722,35 +2721,6 @@ function pbCard(label, value, unit) {
   </div>`;
 }
 
-function renderSaveDayButton(day, info, challenge) {
-  if (info.done>=info.total || day.recovered || activeTab!=="today" || builderOpen) return "";
-  const template  = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
-  if (template?.noRestDay) return "";
-  return `<button class="save-day" data-open-sheet>Save My Day</button>`;
-}
-
-const microActions = [
-  "Drink a full glass of water right now",
-  "Take a 10-minute walk",
-  "Eat something with protein before the kitchen closes",
-  "Do 5 minutes of stretching before bed",
-  "Set a wake-up time and put the phone down",
-  "Log your day even if it wasn't perfect",
-];
-let selectedMicro = pickRandom(microActions, 3);
-
-function renderSaveDaySheet() {
-  return `
-  <div class="sheet-backdrop" data-close-sheet>
-    <section class="sheet" role="dialog">
-      <h2 style="font-size:16px;font-weight:700;margin:12px 0 4px">Here's your minimum:</h2>
-      <div class="micro-list">
-        ${selectedMicro.map(a=>`<label class="micro-action"><input type="checkbox"> <span>${a}</span></label>`).join("")}
-      </div>
-      <button class="primary-button" data-recovered>That's enough. You showed up.</button>
-    </section>
-  </div>`;
-}
 
 function shareAchievement(text) {
   if (navigator.share) {
@@ -3781,6 +3751,26 @@ function renderObSlide() {
   </div>`;
 }
 
+function renderObName() {
+  const saved = state.settings.name || "";
+  return `
+  <div class="ob-screen ob-screen--slide" role="main">
+    <div class="ob-slide-inner">
+      <div class="ob-emoji" aria-hidden="true">👋</div>
+      <div class="ob-title">What should we call you?</div>
+      <div class="ob-body">We'll use your name to cheer you on along the way.</div>
+    </div>
+    <div class="ob-form">
+      <label class="field ob-field">
+        First name
+        <input id="ob-name" type="text" placeholder="Your name" autocomplete="given-name" value="${esc(saved)}">
+      </label>
+      <button class="primary-button ob-cta" data-ob-save-name>Continue →</button>
+    </div>
+    <button class="link-btn ob-link ob-link--faint" data-ob-skip-name>Skip</button>
+  </div>`;
+}
+
 function renderObAccount() {
   const isSignin = _obAuthMode === "signin";
   return `
@@ -3818,6 +3808,7 @@ function renderOnboarding() {
   if (onboardingStep === null) return "";
   if (onboardingStep === 0) return renderObHero();
   if (onboardingStep <= ONBOARDING_STEPS.length) return renderObSlide();
+  if (onboardingStep === ONBOARDING_STEPS.length + 1) return renderObName();
   return renderObAccount();
 }
 
@@ -3939,27 +3930,23 @@ function renderSettings() {
     </div>
     <div class="section-label">Units</div>
     <div class="more-card">
-      <div style="margin-bottom:14px">
-        <div style="font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:8px">Weight</div>
-        <div class="mode-selector">
-          <button class="mode-button ${u.weight==="lbs"?"active":""}" data-unit-weight="lbs">lbs</button>
-          <button class="mode-button ${u.weight==="kg"?"active":""}" data-unit-weight="kg">kg</button>
-        </div>
-      </div>
-      <div style="margin-bottom:14px">
+      <div>
         <div style="font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:8px">Distance</div>
         <div class="mode-selector">
           <button class="mode-button ${u.distance==="km"?"active":""}" data-unit-distance="km">km</button>
           <button class="mode-button ${u.distance==="miles"?"active":""}" data-unit-distance="miles">miles</button>
         </div>
       </div>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:8px">Measurements</div>
-        <div class="mode-selector">
-          <button class="mode-button ${u.measurements==="cm"?"active":""}" data-unit-measurements="cm">cm</button>
-          <button class="mode-button ${u.measurements==="in"?"active":""}" data-unit-measurements="in">in</button>
-        </div>
-      </div>
+    </div>
+    <div class="section-label" style="margin-top:20px">How Conqur Works</div>
+    <div class="more-card" style="font-size:13px;line-height:1.65;color:var(--text-dim)">
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">🎯 Challenges</strong> — Pick one of 28 challenges. Each has daily habits to check off. Complete all habits for the day to earn full points.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">⭐ Points &amp; Weekly Goal</strong> — Each habit is worth points. Hit your weekly goal to earn a streak freeze. Points reset each Monday; XP and streaks don't.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">🔥 Streaks</strong> — Your streak grows every day you log all habits. Soft mode gives you one grace day before it breaks. Rest days don't break streaks.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">😴 Rest Days</strong> — Each challenge allows up to 3 rest days. They're planned recovery — not failures.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">⚡ XP &amp; Levels</strong> — XP accumulates from points across all challenges and never resets. Climb from Base Camp all the way to Everest.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">🏔 Phases</strong> — Longer challenges are split into phases so the finish line always feels reachable. Each phase completion is celebrated.</div>
+      <div><strong style="color:var(--text)">🏅 Badges</strong> — Earn badges for streaks, weekly goals, and challenge completions. Proof of everything you've built.</div>
     </div>
     ${renderCloudSync()}
     ${renderReminderSettings()}
@@ -3980,7 +3967,7 @@ function updateRingVisuals() {
 // ── Events ────────────────────────────────────────────────────────────────
 
 function bindEvents() {
-  on("[data-tab]",          el => { activeTab=el.dataset.tab; builderOpen=false; settingsOpen=false; viewChallengeId=null; editChallengeId=null; editForm=null; sheetOpen=false; bodyHistoryLimit=5; viewingDate=null; render(); });
+  on("[data-tab]",          el => { activeTab=el.dataset.tab; builderOpen=false; settingsOpen=false; viewChallengeId=null; editChallengeId=null; editForm=null; viewingDate=null; render(); });
   on("[data-mode]",         el => setMode(el.dataset.mode));
   on("[data-habit]",        el => {
     const habitId = el.dataset.habit;
@@ -4024,9 +4011,6 @@ function bindEvents() {
   on("[data-cal-next]",     el => { calendarViewMonth=el.dataset.calNext; render(); });
   on("[data-use-freeze]",   () => useStreakFreeze());
   on("[data-capture-photo]",el => captureProgressPhoto(el.dataset.capturePhoto));
-  on("[data-open-sheet]",   () => { selectedMicro=pickRandom(microActions,3); sheetOpen=true; render(); });
-  on("[data-close-sheet]",  (el,e) => { if(e.target.matches("[data-close-sheet]")){ sheetOpen=false; render(); }});
-  on("[data-recovered]",    () => markRecovered());
   on("[data-log-weight]",   () => logWeight());
   on("[data-save-settings]",() => saveSettings());
   on("[data-unit-weight]",        el => {
@@ -4333,7 +4317,19 @@ function bindEvents() {
   });
   on("[data-ob-to-signin]", () => {
     _obAuthMode = "signin";
-    onboardingStep = ONBOARDING_STEPS.length + 1;
+    onboardingStep = ONBOARDING_STEPS.length + 2; // skip name step for returning users
+    _obAuthError = "";
+    render();
+  });
+  on("[data-ob-save-name]", () => {
+    const nameInput = document.getElementById("ob-name");
+    if (nameInput?.value?.trim()) { state.settings.name = nameInput.value.trim(); saveState(); }
+    onboardingStep++;
+    _obAuthError = "";
+    render();
+  });
+  on("[data-ob-skip-name]", () => {
+    onboardingStep++;
     _obAuthError = "";
     render();
   });
@@ -4410,16 +4406,6 @@ function bindEvents() {
     builderForm.endDate = addDays(builderForm.startDate, t.duration - 1);
     render();
   });
-  // Day note — delegated so it works after tab switches and re-renders
-  document.addEventListener("blur", e => {
-    if (e.target.id === "day-note") saveNote();
-  }, true); // capture phase so blur (which doesn't bubble) is caught
-  document.addEventListener("input", e => {
-    if (e.target.id !== "day-note") return;
-    const hint = document.getElementById("day-note-hint");
-    if (hint) hint.textContent = `${e.target.value.length}/500`;
-  });
-
   // Distance habit input — delegated change event (persists across re-renders)
   document.addEventListener("change", e => {
     if (!e.target.matches("[data-distance-habit]")) return;
