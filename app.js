@@ -94,6 +94,11 @@ const TEMPLATE_TIERS = {
   // ── Legendary: year-long or extreme challenges
   "appalachian":"legendary","route66":"legendary",
   "amazon-river":"legendary","everest-stairmaster":"legendary","pct":"legendary",
+  "run-trans-america":"legendary","trans-am-bike":"legendary",
+  // ── Epic: demanding multi-month expeditions
+  "run-jogle":"epic","danube-row":"epic",
+  // ── Rare: shorter expedition routes
+  "run-5-marathons":"rare","raid-pyrenees":"rare","thames-row":"rare",
 };
 
 // Universal / Lifetime badge → tier (template badges inherit their template's tier)
@@ -528,6 +533,117 @@ const TEMPLATES = [
       { id:"floors", title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 2,903 to go.", type:"distance", points:1, unit:"floors" },
     ],
   },
+
+  // ── Running Expeditions ──────────────────────────────────────────────────
+  {
+    id: "run-5-marathons", name: "5 Marathon Challenge", emoji: "🏃", category: "expedition",
+    description: "Run the equivalent of 5 consecutive marathons — 211 km total. Pace doesn't matter. Showing up does.",
+    duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 211,
+    milestones: [
+      { km: 42,  name: "Marathon 1", emoji: "🏅" },
+      { km: 84,  name: "Marathon 2", emoji: "🏅" },
+      { km: 126, name: "Marathon 3", emoji: "🏅" },
+      { km: 168, name: "Marathon 4", emoji: "🏅" },
+      { km: 211, name: "Marathon 5", emoji: "🎖️" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🏃", quip:"Every km counts. Log it.", type:"distance", points:1, unit:"km" },
+    ],
+  },
+  {
+    id: "run-jogle", name: "Land's End to John o'Groats", emoji: "🏃", category: "expedition",
+    description: "Run the entire length of Great Britain — 1,407 km from Land's End to John o'Groats. End to end.",
+    duration: 90, weeklyGoal: 5, defaultMode: "soft", routeKm: 1407,
+    milestones: [
+      { km: 1,    name: "Land's End",       emoji: "🌊" },
+      { km: 340,  name: "Bristol",          emoji: "🏙️" },
+      { km: 600,  name: "Manchester",       emoji: "🏭" },
+      { km: 900,  name: "Scottish Border",  emoji: "🏴" },
+      { km: 1407, name: "John o'Groats",    emoji: "🏔️" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🏃", quip:"North. Always north.", type:"distance", points:1, unit:"km" },
+    ],
+  },
+  {
+    id: "run-trans-america", name: "Trans-America Run", emoji: "🏃", category: "expedition",
+    description: "Run across the United States — 4,989 km from San Francisco to New York City.",
+    duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 4989,
+    milestones: [
+      { km: 1,    name: "San Francisco",     emoji: "🌉" },
+      { km: 1500, name: "Rocky Mountains",   emoji: "⛰️" },
+      { km: 2500, name: "Great Plains",      emoji: "🌾" },
+      { km: 3500, name: "Mississippi River", emoji: "🌊" },
+      { km: 4989, name: "New York City",     emoji: "🗽" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🏃", quip:"Coast to coast. One step at a time.", type:"distance", points:1, unit:"km" },
+    ],
+  },
+
+  // ── Additional Cycling Expeditions ──────────────────────────────────────
+  {
+    id: "raid-pyrenees", name: "Raid Pyrénéen", emoji: "🚴", category: "expedition",
+    description: "Cycle all 726 km of the legendary Pyrénées mountain route from the Atlantic coast to the Mediterranean.",
+    duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 726,
+    milestones: [
+      { km: 1,   name: "Hendaye — Atlantic",     emoji: "🌊" },
+      { km: 150, name: "First High Passes",       emoji: "⛰️" },
+      { km: 400, name: "Andorra",                 emoji: "🏔️" },
+      { km: 600, name: "Final Cols",              emoji: "🚴" },
+      { km: 726, name: "Cerbère — Mediterranean", emoji: "☀️" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🚴", quip:"Pedal. Climb. Breathe.", type:"distance", points:1, unit:"km" },
+    ],
+  },
+  {
+    id: "trans-am-bike", name: "Trans-America Bike", emoji: "🚴", category: "expedition",
+    description: "Ride the 6,771 km TransAm Bike Trail from Yorktown, Virginia to Astoria, Oregon.",
+    duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 6771,
+    milestones: [
+      { km: 1,    name: "Yorktown, Virginia",  emoji: "🏛️" },
+      { km: 900,  name: "Blue Ridge Parkway",  emoji: "🌄" },
+      { km: 2700, name: "Missouri River",      emoji: "🌊" },
+      { km: 4500, name: "Colorado Rockies",    emoji: "🏔️" },
+      { km: 6771, name: "Astoria, Oregon",     emoji: "🌊" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🚴", quip:"Every state. Every climb. No shortcuts.", type:"distance", points:1, unit:"km" },
+    ],
+  },
+
+  // ── Additional Rowing Expeditions ────────────────────────────────────────
+  {
+    id: "thames-row", name: "Thames Row", emoji: "🚣", category: "expedition",
+    description: "Row the full length of the Thames from its source in the Cotswolds to the open sea — 346 km.",
+    duration: 30, weeklyGoal: 5, defaultMode: "soft", routeKm: 346,
+    milestones: [
+      { km: 1,   name: "The Source, Cotswolds", emoji: "🌿" },
+      { km: 75,  name: "Oxford",                emoji: "🎓" },
+      { km: 170, name: "Windsor Castle",        emoji: "🏰" },
+      { km: 280, name: "London Bridge",         emoji: "🌉" },
+      { km: 346, name: "Thames Estuary",        emoji: "🌊" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🚣", quip:"Pull. The river knows the way.", type:"distance", points:1, unit:"km" },
+    ],
+  },
+  {
+    id: "danube-row", name: "Danube Row", emoji: "🚣", category: "expedition",
+    description: "Row 2,860 km down the Danube from Germany to the Black Sea — through 10 countries.",
+    duration: 120, weeklyGoal: 5, defaultMode: "soft", routeKm: 2860,
+    milestones: [
+      { km: 1,    name: "Donaueschingen, Germany", emoji: "🇩🇪" },
+      { km: 360,  name: "Vienna",                  emoji: "🎼" },
+      { km: 680,  name: "Budapest",                emoji: "🏰" },
+      { km: 1400, name: "Iron Gates Gorge",         emoji: "⛰️" },
+      { km: 2860, name: "Black Sea",               emoji: "🌊" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🚣", quip:"Downstream. Europe unrolling behind you.", type:"distance", points:1, unit:"km" },
+    ],
+  },
 ];
 
 // ── Badge Definitions ──────────────────────────────────────────────────────
@@ -794,6 +910,55 @@ const TEMPLATE_BADGES = {
     { id:"pct-wa",     label:"🏔️ Washington",       desc:"Enter the final state (3,800 km).",                       test: c => c.totalKm >= 3800 },
     { id:"pct-done",   label:"🍁 Canada!",           desc:"4,286 km. You walked from Mexico to Canada.",            test: c => c.totalKm >= 4286 },
   ],
+  "run-5-marathons": [
+    { id:"r5m-start",   label:"👟 First Steps",      desc:"Log your first km.",                                      test: c => c.totalKm >= 1   },
+    { id:"r5m-mar1",    label:"🏅 Marathon 1",        desc:"Cover 42 km — first marathon done.",                     test: c => c.totalKm >= 42  },
+    { id:"r5m-halfway", label:"🔥 Halfway",           desc:"105 km — halfway through all 5 marathons.",              test: c => c.totalKm >= 105 },
+    { id:"r5m-mar4",    label:"🏃 Marathon 4",        desc:"168 km — fourth marathon complete.",                     test: c => c.totalKm >= 168 },
+    { id:"r5m-done",    label:"🎖️ Five Marathons!",   desc:"All 211 km done. Five consecutive marathons.",           test: c => c.totalKm >= 211 },
+  ],
+  "run-jogle": [
+    { id:"jogle-start",   label:"🌊 Land's End",       desc:"Start your JOGLE run.",                                 test: c => c.totalKm >= 1    },
+    { id:"jogle-bristol", label:"🏙️ Bristol",           desc:"Reach Bristol (340 km in).",                           test: c => c.totalKm >= 340  },
+    { id:"jogle-manc",    label:"🏭 Manchester",        desc:"Run through Manchester (600 km).",                      test: c => c.totalKm >= 600  },
+    { id:"jogle-border",  label:"🏴 Scotland",          desc:"Cross the Scottish Border (900 km).",                  test: c => c.totalKm >= 900  },
+    { id:"jogle-done",    label:"🏔️ John o'Groats!",   desc:"Run the full length of Britain — 1,407 km.",           test: c => c.totalKm >= 1407 },
+  ],
+  "run-trans-america": [
+    { id:"rta-start",   label:"🌉 San Francisco",     desc:"Set off from the Bay Area.",                             test: c => c.totalKm >= 1    },
+    { id:"rta-rockies", label:"⛰️ Rockies",           desc:"Cross the Rocky Mountains (1,500 km).",                 test: c => c.totalKm >= 1500 },
+    { id:"rta-plains",  label:"🌾 Great Plains",      desc:"Run through the Great Plains (2,500 km).",               test: c => c.totalKm >= 2500 },
+    { id:"rta-miss",    label:"🌊 Mississippi",       desc:"Cross the Mississippi River (3,500 km).",               test: c => c.totalKm >= 3500 },
+    { id:"rta-done",    label:"🗽 New York City!",    desc:"Run coast to coast — all 4,989 km.",                    test: c => c.totalKm >= 4989 },
+  ],
+  "raid-pyrenees": [
+    { id:"rp-start",    label:"🌊 Hendaye",           desc:"Clip in at the Atlantic start.",                         test: c => c.totalKm >= 1   },
+    { id:"rp-pass1",    label:"⛰️ First High Pass",   desc:"Conquer the first high passes (150 km).",               test: c => c.totalKm >= 150 },
+    { id:"rp-andorra",  label:"🏔️ Andorra",           desc:"Reach Andorra at the halfway point (400 km).",          test: c => c.totalKm >= 400 },
+    { id:"rp-final",    label:"🚴 Final Cols",         desc:"Enter the final mountain stretch (600 km).",             test: c => c.totalKm >= 600 },
+    { id:"rp-done",     label:"☀️ Mediterranean!",    desc:"Reach Cerbère and the Mediterranean — all 726 km.",     test: c => c.totalKm >= 726 },
+  ],
+  "trans-am-bike": [
+    { id:"tab-start",   label:"🏛️ Yorktown",          desc:"Roll out from the East Coast.",                          test: c => c.totalKm >= 1    },
+    { id:"tab-ridge",   label:"🌄 Blue Ridge",        desc:"Ride the Blue Ridge Parkway (900 km).",                  test: c => c.totalKm >= 900  },
+    { id:"tab-river",   label:"🌊 Missouri River",    desc:"Cross the Missouri River (2,700 km).",                  test: c => c.totalKm >= 2700 },
+    { id:"tab-rockies", label:"🏔️ Colorado Rockies",  desc:"Conquer the Colorado Rockies (4,500 km).",               test: c => c.totalKm >= 4500 },
+    { id:"tab-done",    label:"🌊 Astoria!",          desc:"Reach the Pacific — all 6,771 km.",                     test: c => c.totalKm >= 6771 },
+  ],
+  "thames-row": [
+    { id:"thr-start",   label:"🌿 The Source",        desc:"Push off from the Thames source.",                       test: c => c.totalKm >= 1   },
+    { id:"thr-oxford",  label:"🎓 Oxford",            desc:"Row through Oxford (75 km).",                           test: c => c.totalKm >= 75  },
+    { id:"thr-windsor", label:"🏰 Windsor Castle",    desc:"Pass Windsor Castle (170 km).",                         test: c => c.totalKm >= 170 },
+    { id:"thr-london",  label:"🌉 London Bridge",     desc:"Row under London Bridge (280 km).",                     test: c => c.totalKm >= 280 },
+    { id:"thr-done",    label:"🌊 To the Sea!",       desc:"Reach the Thames Estuary — all 346 km.",                test: c => c.totalKm >= 346 },
+  ],
+  "danube-row": [
+    { id:"dan-start",    label:"🇩🇪 Donaueschingen",  desc:"Launch on the Danube in Germany.",                       test: c => c.totalKm >= 1    },
+    { id:"dan-vienna",   label:"🎼 Vienna",           desc:"Row past Vienna (360 km).",                             test: c => c.totalKm >= 360  },
+    { id:"dan-budapest", label:"🏰 Budapest",         desc:"Pass through Budapest (680 km).",                       test: c => c.totalKm >= 680  },
+    { id:"dan-gorge",    label:"⛰️ Iron Gates",       desc:"Navigate the Iron Gates Gorge (1,400 km).",             test: c => c.totalKm >= 1400 },
+    { id:"dan-done",     label:"🌊 Black Sea!",       desc:"Row to the Black Sea — all 2,860 km.",                  test: c => c.totalKm >= 2860 },
+  ],
 };
 
 // ── Challenge Chains (what comes next after each template) ────────────────
@@ -815,6 +980,15 @@ const CHALLENGE_CHAINS = {
   "journaling":         "reading",
   "monk-mode":          "cruise-control",
   "pct":                "appalachian",
+  // Rowing progression
+  "thames-row":         "danube-row",
+  "danube-row":         "amazon-river",
+  // Running expedition progression
+  "run-5-marathons":    "run-jogle",
+  "run-jogle":          "run-trans-america",
+  // Cycling expedition progression
+  "raid-pyrenees":      "tour-de-france",
+  "tour-de-france":     "trans-am-bike",
 };
 
 // ── PhotoDB — IndexedDB wrapper for progress photos ───────────────────────
