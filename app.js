@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.11.05";
+const APP_VERSION = "2026.06.11.06";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -3421,7 +3421,7 @@ function renderChallengeDetail(c) {
     ${isExpedition ? renderRouteProgress(c, tpl) : ""}
 
 
-    ${nextChainT && c.status !== "active" ? `
+    ${nextChainT && c.status === "completed" ? `
     <div class="chain-next-banner" data-start-suggested="${nextChainT.id}">
       <div class="cnb-label">Continue your journey →</div>
       <div class="cnb-row">
