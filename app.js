@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.12.04";
+const APP_VERSION = "2026.06.12.05";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -4031,7 +4031,7 @@ function renderBuilderTemplates() {
   const filterBar = `<div class="template-filter-bar">${
     filterTabs.map(f => `<button class="template-filter-tab${_templateFilter===f.id?" active":""}" data-template-filter="${f.id}">${f.label}</button>`).join("")
   }</div>`;
-  const cats = orderedCats.map(cat => {
+  const catSections = orderedCats.map(cat => {
     const group = TEMPLATES.filter(t => t.category === cat.id && passesFilter(t));
     if (!group.length) return "";
     return `
@@ -4048,7 +4048,7 @@ function renderBuilderTemplates() {
       <div class="tc-desc">Build your own challenge from scratch.</div>
     </button>
   </div>` : "";
-  return filterBar + cats + customSection;
+  return filterBar + catSections + customSection;
 }
 
 function renderBuilderCustomize() {
