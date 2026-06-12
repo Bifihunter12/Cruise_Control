@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.12.06";
+const APP_VERSION = "2026.06.12.07";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -153,8 +153,8 @@ const BADGE_TIERS = {
 const TEMPLATES = [
   {
     id: "cruise-control", name: "Mental Toughness", emoji: "🔱", category: "transformation",
-    description: "86 days that change everything. Body, habits, and an unbreakable mind.",
-    duration: 86, weeklyGoal: 175, defaultMode: "soft", noRestDay: true,
+    description: "30 days that change everything. Body, habits, and an unbreakable mind.",
+    duration: 30, weeklyGoal: 120, defaultMode: "soft", noRestDay: true,
     habits: [
       { id:"yoga",      title:"Morning yoga",              emoji:"🧘", quip:"Sets the tone for everything after.",           type:"binary", points:2 },
       { id:"gratitude", title:"Gratitude",                 emoji:"🙏", quip:"Three things. Two minutes. Changes everything.", type:"binary", points:2 },
