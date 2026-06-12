@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.12.05";
+const APP_VERSION = "2026.06.12.06";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -4022,7 +4022,7 @@ function renderBuilderTemplates() {
     return `
     <button class="template-card${isExpedition?" tc-cat expedition":""}" data-select-template="${t.id}">
       <div class="tc-emoji">${t.emoji}</div>
-      <div class="tc-name" style="color:${tierData.color}">${t.name}${tierTag(t.id)}</div>
+      <div class="tc-name" style="color:${tierData.color}">${t.name}</div>
       <div class="tc-difficulty" style="color:${tierData.color}">${tierData.label} · ${TIER_DESC[tier]}</div>
       <div class="tc-meta">${meta}</div>
       <div class="tc-desc">${t.description}</div>
