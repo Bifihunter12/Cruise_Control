@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.11.07";
+const APP_VERSION = "2026.06.11.10";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -3471,7 +3471,7 @@ function renderChallengeCard(c) {
       </div>
       <div class="cc-sub">${isExpedition && routePct !== null
         ? `🗺 ${routePct}% dist · ✓ ${todayInfo ? todayInfo.percent : 0}% today · ⏱ ${pct}% time`
-        : `${pct}% complete · ${c.badges.length} badges`}</div>
+        : `${pct}% complete · ${c.badges.length} ${c.badges.length === 1 ? "badge" : "badges"}`}</div>
     </button>
     ${c.status === "active" ? `<button class="pin-btn${c.pinned?" pin-btn--active":""}" data-pin-challenge="${c.id}" aria-label="${c.pinned?"Unpin":"Pin"} challenge" title="${c.pinned?"Unpin":"Pin to top"}">📌</button>` : ""}
     ${resumeNudge ? `<div class="resume-nudge">⏰ Reminder to resume! <button class="link-btn" data-pause-challenge="${c.id}">Resume now →</button></div>` : ""}
@@ -4484,7 +4484,27 @@ function renderReminderSettings() {
   if (!supported) {
     body = `<p class="reminder-note">Your browser doesn't support notifications.</p>`;
   } else if (perm === "denied") {
-    body = `<p class="reminder-note">Notifications are blocked. Go to your browser settings → Site permissions to enable them.</p>`;
+    const ua = navigator.userAgent;
+    const isChrome  = /Chrome/.test(ua) && !/Edg/.test(ua) && !/OPR/.test(ua);
+    const isFirefox = /Firefox/.test(ua);
+    const isSafari  = /Safari/.test(ua) && !/Chrome/.test(ua);
+    const isEdge    = /Edg/.test(ua);
+    let steps = isChrome
+      ? `Click the <strong>🔒 lock icon</strong> in your address bar → <strong>Notifications</strong> → <strong>Allow</strong>`
+      : isEdge
+      ? `Click the <strong>🔒 lock icon</strong> in your address bar → <strong>Permissions for this site</strong> → Notifications → <strong>Allow</strong>`
+      : isFirefox
+      ? `Click the <strong>🛡 shield icon</strong> in your address bar → <strong>Permissions</strong> → Allow Notifications`
+      : isSafari
+      ? `Go to <strong>Safari menu → Settings for This Website → Notifications → Allow</strong>`
+      : `Click the icon next to the address bar → find <strong>Notifications</strong> → set to <strong>Allow</strong>`;
+    body = `
+    <div style="text-align:center;padding:8px 0">
+      <div style="font-size:32px;margin-bottom:10px">🔕</div>
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px">Notifications are blocked</div>
+      <div style="font-size:13px;color:var(--text-dim);line-height:1.6;margin-bottom:14px">${steps}, then tap the button below.</div>
+      <button class="secondary-button" style="width:100%" onclick="window.location.reload()">I've enabled them — reload ↻</button>
+    </div>`;
   } else if (perm === "default") {
     body = `<button class="primary-button" data-request-notif-permission>Enable reminders 🔔</button>
             <p class="reminder-note" style="margin-top:8px">We'll nudge you once a day if habits are still open.</p>`;
@@ -4512,10 +4532,11 @@ function renderReminderSettings() {
   <div class="more-card">${body}</div>`;
 }
 
-function renderCloudSync() {
+function renderProSection() {
   if (CloudSync.isSignedIn) {
+    // Already a member — show compact "Pro" badge + sync controls
     return `
-    <div class="section-label">☁️ Cloud Sync</div>
+    <div class="section-label">☁️ Cloud Backup</div>
     <div class="more-card" style="margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
         <span style="font-size:18px">✅</span>
@@ -4531,25 +4552,35 @@ function renderCloudSync() {
     </div>`;
   }
   return `
-  <div class="section-label">☁️ Cloud Sync</div>
-  <div class="more-card" style="margin-bottom:14px">
-    <p style="font-size:13px;color:var(--text-dim);margin:0 0 12px">Save your data to the cloud. Survive a new phone, reinstall, or device switch — sign in to restore everything.</p>
+  <div class="section-label">⭐ Conqur Pro</div>
+  <div class="more-card" style="margin-bottom:14px;background:linear-gradient(135deg,rgba(160,80,255,0.08),rgba(255,80,180,0.08));border:1px solid rgba(160,80,255,0.25)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:16px;font-weight:900;color:var(--text)">Free forever — plus backup</div>
+      <div style="font-size:11px;font-weight:700;color:var(--primary);background:rgba(160,80,255,0.15);border-radius:99px;padding:3px 10px">$4.99/mo</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">
+      <div style="font-size:13px;color:var(--text-dim);display:flex;gap:8px;align-items:flex-start"><span>☁️</span><span><strong style="color:var(--text)">Cloud backup</strong> — your streaks and badges survive a phone wipe or device switch</span></div>
+      <div style="font-size:13px;color:var(--text-dim);display:flex;gap:8px;align-items:flex-start"><span>🔄</span><span><strong style="color:var(--text)">Sync across devices</strong> — log on your phone, review on your tablet</span></div>
+      <div style="font-size:13px;color:var(--text-dim);display:flex;gap:8px;align-items:flex-start"><span>🚀</span><span><strong style="color:var(--text)">Support development</strong> — early access to new challenges and features</span></div>
+    </div>
     ${_cloudAuthError ? `<div class="cloud-auth-error">${esc(_cloudAuthError)}</div>` : ""}
-    ${_cloudAuthLoading ? `<div style="text-align:center;padding:16px;color:var(--text-dim);font-size:14px">Loading…</div>` : `
+    ${_cloudAuthLoading ? `<div style="text-align:center;padding:12px;color:var(--text-dim);font-size:14px">Loading…</div>` : `
     <label class="field" style="margin-bottom:10px">
       Email
       <input id="cloud-email" type="email" placeholder="your@email.com" autocomplete="email" inputmode="email">
     </label>
     <label class="field" style="margin-bottom:14px">
       Password <span style="font-size:11px;font-weight:400;color:var(--text-dim)">(min 8 characters)</span>
-      <input id="cloud-password" type="password" placeholder="••••••••" autocomplete="current-password">
+      <input id="cloud-password" type="password" placeholder="Choose a password" autocomplete="new-password">
     </label>
     <div style="display:flex;gap:8px">
       <button class="secondary-button" style="flex:1" data-cloud-signin>Sign In</button>
-      <button class="primary-button" style="flex:1" data-cloud-signup>Create Account</button>
+      <button class="primary-button" style="flex:1" data-cloud-signup>Create Account →</button>
     </div>`}
   </div>`;
 }
+
+function renderCloudSync() { return ""; }
 
 function renderSettings() {
   const u = state.settings.units;
@@ -4593,7 +4624,7 @@ function renderSettings() {
       <div style="margin-bottom:12px"><strong style="color:var(--text)">🏔 Phases</strong> — Longer challenges are split into phases so the finish line always feels reachable. Each phase completion is celebrated.</div>
       <div><strong style="color:var(--text)">🏅 Badges</strong> — Earn badges for streaks, weekly goals, and challenge completions. Proof of everything you've built.</div>
     </div>
-    ${renderCloudSync()}
+    ${renderProSection()}
     ${renderReminderSettings()}
     ${renderDataSettings()}
   </main>`;
@@ -4647,7 +4678,7 @@ function bindEvents() {
   });
   on("[data-open-builder]", () => { builderOpen=true; builderStep="template"; builderForm=defaultBuilderForm(); render(); });
   on("[data-close-builder]",() => { builderOpen=false; render(); });
-  on("[data-open-settings]",() => { settingsOpen=true; render(); });
+  on("[data-open-settings]",() => { settingsOpen=!settingsOpen; render(); });
   on("[data-close-settings]",()=>{ settingsOpen=false; render(); });
   on("[data-preview-onboarding]", () => { settingsOpen=false; _obAuthError=""; _obAuthMode="signup"; onboardingStep=0; render(); });
   on("[data-view-challenge]",el=>{ viewChallengeId=el.dataset.viewChallenge; challengeDetailView="weeks"; calendarViewMonth=null; render(); });
