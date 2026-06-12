@@ -104,59 +104,66 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 /* ── Hero ─────────────────────────────────── */
 
-.hero { margin-bottom: 16px; }
+.hero { margin-bottom: 12px; }
 
-.day-label {
+/* compact single-row title: challenge name left, day count right */
+.hero-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.hero-challenge-name {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-faint);
-  margin-bottom: 4px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.day-count {
-  font-size: 42px;
-  line-height: 1;
+.hero-day-badge {
+  font-size: 26px;
   font-weight: 700;
   background: var(--gradient);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.subtitle {
-  margin-top: 6px;
-  font-size: 13px;
+.hero-day-of {
+  font-size: 0.5em;
+  font-weight: 300;
+  opacity: 0.65;
+}
+
+/* single meta line: phase name · days left · Edit */
+.hero-meta {
+  margin-top: 5px;
+  font-size: 12px;
   font-weight: 300;
   color: var(--text-dim);
 }
 
-.phase-chip {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  padding: 2px 9px;
-  border-radius: 20px;
-  margin-bottom: 6px;
-  opacity: .85;
-}
-
 .greeting {
-  margin-top: 2px;
+  margin-top: 4px;
   font-size: 12px;
   font-weight: 300;
   color: var(--text-dim);
 }
 
 .journey-track {
-  height: 3px;
-  margin-top: 14px;
+  height: 4px;
+  margin-top: 6px;
   overflow: hidden;
   border-radius: 999px;
   background: var(--track);
@@ -168,6 +175,14 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   border-radius: inherit;
   background: var(--gradient);
   transition: width 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* tomorrow hook inside completion banner */
+.cb-tomorrow {
+  margin-top: 5px;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 300;
 }
 
 .milestone {
@@ -1390,7 +1405,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 @media (max-width: 420px) {
   .app-shell { padding-left: 14px; padding-right: 14px; }
-  .day-count { font-size: 36px; }
+  .hero-day-badge { font-size: 22px; }
   .ring-wrap  { width: min(70vw, 240px); }
   .ring-stats { width: min(70vw, 240px); }
   .metric-value { font-size: 18px; }
@@ -2746,8 +2761,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   padding: 8px 0 4px;
 }
 .date-nav-arrow {
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -3409,6 +3424,10 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   margin-bottom: 14px; font-size: 13px;
 }
 .comeback-banner strong { color: var(--success); }
+.comeback-banner--soft {
+  background: rgba(200,200,255,0.05);
+  border-color: rgba(200,200,255,0.12);
+}
 
 
 /* ── Points explainer in builder ── */
@@ -3576,8 +3595,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 10px 14px 12px;
-  margin-bottom: 14px;
+  padding: 8px 14px 10px;
+  margin-bottom: 12px;
 }
 
 .xp-bar-header {
@@ -3608,10 +3627,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .xp-bar-total {
-  font-size: 10px;
-  color: var(--text-dim);
-  text-align: right;
-  margin-top: 4px;
+  display: none;
 }
 
 .xp-bar-track {
@@ -4137,5 +4153,269 @@ details[open] .badge-locked-summary::before {
   color: var(--text-dim);
   font-weight: 600;
   white-space: nowrap;
+}
+
+/* ── Badge unlock sheet ── */
+@keyframes badge-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.badge-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.78);
+  z-index: 3000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: badge-overlay-in 200ms ease;
+}
+.badge-sheet {
+  background: var(--panel);
+  border-radius: 20px 20px 0 0;
+  padding: 32px 24px 44px;
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  animation: sheet-up 300ms cubic-bezier(0.22,1,0.36,1);
+}
+.badge-sheet-icon    { font-size: 56px; margin-bottom: 12px; }
+.badge-sheet-tier    { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px; }
+.badge-sheet-title   { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
+.badge-sheet-desc    { font-size: 14px; font-weight: 300; color: var(--text-dim); margin-bottom: 14px; }
+.badge-sheet-congrats { font-size: 13px; color: var(--text-faint); margin-bottom: 22px; }
+.badge-sheet-cta     { max-width: 240px; margin: 0 auto; }
+
+/* ── Hero streak chip ── */
+.hero-streak-chip {
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(255,130,40,0.15);
+  color: #ff8228;
+  border-radius: 20px;
+  padding: 2px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Almost-there badge chip ── */
+.almost-badge-chip {
+  background: rgba(255,200,0,0.08);
+  border: 1px solid rgba(255,200,0,0.22);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffcb2d;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* ── Backup nudge card ── */
+.backup-nudge {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.backup-nudge-close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+}
+.backup-nudge-icon  { font-size: 26px; margin-bottom: 4px; }
+.backup-nudge-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.backup-nudge-sub   { font-size: 12px; font-weight: 300; color: var(--text-dim); }
+
+/* ── Builder quiz ── */
+.builder-quiz { padding: 4px 0; }
+.bq-title     { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+.bq-sub       { font-size: 13px; font-weight: 300; color: var(--text-dim); margin-bottom: 24px; }
+.bq-question  { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px; }
+.bq-options   { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.bq-options--row { flex-direction: row; flex-wrap: wrap; }
+.bq-opt {
+  background: var(--panel);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+.bq-opt--active {
+  border-color: var(--accent);
+  background: rgba(79,255,180,0.08);
+}
+.bq-opt--sm   { padding: 8px 14px; font-size: 13px; }
+.bq-opt-emoji { font-size: 20px; }
+
+/* ── Builder notification request ── */
+.builder-notif-request {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 14px;
+}
+
+/* ── Builder sticky CTA footer ── */
+.builder-cta-footer {
+  position: sticky;
+  bottom: 0;
+  background: var(--bg);
+  padding: 12px 0 20px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+/* ── Post-start notification prompt ── */
+.notif-prompt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.notif-prompt-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+}
+.notif-prompt {
+  position: relative;
+  background: var(--panel);
+  border-radius: 20px 20px 0 0;
+  padding: 32px 24px 44px;
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  animation: sheet-up 300ms cubic-bezier(0.22,1,0.36,1);
+}
+.notif-prompt-icon  { font-size: 44px; margin-bottom: 12px; }
+.notif-prompt-title { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
+.notif-prompt-sub   { font-size: 14px; font-weight: 300; color: var(--text-dim); line-height: 1.55; }
+.notif-prompt-skip-btn { display: block; margin: 12px auto 0; font-size: 13px; color: var(--text-faint); }
+
+/* ── Template duration filter ── */
+.template-filter-bar {
+  display: flex;
+  gap: 8px;
+  padding: 0 0 14px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.template-filter-bar::-webkit-scrollbar { display: none; }
+.template-filter-tab {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+}
+.template-filter-tab.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ── Builder quickstart screen ── */
+.builder-quickstart { padding-bottom: 120px; }
+.bqs-hero {
+  text-align: center;
+  padding: 24px 0 20px;
+}
+.bqs-emoji  { font-size: 56px; line-height: 1; margin-bottom: 8px; }
+.bqs-tier   { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+.bqs-name   { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+.bqs-meta   { font-size: 13px; color: var(--text-dim); }
+.bqs-habits { margin: 16px 0; }
+.bqs-habit-row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text);
+}
+.bqs-habit-row:last-child { border-bottom: none; }
+.bqs-desc {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin-top: 12px;
+  text-align: center;
+}
+
+/* ── XP bar explainer ── */
+.xp-bar-explainer {
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* ── Comeback banner "still running" ── */
+.cb-alive {
+  color: var(--success);
+  font-weight: 600;
+}
+
+/* ── Stats collapsible ── */
+.stats-collapsible { margin: 8px 0; }
+.stats-collapse-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 13px;
+  cursor: pointer;
+}
+.stats-collapse-label { font-weight: 600; }
+.stats-collapse-chevron {
+  font-size: 18px;
+  display: inline-block;
+  transition: transform 200ms ease;
+}
+
+/* ── Saved flash indicator ── */
+.saved-flash {
+  color: var(--success);
+  font-weight: 700;
+  font-size: 12px;
+  animation: fade-in-out 1.2s ease forwards;
+}
+@keyframes fade-in-out {
+  0%   { opacity: 0; }
+  15%  { opacity: 1; }
+  75%  { opacity: 1; }
+  100% { opacity: 0; }
 }
 

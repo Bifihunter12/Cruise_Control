@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.11.10";
+const APP_VERSION = "2026.06.12.04";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -1270,6 +1270,12 @@ let _shareModalChallenge = null;    // challenge shown in share card modal
 let _shareModalDone      = false;   // true = challenge completion card, false = streak card
 let _shareCardDataUrl    = null;    // cached base64 PNG of the last drawn share card
 let _notifNudgeDismissed = false;   // dismissal flag for the Day-3 notification nudge
+let builderQuizAnswers   = { goal: null, time: null, level: null };
+let _badgeSheetQueue     = [];       // { label, desc, tier } — queued badge celebrations
+let _notifPromptVisible  = false;   // post-challenge-start notification prompt
+let _templateFilter      = "all";   // "all" | "short" | "medium" | "long"
+let _statsCollapsed      = null;    // null = auto (collapse Day 1-2), true/false = user override
+let _savedFlash          = false;   // brief "Saved ✓" indicator after habit tap
 let _obAuthError      = "";    // error message for onboarding account screen
 let _obAuthLoading    = false; // loading spinner for onboarding account screen
 let _obAuthMode       = "signup"; // "signup" | "signin" on the account screen
@@ -1940,7 +1946,7 @@ function checkBadges(challenge) {
   tBadges.forEach(b => {
     if (!challenge.badges.includes(b.id) && b.test(cCtx)) {
       challenge.badges.push(b.id);
-      showToast(`${b.label} earned!`);
+      _badgeSheetQueue.push({ label: b.label, desc: b.desc || "", tier: TEMPLATE_TIERS[challenge.templateId] || "common" });
       earned = true;
       // Completion badge → finalise challenge status and queue the modal
       if (b.id.endsWith("-done") && challenge.status !== "completed") {
@@ -1989,7 +1995,7 @@ function checkBadges(challenge) {
   UNIVERSAL_BADGES.forEach(b => {
     if (!state.globalBadges.includes(b.id) && b.test(uCtx)) {
       state.globalBadges.push(b.id);
-      showToast(`${b.label} earned!`);
+      _badgeSheetQueue.push({ label: b.label, desc: b.desc || "", tier: "uncommon" });
       earned = true;
     }
   });
@@ -2036,7 +2042,7 @@ function checkBadges(challenge) {
   LIFETIME_BADGES.forEach(b => {
     if (!state.globalBadges.includes(b.id) && b.test(lCtx)) {
       state.globalBadges.push(b.id);
-      showToast(`${b.label} earned!`);
+      _badgeSheetQueue.push({ label: b.label, desc: b.desc || "", tier: "rare" });
       earned = true;
     }
   });
@@ -2058,8 +2064,10 @@ function checkStreakFreezeAward(challenge, weeks) {
   if (pts >= challenge.weeklyGoal) {
     challenge.streakFreezes = (challenge.streakFreezes || 0) + 1;
     if (!challenge.streakFreezeWeeksAwarded) challenge.streakFreezeWeeksAwarded = [];
+    const isFirst = challenge.streakFreezeWeeksAwarded.length === 0;
     challenge.streakFreezeWeeksAwarded.push(weekKey);
-    showToast("❄️ Streak Freeze earned — weekly goal hit!");
+    showBigToast("🏅", "Weekly goal hit!", "Streak freeze banked — it protects your streak if you miss a day.");
+    if (isFirst) setTimeout(() => showToast("❄️ Streak Freeze: tap the snowflake bar on any day you miss to use it."), 3500);
     saveState();
   }
 }
@@ -2305,6 +2313,8 @@ function render() {
     if (_cc) html += renderCompletionModal(_cc);
   }
   html += renderShareModal();
+  if (_badgeSheetQueue.length > 0) html += renderBadgeSheet(_badgeSheetQueue[0]);
+  if (_notifPromptVisible) html += renderNotifPrompt();
   html += renderConfirmModal();
   if (_showInstallBanner && _pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
     html += `
@@ -2450,7 +2460,10 @@ function renderToday() {
     </div>` : ""}
     ${missedStreak >= 2 ? `
     <div class="comeback-banner">
-      <strong>Welcome back.</strong> ${missedStreak} days missed — that's okay. Today still counts.
+      <strong>Welcome back.</strong> ${missedStreak} days missed — that's okay. <span class="cb-alive">Your challenge is still running.</span> Today still counts.
+    </div>` : missedStreak === 1 ? `
+    <div class="comeback-banner comeback-banner--soft">
+      Streak paused at ${streak} days. Come back today to restart. <span class="cb-alive">Your challenge is still running.</span>
     </div>` : ""}
     <div class="date-nav">
       <button class="date-nav-arrow ${canGoBack?"":"disabled"}" data-date-back ${canGoBack?"":"disabled"} aria-label="Previous day">‹</button>
@@ -2464,53 +2477,67 @@ function renderToday() {
     </div>
     ${!isToday ? `<div class="backfill-banner">✏️ Editing ${formatDate(parseDate(effDate),{weekday:"long"})} — changes save immediately.</div>` : ""}
     <section class="hero">
-      <div class="day-label">${esc(challenge.emoji)} ${esc(challenge.name)}</div>
-      <div class="day-count">Day ${dayNumber}${totalDays ? ` <span style="font-weight:300;font-size:0.55em;color:var(--text-dim)">of ${totalDays}</span>` : ""}</div>
-      ${phaseInfo ? `<div class="phase-chip">🏔 Phase ${phaseInfo.phaseIndex}/${phaseInfo.totalPhases} — ${phaseInfo.phase.name}</div>` : ""}
-      <div class="subtitle">${challenge.noEndDate ? "Ongoing" : daysLeft > 0 ? daysLeft+" days remaining" : "Final day!"} · ${challenge.mode} mode · <button class="link-btn hero-settings-link" data-view-challenge="${challenge.id}">✏️ Edit</button></div>
-      ${isToday ? `<div class="greeting">${currentGreeting(challenge, dayNumber, streak)}</div>` : ""}
+      <div class="hero-title-row">
+        <span class="hero-challenge-name">${esc(challenge.emoji)} ${esc(challenge.name)}</span>
+        ${streak > 0 && isToday ? `<span class="hero-streak-chip">🔥${streak}</span>` : ""}
+        <span class="hero-day-badge">Day ${dayNumber}${totalDays ? `<span class="hero-day-of"> / ${totalDays}</span>` : ""}</span>
+      </div>
       ${journeyPct !== null ? `<div class="journey-track"><div class="journey-fill" style="width:${journeyPct}%"></div></div>` : ""}
+      <div class="hero-meta">${phaseInfo ? `🏔 ${phaseInfo.phase.name} · ` : ""}${challenge.noEndDate ? "Ongoing" : daysLeft > 0 ? daysLeft+" days left" : "Final day!"}${isToday ? ` · <button class="link-btn hero-settings-link" data-view-challenge="${challenge.id}">✏️ Edit</button>` : ""}</div>
+      ${isToday ? `<div class="greeting">${currentGreeting(challenge, dayNumber, streak)}</div>` : ""}
       ${isToday ? renderModeSelector(day, challenge) : ""}
     </section>
-
-    ${isToday ? renderXPBar() : ""}
-    <section class="today-stage panel">
-      ${renderRing(info, day, streak, challenge)}
-      ${isToday ? renderStreakFreezeUI(challenge) : ""}
-      ${renderCompleteBanner(day, info, challenge)}
-      ${info.done===0 ? (() => {
-        const isExped = challenge.habits.some(h => h.type === "distance");
-        if (isExped) return `<p class="empty-copy">No distance logged yet — enter your km below.</p>`;
-        if (dayNumber === 1) return `<p class="empty-copy">Day 1. Pick your first habit below. The journey starts now. 🚀</p>`;
-        if (streak >= 3)     return `<p class="empty-copy">Day ${dayNumber} — ${streak}-day streak. Keep it alive.</p>`;
-        if (dayNumber <= 7)  return `<p class="empty-copy">Day ${dayNumber}. Make today count.</p>`;
-        return `<p class="empty-copy">Nothing logged yet. What's first?</p>`;
-      })() : ""}
-    </section>
-
-    ${isToday && dayNumber >= 3 && !_notifNudgeDismissed && ("Notification" in window) && Notification.permission === "default" ? `
-    <div class="notif-nudge" data-notif-nudge>
-      <span class="notif-nudge-icon">🔔</span>
-      <span class="notif-nudge-text">Never miss a day — <button class="notif-nudge-link" data-request-notif-permission>enable reminders</button></span>
-      <button class="notif-nudge-close" data-dismiss-notif-nudge aria-label="Dismiss">×</button>
-    </div>` : ""}
-
-    ${isToday ? renderWeeklyGoalBar(challenge) : ""}
 
     <section>
       <div class="section-head">
         ${challenge.habits.some(h => h.type === "distance")
           ? `<div class="section-label" style="margin:0">Distance</div>`
           : `<div class="section-label" style="margin:0">Habits</div>
-             <div style="font-size:12px;font-weight:300;color:var(--text-dim)">${info.done} / ${info.total}</div>`}
+             <div style="font-size:12px;font-weight:300;color:var(--text-dim)">${_savedFlash ? `<span class="saved-flash">Saved ✓</span>` : dayNumber === 1 && info.done === 0 ? "Tap to log your first day →" : `${info.done} / ${info.total}`}</div>`}
       </div>
       <div class="habit-list">
         ${challenge.habits.map(h => renderHabit(h, day, challenge)).join("")}
       </div>
     </section>
+    ${isToday ? renderAlmostThereBadge(challenge, streak) : ""}
+    ${(() => {
+      // Only one nudge at a time: backup (Day 7+, no account) beats notif nudge
+      if (!isToday) return "";
+      if (shouldShowBackupNudge(challenge)) return renderBackupNudge(challenge);
+      if (dayNumber >= 3 && !_notifNudgeDismissed && ("Notification" in window) && Notification.permission === "default") {
+        return `<div class="notif-nudge" data-notif-nudge>
+          <span class="notif-nudge-icon">🔔</span>
+          <span class="notif-nudge-text">Never miss a day — <button class="notif-nudge-link" data-request-notif-permission>enable reminders</button></span>
+          <button class="notif-nudge-close" data-dismiss-notif-nudge aria-label="Dismiss">×</button>
+        </div>`;
+      }
+      return "";
+    })()}
     ${(() => {
       const tpl = challenge.templateId ? TEMPLATES.find(t=>t.id===challenge.templateId) : null;
       return tpl?.routeKm ? renderRouteProgress(challenge, tpl) : "";
+    })()}
+
+    ${(() => {
+      const autoCollapse = dayNumber <= 2;
+      const collapsed = _statsCollapsed === null ? autoCollapse : _statsCollapsed;
+      const chevron = collapsed ? "›" : "‹";
+      return `
+    <div class="stats-collapsible">
+      <button class="stats-collapse-toggle" data-toggle-stats aria-expanded="${!collapsed}">
+        <span class="stats-collapse-label">📊 Stats</span>
+        <span class="stats-collapse-chevron" style="transform:rotate(${collapsed?"90deg":"270deg"})">${chevron}</span>
+      </button>
+      ${!collapsed ? `
+        ${isToday ? renderXPBar() : ""}
+        <section class="today-stage panel">
+          ${renderRing(info, day, streak, challenge)}
+          ${isToday ? renderStreakFreezeUI(challenge) : ""}
+          ${renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToday)}
+        </section>
+        ${isToday ? renderWeeklyGoalBar(challenge) : ""}
+      ` : ""}
+    </div>`;
     })()}
   </main>`;
 }
@@ -2701,7 +2728,7 @@ function renderRing(info, day, streak, challenge) {
     <div class="ring-stat-sep"></div>
     <div class="ring-stat">
       <div class="ring-stat-value">${challengePts}</div>
-      <div class="ring-stat-label">challenge pts</div>
+      <div class="ring-stat-label">points</div>
     </div>`}
     <div class="ring-stat-sep"></div>
     <div class="ring-stat">
@@ -3024,7 +3051,7 @@ function renderWeightChip() {
   return `<button class="weight-chip" data-tab="body">⚖️ Log weight</button>`;
 }
 
-function renderCompleteBanner(day, info, challenge) {
+function renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToday) {
   if (info.done!==info.total || info.total===0) return "";
   const isExpedition = challenge?.habits.some(h => h.type === "distance");
   if (day.mode==="rest") return `<div class="complete-banner rest-complete"><span class="cb-icon">😴</span><div class="cb-body"><div class="cb-title">Rest Day</div><div class="cb-sub">Recover. Come back stronger.</div></div></div>`;
@@ -3050,7 +3077,10 @@ function renderCompleteBanner(day, info, challenge) {
   }
   const currentStreak = challenge ? calcChallengeStreak(challenge) : 0;
   const streakShare = currentStreak >= 2 ? `<button class="cb-share-btn" data-share-streak>📤 Share streak</button>` : "";
-  return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">Full Send</div><div class="cb-sub">All habits done · ${info.points} pts</div>${streakShare}</div></div>`;
+  const tomorrowHook = isToday && dayNumber && totalDays && dayNumber < totalDays
+    ? `<div class="cb-tomorrow">Day ${dayNumber + 1} tomorrow — 🔥 keep the streak alive</div>`
+    : "";
+  return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">Full Send</div><div class="cb-sub">All habits done · ${info.points} pts</div>${tomorrowHook}${streakShare}</div></div>`;
 }
 
 function renderXPBar() {
@@ -3071,7 +3101,7 @@ function renderXPBar() {
     <div class="xp-bar-track" role="progressbar" aria-valuenow="${info.pct}" aria-valuemin="0" aria-valuemax="100">
       <div class="xp-bar-fill" style="width:${info.pct}%"></div>
     </div>
-    <div class="xp-bar-total">${state.xp.toLocaleString()} XP total</div>
+    <div class="xp-bar-explainer">Points fuel your weekly goal · XP builds your level forever</div>
   </div>`;
 }
 
@@ -3860,6 +3890,78 @@ function renderMonthCalendar(challenge) {
   </div>`;
 }
 
+// ── Builder Quiz ──────────────────────────────────────────────────────────
+
+function getQuizRecommendation(q) {
+  const { goal, time, level } = q;
+  if (goal === "fitness" && level === "hardcore" && (time === "60" || time === "90")) return "75-hard";
+  if (goal === "fitness" && level === "hardcore") return "cruise-control";
+  if (goal === "fitness" && level === "some" && (time === "60" || time === "90")) return "strength";
+  if (goal === "fitness" && level === "some") return "running";
+  if (goal === "fitness" && level === "beginner") return "morning-routine";
+  if (goal === "fitness") return "morning-routine";
+  if (goal === "discipline" && level === "hardcore") return "75-hard";
+  if (goal === "discipline" && level === "some") return "monk-mode";
+  if (goal === "discipline") return "digital-detox";
+  if (goal === "wellness") return "morning-routine";
+  if (goal === "routine") return "morning-routine";
+  return "morning-routine";
+}
+
+function renderBuilderQuiz() {
+  const q = builderQuizAnswers;
+  const ready = q.goal && q.time && q.level;
+  const goalOpts  = [
+    { id:"fitness",    label:"Get physically fitter",         emoji:"💪" },
+    { id:"discipline", label:"Build daily discipline",        emoji:"🎯" },
+    { id:"wellness",   label:"Mental health & mindfulness",   emoji:"🧘" },
+    { id:"routine",    label:"Build a morning routine",       emoji:"🌅" },
+  ];
+  const timeOpts  = [
+    { id:"15", label:"15–30 min" },
+    { id:"30", label:"30–60 min" },
+    { id:"60", label:"60–90 min" },
+    { id:"90", label:"90 min+"  },
+  ];
+  const levelOpts = [
+    { id:"beginner", label:"Beginner — just starting out" },
+    { id:"some",     label:"Some experience"              },
+    { id:"hardcore", label:"Experienced — I push hard"   },
+  ];
+  return `
+  <div class="builder-quiz">
+    <div class="bq-title">Find your challenge</div>
+    <div class="bq-sub">3 quick questions → 1 perfect match</div>
+
+    <div class="bq-question">What's your main goal?</div>
+    <div class="bq-options">
+      ${goalOpts.map(o=>`
+      <button class="bq-opt${q.goal===o.id?" bq-opt--active":""}" data-quiz-goal="${o.id}">
+        <span class="bq-opt-emoji">${o.emoji}</span>${o.label}
+      </button>`).join("")}
+    </div>
+
+    <div class="bq-question">How much time can you commit per day?</div>
+    <div class="bq-options bq-options--row">
+      ${timeOpts.map(o=>`
+      <button class="bq-opt bq-opt--sm${q.time===o.id?" bq-opt--active":""}" data-quiz-time="${o.id}">${o.label}</button>`).join("")}
+    </div>
+
+    <div class="bq-question">Your experience with habit challenges?</div>
+    <div class="bq-options">
+      ${levelOpts.map(o=>`
+      <button class="bq-opt${q.level===o.id?" bq-opt--active":""}" data-quiz-level="${o.id}">${o.label}</button>`).join("")}
+    </div>
+
+    <button class="primary-button" style="margin-top:20px" data-quiz-find ${ready?"":"disabled style='opacity:.35'"}>
+      ${ready ? "Find my challenge →" : "Answer all 3 to continue"}
+    </button>
+    <div style="text-align:center;margin-top:10px">
+      <button class="link-btn" data-quiz-skip>Skip — browse all challenges →</button>
+    </div>
+  </div>`;
+}
+
 // ── Builder ───────────────────────────────────────────────────────────────
 
 function renderBuilder() {
@@ -3870,11 +3972,13 @@ function renderBuilder() {
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
       <div style="font-size:16px;font-weight:700">
-        ${builderStep==="template"?"Choose Challenge":builderStep==="customize"?"Customize":"Review"}
+        ${builderStep==="quiz"?"Find Your Challenge":builderStep==="template"?"Choose Challenge":builderStep==="quickstart"?"Ready to Start?":"Customise"}
       </div>
     </div>
-    ${builderStep==="template" ? renderBuilderTemplates() : ""}
-    ${builderStep==="customize" ? renderBuilderCustomize() : ""}
+    ${builderStep==="quiz"       ? renderBuilderQuiz()        : ""}
+    ${builderStep==="template"   ? renderBuilderTemplates()   : ""}
+    ${builderStep==="quickstart" ? renderBuilderQuickstart()  : ""}
+    ${builderStep==="customize"  ? renderBuilderCustomize()   : ""}
   </main>`;
 }
 
@@ -3890,6 +3994,18 @@ function renderBuilderTemplates() {
   const orderedCats = challengeSubTab === "expeditions"
     ? [cats.find(c => c.id === "expedition"), ...cats.filter(c => c.id !== "expedition")]
     : cats;
+  const filterTabs = [
+    { id:"all",    label:"All" },
+    { id:"short",  label:"≤30 days" },
+    { id:"medium", label:"31–60 days" },
+    { id:"long",   label:"61+ days" },
+  ];
+  const passesFilter = t => {
+    if (_templateFilter === "short")  return t.duration <= 30;
+    if (_templateFilter === "medium") return t.duration > 30 && t.duration <= 60;
+    if (_templateFilter === "long")   return t.duration > 60;
+    return true;
+  };
   const templateCard = t => {
     const isExpedition = t.category === "expedition";
     const distHabit    = t.habits?.find(h => h.type === "distance");
@@ -3912,13 +4028,17 @@ function renderBuilderTemplates() {
       <div class="tc-desc">${t.description}</div>
     </button>`;
   };
-  return orderedCats.map(cat => {
-    const group = TEMPLATES.filter(t => t.category === cat.id);
+  const filterBar = `<div class="template-filter-bar">${
+    filterTabs.map(f => `<button class="template-filter-tab${_templateFilter===f.id?" active":""}" data-template-filter="${f.id}">${f.label}</button>`).join("")
+  }</div>`;
+  const cats = orderedCats.map(cat => {
+    const group = TEMPLATES.filter(t => t.category === cat.id && passesFilter(t));
     if (!group.length) return "";
     return `
     <div class="template-cat-label">${cat.label}</div>
     <div class="template-grid">${group.map(templateCard).join("")}</div>`;
-  }).join("") + `
+  }).join("");
+  const customSection = _templateFilter === "all" ? `
   <div class="template-cat-label">✏️ Custom</div>
   <div class="template-grid">
     <button class="template-card" data-select-template="custom">
@@ -3927,7 +4047,8 @@ function renderBuilderTemplates() {
       <div class="tc-meta">Any duration</div>
       <div class="tc-desc">Build your own challenge from scratch.</div>
     </button>
-  </div>`;
+  </div>` : "";
+  return filterBar + cats + customSection;
 }
 
 function renderBuilderCustomize() {
@@ -3985,7 +4106,7 @@ function renderBuilderCustomize() {
       </label>`;
     })()}
     <label class="field" style="margin-bottom:4px">
-      Weekly point goal
+      Weekly goal <span style="font-size:11px;font-weight:300;color:var(--text-dim)">points — auto-set for this challenge</span>
       <input id="bf-goal" type="number" value="${builderForm.weeklyGoal}" min="10" max="500">
     </label>
     ${(() => {
@@ -4059,11 +4180,18 @@ function renderBuilderCustomize() {
       <div class="pts-explainer-title">⭐ How points work</div>
       <div class="pts-explainer-body">Check off habits to earn points. Hit your weekly goal to earn badges. Points reset every Monday — your streak doesn't.</div>
     </div>
-    <div class="builder-reminder-hint">💡 <strong>Set a daily reminder</strong> after you start — users who do are far more likely to finish. Find it in <em>⚙️ Settings → Reminders</em>.</div>
-    <button class="primary-button" style="margin-top:16px" data-start-challenge>
-      Start Challenge 🚀
-    </button>
-    <button class="secondary-button" style="margin-top:8px" data-builder-back>← Back</button>
+    ${("Notification" in window) && Notification.permission === "default" ? `
+    <div class="builder-notif-request">
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px">🔔 Enable daily reminders?</div>
+      <div class="mode-desc" style="margin-bottom:8px">People who enable reminders are far more likely to finish. Takes one tap.</div>
+      <button class="secondary-button" style="width:100%" data-request-notif-from-builder>Enable Reminders</button>
+    </div>` : ("Notification" in window) && Notification.permission === "granted" ? `
+    <div class="builder-reminder-hint">✅ Reminders on — we'll notify you at ${state.settings.reminderTime || "20:00"}.</div>` : `
+    <div class="builder-reminder-hint">💡 Enable daily reminders in ⚙️ Settings after you start — it's the best habit for actually finishing.</div>`}
+    <div class="builder-cta-footer">
+      <button class="primary-button" data-start-challenge>Start Challenge 🚀</button>
+      <button class="secondary-button" style="margin-top:8px" data-builder-back>← Back</button>
+    </div>
   </div>`;
 }
 
@@ -4301,12 +4429,68 @@ function renderBadgeCat(label, defs, earned, templateId) {
       <span class="badge-cat-count">${count} / ${defs.length}</span>
     </div>
     ${earnedDefs.length ? `<div class="badge-grid">${earnedDefs.map(renderBadgeTile).join("")}</div>` : ""}
-    ${lockedDefs.length ? `
-    <details class="badge-locked-details">
-      <summary class="badge-locked-summary">${count === 0 ? "Show all" : "Show locked"} (${lockedDefs.length})</summary>
-      <div class="badge-grid badge-grid--locked">${lockedDefs.map(renderBadgeTile).join("")}</div>
-    </details>` : ""}
+    ${lockedDefs.length ? `<div class="badge-grid badge-grid--locked">${lockedDefs.map(renderBadgeTile).join("")}</div>` : ""}
   </div>`;
+}
+
+function renderNotifPrompt() {
+  return `
+  <div class="notif-prompt-overlay">
+    <div class="notif-prompt-backdrop" data-notif-prompt-skip></div>
+    <div class="notif-prompt" role="dialog" aria-modal="true">
+      <div class="notif-prompt-icon">🔔</div>
+      <div class="notif-prompt-title">Stay on track</div>
+      <div class="notif-prompt-sub">People who enable daily reminders are 3× more likely to finish their challenge.</div>
+      <button class="primary-button" style="margin-top:20px" data-notif-prompt-enable>Enable Reminders</button>
+      <button class="link-btn notif-prompt-skip-btn" data-notif-prompt-skip>I'll risk forgetting →</button>
+    </div>
+  </div>`;
+}
+
+function renderBadgeSheet(badge) {
+  const td = TIERS[badge.tier] || TIERS.common;
+  const parts = badge.label.match(/^(\S+)\s*(.*)/);
+  const icon  = parts ? parts[1] : badge.label;
+  const title = parts ? parts[2] : "";
+  return `
+  <div class="badge-sheet-overlay" data-close-badge-sheet>
+    <div class="badge-sheet" role="dialog" aria-modal="true" aria-label="Badge earned">
+      <div class="badge-sheet-icon">${icon}</div>
+      <div class="badge-sheet-tier" style="color:${td.color}">${td.label}</div>
+      <div class="badge-sheet-title">${esc(title)}</div>
+      <div class="badge-sheet-desc">${esc(badge.desc)}</div>
+      <div class="badge-sheet-congrats">Achievement unlocked! 🎉</div>
+      <button class="primary-button badge-sheet-cta" data-close-badge-sheet>Awesome!</button>
+    </div>
+  </div>`;
+}
+
+function shouldShowBackupNudge(challenge) {
+  if (localStorage.getItem("conqur_backup_nudge_dismissed")) return false;
+  if (CloudSync.isSignedIn) return false;
+  return challengeDayNumber(challenge) >= 7;
+}
+
+function renderBackupNudge(challenge) {
+  if (!shouldShowBackupNudge(challenge)) return "";
+  return `
+  <div class="backup-nudge">
+    <button class="backup-nudge-close" data-dismiss-backup-nudge aria-label="Dismiss">×</button>
+    <div class="backup-nudge-icon">☁️</div>
+    <div class="backup-nudge-body">
+      <div class="backup-nudge-title">Protect your progress</div>
+      <div class="backup-nudge-sub">You've built a solid streak — back it up so you never lose it.</div>
+    </div>
+    <button class="secondary-button" style="margin-top:8px;width:100%" data-preview-onboarding>Back up free →</button>
+  </div>`;
+}
+
+function renderAlmostThereBadge(challenge, streak) {
+  const milestones = [7, 14, 21, 30, 50, 75];
+  const next = milestones.find(m => m > streak && (m - streak) <= 2);
+  if (!next) return "";
+  const diff = next - streak;
+  return `<div class="almost-badge-chip">🏅 ${diff === 1 ? "One more day" : "2 days"} to unlock your ${next}-day badge!</div>`;
 }
 
 // ── Settings ──────────────────────────────────────────────────────────────
@@ -4676,7 +4860,7 @@ function bindEvents() {
     viewingDate = next >= todayKey() ? null : next;
     render();
   });
-  on("[data-open-builder]", () => { builderOpen=true; builderStep="template"; builderForm=defaultBuilderForm(); render(); });
+  on("[data-open-builder]", () => { builderOpen=true; builderStep="quiz"; builderQuizAnswers={goal:null,time:null,level:null}; builderForm=defaultBuilderForm(); render(); });
   on("[data-close-builder]",() => { builderOpen=false; render(); });
   on("[data-open-settings]",() => { settingsOpen=!settingsOpen; render(); });
   on("[data-close-settings]",()=>{ settingsOpen=false; render(); });
@@ -4729,7 +4913,23 @@ function bindEvents() {
     const desc = row?.querySelector(".mode-desc");
     if (desc) desc.textContent = builderForm.jokerBudget === 0 ? "Zero compromise — no rest days." : `${builderForm.jokerBudget} planned day${builderForm.jokerBudget===1?"":"s"} off. Use them wisely.`;
   });
-  on("[data-builder-back]", () => { builderStep="template"; render(); });
+  on("[data-builder-back]", () => {
+    if (builderStep === "customize")  { builderStep = "quickstart"; render(); }
+    else if (builderStep === "quickstart") { builderStep = "template"; render(); }
+    else { builderStep = "quiz"; render(); }
+  });
+  on("[data-quickstart-customise]", () => { builderStep = "customize"; render(); });
+  on("[data-template-filter]", el => { _templateFilter = el.dataset.templateFilter; render(); });
+  on("[data-quiz-goal]",  el => { builderQuizAnswers.goal  = el.dataset.quizGoal;  render(); });
+  on("[data-quiz-time]",  el => { builderQuizAnswers.time  = el.dataset.quizTime;  render(); });
+  on("[data-quiz-level]", el => { builderQuizAnswers.level = el.dataset.quizLevel; render(); });
+  on("[data-quiz-find]",  () => { selectTemplate(getQuizRecommendation(builderQuizAnswers)); });
+  on("[data-quiz-skip]",  () => { builderStep="template"; render(); });
+  on("[data-request-notif-from-builder]", () => requestNotificationPermission());
+  on("[data-close-badge-sheet]",    () => { _badgeSheetQueue.shift(); render(); });
+  on("[data-dismiss-backup-nudge]", () => { localStorage.setItem("conqur_backup_nudge_dismissed","1"); render(); });
+  on("[data-notif-prompt-enable]",  async () => { _notifPromptVisible = false; await requestNotificationPermission(); render(); });
+  on("[data-notif-prompt-skip]",    () => { _notifPromptVisible = false; render(); });
   on("[data-start-challenge]",() => startChallenge());
   on("[data-add-habit]",    () => { saveBuilderFormFromDOM(); addCustomHabit(); });
   on("[data-remove-habit]", el => { saveBuilderFormFromDOM(); removeCustomHabit(Number(el.dataset.removeHabit)); });
@@ -4811,6 +5011,15 @@ function bindEvents() {
   });
   on("[data-cloud-signout]",   () => { CloudSync.signOut(); _cloudAuthError = ""; render(); });
   on("[data-dismiss-newweek]", () => { _newWeekBanner = null; render(); });
+  on("[data-toggle-stats]", () => {
+    const autoCollapse = (() => {
+      const c = currentChallenge(); if (!c) return false;
+      return challengeDayNumber(c) <= 2;
+    })();
+    const currentlyCollapsed = _statsCollapsed === null ? autoCollapse : _statsCollapsed;
+    _statsCollapsed = !currentlyCollapsed;
+    render();
+  });
   on("[data-install-accept]",  async () => {
     _showInstallBanner = false; render();
     if (_pwaInstallPrompt) {
@@ -5208,9 +5417,11 @@ function toggleHabit(id) {
     showToast(`⚡ +${xpGain} XP`);
   }
   saveState(); navigator.vibrate?.(10);
+  _savedFlash = true;
   checkBadges(c);
   checkMilestones(c);
   render();
+  setTimeout(() => { _savedFlash = false; render(); }, 1200);
 }
 
 function logMeasurement(habitId, value) {
@@ -5374,8 +5585,37 @@ function selectTemplate(id) {
   builderForm.weeklyGoal = template ? template.weeklyGoal : 100;
   builderForm.endDate = addDays(builderForm.startDate, (template?template.duration:30)-1);
   builderForm.habits = [];
-  builderStep = "customize";
+  // Custom challenges always go straight to customize; templates get the quickstart screen
+  builderStep = (id === "custom") ? "customize" : "quickstart";
   render();
+}
+
+function renderBuilderQuickstart() {
+  const template = TEMPLATES.find(t => t.id === builderForm.templateId);
+  if (!template) { builderStep = "customize"; render(); return ""; }
+  const tier = TEMPLATE_TIERS[template.id] || "common";
+  const td   = TIERS[tier];
+  const dur  = diffDays(builderForm.startDate, builderForm.endDate) + 1;
+  const habits = template.habits.slice(0, 5);
+  return `
+  <div class="builder-quickstart">
+    <div class="bqs-hero">
+      <div class="bqs-emoji">${template.emoji}</div>
+      <div class="bqs-tier" style="color:${td.color}">${td.label}</div>
+      <div class="bqs-name">${esc(template.name)}</div>
+      <div class="bqs-meta">${dur} days · starts today</div>
+    </div>
+    <div class="bqs-habits">
+      ${habits.map(h => `<div class="bqs-habit-row">✓ ${esc(h.title)}</div>`).join("")}
+      ${template.habits.length > 5 ? `<div class="bqs-habit-row" style="color:var(--text-faint)">+ ${template.habits.length - 5} more habits</div>` : ""}
+    </div>
+    <div class="bqs-desc">${esc(template.description)}</div>
+    <div class="builder-cta-footer">
+      <button class="primary-button" data-start-challenge>Start ${dur}-Day Challenge 🚀</button>
+      <button class="secondary-button" style="margin-top:8px" data-quickstart-customise>Customise first →</button>
+      <button class="link-btn" style="margin-top:10px;text-align:center;display:block" data-builder-back>← Choose a different challenge</button>
+    </div>
+  </div>`;
 }
 
 function startChallenge() {
@@ -5404,6 +5644,9 @@ function startChallenge() {
   showToast(`${c.emoji} ${c.name} started!`);
   trackEvent("Challenge Started", { challenge: c.name, template: builderForm.templateId || "custom" });
   render();
+  if ("Notification" in window && Notification.permission === "default") {
+    setTimeout(() => { _notifPromptVisible = true; render(); }, 900);
+  }
 }
 
 function addCustomHabit() {
@@ -5662,20 +5905,31 @@ function showToast(msg) {
 }
 
 function currentGreeting(challenge, dayNumber, streak) {
+  const totalHabits = Object.values(state.challenges).reduce((sum, c) =>
+    sum + Object.values(c.days).reduce((s, d) => s + (d.done?.length || 0), 0), 0);
   const h = new Date().getHours();
-  const timeOfDay = h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
-  // Streak-based greetings (highest priority)
-  if (streak >= 30) return `🔥 ${streak}-day streak. Legendary.`;
-  if (streak >= 14) return `⚡ ${streak} days straight. You're on fire.`;
-  if (streak >= 7)  return `🏆 ${streak}-day streak. Don't stop now.`;
-  if (streak >= 3)  return `🔥 ${streak} days in a row. Keep it alive.`;
-  // Day-number based
-  if (dayNumber === 1) return timeOfDay === "morning" ? "Good morning — Day 1 starts now." : `Good ${timeOfDay} — Day 1. Make it count.`;
-  if (dayNumber <= 5)  return `Day ${dayNumber} — you're building momentum.`;
+  const t = h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
+  // Streak-based (highest priority — most motivating)
+  if (streak >= 50) return `🔥 ${streak}-day streak. You are in the 1%.`;
+  if (streak >= 30) return `⚡ ${streak} days straight. Most people never get here.`;
+  if (streak >= 21) return `🏆 ${streak} days. The average person quits at day 12. You didn't.`;
+  if (streak >= 14) return `🔥 ${streak} in a row. The week-one graveyard is behind you.`;
+  if (streak >= 7)  return `⚡ ${streak}-day streak. Habit is forming. Don't stop now.`;
+  if (streak >= 3)  return `🔥 ${streak} days in a row. The streak is real.`;
+  // Data-driven on total habits logged
+  if (totalHabits >= 200) return `${totalHabits} habits logged. You're not the same person you were.`;
+  if (totalHabits >= 100) return `${totalHabits} habits. 100 small decisions that add up.`;
+  if (totalHabits >= 50)  return `${totalHabits} habits logged. You've built more than you realise.`;
+  // Day-number narrative
+  if (dayNumber === 1) return `Day 1. Every legend has a first day. Make it count.`;
+  if (dayNumber <= 3)  return `Day ${dayNumber} — the hardest days are the first ones. You're in them.`;
+  if (dayNumber <= 7)  return `Day ${dayNumber} — still in the building phase. Trust the process.`;
+  if (dayNumber >= 21) return `Day ${dayNumber}. Most people never make it this far.`;
+  if (dayNumber >= 14) return `Day ${dayNumber}. Habit is forming. Keep the chain unbroken.`;
   // Time-of-day fallback
-  if (timeOfDay === "morning")   return "Good morning — the mission continues.";
-  if (timeOfDay === "afternoon") return "Afternoon check-in — how are we doing?";
-  return "Evening — let's close this out.";
+  if (t === "morning")   return `Good morning. The mission continues.`;
+  if (t === "afternoon") return `Good afternoon. Close it out strong.`;
+  return `Good evening. One more day in the books.`;
 }
 
 function isAfterSix() { return new Date().getHours()>=18; }
