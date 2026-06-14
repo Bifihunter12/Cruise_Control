@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.08";
+const APP_VERSION = "2026.06.14.09";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -4731,7 +4731,61 @@ function renderBadges() {
       }).join("")}
     </div>
     ${renderPersonalBests()}
+    ${renderConsistencyChart(allChallenges)}
   </main>`;
+}
+
+function renderConsistencyChart(allChallenges) {
+  if (!allChallenges.length) return "";
+
+  const today = todayKey();
+  // Find this week's Monday
+  const todayD = parseDate(today);
+  const dow = todayD.getDay();
+  const daysBack = dow === 0 ? 6 : dow - 1;
+  const thisMonday = addDays(today, -daysBack);
+
+  const weeks = [];
+  for (let w = 7; w >= 0; w--) {
+    const weekStart = addDays(thisMonday, -w * 7);
+    const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)).filter(d => d <= today);
+    let totalPct = 0, counted = 0;
+    for (const d of weekDays) {
+      for (const c of allChallenges) {
+        if (d < c.startDate || (!c.noEndDate && d > c.endDate)) continue;
+        const day = c.days[d];
+        if (day && day.done?.length > 0) { totalPct += completionInfo(c, day).percent; counted++; }
+      }
+    }
+    const label = w === 0 ? "Now" : `${w}w`;
+    weeks.push({ pct: counted ? Math.round(totalPct / counted) : 0, label, hasData: counted > 0 });
+  }
+
+  if (weeks.every(w => !w.hasData)) return "";
+
+  return `
+  <div class="pchart-section">
+    <div class="section-label">Habit Consistency</div>
+    <div class="pchart-wrap">
+      <div class="pchart-bars">
+        ${weeks.map(w => `
+        <div class="pchart-col">
+          <div class="pchart-bar-outer">
+            <div class="pchart-bar" style="height:${w.hasData ? Math.max(6, w.pct) : 0}%"></div>
+          </div>
+          <div class="pchart-week-label">${w.label}</div>
+        </div>`).join("")}
+      </div>
+      <div class="pchart-blur-overlay">
+        <div class="pchart-pro-content">
+          <div class="pchart-pro-icon">📊</div>
+          <div class="pchart-pro-title">Weekly consistency chart</div>
+          <div class="pchart-pro-sub">Track habit completion week over week — coming with Conqur Pro.</div>
+          <button class="pchart-pro-btn" data-tab="challenges">Join early access →</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
 }
 
 function renderBadgeCat(label, defs, earned, templateId) {
