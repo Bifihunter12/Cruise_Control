@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.06";
+const APP_VERSION = "2026.06.14.07";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;

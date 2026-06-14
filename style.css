@@ -52,11 +52,11 @@
 }
 [data-theme="martial"] {
   --bg: #040c08; --surface: #071a0e; --surface-2: #0a2214; --surface-3: #0d2a1a;
-  --primary: #10b981; --secondary: #fbbf24;
+  --primary: #10b981; --secondary: #a7f3d0;
   --text-dim: #5a9e7a; --text-faint: #2d5a42; --track: #081a0e;
   --primary-glow: rgba(16,185,129,0.28); --primary-haze: rgba(16,185,129,0.1);
   --primary-pulse: rgba(16,185,129,0.4); --primary-clear: rgba(16,185,129,0);
-  --secondary-soft: rgba(251,191,36,0.15);
+  --secondary-soft: rgba(167,243,208,0.15);
 }
 [data-theme="viking"] {
   --bg: #0d0404; --surface: #1a0808; --surface-2: #221010; --surface-3: #2a1414;
