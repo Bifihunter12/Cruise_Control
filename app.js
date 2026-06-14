@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.13.02";
+const APP_VERSION = "2026.06.14.01";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -1501,62 +1501,62 @@ function trackEvent(name, props) {
   } catch(e) { /* silent */ }
 }
 
-// ── Cloud Sync (Netlify Functions + Blobs) ─────────────────────────────────
-const CloudSync = {
-  get token()    { return localStorage.getItem("conqur_token")  || null; },
-  get uid()      { return localStorage.getItem("conqur_uid")    || null; },
-  get userEmail(){ return localStorage.getItem("conqur_cemail") || null; },
-  get isSignedIn(){ return !!this.token && !!this.uid; },
+// ── Cloud Sync (Supabase) ──────────────────────────────────────────────────
+const SUPABASE_URL = "https://rmyvpndnwpgrxosqrqff.supabase.co";
+const SUPABASE_KEY = "sb_publishable_NEeo1fUgGclLFN6VGGhl6w_ROgAEQJg";
+let _sbClient = null;
+function _sb() {
+  if (!_sbClient) _sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  return _sbClient;
+}
 
-  async _api(path, method, body, token) {
-    const res = await fetch(`/.netlify/functions/${path}`, {
-      method: method || "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-      },
-      body: (method && method !== "GET" && body !== undefined) ? JSON.stringify(body) : undefined,
+const CloudSync = {
+  _user: null,
+
+  get token()     { return null; },
+  get uid()       { return this._user?.id || null; },
+  get userEmail() { return this._user?.email || null; },
+  get isSignedIn(){ return !!this._user; },
+
+  async init() {
+    const { data: { session } } = await _sb().auth.getSession();
+    this._user = session?.user || null;
+    _sb().auth.onAuthStateChange((_, session) => {
+      this._user = session?.user || null;
+      render();
     });
-    return res.json();
   },
 
   async signUp(email, password) {
-    const res = await this._api("auth", "POST", { action:"signup", email, password }).catch(e => ({ error: e.message }));
-    if (res.error) return { error: res.error };
-    localStorage.setItem("conqur_token",  res.token);
-    localStorage.setItem("conqur_uid",    res.uid);
-    localStorage.setItem("conqur_cemail", res.email);
-    this.push();
+    const { data, error } = await _sb().auth.signUp({ email, password });
+    if (error) return { error: error.message };
+    this._user = data.user;
+    if (data.session) await this.push();
     return {};
   },
 
   async signIn(email, password) {
-    const res = await this._api("auth", "POST", { action:"signin", email, password }).catch(e => ({ error: e.message }));
-    if (res.error) return { error: res.error };
-    localStorage.setItem("conqur_token",  res.token);
-    localStorage.setItem("conqur_uid",    res.uid);
-    localStorage.setItem("conqur_cemail", res.email);
+    const { data, error } = await _sb().auth.signInWithPassword({ email, password });
+    if (error) return { error: error.message };
+    this._user = data.user;
     await this.pull();
     return {};
   },
 
   signOut() {
-    localStorage.removeItem("conqur_token");
-    localStorage.removeItem("conqur_uid");
-    localStorage.removeItem("conqur_cemail");
+    _sb().auth.signOut();
+    this._user = null;
     render();
   },
 
   async push() {
     if (!this.isSignedIn) return;
     try {
-      await fetch("/.netlify/functions/sync", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${this.token}`,
-        },
-        body: localStorage.getItem(STORAGE_KEY) || "{}",
+      const stateObj = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      await _sb().from("user_data").upsert({
+        user_id: this.uid,
+        state_json: stateObj,
+        updated_at: new Date().toISOString(),
       });
     } catch(e) { console.warn("Cloud push failed:", e); }
   },
@@ -1564,13 +1564,15 @@ const CloudSync = {
   async pull() {
     if (!this.isSignedIn) return;
     try {
-      const res = await fetch("/.netlify/functions/sync", {
-        headers: { "Authorization": `Bearer ${this.token}` },
-      });
-      const remote = await res.json();
+      const { data, error } = await _sb()
+        .from("user_data")
+        .select("state_json")
+        .eq("user_id", this.uid)
+        .single();
+      if (error || !data?.state_json) return;
+      const remote = data.state_json;
       if (!remote || typeof remote !== "object" || !("challenges" in remote)) return;
       const merged = normalizeState(remote);
-      // Merge: keep local challenges if they have more progress
       for (const [id, c] of Object.entries(state.challenges)) {
         if (!merged.challenges[id]) merged.challenges[id] = c;
         else if ((c.totalPts || 0) > (merged.challenges[id].totalPts || 0)) merged.challenges[id] = c;
@@ -6340,4 +6342,5 @@ window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); _pwaIn
 saveState();
 scheduleReminder();
 setDynamicIcon();
+CloudSync.init();
 render();
