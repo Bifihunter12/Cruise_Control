@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.02";
+const APP_VERSION = "2026.06.14.03";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -2551,6 +2551,7 @@ function getChallengePhaseInfo(challenge, dayNumber) {
 
 function applyTheme() {
   document.documentElement.setAttribute("data-theme", state?.settings?.journeyTheme || "mountain");
+  setDynamicIcon();
 }
 
 function render() {
@@ -2642,8 +2643,8 @@ function renderTopbar() {
         <svg viewBox="0 0 36 36" width="30" height="30">
           <defs>
             <linearGradient id="bm-g" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#b44fff"/>
-              <stop offset="100%" stop-color="#ff4fa3"/>
+              <stop offset="0%" style="stop-color:var(--primary)"/>
+              <stop offset="100%" style="stop-color:var(--secondary)"/>
             </linearGradient>
           </defs>
           <rect width="36" height="36" rx="8" fill="#000"/>
@@ -2900,7 +2901,7 @@ function renderNoChallenge() {
   <main class="welcome-shell">
     <div class="welcome-logo">
       <svg viewBox="0 0 120 120" width="80" height="80">
-        <defs><linearGradient id="wg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#b44fff"/><stop offset="100%" stop-color="#ff4fa3"/></linearGradient></defs>
+        <defs><linearGradient id="wg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" style="stop-color:var(--primary)"/><stop offset="100%" style="stop-color:var(--secondary)"/></linearGradient></defs>
         <rect width="120" height="120" rx="28" fill="#000"/>
         <circle cx="60" cy="60" r="46" fill="none" stroke="#111" stroke-width="8"/>
         <circle cx="60" cy="60" r="46" fill="none" stroke="url(#wg)" stroke-width="8" stroke-linecap="round" stroke-dasharray="216 72" transform="rotate(-90 60 60)"/>
@@ -2965,12 +2966,12 @@ function renderRing(info, day, streak, challenge) {
     <svg class="progress-ring" viewBox="0 0 220 220" aria-hidden="true">
       <defs>
         <linearGradient id="ring-gradient" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#b44fff"/>
-          <stop offset="100%" stop-color="#ff4fa3"/>
+          <stop offset="0%" style="stop-color:var(--primary)"/>
+          <stop offset="100%" style="stop-color:var(--secondary)"/>
         </linearGradient>
         <linearGradient id="nav-gradient" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stop-color="#b44fff"/>
-          <stop offset="100%" stop-color="#ff4fa3"/>
+          <stop offset="0%" style="stop-color:var(--primary)"/>
+          <stop offset="100%" style="stop-color:var(--secondary)"/>
         </linearGradient>
       </defs>
       <circle class="ring-track" cx="110" cy="110" r="90"/>
@@ -3567,9 +3568,10 @@ function drawShareCard(challenge, isDone) {
   ctx.fillRect(0, 0, s, s);
 
   // Gradient accent bar top
+  const cs = getComputedStyle(document.documentElement);
   const grad = ctx.createLinearGradient(0, 0, s, 0);
-  grad.addColorStop(0, "#b44fff");
-  grad.addColorStop(1, "#ff4fa3");
+  grad.addColorStop(0, cs.getPropertyValue("--primary").trim()   || "#b44fff");
+  grad.addColorStop(1, cs.getPropertyValue("--secondary").trim() || "#ff4fa3");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, s, 10);
 
@@ -4591,8 +4593,8 @@ function renderBodyChart() {
   return `
   <svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="height:120px">
     <defs>
-      <linearGradient id="cg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#b44fff"/><stop offset="100%" stop-color="#ff4fa3"/></linearGradient>
-      <linearGradient id="cga" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b44fff" stop-opacity="0.22"/><stop offset="100%" stop-color="#ff4fa3" stop-opacity="0"/></linearGradient>
+      <linearGradient id="cg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" style="stop-color:var(--primary)"/><stop offset="100%" style="stop-color:var(--secondary)"/></linearGradient>
+      <linearGradient id="cga" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:var(--primary);stop-opacity:0.22"/><stop offset="100%" style="stop-color:var(--secondary);stop-opacity:0"/></linearGradient>
     </defs>
     <path d="${area}" fill="url(#cga)"/>
     <path d="${line}" fill="none" stroke="url(#cg)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -4625,15 +4627,15 @@ function renderLevelProfile() {
   const info  = getLevelInfo(state.xp);
   const isMax = !info.next;
   const toNext = isMax ? 0 : info.next.xp - state.xp;
+  const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
   const roadChunks = [];
-  // Show levels in rows of 5
   for (let i = 0; i < XP_LEVELS.length; i += 5) {
     roadChunks.push(XP_LEVELS.slice(i, i + 5));
   }
   return `
   <div class="level-profile-card">
     <div class="lp-top">
-      <div class="lp-level-num">⚡ Lv.${info.level}</div>
+      <div class="lp-level-num">${theme.emoji} Lv.${info.level}</div>
       <div class="lp-level-name">${info.name}</div>
     </div>
     <div class="xp-bar-track lp-track">
@@ -4798,12 +4800,13 @@ const ONBOARDING_STEPS = [
 // onboardingStep: 0 = hero, 1-3 = info slides, 4 = account screen
 
 function renderObHero() {
+  const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
   return `
   <div class="ob-screen" role="main">
     <div class="ob-hero-top">
-      <div class="ob-hero-icon" aria-hidden="true">🏆</div>
+      <div class="ob-hero-icon" aria-hidden="true">${theme.emoji}</div>
       <div class="ob-hero-logo">CONQUR</div>
-      <div class="ob-hero-tagline">Build the habits.<br>Win the challenge.</div>
+      <div class="ob-hero-tagline">Build the habits.<br>${theme.tagline}.</div>
     </div>
     <ul class="ob-features" aria-label="App features">
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">🎯</span><span>50+ challenges — from journaling to epic trails</span></li>
@@ -5055,10 +5058,10 @@ function renderProSection() {
   }
   return `
   <div class="section-label">⭐ Conqur Pro</div>
-  <div class="more-card" style="margin-bottom:14px;background:linear-gradient(135deg,rgba(160,80,255,0.08),rgba(255,80,180,0.08));border:1px solid rgba(160,80,255,0.25)">
+  <div class="more-card" style="margin-bottom:14px;background:linear-gradient(135deg,var(--primary-haze),var(--secondary-soft));border:1px solid var(--primary-glow)">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
       <div style="font-size:16px;font-weight:900;color:var(--text)">Free forever — plus backup</div>
-      <div style="font-size:11px;font-weight:700;color:var(--primary);background:rgba(160,80,255,0.15);border-radius:99px;padding:3px 10px">$4.99/mo</div>
+      <div style="font-size:11px;font-weight:700;color:var(--primary);background:var(--primary-haze);border-radius:99px;padding:3px 10px">$4.99/mo</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">
       <div style="font-size:13px;color:var(--text-dim);display:flex;gap:8px;align-items:flex-start"><span>☁️</span><span><strong style="color:var(--text)">Cloud backup</strong> — your streaks and badges survive a phone wipe or device switch</span></div>
@@ -6415,7 +6418,10 @@ if ("serviceWorker" in navigator && location.protocol!=="file:") {
 function setDynamicIcon() {
   const link = document.querySelector("link[rel='icon']");
   if (!link) return;
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#b44fff"/><stop offset="100%" stop-color="#ff4fa3"/></linearGradient></defs><rect width="192" height="192" rx="42" fill="#000"/><circle cx="96" cy="96" r="76" fill="none" stroke="#111" stroke-width="11"/><circle cx="96" cy="96" r="76" fill="none" stroke="url(#g)" stroke-width="11" stroke-linecap="round" stroke-dasharray="358 120" transform="rotate(-90 96 96)"/><text x="96" y="96" text-anchor="middle" dominant-baseline="central" font-family="'Lato',system-ui,sans-serif" font-weight="900" font-size="88" fill="url(#g)">C</text></svg>`;
+  const cs = getComputedStyle(document.documentElement);
+  const c1 = cs.getPropertyValue("--primary").trim()   || "#b44fff";
+  const c2 = cs.getPropertyValue("--secondary").trim() || "#ff4fa3";
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs><rect width="192" height="192" rx="42" fill="#000"/><circle cx="96" cy="96" r="76" fill="none" stroke="#111" stroke-width="11"/><circle cx="96" cy="96" r="76" fill="none" stroke="url(#g)" stroke-width="11" stroke-linecap="round" stroke-dasharray="358 120" transform="rotate(-90 96 96)"/><text x="96" y="96" text-anchor="middle" dominant-baseline="central" font-family="'Lato',system-ui,sans-serif" font-weight="900" font-size="88" fill="url(#g)">C</text></svg>`;
   link.href=`data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
