@@ -4411,6 +4411,17 @@ details[open] .badge-locked-summary::before {
   margin-top: 12px;
   text-align: center;
 }
+.bqs-xp-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  margin-top: 12px;
+  background: var(--primary-haze);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-dim);
+}
 
 /* ── XP bar explainer ── */
 .xp-bar-explainer {
@@ -4418,6 +4429,50 @@ details[open] .badge-locked-summary::before {
   color: var(--text-faint);
   margin-top: 4px;
   text-align: center;
+}
+
+/* ── XP mini-bar (Today tab header) ── */
+.xp-mini-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  margin-bottom: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  overflow: hidden;
+}
+.xmb-badge {
+  font-weight: 700;
+  color: var(--primary);
+  white-space: nowrap;
+  font-size: 13px;
+}
+.xmb-name {
+  white-space: nowrap;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.xmb-track {
+  flex: 1;
+  height: 4px;
+  background: var(--track);
+  border-radius: 2px;
+  min-width: 30px;
+  overflow: hidden;
+}
+.xmb-fill {
+  height: 100%;
+  background: var(--gradient);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+.xmb-hint {
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--text-faint);
 }
 
 /* ── Comeback banner "still running" ── */

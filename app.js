@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.03";
+const APP_VERSION = "2026.06.14.04";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -277,19 +277,15 @@ const TEMPLATES = [
     description: "30 days that change everything. Body, habits, and an unbreakable mind.",
     duration: 30, weeklyGoal: 120, defaultMode: "soft", noRestDay: true,
     habits: [
-      { id:"yoga",      title:"Morning yoga",              emoji:"🧘", quip:"Sets the tone for everything after.",           type:"binary", points:2 },
-      { id:"gratitude", title:"Gratitude",                 emoji:"🙏", quip:"Three things. Two minutes. Changes everything.", type:"binary", points:2 },
-      { id:"weighin",   title:"Daily weigh-in",            emoji:"⚖️", quip:"Same time each morning — consistency wins.",    type:"measurement", unit:"weight", decimals:1 },
-      { id:"steps",     title:"Steps",                     emoji:"👟", quip:"8k / 10k / 15k steps.",             type:"tiered", points:2,
+      { id:"yoga",      title:"Morning yoga",              emoji:"🧘", quip:"Sets the tone for everything after.",      type:"binary", points:2 },
+      { id:"steps",     title:"Steps",                     emoji:"👟", quip:"8k / 10k / 15k steps.",                  type:"tiered", points:2,
         tiers:[{value:8,label:"8k",points:2},{value:10,label:"10k",points:3},{value:15,label:"15k",points:4}] },
-      { id:"protein",   title:"Protein at every meal",     emoji:"🥩", quip:"Protein keeps the muscle, drops the fat.",      type:"binary", points:2 },
-      { id:"water",     title:"Drink 3L water",            emoji:"💧", quip:"Most hunger is just thirst.",                   type:"binary", points:2 },
-      { id:"noalcohol", title:"No alcohol or liquid cals", emoji:"🚫", quip:"Empty calories in every form. Skip them.",      type:"binary", points:2 },
-      { id:"nolate",    title:"Stop eating at 8pm",        emoji:"⏰", quip:"Kitchen closes at 8.",                          type:"binary", points:2 },
-      { id:"sleep",     title:"7+ hours sleep",            emoji:"🌙", quip:"Sleep is the real supplement.",                 type:"binary", points:2 },
-      { id:"mobility",  title:"Functional mobility",       emoji:"🦵", quip:"Recovery is training too.",                    type:"binary", points:2 },
-      { id:"read",      title:"Read 10 pages",             emoji:"📖", quip:"10 pages a day is a book a month.",            type:"binary", points:2 },
-      { id:"run",       title:"Run session",               emoji:"🏃", quip:"Push your pace. Every km counts.",                   type:"tiered",  points:2,
+      { id:"protein",   title:"Protein at every meal",     emoji:"🥩", quip:"Protein keeps the muscle, drops the fat.", type:"binary", points:2 },
+      { id:"water",     title:"Drink 3L water",            emoji:"💧", quip:"Most hunger is just thirst.",              type:"binary", points:2 },
+      { id:"noalcohol", title:"No alcohol or liquid cals", emoji:"🚫", quip:"Empty calories in every form. Skip them.", type:"binary", points:2 },
+      { id:"sleep",     title:"7+ hours sleep",            emoji:"🌙", quip:"Sleep is the real supplement.",            type:"binary", points:2 },
+      { id:"read",      title:"Read 10 pages",             emoji:"📖", quip:"10 pages a day is a book a month.",       type:"binary", points:2 },
+      { id:"run",       title:"Run session",               emoji:"🏃", quip:"Push your pace. Every km counts.",        type:"tiered",  points:2,
         tiers:[{value:1,label:"1 km",points:2},{value:3,label:"3 km",points:3},{value:5,label:"5 km",points:5},{value:"5+",label:"5 km+",points:7}] },
     ]
   },
@@ -2723,9 +2719,18 @@ function renderToday() {
 
   // Comeback: consecutive missed days before today
   const missedStreak = isToday ? getConsecutiveMisses(challenge) : 0;
+  const xpInfo  = getLevelInfo(state.xp);
+  const xpTheme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
+  const xpToNext = xpInfo.next ? (xpInfo.next.xp - state.xp).toLocaleString() : null;
 
   return `
   <main>
+    <div class="xp-mini-bar">
+      <span class="xmb-badge">${xpTheme.emoji} Lv.${xpInfo.level}</span>
+      <span class="xmb-name">${xpInfo.name}</span>
+      <span class="xmb-track"><span class="xmb-fill" style="width:${xpInfo.pct}%"></span></span>
+      <span class="xmb-hint">${xpToNext ? xpToNext + " XP to next" : "Max Level 🏆"}</span>
+    </div>
     ${active.length > 1 ? renderChallengePills(active) : ""}
     ${renderWeeklyRecap(challenge)}
     ${_newWeekBanner ? `
@@ -4851,7 +4856,16 @@ function renderObGoal() {
 }
 
 function renderObSlide() {
-  const step = ONBOARDING_STEPS[onboardingStep - 3]; // slides start at step 3
+  const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
+  const slides = [
+    { emoji:"🎯", title:"Pick your challenge",
+      body:`Choose from 50+ challenges — from daily journaling to epic trails. Each one comes with daily habits to check off and XP to earn on your <strong>${theme.label}</strong> journey.` },
+    { emoji:theme.emoji, title:"Earn XP. Level up.",
+      body:`Every habit you log earns XP. You start as a <strong>${theme.levels[0]}</strong> and climb all the way to Level 25 — <strong>${theme.levels[24]}</strong>. A real badge of persistence.` },
+    { emoji:"🔥", title:"Show up every day.",
+      body:`Your streak grows every day you log. Weekly points reset Monday — but your XP and level never do. Every session brings you closer to the top.` },
+  ];
+  const step = slides[onboardingStep - 3];
   const dots = ONBOARDING_STEPS.map((_,i) =>
     `<span class="ob-dot ${i === onboardingStep - 3 ? "active" : ""}"></span>`).join("");
   const isLast = onboardingStep === ONBOARDING_STEPS.length + 2;
@@ -5963,6 +5977,8 @@ function renderBuilderQuickstart() {
   const td   = TIERS[tier];
   const dur  = diffDays(builderForm.startDate, builderForm.endDate) + 1;
   const habits = template.habits.slice(0, 5);
+  const xpTheme  = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
+  const weeklyXP = template.habits.reduce((sum, h) => sum + (h.points || 2), 0) * 7;
   return `
   <div class="builder-quickstart">
     <div class="bqs-hero">
@@ -5977,6 +5993,9 @@ function renderBuilderQuickstart() {
     </div>
     <div class="bqs-desc">${esc(template.description)}</div>
     ${TEMPLATE_SAFETY[template.id] ? `<div class="bqs-safety-warning"><span class="bqs-safety-icon">⚠️</span><span>${TEMPLATE_SAFETY[template.id]}</span></div>` : ""}
+    <div class="bqs-xp-row">
+      ${xpTheme.emoji} Earn ~<strong>${weeklyXP.toLocaleString()} XP</strong> per week logging every habit
+    </div>
     <div class="builder-cta-footer">
       <button class="primary-button" data-start-challenge>Start ${dur}-Day Challenge 🚀</button>
       <button class="secondary-button" style="margin-top:8px" data-quickstart-customise>Customise first →</button>
