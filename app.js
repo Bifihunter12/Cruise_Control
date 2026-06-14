@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.01";
+const APP_VERSION = "2026.06.14.02";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -35,6 +35,65 @@ const XP_LEVELS = [
   { level: 25, name: "Conqueror of Everest", xp: 147000 },
 ];
 
+// ── Journey Themes ─────────────────────────────────────────────────────────
+const JOURNEY_THEMES = {
+  mountain: {
+    label: "Mountain", emoji: "🏔️", tagline: "Conquer the Summit",
+    levels: [
+      "Rookie","Wanderer","Trailblazer","Scout","Ranger","Climber","Adventurer",
+      "Pathfinder","Mountaineer","Storm Rider","Iron Will","Blizzard Survivor",
+      "Altitude Master","Ridge Walker","Summit Seeker","Above the Clouds",
+      "Ice Axe","Death Zone","Near the Top","Final Push",
+      "Summit Reached","The Conqueror","Everest Bound","Everest Champion","Conqueror of Everest",
+    ],
+  },
+  astronaut: {
+    label: "Astronaut", emoji: "🚀", tagline: "Reach for the Stars",
+    levels: [
+      "Space Dreamer","Mission Candidate","Cadet","Flight Trainee","Mission Specialist",
+      "Launch Ready","Countdown","Orbit Reached","Spacewalker","Orbit Master",
+      "Moon Bound","Lunar Approach","Moon Walker","Deep Space Pioneer","Asteroid Belt",
+      "Jupiter Bound","Outer Rim","Mars Approach","Mars Orbit","Mars Landing",
+      "Red Planet Pioneer","Mars Colony","Mars Legend","First Martian","First on Mars",
+    ],
+  },
+  martial: {
+    label: "Martial Arts", emoji: "🥋", tagline: "Master Your Mind",
+    levels: [
+      "White Belt","Yellow Belt","Orange Belt","Green Belt","Blue Belt",
+      "Purple Belt","Red Belt","Brown Belt","Black Belt","1st Dan",
+      "Iron Fist","Silent Mind","Dragon Spirit","Tiger Heart","Storm Breaker",
+      "Shadow Walker","Unbroken","The Sensei","Shihan","Hanshi",
+      "Iron Legend","Ancient Master","The Soke","Hall of Champions","Grandmaster",
+    ],
+  },
+  viking: {
+    label: "Viking", emoji: "⚔️", tagline: "Legend of the Sagas",
+    levels: [
+      "Thrall","Freeman","Skald","Huscarl","Shield-Brother",
+      "Berserker","Raider","Sea Wolf","Jarl's Guard","Bloodhawk",
+      "War Chief","Drakkar Captain","Valhalla Seeker","Thor's Chosen","Jotun Slayer",
+      "Saga Writer","Odin's Eye","Ragnarok Survivor","Jarl","High Jarl",
+      "Warlord","King of the North","Allfather's Chosen","Einherjar","Legend of the Sagas",
+    ],
+  },
+  ocean: {
+    label: "Ocean Diver", emoji: "🌊", tagline: "Descend to the Deep",
+    levels: [
+      "Beach Walker","Snorkeler","Surface Diver","Open Water Diver","Advanced Diver",
+      "Rescue Diver","Night Diver","Deep Diver","Cave Explorer","Wreck Diver",
+      "Reef Master","Coral Guardian","Pelagic Diver","Abyss Seeker","Twilight Zone",
+      "Midnight Zone","Deep Sea Pioneer","Hadal Explorer","Pressure Tested","Trench Walker",
+      "Abyss Master","Shadow of the Deep","Mariana Bound","Mariana Champion","Mariana Legend",
+    ],
+  },
+};
+
+function getThemedLevelName(levelNum) {
+  const theme = JOURNEY_THEMES[state?.settings?.journeyTheme] || JOURNEY_THEMES.mountain;
+  return theme.levels[levelNum - 1] || XP_LEVELS[levelNum - 1]?.name || "";
+}
+
 function getLevelInfo(xp) {
   let current = XP_LEVELS[0];
   for (const lvl of XP_LEVELS) {
@@ -46,7 +105,9 @@ function getLevelInfo(xp) {
   const xpInLevel = next ? xp - current.xp : 0;
   const xpNeeded  = next ? next.xp - current.xp : 1;
   const pct       = next ? Math.min(100, Math.round((xpInLevel / xpNeeded) * 100)) : 100;
-  return { ...current, next, xpInLevel, xpNeeded, pct };
+  const name      = getThemedLevelName(current.level);
+  const nextName  = next ? getThemedLevelName(next.level) : null;
+  return { ...current, name, next: next ? { ...next, name: nextName } : null, xpInLevel, xpNeeded, pct };
 }
 
 function recalcXP() {
@@ -1728,6 +1789,7 @@ function normalizeState(raw) {
       name:            raw.settings?.name            || "",
       reminderEnabled: raw.settings?.reminderEnabled === true,
       reminderTime:    raw.settings?.reminderTime    || "20:00",
+      journeyTheme:    JOURNEY_THEMES[raw.settings?.journeyTheme] ? raw.settings.journeyTheme : "mountain",
       units: {
         weight:        raw.settings?.units?.weight        || "lbs",
         distance:      raw.settings?.units?.distance      || "km",
@@ -2487,7 +2549,12 @@ function getChallengePhaseInfo(challenge, dayNumber) {
 
 // ── Render Core ────────────────────────────────────────────────────────────
 
+function applyTheme() {
+  document.documentElement.setAttribute("data-theme", state?.settings?.journeyTheme || "mountain");
+}
+
 function render() {
+  applyTheme();
   const app = document.getElementById("app");
   // Full-screen onboarding — render only the onboarding screen
   if (onboardingStep !== null) {
@@ -4580,7 +4647,7 @@ function renderLevelProfile() {
       ${XP_LEVELS.map(lvl => {
         const unlocked = state.xp >= lvl.xp;
         const isCurrent = info.level === lvl.level;
-        return `<div class="lvl-node ${unlocked ? "unlocked" : ""} ${isCurrent ? "current" : ""}" title="Lv.${lvl.level} ${lvl.name}">
+        return `<div class="lvl-node ${unlocked ? "unlocked" : ""} ${isCurrent ? "current" : ""}" title="Lv.${lvl.level} ${getThemedLevelName(lvl.level)}">
           <div class="lvl-node-dot"></div>
           <div class="lvl-node-num">${lvl.level}</div>
         </div>`;
@@ -4781,10 +4848,10 @@ function renderObGoal() {
 }
 
 function renderObSlide() {
-  const step = ONBOARDING_STEPS[onboardingStep - 2]; // slides start at step 2
+  const step = ONBOARDING_STEPS[onboardingStep - 3]; // slides start at step 3
   const dots = ONBOARDING_STEPS.map((_,i) =>
-    `<span class="ob-dot ${i === onboardingStep - 2 ? "active" : ""}"></span>`).join("");
-  const isLast = onboardingStep === ONBOARDING_STEPS.length + 1;
+    `<span class="ob-dot ${i === onboardingStep - 3 ? "active" : ""}"></span>`).join("");
+  const isLast = onboardingStep === ONBOARDING_STEPS.length + 2;
   return `
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
@@ -4851,12 +4918,37 @@ function renderObAccount() {
   </div>`;
 }
 
+function renderObJourney() {
+  const cur = state.settings.journeyTheme || "mountain";
+  return `
+  <div class="ob-screen ob-screen--slide" role="main">
+    <div class="ob-slide-inner">
+      <div class="ob-emoji" aria-hidden="true">🗺️</div>
+      <div class="ob-title">Choose your journey</div>
+      <div class="ob-body">Pick the world that fits you. It changes your level names and app colors — and you can switch anytime in Settings.</div>
+    </div>
+    <div class="ob-journey-grid">
+      ${Object.entries(JOURNEY_THEMES).map(([id, t]) => `
+      <button class="ob-journey-btn${cur === id ? " selected" : ""}" data-ob-journey="${id}">
+        <span class="ob-journey-emoji">${t.emoji}</span>
+        <div class="ob-journey-info">
+          <div class="ob-journey-label">${t.label}</div>
+          <div class="ob-journey-sub">${t.tagline}</div>
+        </div>
+        ${cur === id ? `<span class="ob-journey-check">✓</span>` : ""}
+      </button>`).join("")}
+    </div>
+    <button class="primary-button ob-cta" data-ob-next>Continue →</button>
+  </div>`;
+}
+
 function renderOnboarding() {
   if (onboardingStep === null) return "";
   if (onboardingStep === 0) return renderObHero();
-  if (onboardingStep === 1) return renderObGoal();
-  if (onboardingStep <= ONBOARDING_STEPS.length + 1) return renderObSlide();
-  if (onboardingStep === ONBOARDING_STEPS.length + 2) return renderObName();
+  if (onboardingStep === 1) return renderObJourney();
+  if (onboardingStep === 2) return renderObGoal();
+  if (onboardingStep <= ONBOARDING_STEPS.length + 2) return renderObSlide();
+  if (onboardingStep === ONBOARDING_STEPS.length + 3) return renderObName();
   return renderObAccount();
 }
 
@@ -5006,6 +5098,23 @@ function renderSettings() {
     <div class="log-card" style="margin-bottom:14px">
       <label class="field">Name<input id="s-name" type="text" value="${esc(state.settings.name)}" placeholder="Optional"></label>
       <button class="primary-button" data-save-settings style="margin-top:12px">Save</button>
+    </div>
+    <div class="section-label">Journey &amp; Theme</div>
+    <div class="more-card" style="margin-bottom:14px">
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">Changes your level names and app color scheme.</div>
+      <div class="ob-journey-grid ob-journey-grid--settings">
+        ${Object.entries(JOURNEY_THEMES).map(([id, t]) => {
+          const active = (state.settings.journeyTheme || "mountain") === id;
+          return `<button class="ob-journey-btn${active ? " selected" : ""}" data-settings-journey="${id}">
+            <span class="ob-journey-emoji">${t.emoji}</span>
+            <div class="ob-journey-info">
+              <div class="ob-journey-label">${t.label}</div>
+              <div class="ob-journey-sub">${t.tagline}</div>
+            </div>
+            ${active ? `<span class="ob-journey-check">✓</span>` : ""}
+          </button>`;
+        }).join("")}
+      </div>
     </div>
     <div class="section-label">Units</div>
     <div class="more-card">
@@ -5440,20 +5549,36 @@ function bindEvents() {
     reader.readAsText(file);
   });
   // ── Onboarding navigation ──────────────────────────────────────────────────
+  on("[data-ob-journey]", el => {
+    const id = el.dataset.obJourney;
+    if (!JOURNEY_THEMES[id]) return;
+    state.settings.journeyTheme = id;
+    saveState();
+    applyTheme();
+    render();
+  });
+  on("[data-settings-journey]", el => {
+    const id = el.dataset.settingsJourney;
+    if (!JOURNEY_THEMES[id]) return;
+    state.settings.journeyTheme = id;
+    saveState();
+    applyTheme();
+    showToast(`${JOURNEY_THEMES[id].emoji} Journey changed to ${JOURNEY_THEMES[id].label}`);
+    render();
+  });
   on("[data-ob-next]", () => {
     onboardingStep++;
-    // After last info slide (step 3 → 4) we show the account screen naturally
     render();
   });
   on("[data-ob-skip]", () => {
     // Skip info slides → jump straight to name screen
-    onboardingStep = ONBOARDING_STEPS.length + 2;
+    onboardingStep = ONBOARDING_STEPS.length + 3;
     _obAuthError = "";
     render();
   });
   on("[data-ob-to-signin]", () => {
     _obAuthMode = "signin";
-    onboardingStep = ONBOARDING_STEPS.length + 3; // skip name step for returning users
+    onboardingStep = ONBOARDING_STEPS.length + 4; // skip name step for returning users
     _obAuthError = "";
     render();
   });

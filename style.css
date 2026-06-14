@@ -33,6 +33,48 @@
   --font: "Lato", ui-sans-serif, system-ui, sans-serif;
 }
 
+/* ── Journey Themes ──────────────────────────────────────────────────────── */
+[data-theme="mountain"] {
+  --bg: #070d18; --surface: #0d1a2e; --surface-2: #112338; --surface-3: #162c44;
+  --primary: #52c8f0; --secondary: #a8e8ff;
+  --text-dim: #7eafc9; --text-faint: #3d6a85; --track: #0f2035;
+  --primary-glow: rgba(82,200,240,0.28); --primary-haze: rgba(82,200,240,0.1);
+  --primary-pulse: rgba(82,200,240,0.4); --primary-clear: rgba(82,200,240,0);
+  --secondary-soft: rgba(168,232,255,0.15);
+}
+[data-theme="astronaut"] {
+  --bg: #0a0805; --surface: #150f08; --surface-2: #1e1610; --surface-3: #281d15;
+  --primary: #ff7235; --secondary: #ff3b3b;
+  --text-dim: #c47850; --text-faint: #6b3e20; --track: #1c1008;
+  --primary-glow: rgba(255,114,53,0.28); --primary-haze: rgba(255,114,53,0.1);
+  --primary-pulse: rgba(255,114,53,0.4); --primary-clear: rgba(255,114,53,0);
+  --secondary-soft: rgba(255,59,59,0.15);
+}
+[data-theme="martial"] {
+  --bg: #0a0808; --surface: #180c0c; --surface-2: #221010; --surface-3: #2c1414;
+  --primary: #e53935; --secondary: #ffb830;
+  --text-dim: #c07070; --text-faint: #6b3030; --track: #1c0c0c;
+  --primary-glow: rgba(229,57,53,0.28); --primary-haze: rgba(229,57,53,0.1);
+  --primary-pulse: rgba(229,57,53,0.4); --primary-clear: rgba(229,57,53,0);
+  --secondary-soft: rgba(255,184,48,0.15);
+}
+[data-theme="viking"] {
+  --bg: #0a060e; --surface: #14102a; --surface-2: #1c1638; --surface-3: #221c44;
+  --primary: #8b2fc9; --secondary: #e0341e;
+  --text-dim: #7060a0; --text-faint: #3a2860; --track: #120e22;
+  --primary-glow: rgba(139,47,201,0.28); --primary-haze: rgba(139,47,201,0.1);
+  --primary-pulse: rgba(139,47,201,0.4); --primary-clear: rgba(139,47,201,0);
+  --secondary-soft: rgba(224,52,30,0.15);
+}
+[data-theme="ocean"] {
+  --bg: #020c18; --surface: #051825; --surface-2: #082035; --surface-3: #0a2845;
+  --primary: #00c8d4; --secondary: #0070ff;
+  --text-dim: #5090a8; --text-faint: #1e4a60; --track: #041520;
+  --primary-glow: rgba(0,200,212,0.28); --primary-haze: rgba(0,200,212,0.1);
+  --primary-pulse: rgba(0,200,212,0.4); --primary-clear: rgba(0,200,212,0);
+  --secondary-soft: rgba(0,112,255,0.15);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
@@ -4488,4 +4530,31 @@ details[open] .badge-locked-summary::before {
   75%      { transform: translateX(6px); }
 }
 .input-shake { animation: input-shake 0.4s ease; border-color: #f44336 !important; }
+
+/* ── Journey Picker ──────────────────────────────────────────────────────── */
+.ob-journey-grid {
+  display: flex; flex-direction: column; gap: 8px;
+  width: 100%; padding: 0 4px; margin-bottom: 20px;
+}
+.ob-journey-grid--settings { margin-bottom: 0; }
+.ob-journey-btn {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; padding: 12px 14px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius); cursor: pointer; text-align: left;
+  transition: border-color 0.18s, background 0.18s;
+}
+.ob-journey-btn:hover { border-color: var(--primary); background: var(--surface-2); }
+.ob-journey-btn.selected {
+  border-color: var(--primary);
+  background: var(--primary-haze);
+}
+.ob-journey-emoji { font-size: 24px; flex-shrink: 0; }
+.ob-journey-info { flex: 1; min-width: 0; }
+.ob-journey-label { font-size: 14px; font-weight: 700; color: var(--text); }
+.ob-journey-sub   { font-size: 12px; color: var(--text-dim); margin-top: 1px; }
+.ob-journey-check {
+  font-size: 14px; font-weight: 900;
+  color: var(--primary); flex-shrink: 0;
+}
 
