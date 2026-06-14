@@ -3529,6 +3529,86 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .big-toast-sub   { font-size: 13px; color: var(--text-dim); }
 @keyframes fade-out { to { opacity: 0; transform: translateX(-50%) translateY(12px); } }
 
+/* ── Level-up overlay ── */
+.luo-backdrop {
+  position: fixed; inset: 0; z-index: 4000;
+  background: rgba(0,0,0,0.88);
+  display: flex; align-items: center; justify-content: center;
+  animation: luo-fade-in 0.25s ease;
+}
+@keyframes luo-fade-in { from { opacity: 0; } to { opacity: 1; } }
+.luo-card {
+  background: var(--panel);
+  border: 1.5px solid var(--primary);
+  border-radius: 24px;
+  padding: 40px 32px 36px;
+  max-width: 340px;
+  width: calc(100% - 48px);
+  text-align: center;
+  box-shadow: 0 0 60px color-mix(in srgb, var(--primary) 25%, transparent);
+  animation: luo-pop 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes luo-pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+.luo-burst  { font-size: 56px; margin-bottom: 8px; display: block; }
+.luo-badge  {
+  font-size: 11px; font-weight: 900; letter-spacing: 0.1em;
+  color: var(--primary); text-transform: uppercase;
+  background: var(--primary-haze); border-radius: 99px;
+  padding: 3px 12px; display: inline-block; margin-bottom: 10px;
+}
+.luo-level {
+  font-size: 72px; font-weight: 900; line-height: 1;
+  background: var(--gradient); -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 4px;
+}
+.luo-name  { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.luo-total { font-size: 13px; color: var(--text-dim); margin-bottom: 24px; }
+.luo-cta   { width: 100%; }
+
+/* ── Boss day callout ── */
+.boss-day-callout {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text);
+  margin: 4px 0 12px;
+}
+.boss-day-callout strong { color: var(--primary); }
+
+/* ── Journey picker peak name ── */
+.ob-journey-peak {
+  font-size: 11px;
+  color: var(--primary);
+  margin-top: 3px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+/* ── Notification time picker ── */
+.notif-time-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-top: 16px;
+}
+.notif-time-label { font-size: 14px; font-weight: 600; }
+.notif-time-input {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 15px;
+  padding: 6px 10px;
+  font-family: inherit;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pts-anim, .install-banner, .big-toast { animation: none; }
   .xp-bar-fill { transition: none; }

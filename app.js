@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.07";
+const APP_VERSION = "2026.06.14.08";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -1548,6 +1548,7 @@ let reminderTimeout = null;
 let _pwaInstallPrompt = null;  // beforeinstallprompt event (PWA install)
 let _showInstallBanner = false; // show the PWA install nudge
 let _newWeekBanner = null;     // { pts } — Monday new-week ceremony, null when dismissed
+let _levelUpOverlay = null;   // { level, name, emoji, total } — full-screen level-up celebration
 
 // ── Analytics helper (Plausible — graceful no-op if script not loaded) ───────
 function trackEvent(name, props) {
@@ -2422,6 +2423,21 @@ function showBigToast(emoji, title, sub, duration = 4000) {
   setTimeout(() => el.remove(), duration);
 }
 
+function renderLevelUpOverlay() {
+  const o = _levelUpOverlay;
+  return `
+  <div class="luo-backdrop" data-close-levelup>
+    <div class="luo-card" role="dialog" aria-modal="true" aria-label="Level up!">
+      <div class="luo-burst">${o.emoji}</div>
+      <div class="luo-badge">LEVEL UP</div>
+      <div class="luo-level">${o.level}</div>
+      <div class="luo-name">${o.name}</div>
+      <div class="luo-total">${o.total.toLocaleString()} XP total</div>
+      <button class="primary-button luo-cta" data-close-levelup>Keep going 🔥</button>
+    </div>
+  </div>`;
+}
+
 // Count consecutive missed days immediately before today for a challenge
 function getConsecutiveMisses(challenge) {
   let count = 0;
@@ -2465,6 +2481,10 @@ function checkMilestones(challenge) {
       if (_pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
         setTimeout(() => { _showInstallBanner = true; render(); }, 3000);
       }
+      if ("Notification" in window && Notification.permission === "default" && !localStorage.getItem("conqur_notif_asked")) {
+        localStorage.setItem("conqur_notif_asked", "1");
+        setTimeout(() => { _notifPromptVisible = true; render(); }, 2500);
+      }
     }, 500);
   }
   // Halfway
@@ -2479,7 +2499,8 @@ function checkMilestones(challenge) {
     { n:21, icon:"⚡", title:"21-day streak!", sub:"Three weeks in. This is who you are now." },
     { n:30, icon:"🏆", title:"30 days!",        sub:"One month. Elite 1% territory." },
     { n:50, icon:"🌟", title:"50-day streak!", sub:"Fifty days of showing up. Unbelievable." },
-    { n:75, icon:"👑", title:"75 days!",        sub:"The full distance. You are unstoppable." },
+    { n:75,  icon:"👑", title:"75 days!",         sub:"The full distance. You are unstoppable." },
+    { n:100, icon:"💎", title:"100-day streak!", sub:"Triple digits. You are an absolute legend." },
   ];
   for (const ms of STREAK_MILESTONES) {
     const flagKey = `streak${ms.n}`;
@@ -2586,6 +2607,7 @@ function render() {
   }
   html += renderShareModal();
   if (_badgeSheetQueue.length > 0) html += renderBadgeSheet(_badgeSheetQueue[0]);
+  if (_levelUpOverlay) html += renderLevelUpOverlay();
   if (_notifPromptVisible) html += renderNotifPrompt();
   html += renderConfirmModal();
   if (_showInstallBanner && _pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
@@ -2768,6 +2790,8 @@ function renderToday() {
       ${isToday ? `<div class="greeting">${currentGreeting(challenge, dayNumber, streak)}</div>` : ""}
       ${isToday ? renderModeSelector(day, challenge) : ""}
     </section>
+    ${phaseInfo && isToday && dayNumber === phaseInfo.phase.end && dayNumber > 1 ? `
+    <div class="boss-day-callout">⚡ Boss day — the final challenge of the <strong>${phaseInfo.phase.name}</strong> phase. Finish strong.</div>` : ""}
 
     <section>
       <div class="section-head">
@@ -3632,6 +3656,13 @@ function drawShareCard(challenge, isDone) {
   ctx.font      = `400 ${Math.round(s * 0.033)}px 'Arial', sans-serif`;
   ctx.fillText(isDone ? "Built the habit. Won the challenge." : "One day at a time. conqur.netlify.app", s / 2, s * 0.72);
 
+  // Level + theme line
+  const _scLevel = getLevelInfo(state.xp);
+  const _scTheme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
+  ctx.fillStyle = "rgba(152,150,184,0.55)";
+  ctx.font      = `400 ${Math.round(s * 0.03)}px 'Arial', sans-serif`;
+  ctx.fillText(`${_scTheme.emoji} ${_scTheme.label} · Lv.${_scLevel.level} ${_scLevel.name}`, s / 2, s * 0.81);
+
   // Watermark
   ctx.fillStyle = "rgba(152,150,184,0.4)";
   ctx.font      = `700 ${Math.round(s * 0.028)}px 'Arial', sans-serif`;
@@ -4292,16 +4323,19 @@ function renderBuilderTemplates() {
   const orderedCats = challengeSubTab === "expeditions"
     ? [cats.find(c => c.id === "expedition"), ...cats.filter(c => c.id !== "expedition")]
     : cats;
+  const POPULAR_IDS = ["75-hard", "75-soft", "mental-toughness", "cold-shower", "morning-routine", "no-alcohol", "meditation-21", "journaling", "walking", "no-sugar"];
   const filterTabs = [
-    { id:"all",    label:"All" },
-    { id:"short",  label:"≤30 days" },
-    { id:"medium", label:"31–60 days" },
-    { id:"long",   label:"61+ days" },
+    { id:"all",      label:"All" },
+    { id:"popular",  label:"🔥 Popular" },
+    { id:"short",    label:"≤30 days" },
+    { id:"medium",   label:"31–60 days" },
+    { id:"long",     label:"61+ days" },
   ];
   const passesFilter = t => {
-    if (_templateFilter === "short")  return t.duration <= 30;
-    if (_templateFilter === "medium") return t.duration > 30 && t.duration <= 60;
-    if (_templateFilter === "long")   return t.duration > 60;
+    if (_templateFilter === "popular") return POPULAR_IDS.includes(t.id);
+    if (_templateFilter === "short")   return t.duration <= 30;
+    if (_templateFilter === "medium")  return t.duration > 30 && t.duration <= 60;
+    if (_templateFilter === "long")    return t.duration > 60;
     return true;
   };
   const templateCard = t => {
@@ -4734,14 +4768,19 @@ function renderBadgeCat(label, defs, earned, templateId) {
 }
 
 function renderNotifPrompt() {
+  const curTime = state.settings.reminderTime || "20:00";
   return `
   <div class="notif-prompt-overlay">
     <div class="notif-prompt-backdrop" data-notif-prompt-skip></div>
     <div class="notif-prompt" role="dialog" aria-modal="true">
       <div class="notif-prompt-icon">🔔</div>
-      <div class="notif-prompt-title">Stay on track</div>
-      <div class="notif-prompt-sub">People who enable daily reminders are 3× more likely to finish their challenge.</div>
-      <button class="primary-button" style="margin-top:20px" data-notif-prompt-enable>Enable Reminders</button>
+      <div class="notif-prompt-title">Day 1 done — great start!</div>
+      <div class="notif-prompt-sub">People with daily reminders are 3× more likely to finish. When should we nudge you?</div>
+      <div class="notif-time-row">
+        <label class="notif-time-label">Reminder time</label>
+        <input type="time" id="notif-time-input" class="notif-time-input" value="${curTime}">
+      </div>
+      <button class="primary-button" style="margin-top:16px" data-notif-prompt-enable>Enable Reminders</button>
       <button class="link-btn notif-prompt-skip-btn" data-notif-prompt-skip>I'll risk forgetting →</button>
     </div>
   </div>`;
@@ -4865,10 +4904,10 @@ function renderObSlide() {
     { emoji:"🔥", title:"Show up every day.",
       body:`Your streak grows every day you log. Weekly points reset Monday — but your XP and level never do. Every session brings you closer to the top.` },
   ];
-  const step = slides[onboardingStep - 3];
+  const step = slides[onboardingStep - 2];
   const dots = ONBOARDING_STEPS.map((_,i) =>
-    `<span class="ob-dot ${i === onboardingStep - 3 ? "active" : ""}"></span>`).join("");
-  const isLast = onboardingStep === ONBOARDING_STEPS.length + 2;
+    `<span class="ob-dot ${i === onboardingStep - 2 ? "active" : ""}"></span>`).join("");
+  const isLast = onboardingStep === ONBOARDING_STEPS.length + 1;
   return `
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
@@ -4951,6 +4990,7 @@ function renderObJourney() {
         <div class="ob-journey-info">
           <div class="ob-journey-label">${t.label}</div>
           <div class="ob-journey-sub">${t.tagline}</div>
+          <div class="ob-journey-peak">Lv.25: ${t.levels[24]}</div>
         </div>
         ${cur === id ? `<span class="ob-journey-check">✓</span>` : ""}
       </button>`).join("")}
@@ -4963,9 +5003,8 @@ function renderOnboarding() {
   if (onboardingStep === null) return "";
   if (onboardingStep === 0) return renderObHero();
   if (onboardingStep === 1) return renderObJourney();
-  if (onboardingStep === 2) return renderObGoal();
-  if (onboardingStep <= ONBOARDING_STEPS.length + 2) return renderObSlide();
-  if (onboardingStep === ONBOARDING_STEPS.length + 3) return renderObName();
+  if (onboardingStep <= ONBOARDING_STEPS.length + 1) return renderObSlide();
+  if (onboardingStep === ONBOARDING_STEPS.length + 2) return renderObName();
   return renderObAccount();
 }
 
@@ -5127,6 +5166,7 @@ function renderSettings() {
             <div class="ob-journey-info">
               <div class="ob-journey-label">${t.label}</div>
               <div class="ob-journey-sub">${t.tagline}</div>
+              <div class="ob-journey-peak">Lv.25: ${t.levels[24]}</div>
             </div>
             ${active ? `<span class="ob-journey-check">✓</span>` : ""}
           </button>`;
@@ -5292,6 +5332,7 @@ function bindEvents() {
     localStorage.setItem("conqur_email_capture","submitted");
     render();
   });
+  on("[data-close-levelup]",        () => { _levelUpOverlay = null; render(); });
   on("[data-notif-prompt-enable]",  async () => { _notifPromptVisible = false; await requestNotificationPermission(); render(); });
   on("[data-notif-prompt-skip]",    () => { _notifPromptVisible = false; render(); });
   on("[data-start-challenge]",() => startChallenge());
@@ -5589,13 +5630,13 @@ function bindEvents() {
   });
   on("[data-ob-skip]", () => {
     // Skip info slides → jump straight to name screen
-    onboardingStep = ONBOARDING_STEPS.length + 3;
+    onboardingStep = ONBOARDING_STEPS.length + 2;
     _obAuthError = "";
     render();
   });
   on("[data-ob-to-signin]", () => {
     _obAuthMode = "signin";
-    onboardingStep = ONBOARDING_STEPS.length + 4; // skip name step for returning users
+    onboardingStep = ONBOARDING_STEPS.length + 3; // skip name step for returning users
     _obAuthError = "";
     render();
   });
@@ -5792,7 +5833,8 @@ function toggleHabit(id) {
   const xpGain  = state.xp - xpBefore;
   const lvlInfo = getLevelInfo(state.xp);
   if (lvlInfo.level > levelBefore) {
-    setTimeout(() => showBigToast("⚡", `Level ${lvlInfo.level} — ${lvlInfo.name}!`, "You leveled up. Keep going."), 500);
+    const _luT = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
+    setTimeout(() => { _levelUpOverlay = { level: lvlInfo.level, name: lvlInfo.name, emoji: _luT.emoji, total: state.xp }; render(); }, 600);
   } else if (xpGain > 0) {
     showToast(`⚡ +${xpGain} XP`);
   }
@@ -5870,7 +5912,8 @@ function selectTier(habitId, rawVal) {
   const xpGain2  = state.xp - xpBefore2;
   const lvlInfo2 = getLevelInfo(state.xp);
   if (lvlInfo2.level > levelBefore2) {
-    setTimeout(() => showBigToast("⚡", `Level ${lvlInfo2.level} — ${lvlInfo2.name}!`, "You leveled up. Keep going."), 500);
+    const _luT2 = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
+    setTimeout(() => { _levelUpOverlay = { level: lvlInfo2.level, name: lvlInfo2.name, emoji: _luT2.emoji, total: state.xp }; render(); }, 600);
   } else if (xpGain2 > 0) {
     showToast(`⚡ +${xpGain2} XP`);
   }
@@ -6030,9 +6073,6 @@ function startChallenge() {
   showToast(`${c.emoji} ${c.name} started!`);
   trackEvent("Challenge Started", { challenge: c.name, template: builderForm.templateId || "custom" });
   render();
-  if ("Notification" in window && Notification.permission === "default") {
-    setTimeout(() => { _notifPromptVisible = true; render(); }, 900);
-  }
 }
 
 function addCustomHabit() {
@@ -6357,6 +6397,8 @@ function fireReminder() {
 
 async function requestNotificationPermission() {
   if (!("Notification" in window)) { showToast("Notifications aren't supported in this browser."); return; }
+  const timeInput = document.getElementById("notif-time-input");
+  if (timeInput?.value) { state.settings.reminderTime = timeInput.value; saveState(); }
   const perm = await Notification.requestPermission();
   if (perm === "granted") {
     state.settings.reminderEnabled = true;
