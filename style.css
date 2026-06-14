@@ -59,12 +59,12 @@
   --secondary-soft: rgba(251,191,36,0.15);
 }
 [data-theme="viking"] {
-  --bg: #07040f; --surface: #110820; --surface-2: #180c2e; --surface-3: #1e103a;
-  --primary: #a855f7; --secondary: #f59e0b;
-  --text-dim: #8060b0; --text-faint: #4a3060; --track: #100820;
-  --primary-glow: rgba(168,85,247,0.28); --primary-haze: rgba(168,85,247,0.1);
-  --primary-pulse: rgba(168,85,247,0.4); --primary-clear: rgba(168,85,247,0);
-  --secondary-soft: rgba(245,158,11,0.15);
+  --bg: #0d0404; --surface: #1a0808; --surface-2: #221010; --surface-3: #2a1414;
+  --primary: #dc2626; --secondary: #be123c;
+  --text-dim: #a06060; --text-faint: #5a3030; --track: #1a0808;
+  --primary-glow: rgba(220,38,38,0.28); --primary-haze: rgba(220,38,38,0.1);
+  --primary-pulse: rgba(220,38,38,0.4); --primary-clear: rgba(220,38,38,0);
+  --secondary-soft: rgba(190,18,60,0.15);
 }
 [data-theme="ocean"] {
   --bg: #020c18; --surface: #051825; --surface-2: #082035; --surface-3: #0a2845;
