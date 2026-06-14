@@ -4419,3 +4419,73 @@ details[open] .badge-locked-summary::before {
   100% { opacity: 0; }
 }
 
+/* ── Safety warning icon on template cards ── */
+.tc-safety-icon { font-size: 13px; vertical-align: middle; }
+
+/* ── Safety warning on quickstart screen ── */
+.bqs-safety-warning {
+  display: flex;
+  gap: 10px;
+  background: rgba(255, 160, 0, 0.12);
+  border: 1px solid rgba(255, 160, 0, 0.35);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 12px 0 4px;
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.bqs-safety-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── Email capture banner ── */
+.email-cap-card {
+  position: relative;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 16px 14px;
+  margin-bottom: 16px;
+}
+.email-cap-card--done { display: flex; align-items: center; justify-content: space-between; }
+.email-cap-done { font-size: 14px; color: var(--success); font-weight: 600; }
+.email-cap-x {
+  position: absolute;
+  top: 10px; right: 12px;
+  background: none; border: none;
+  color: var(--text-faint);
+  font-size: 18px; cursor: pointer; padding: 2px 6px;
+}
+.email-cap-done .email-cap-x { position: static; }
+.email-cap-title { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+.email-cap-sub   { font-size: 13px; color: var(--text-dim); margin-bottom: 12px; }
+.email-cap-row   { display: flex; gap: 8px; }
+.email-cap-input {
+  flex: 1; min-width: 0;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+}
+.email-cap-input:focus { border-color: var(--accent); }
+.email-cap-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.email-cap-btn:active { opacity: 0.8; }
+@keyframes input-shake {
+  0%,100% { transform: translateX(0); }
+  25%      { transform: translateX(-6px); }
+  75%      { transform: translateX(6px); }
+}
+.input-shake { animation: input-shake 0.4s ease; border-color: #f44336 !important; }
+

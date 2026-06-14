@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.13.01";
+const APP_VERSION = "2026.06.13.02";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -93,6 +93,58 @@ function tierTag(templateId) {
   const td = TIERS[tier];
   return `<span class="tier-tag" style="color:${td.color}">${td.label}</span>`;
 }
+
+// Challenge difficulty (independent of WoW rarity tier)
+const TEMPLATE_DIFFICULTY = {
+  // Beginner — no fitness baseline required
+  "dog-walk":"beginner","walking":"beginner","reading":"beginner",
+  "journaling":"beginner","meditation":"beginner","sleep-reset":"beginner",
+  "morning-routine":"beginner","hydration":"beginner","meal-prep":"beginner",
+  "no-spend":"beginner","dry-month":"beginner","creative":"beginner",
+  "sleep-tracker":"beginner","no-sugar":"beginner","digital-detox":"beginner",
+  "blood-pressure":"beginner","c25k":"beginner","pilates":"beginner",
+  // Intermediate — consistent effort or existing fitness base needed
+  "running":"intermediate","cycling":"intermediate","yoga-flexibility":"intermediate",
+  "core-abs":"intermediate","strength":"intermediate","30-pushups":"intermediate",
+  "30-squats":"intermediate","30-plank":"intermediate","spin":"intermediate",
+  "12-3-30":"intermediate","5k-prep":"intermediate","protein-challenge":"intermediate",
+  "weight-loss-30":"intermediate","body-composition":"intermediate",
+  "glucose-control":"intermediate",
+  "everest-bc":"intermediate","everest-stairmaster":"intermediate","thames-row":"intermediate",
+  // Advanced — high consistency demands or health-sensitive protocols
+  "75-soft":"advanced","10k-prep":"advanced","run-streak":"advanced",
+  "cold-exposure":"advanced","half-marathon-prep":"advanced",
+  "cruise-control":"advanced","intermittent-fasting":"advanced",
+  "monk-mode":"advanced","project-50":"advanced",
+  "camino":"advanced","route66":"advanced","raid-pyrenees":"advanced",
+  "danube-row":"advanced","comrades-ultra":"advanced","appalachian":"advanced",
+  "tour-de-france":"advanced",
+  // Extreme — elite output, multi-month commitment, or medical risk
+  "75-hard":"extreme","marathon-training":"extreme",
+  "ironman-703":"extreme","ironman-full":"extreme",
+  "tough-mudder":"extreme","spartan-race":"extreme",
+  "utmb":"extreme","run-5-marathons":"extreme","run-jogle":"extreme",
+  "run-trans-america":"extreme","trans-am-bike":"extreme","pct":"extreme",
+  "amazon-river":"extreme",
+};
+const DIFF_LABEL = { beginner:"Beginner", intermediate:"Intermediate", advanced:"Advanced", extreme:"Extreme" };
+const DIFF_COLOR = { beginner:"#4caf50", intermediate:"#ff9800", advanced:"#f44336", extreme:"#9c27b0" };
+
+// Safety warnings for high-risk or health-sensitive challenges
+const TEMPLATE_SAFETY = {
+  "intermittent-fasting": "Not suitable if you are pregnant, have a history of eating disorders, take diabetes medication, or have any chronic illness. Consult your doctor before starting.",
+  "cold-exposure": "Never combine breathwork with cold water immersion — risk of fainting or drowning. Breathe normally during cold showers or plunges.",
+  "75-hard": "Two 45-min workouts daily plus strict dieting. High injury and burnout risk if untrained. Get medical clearance if you have any pre-existing health conditions.",
+  "blood-pressure": "Tracking only — does not replace medical care. If readings are high or you have symptoms (chest pain, headache, dizziness), see a doctor immediately.",
+  "glucose-control": "Tracking only. Never adjust medication or insulin based on app readings. Always consult your healthcare provider.",
+  "hydration": "Personalise your target to your size and climate. Do not exceed 3–4L per day without medical guidance — excess water can cause hyponatremia.",
+  "marathon-training": "High volume increases injury risk. Rest days are mandatory. Consult a doctor before starting if you have cardiovascular or joint conditions.",
+  "ironman-703": "Extreme training volume. Medical clearance recommended. Never skip recovery days.",
+  "ironman-full": "Maximum endurance stress. Medical clearance is strongly recommended. Overtraining and injury risk is very high.",
+  "tough-mudder": "Includes cold water obstacles and contact elements. Consult a doctor if you have cardiovascular, joint, or cold-sensitivity conditions.",
+  "spartan-race": "High-intensity obstacle training. Consult a doctor if you have cardiovascular or joint conditions.",
+  "cruise-control": "Intense multi-habit daily protocol. Not suitable if you have joint issues, cardiovascular conditions, or are new to exercise.",
+};
 
 // Challenge template → tier
 const TEMPLATE_TIERS = {
@@ -3589,12 +3641,28 @@ function renderChallenges() {
   const emptyMsg = challengeSubTab === "expeditions"
     ? `No expedition running. <button class="link-btn" data-open-builder>Pick a route?</button>`
     : `No challenge running. <button class="link-btn" data-open-builder>Ready to start something?</button>`;
+  const emailCapState = localStorage.getItem("conqur_email_capture");
+  const showEmailCapture = challengeSubTab === "habits" && emailCapState !== "dismissed";
   return `
   <main>
     <div class="challenge-sub-tabs">
       <button class="csub-btn${challengeSubTab==="habits"?" active":""}" data-challenge-sub="habits">🎯 Habits</button>
       <button class="csub-btn${challengeSubTab==="expeditions"?" active":""}" data-challenge-sub="expeditions">🗺️ Expeditions</button>
     </div>
+    ${showEmailCapture ? (emailCapState === "submitted" ? `
+    <div class="email-cap-card email-cap-done">
+      <span>✅ You're on the list — we'll let you know when Pro launches!</span>
+      <button class="email-cap-x" data-dismiss-email-capture aria-label="Dismiss">×</button>
+    </div>` : `
+    <div class="email-cap-card">
+      <button class="email-cap-x" data-dismiss-email-capture aria-label="Dismiss">×</button>
+      <div class="email-cap-title">🚀 Conqur Pro is coming</div>
+      <div class="email-cap-sub">Cloud sync, analytics & more. Be first to know — no spam.</div>
+      <div class="email-cap-row">
+        <input type="email" id="email-cap-input" class="email-cap-input" placeholder="your@email.com" autocomplete="email">
+        <button class="email-cap-btn" data-email-capture-submit>Notify me</button>
+      </div>
+    </div>`) : ""}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
       <div class="section-label" style="margin:0">${challengeSubTab==="expeditions"?"Active Routes":"Active Challenges"}</div>
       <button class="pill-btn" data-open-builder>${challengeSubTab==="expeditions"?"+ Route":"+ New"}</button>
@@ -4173,11 +4241,13 @@ function renderBuilderTemplates() {
       : `${t.duration} days · ${t.defaultMode}`;
     const tier     = TEMPLATE_TIERS[t.id] || "common";
     const tierData = TIERS[tier];
+    const diff     = TEMPLATE_DIFFICULTY[t.id] || "intermediate";
+    const hasSafety = !!TEMPLATE_SAFETY[t.id];
     return `
     <button class="template-card${isExpedition?" tc-cat expedition":""}" data-select-template="${t.id}">
-      <div class="tc-emoji">${t.emoji}</div>
+      <div class="tc-emoji">${t.emoji}${hasSafety?` <span class="tc-safety-icon" title="Safety note">⚠️</span>`:""}</div>
       <div class="tc-name" style="color:${tierData.color}">${t.name}</div>
-      <div class="tc-difficulty" style="color:${tierData.color}">${tierData.label} · ${TIER_DESC[tier]}</div>
+      <div class="tc-difficulty" style="color:${tierData.color}">${tierData.label} · <span style="color:${DIFF_COLOR[diff]};font-weight:600">${DIFF_LABEL[diff]}</span></div>
       <div class="tc-meta">${meta}</div>
       <div class="tc-desc">${t.description}</div>
     </button>`;
@@ -5082,6 +5152,18 @@ function bindEvents() {
   on("[data-request-notif-from-builder]", () => requestNotificationPermission());
   on("[data-close-badge-sheet]",    () => { _badgeSheetQueue.shift(); render(); });
   on("[data-dismiss-backup-nudge]", () => { localStorage.setItem("conqur_backup_nudge_dismissed","1"); render(); });
+  on("[data-dismiss-email-capture]", () => { localStorage.setItem("conqur_email_capture","dismissed"); render(); });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.id === "email-cap-input") document.querySelector("[data-email-capture-submit]")?.click();
+  });
+  on("[data-email-capture-submit]",  () => {
+    const input = document.getElementById("email-cap-input");
+    const email = input ? input.value.trim() : "";
+    if (!email || !email.includes("@")) { if (input) { input.focus(); input.classList.add("input-shake"); setTimeout(()=>input.classList.remove("input-shake"),400); } return; }
+    fetch("/", { method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"}, body: new URLSearchParams({"form-name":"beta-waitlist", email}) }).catch(()=>{});
+    localStorage.setItem("conqur_email_capture","submitted");
+    render();
+  });
   on("[data-notif-prompt-enable]",  async () => { _notifPromptVisible = false; await requestNotificationPermission(); render(); });
   on("[data-notif-prompt-skip]",    () => { _notifPromptVisible = false; render(); });
   on("[data-start-challenge]",() => startChallenge());
@@ -5764,6 +5846,7 @@ function renderBuilderQuickstart() {
       ${template.habits.length > 5 ? `<div class="bqs-habit-row" style="color:var(--text-faint)">+ ${template.habits.length - 5} more habits</div>` : ""}
     </div>
     <div class="bqs-desc">${esc(template.description)}</div>
+    ${TEMPLATE_SAFETY[template.id] ? `<div class="bqs-safety-warning"><span class="bqs-safety-icon">⚠️</span><span>${TEMPLATE_SAFETY[template.id]}</span></div>` : ""}
     <div class="builder-cta-footer">
       <button class="primary-button" data-start-challenge>Start ${dur}-Day Challenge 🚀</button>
       <button class="secondary-button" style="margin-top:8px" data-quickstart-customise>Customise first →</button>
