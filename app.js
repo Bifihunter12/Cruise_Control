@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.17";
+const APP_VERSION = "2026.06.14.18";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -2579,7 +2579,13 @@ function render() {
   const app = document.getElementById("app");
   // Full-screen onboarding — render only the onboarding screen
   if (onboardingStep !== null) {
-    doObTransition(renderOnboarding());
+    const stepChanged = onboardingStep !== _prevObStep;
+    _prevObStep = onboardingStep;
+    app.innerHTML = renderOnboarding();
+    if (stepChanged) {
+      const scr = app.querySelector(".ob-screen");
+      if (scr) scr.classList.add("ob-entering");
+    }
     if (!_eventsBound) { bindEvents(); _eventsBound = true; }
     return;
   }
@@ -5056,50 +5062,6 @@ function renderObJourney() {
   </div>`;
 }
 
-function doObTransition(html) {
-  const app = document.getElementById("app");
-  const old = app.querySelector(".ob-screen");
-  const stepChanged = onboardingStep !== _prevObStep;
-  _prevObStep = onboardingStep;
-
-  // Only animate when actually moving to a new step
-  if (!old || !stepChanged || _obTransitioning) {
-    app.innerHTML = html;
-    _obTransitioning = false;
-    return;
-  }
-
-  const tmp = document.createElement("div");
-  tmp.innerHTML = html.trim();
-  const next = tmp.firstElementChild;
-  if (!next) { app.innerHTML = html; return; }
-
-  _obTransitioning = true;
-  old.style.pointerEvents = "none";
-
-  // New screen starts just 12px to the right, nearly invisible
-  next.style.cssText = "position:fixed;inset:0;z-index:401;transform:translateX(12px);opacity:0;will-change:transform,opacity;pointer-events:none;";
-  app.appendChild(next);
-
-  const dur = 260;
-  const ease = "ease-out";
-
-  // Double rAF ensures initial position is painted before transition starts
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    old.style.transition  = `opacity ${dur}ms ${ease}`;
-    old.style.opacity     = "0";
-
-    next.style.transition = `transform ${dur}ms ${ease}, opacity ${dur}ms ${ease}`;
-    next.style.transform  = "translateX(0)";
-    next.style.opacity    = "1";
-
-    setTimeout(() => {
-      old.remove();
-      next.style.cssText = "";   // drop inline overrides, CSS class takes over
-      _obTransitioning = false;
-    }, dur + 40);
-  }));
-}
 
 function renderOnboarding() {
   if (onboardingStep === null) return "";

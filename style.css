@@ -2157,6 +2157,13 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   padding: 48px 28px 40px;
   overflow-y: auto;
 }
+.ob-screen.ob-entering {
+  animation: ob-fadein 0.28s ease both;
+}
+@keyframes ob-fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
 
 /* ── Hero screen ── */
 
