@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.16";
+const APP_VERSION = "2026.06.14.17";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -1551,6 +1551,7 @@ let _newWeekBanner = null;     // { pts } — Monday new-week ceremony, null whe
 let _levelUpOverlay = null;   // { level, name, emoji, total } — full-screen level-up celebration
 let _resetConfirm = false;    // shows inline confirm step before wiping all data
 let _obTransitioning = false; // true while slide animation is in flight
+let _prevObStep = undefined;  // last rendered onboardingStep — transition only when this changes
 
 // ── Analytics helper (Plausible — graceful no-op if script not loaded) ───────
 function trackEvent(name, props) {
@@ -5058,8 +5059,11 @@ function renderObJourney() {
 function doObTransition(html) {
   const app = document.getElementById("app");
   const old = app.querySelector(".ob-screen");
+  const stepChanged = onboardingStep !== _prevObStep;
+  _prevObStep = onboardingStep;
 
-  if (!old || _obTransitioning) {
+  // Only animate when actually moving to a new step
+  if (!old || !stepChanged || _obTransitioning) {
     app.innerHTML = html;
     _obTransitioning = false;
     return;
