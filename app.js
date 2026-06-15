@@ -1,12 +1,12 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.11";
+const APP_VERSION = "2026.06.14.12";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
 const UPDATE_CHECK_MS = 30 * 60 * 1000;
 
-// â”€â”€ XP Level System â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── XP Level System ──────────────────────────────────────────────────────────
 const XP_LEVELS = [
   { level: 1,  name: "Rookie",               xp: 0      },
   { level: 2,  name: "Wanderer",             xp: 100    },
@@ -35,10 +35,10 @@ const XP_LEVELS = [
   { level: 25, name: "Conqueror of Everest", xp: 147000 },
 ];
 
-// â”€â”€ Journey Themes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Journey Themes ─────────────────────────────────────────────────────────
 const JOURNEY_THEMES = {
   mountain: {
-    label: "Mountain", emoji: "ðŸ”ï¸", tagline: "Conquer the Summit",
+    label: "Mountain", emoji: "🏔️", tagline: "Conquer the Summit",
     levels: [
       "Rookie","Wanderer","Trailblazer","Scout","Ranger","Climber","Adventurer",
       "Pathfinder","Mountaineer","Storm Rider","Iron Will","Blizzard Survivor",
@@ -48,7 +48,7 @@ const JOURNEY_THEMES = {
     ],
   },
   astronaut: {
-    label: "Astronaut", emoji: "ðŸš€", tagline: "Reach for the Stars",
+    label: "Astronaut", emoji: "🚀", tagline: "Reach for the Stars",
     levels: [
       "Space Dreamer","Mission Candidate","Cadet","Flight Trainee","Mission Specialist",
       "Launch Ready","Countdown","Orbit Reached","Spacewalker","Orbit Master",
@@ -58,7 +58,7 @@ const JOURNEY_THEMES = {
     ],
   },
   martial: {
-    label: "Martial Arts", emoji: "ðŸ¥‹", tagline: "Master Your Mind",
+    label: "Martial Arts", emoji: "🥋", tagline: "Master Your Mind",
     levels: [
       "White Belt","Yellow Belt","Orange Belt","Green Belt","Blue Belt",
       "Purple Belt","Red Belt","Brown Belt","Black Belt","1st Dan",
@@ -68,7 +68,7 @@ const JOURNEY_THEMES = {
     ],
   },
   viking: {
-    label: "Viking", emoji: "âš”ï¸", tagline: "Legend of the Sagas",
+    label: "Viking", emoji: "⚔️", tagline: "Legend of the Sagas",
     levels: [
       "Thrall","Freeman","Skald","Huscarl","Shield-Brother",
       "Berserker","Raider","Sea Wolf","Jarl's Guard","Bloodhawk",
@@ -78,7 +78,7 @@ const JOURNEY_THEMES = {
     ],
   },
   ocean: {
-    label: "Ocean Diver", emoji: "ðŸŒŠ", tagline: "Descend to the Deep",
+    label: "Ocean Diver", emoji: "🌊", tagline: "Descend to the Deep",
     levels: [
       "Beach Walker","Snorkeler","Surface Diver","Open Water Diver","Advanced Diver",
       "Rescue Diver","Night Diver","Deep Diver","Cave Explorer","Wreck Diver",
@@ -120,7 +120,7 @@ function recalcXP() {
   return total;
 }
 
-// â”€â”€ WoW-style Rarity Tiers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── WoW-style Rarity Tiers ────────────────────────────────────────────────
 const TIERS = {
   common:    { label:"Common",    color:"#86efac", border:"#86efac" }, // soft green
   uncommon:  { label:"Uncommon",  color:"#1eff00", border:"#1eff00" }, // WoW classic green
@@ -141,8 +141,8 @@ const TIER_DESC = {
 // Reference ranges for health measurement units
 const UNIT_RANGES = {
   "mmHg":   "Normal: <120/80 mmHg",
-  "mg/dL":  "Fasting normal: 70â€“99 mg/dL",
-  "hrs":    "Recommended: 7â€“9 hrs",
+  "mg/dL":  "Fasting normal: 70–99 mg/dL",
+  "hrs":    "Recommended: 7–9 hrs",
   "/10":    "Log from 1 (awful) to 10 (perfect)",
   "%":      null,
 };
@@ -157,14 +157,14 @@ function tierTag(templateId) {
 
 // Challenge difficulty (independent of WoW rarity tier)
 const TEMPLATE_DIFFICULTY = {
-  // Beginner â€” no fitness baseline required
+  // Beginner — no fitness baseline required
   "dog-walk":"beginner","walking":"beginner","reading":"beginner",
   "journaling":"beginner","meditation":"beginner","sleep-reset":"beginner",
   "morning-routine":"beginner","hydration":"beginner","meal-prep":"beginner",
   "no-spend":"beginner","dry-month":"beginner","creative":"beginner",
   "sleep-tracker":"beginner","no-sugar":"beginner","digital-detox":"beginner",
   "blood-pressure":"beginner","c25k":"beginner","pilates":"beginner",
-  // Intermediate â€” consistent effort or existing fitness base needed
+  // Intermediate — consistent effort or existing fitness base needed
   "running":"intermediate","cycling":"intermediate","yoga-flexibility":"intermediate",
   "core-abs":"intermediate","strength":"intermediate","30-pushups":"intermediate",
   "30-squats":"intermediate","30-plank":"intermediate","spin":"intermediate",
@@ -172,7 +172,7 @@ const TEMPLATE_DIFFICULTY = {
   "weight-loss-30":"intermediate","body-composition":"intermediate",
   "glucose-control":"intermediate",
   "everest-bc":"intermediate","everest-stairmaster":"intermediate","thames-row":"intermediate",
-  // Advanced â€” high consistency demands or health-sensitive protocols
+  // Advanced — high consistency demands or health-sensitive protocols
   "75-soft":"advanced","10k-prep":"advanced","run-streak":"advanced",
   "cold-exposure":"advanced","half-marathon-prep":"advanced",
   "cruise-control":"advanced","intermittent-fasting":"advanced",
@@ -180,7 +180,7 @@ const TEMPLATE_DIFFICULTY = {
   "camino":"advanced","route66":"advanced","raid-pyrenees":"advanced",
   "danube-row":"advanced","comrades-ultra":"advanced","appalachian":"advanced",
   "tour-de-france":"advanced",
-  // Extreme â€” elite output, multi-month commitment, or medical risk
+  // Extreme — elite output, multi-month commitment, or medical risk
   "75-hard":"extreme","marathon-training":"extreme",
   "ironman-703":"extreme","ironman-full":"extreme",
   "tough-mudder":"extreme","spartan-race":"extreme",
@@ -194,11 +194,11 @@ const DIFF_COLOR = { beginner:"#4caf50", intermediate:"#ff9800", advanced:"#f443
 // Safety warnings for high-risk or health-sensitive challenges
 const TEMPLATE_SAFETY = {
   "intermittent-fasting": "Not suitable if you are pregnant, have a history of eating disorders, take diabetes medication, or have any chronic illness. Consult your doctor before starting.",
-  "cold-exposure": "Never combine breathwork with cold water immersion â€” risk of fainting or drowning. Breathe normally during cold showers or plunges.",
+  "cold-exposure": "Never combine breathwork with cold water immersion — risk of fainting or drowning. Breathe normally during cold showers or plunges.",
   "75-hard": "Two 45-min workouts daily plus strict dieting. High injury and burnout risk if untrained. Get medical clearance if you have any pre-existing health conditions.",
-  "blood-pressure": "Tracking only â€” does not replace medical care. If readings are high or you have symptoms (chest pain, headache, dizziness), see a doctor immediately.",
+  "blood-pressure": "Tracking only — does not replace medical care. If readings are high or you have symptoms (chest pain, headache, dizziness), see a doctor immediately.",
   "glucose-control": "Tracking only. Never adjust medication or insulin based on app readings. Always consult your healthcare provider.",
-  "hydration": "Personalise your target to your size and climate. Do not exceed 3â€“4L per day without medical guidance â€” excess water can cause hyponatremia.",
+  "hydration": "Personalise your target to your size and climate. Do not exceed 3–4L per day without medical guidance — excess water can cause hyponatremia.",
   "marathon-training": "High volume increases injury risk. Rest days are mandatory. Consult a doctor before starting if you have cardiovascular or joint conditions.",
   "ironman-703": "Extreme training volume. Medical clearance recommended. Never skip recovery days.",
   "ironman-full": "Maximum endurance stress. Medical clearance is strongly recommended. Overtraining and injury risk is very high.",
@@ -207,1221 +207,1221 @@ const TEMPLATE_SAFETY = {
   "cruise-control": "Intense multi-habit daily protocol. Not suitable if you have joint issues, cardiovascular conditions, or are new to exercise.",
 };
 
-// Challenge template â†’ tier
+// Challenge template → tier
 const TEMPLATE_TIERS = {
-  // â”€â”€ Common: 30-day-or-less lifestyle, beginner-friendly
+  // ── Common: 30-day-or-less lifestyle, beginner-friendly
   "dry-month":"common","reading":"common","creative":"common",
   "meditation":"common","sleep-reset":"common","yoga-flexibility":"common",
   "digital-detox":"common","walking":"common","journaling":"common",
-  // â”€â”€ Uncommon: 30-day fitness / requires real consistency
+  // ── Uncommon: 30-day fitness / requires real consistency
   "30-pushups":"uncommon","dog-walk":"uncommon","cycling":"uncommon",
   "running":"uncommon","strength":"uncommon","no-sugar":"uncommon",
   "morning-routine":"uncommon","core-abs":"uncommon",
-  // â”€â”€ Rare: mentally demanding, 75-day, or short expedition
+  // ── Rare: mentally demanding, 75-day, or short expedition
   "cold-exposure":"rare","intermittent-fasting":"rare",
   "75-soft":"rare","everest-bc":"rare","monk-mode":"rare",
-  // â”€â”€ Epic: strict 75-day, 86-day transformation, long expeditions
+  // ── Epic: strict 75-day, 86-day transformation, long expeditions
   "75-hard":"epic","cruise-control":"epic","camino":"epic","tour-de-france":"epic",
-  // â”€â”€ Legendary: year-long or extreme challenges
+  // ── Legendary: year-long or extreme challenges
   "appalachian":"legendary","route66":"legendary",
   "amazon-river":"legendary","everest-stairmaster":"legendary","pct":"legendary",
   "run-trans-america":"legendary","trans-am-bike":"legendary",
-  // â”€â”€ Epic: demanding multi-month expeditions
+  // ── Epic: demanding multi-month expeditions
   "run-jogle":"epic","danube-row":"epic",
-  // â”€â”€ Rare: shorter expedition routes
+  // ── Rare: shorter expedition routes
   "run-5-marathons":"rare","raid-pyrenees":"rare","thames-row":"rare",
   "comrades-ultra":"rare",
-  // â”€â”€ New movement challenges
+  // ── New movement challenges
   "c25k":"uncommon","5k-prep":"uncommon","10k-prep":"rare",
   "run-streak":"uncommon","30-squats":"uncommon","30-plank":"uncommon",
   "pilates":"common","12-3-30":"uncommon","spin":"uncommon",
-  // â”€â”€ New nutrition / health habits
+  // ── New nutrition / health habits
   "protein-challenge":"common","meal-prep":"common","hydration":"common",
-  // â”€â”€ New lifestyle / transformation
+  // ── New lifestyle / transformation
   "project-50":"rare","no-spend":"common",
-  // â”€â”€ Health tracking
+  // ── Health tracking
   "weight-loss-30":"common","sleep-tracker":"common",
   "blood-pressure":"uncommon","glucose-control":"uncommon",
   "body-composition":"rare",
-  // â”€â”€ Endurance sport training
+  // ── Endurance sport training
   "half-marathon-prep":"uncommon","marathon-training":"rare",
   "tough-mudder":"rare","spartan-race":"epic",
   "ironman-703":"epic","ironman-full":"legendary",
-  // â”€â”€ Epic expedition
+  // ── Epic expedition
   "utmb":"epic",
 };
 
-// Universal / Lifetime badge â†’ tier (template badges inherit their template's tier)
+// Universal / Lifetime badge → tier (template badges inherit their template's tier)
 const BADGE_TIERS = {
-  // Universal â€” streaks
+  // Universal — streaks
   "u-3d":"common","u-7d":"common","u-14d":"uncommon","u-21d":"uncommon",
   "u-30d":"rare","u-60d":"epic","u-75d":"legendary",
-  // Universal â€” points
+  // Universal — points
   "u-p10":"common","u-p100":"uncommon","u-p500":"rare","u-p1k":"epic",
-  // Universal â€” body
+  // Universal — body
   "u-scale":"common","u-1lb":"common","u-5lb":"uncommon","u-10lb":"rare","u-wgoal":"epic",
-  // Universal â€” modes & behavior
+  // Universal — modes & behavior
   "u-cmback":"common",
-  // Universal â€” challenge milestones
+  // Universal — challenge milestones
   "u-first":"common","u-done1":"uncommon","u-done3":"rare","u-multi":"uncommon",
   // Lifetime
   "lt-100h":"uncommon","lt-500h":"rare","lt-5c":"epic","lt-cats":"rare",
   "lt-wk10":"uncommon","lt-perf":"legendary","lt-freeze":"uncommon",
 };
 
-// â”€â”€ Built-in Templates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Built-in Templates ─────────────────────────────────────────────────────
 
 const TEMPLATES = [
   {
-    id: "cruise-control", name: "Mental Toughness", emoji: "ðŸ”±", category: "transformation",
+    id: "cruise-control", name: "Mental Toughness", emoji: "🔱", category: "transformation",
     description: "30 days that change everything. Body, habits, and an unbreakable mind.",
     duration: 30, weeklyGoal: 120, defaultMode: "soft", noRestDay: true,
     habits: [
-      { id:"yoga",      title:"Morning yoga",              emoji:"ðŸ§˜", quip:"Sets the tone for everything after.",      type:"binary", points:2 },
-      { id:"steps",     title:"Steps",                     emoji:"ðŸ‘Ÿ", quip:"8k / 10k / 15k steps.",                  type:"tiered", points:2,
+      { id:"yoga",      title:"Morning yoga",              emoji:"🧘", quip:"Sets the tone for everything after.",      type:"binary", points:2 },
+      { id:"steps",     title:"Steps",                     emoji:"👟", quip:"8k / 10k / 15k steps.",                  type:"tiered", points:2,
         tiers:[{value:8,label:"8k",points:2},{value:10,label:"10k",points:3},{value:15,label:"15k",points:4}] },
-      { id:"protein",   title:"Protein at every meal",     emoji:"ðŸ¥©", quip:"Protein keeps the muscle, drops the fat.", type:"binary", points:2 },
-      { id:"water",     title:"Drink 3L water",            emoji:"ðŸ’§", quip:"Most hunger is just thirst.",              type:"binary", points:2 },
-      { id:"noalcohol", title:"No alcohol or liquid cals", emoji:"ðŸš«", quip:"Empty calories in every form. Skip them.", type:"binary", points:2 },
-      { id:"sleep",     title:"7+ hours sleep",            emoji:"ðŸŒ™", quip:"Sleep is the real supplement.",            type:"binary", points:2 },
-      { id:"read",      title:"Read 10 pages",             emoji:"ðŸ“–", quip:"10 pages a day is a book a month.",       type:"binary", points:2 },
-      { id:"run",       title:"Run session",               emoji:"ðŸƒ", quip:"Push your pace. Every km counts.",        type:"tiered",  points:2,
+      { id:"protein",   title:"Protein at every meal",     emoji:"🥩", quip:"Protein keeps the muscle, drops the fat.", type:"binary", points:2 },
+      { id:"water",     title:"Drink 3L water",            emoji:"💧", quip:"Most hunger is just thirst.",              type:"binary", points:2 },
+      { id:"noalcohol", title:"No alcohol or liquid cals", emoji:"🚫", quip:"Empty calories in every form. Skip them.", type:"binary", points:2 },
+      { id:"sleep",     title:"7+ hours sleep",            emoji:"🌙", quip:"Sleep is the real supplement.",            type:"binary", points:2 },
+      { id:"read",      title:"Read 10 pages",             emoji:"📖", quip:"10 pages a day is a book a month.",       type:"binary", points:2 },
+      { id:"run",       title:"Run session",               emoji:"🏃", quip:"Push your pace. Every km counts.",        type:"tiered",  points:2,
         tiers:[{value:1,label:"1 km",points:2},{value:3,label:"3 km",points:3},{value:5,label:"5 km",points:5},{value:"5+",label:"5 km+",points:7}] },
     ]
   },
   {
-    id: "75-hard", name: "75 Hard", emoji: "ðŸ’ª", category: "transformation",
+    id: "75-hard", name: "75 Hard", emoji: "💪", category: "transformation",
     description: "The original mental toughness program. 75 days. Zero compromises.",
     duration: 75, weeklyGoal: 98, defaultMode: "strict", noRestDay: true,
     habits: [
-      { id:"w1",       title:"Workout 1 â€” 45 min",          emoji:"ðŸ‹ï¸", quip:"First session done.",               type:"binary", points:3 },
-      { id:"w2",       title:"Workout 2 â€” 45 min outdoors", emoji:"ðŸŒ¤ï¸", quip:"Outdoor. No exceptions.",            type:"binary", points:3 },
-      { id:"water4l",  title:"Drink 4L water",              emoji:"ðŸ’§", quip:"Non-negotiable.",                    type:"binary", points:2 },
-      { id:"diet",     title:"Follow diet. No cheat meals.",emoji:"ðŸ¥—", quip:"No alcohol. No cheat meals.",        type:"binary", points:2 },
-      { id:"read10",   title:"Read 10 pages (non-fiction)", emoji:"ðŸ“–", quip:"10 pages of growth.",               type:"binary", points:2 },
-      { id:"photo",    title:"Progress photo",              emoji:"ðŸ“¸", quip:"Document the change.",               type:"binary", points:1 },
+      { id:"w1",       title:"Workout 1 — 45 min",          emoji:"🏋️", quip:"First session done.",               type:"binary", points:3 },
+      { id:"w2",       title:"Workout 2 — 45 min outdoors", emoji:"🌤️", quip:"Outdoor. No exceptions.",            type:"binary", points:3 },
+      { id:"water4l",  title:"Drink 4L water",              emoji:"💧", quip:"Non-negotiable.",                    type:"binary", points:2 },
+      { id:"diet",     title:"Follow diet. No cheat meals.",emoji:"🥗", quip:"No alcohol. No cheat meals.",        type:"binary", points:2 },
+      { id:"read10",   title:"Read 10 pages (non-fiction)", emoji:"📖", quip:"10 pages of growth.",               type:"binary", points:2 },
+      { id:"photo",    title:"Progress photo",              emoji:"📸", quip:"Document the change.",               type:"binary", points:1 },
     ]
   },
   {
-    id: "75-soft", name: "75 Soft", emoji: "ðŸ§˜", category: "transformation",
+    id: "75-soft", name: "75 Soft", emoji: "🧘", category: "transformation",
     description: "The balanced version. 75 days of consistent, sustainable habits.",
     duration: 75, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"workout",  title:"Workout 45 min",                  emoji:"ðŸƒ", quip:"Move your body.",               type:"binary", points:3 },
-      { id:"water3l",  title:"Drink 3L water",                  emoji:"ðŸ’§", quip:"Most hunger is just thirst.",   type:"binary", points:2 },
-      { id:"diet75s",  title:"Eat well (1 social meal/wk ok)",  emoji:"ðŸ¥—", quip:"Balanced, not perfect.",        type:"binary", points:2 },
-      { id:"read10s",  title:"Read 10 pages",                   emoji:"ðŸ“–", quip:"10 pages a day.",              type:"binary", points:2 },
+      { id:"workout",  title:"Workout 45 min",                  emoji:"🏃", quip:"Move your body.",               type:"binary", points:3 },
+      { id:"water3l",  title:"Drink 3L water",                  emoji:"💧", quip:"Most hunger is just thirst.",   type:"binary", points:2 },
+      { id:"diet75s",  title:"Eat well (1 social meal/wk ok)",  emoji:"🥗", quip:"Balanced, not perfect.",        type:"binary", points:2 },
+      { id:"read10s",  title:"Read 10 pages",                   emoji:"📖", quip:"10 pages a day.",              type:"binary", points:2 },
     ]
   },
   {
-    id: "30-pushups", name: "30-Day Push-Up", emoji: "ðŸ’¥", category: "movement",
+    id: "30-pushups", name: "30-Day Push-Up", emoji: "💥", category: "movement",
     description: "Build upper body strength. Start at 10, end at 100.",
     duration: 30, weeklyGoal: 70, defaultMode: "strict",
     habits: [
-      { id:"pushups",  title:"Daily push-ups",              emoji:"ðŸ’ª", quip:"Do your push-ups.",                 type:"binary", points:5 },
-      { id:"sleep30",  title:"8+ hours sleep",              emoji:"ðŸŒ™", quip:"Muscles grow at night.",            type:"binary", points:2 },
-      { id:"prot30",   title:"Protein at every meal",       emoji:"ðŸ¥©", quip:"Feed the muscle.",                 type:"binary", points:2 },
+      { id:"pushups",  title:"Daily push-ups",              emoji:"💪", quip:"Do your push-ups.",                 type:"binary", points:5 },
+      { id:"sleep30",  title:"8+ hours sleep",              emoji:"🌙", quip:"Muscles grow at night.",            type:"binary", points:2 },
+      { id:"prot30",   title:"Protein at every meal",       emoji:"🥩", quip:"Feed the muscle.",                 type:"binary", points:2 },
     ]
   },
   {
-    id: "dry-month", name: "Dry Month", emoji: "ðŸ¥ƒ", category: "lifestyle",
+    id: "dry-month", name: "Dry Month", emoji: "🥃", category: "lifestyle",
     description: "30 days, zero alcohol. Feel the difference.",
     duration: 30, weeklyGoal: 80, defaultMode: "strict",
     habits: [
-      { id:"noalc",    title:"No alcohol",                  emoji:"ðŸš«", quip:"Not today.",                        type:"binary", points:4 },
-      { id:"water30",  title:"Drink 2L water",              emoji:"ðŸ’§", quip:"Replace the empty with essential.", type:"binary", points:2 },
-      { id:"sleep30d", title:"7+ hours sleep",              emoji:"ðŸŒ™", quip:"Sleep is better sober anyway.",    type:"binary", points:2 },
-      { id:"journal",  title:"Journal 5 min",               emoji:"âœï¸", quip:"Write it out.",                   type:"binary", points:2 },
+      { id:"noalc",    title:"No alcohol",                  emoji:"🚫", quip:"Not today.",                        type:"binary", points:4 },
+      { id:"water30",  title:"Drink 2L water",              emoji:"💧", quip:"Replace the empty with essential.", type:"binary", points:2 },
+      { id:"sleep30d", title:"7+ hours sleep",              emoji:"🌙", quip:"Sleep is better sober anyway.",    type:"binary", points:2 },
+      { id:"journal",  title:"Journal 5 min",               emoji:"✍️", quip:"Write it out.",                   type:"binary", points:2 },
     ]
   },
   {
-    id: "reading", name: "Reading Challenge", emoji: "ðŸ“š", category: "lifestyle",
+    id: "reading", name: "Reading Challenge", emoji: "📚", category: "lifestyle",
     description: "Read every day for 30 days. 10 pages minimum.",
     duration: 30, weeklyGoal: 60, defaultMode: "soft",
     habits: [
-      { id:"readpg",   title:"Read 10 pages",               emoji:"ðŸ“–", quip:"10 pages a day is a book a month.", type:"binary", points:4 },
-      { id:"noscreen", title:"No screens 1 hr before bed",  emoji:"ðŸ“µ", quip:"Protect your sleep and focus.",    type:"binary", points:2 },
-      { id:"reflect",  title:"Reflect on what you read",    emoji:"ðŸ§ ", quip:"Understanding beats volume.",      type:"binary", points:2 },
+      { id:"readpg",   title:"Read 10 pages",               emoji:"📖", quip:"10 pages a day is a book a month.", type:"binary", points:4 },
+      { id:"noscreen", title:"No screens 1 hr before bed",  emoji:"📵", quip:"Protect your sleep and focus.",    type:"binary", points:2 },
+      { id:"reflect",  title:"Reflect on what you read",    emoji:"🧠", quip:"Understanding beats volume.",      type:"binary", points:2 },
     ]
   },
   {
-    id: "dog-walk", name: "Dog Walk Challenge", emoji: "ðŸ•", category: "movement",
+    id: "dog-walk", name: "Dog Walk Challenge", emoji: "🐕", category: "movement",
     description: "30 days of daily walks with your dog. Fresh air, consistency, and happy paws.",
     duration: 30, weeklyGoal: 75, defaultMode: "soft",
     habits: [
-      { id:"dw-walk",    title:"Morning walk",              emoji:"ðŸŒ…", quip:"Start the day right â€” both of you.", type:"binary", points:3 },
-      { id:"dw-dist",    title:"Walk distance",             emoji:"ðŸ“", quip:"Short is fine. Going is everything.", type:"tiered", points:2,
+      { id:"dw-walk",    title:"Morning walk",              emoji:"🌅", quip:"Start the day right — both of you.", type:"binary", points:3 },
+      { id:"dw-dist",    title:"Walk distance",             emoji:"📍", quip:"Short is fine. Going is everything.", type:"tiered", points:2,
         tiers:[{value:1,label:"1 km",points:2},{value:2,label:"2 km",points:3},{value:4,label:"4 km",points:4},{value:6,label:"6 km+",points:6}] },
-      { id:"dw-evening", title:"Evening walk",              emoji:"ðŸŒ†", quip:"Wind down together.",               type:"binary", points:2 },
-      { id:"dw-water",   title:"Fresh water for your dog",  emoji:"ðŸ’§", quip:"Hydration matters for them too.",   type:"binary", points:1 },
+      { id:"dw-evening", title:"Evening walk",              emoji:"🌆", quip:"Wind down together.",               type:"binary", points:2 },
+      { id:"dw-water",   title:"Fresh water for your dog",  emoji:"💧", quip:"Hydration matters for them too.",   type:"binary", points:1 },
     ]
   },
   {
-    id: "cycling", name: "Cycling Challenge", emoji: "ðŸš´", category: "movement",
+    id: "cycling", name: "Cycling Challenge", emoji: "🚴", category: "movement",
     description: "30 days in the saddle. Build endurance, torch calories, go farther than yesterday.",
     duration: 30, weeklyGoal: 90, defaultMode: "soft",
     habits: [
-      { id:"cy-ride",    title:"Bike ride",                 emoji:"ðŸš²", quip:"Clip in. Show up.",                  type:"tiered", points:3,
+      { id:"cy-ride",    title:"Bike ride",                 emoji:"🚲", quip:"Clip in. Show up.",                  type:"tiered", points:3,
         tiers:[{value:5,label:"5 km",points:3},{value:15,label:"15 km",points:4},{value:30,label:"30 km",points:6},{value:50,label:"50 km+",points:9}] },
-      { id:"cy-stretch", title:"Stretch & recover",         emoji:"ðŸ¦µ", quip:"The ride you can do tomorrow depends on this.", type:"binary", points:2 },
-      { id:"cy-water",   title:"Hydration 2L",              emoji:"ðŸ’§", quip:"Drink before you're thirsty.",       type:"binary", points:2 },
+      { id:"cy-stretch", title:"Stretch & recover",         emoji:"🦵", quip:"The ride you can do tomorrow depends on this.", type:"binary", points:2 },
+      { id:"cy-water",   title:"Hydration 2L",              emoji:"💧", quip:"Drink before you're thirsty.",       type:"binary", points:2 },
     ]
   },
   {
-    id: "walking", name: "Walking Challenge", emoji: "ðŸš¶", category: "movement",
+    id: "walking", name: "Walking Challenge", emoji: "🚶", category: "movement",
     description: "30 days of daily walking. The simplest habit with the biggest returns.",
     duration: 30, weeklyGoal: 80, defaultMode: "soft",
     habits: [
-      { id:"wk-dist",    title:"Daily walk",                emoji:"ðŸ‘Ÿ", quip:"Every step counts.",                 type:"tiered", points:2,
+      { id:"wk-dist",    title:"Daily walk",                emoji:"👟", quip:"Every step counts.",                 type:"tiered", points:2,
         tiers:[{value:2,label:"2 km",points:2},{value:5,label:"5 km",points:3},{value:8,label:"8 km",points:4},{value:10,label:"10 km+",points:6}] },
-      { id:"wk-morning", title:"Morning walk before work",  emoji:"ðŸŒ…", quip:"Before the world gets loud.",       type:"binary", points:2 },
-      { id:"wk-phone",   title:"Walk without your phone",   emoji:"ðŸ“µ", quip:"Just you and your thoughts.",       type:"binary", points:2 },
-      { id:"wk-stairs",  title:"Take the stairs all day",   emoji:"ðŸ¢", quip:"Small choices add up.",             type:"binary", points:1 },
+      { id:"wk-morning", title:"Morning walk before work",  emoji:"🌅", quip:"Before the world gets loud.",       type:"binary", points:2 },
+      { id:"wk-phone",   title:"Walk without your phone",   emoji:"📵", quip:"Just you and your thoughts.",       type:"binary", points:2 },
+      { id:"wk-stairs",  title:"Take the stairs all day",   emoji:"🏢", quip:"Small choices add up.",             type:"binary", points:1 },
     ]
   },
   {
-    id: "running", name: "Running Challenge", emoji: "ðŸƒ", category: "movement",
+    id: "running", name: "Running Challenge", emoji: "🏃", category: "movement",
     description: "30 days of running. Build the habit, find the pace, feel the difference.",
     duration: 30, weeklyGoal: 100, defaultMode: "strict",
     habits: [
-      { id:"rn-run",     title:"Run session",               emoji:"ðŸ‘Ÿ", quip:"Shoes on. Door open. Go.",           type:"tiered", points:3,
+      { id:"rn-run",     title:"Run session",               emoji:"👟", quip:"Shoes on. Door open. Go.",           type:"tiered", points:3,
         tiers:[{value:1,label:"1 km",points:3},{value:3,label:"3 km",points:4},{value:5,label:"5 km",points:6},{value:10,label:"10 km+",points:9}] },
-      { id:"rn-stretch", title:"Post-run stretch",          emoji:"ðŸ§˜", quip:"Skipping this is how injuries happen.", type:"binary", points:2 },
-      { id:"rn-water",   title:"Hydration 2L",              emoji:"ðŸ’§", quip:"Runners dehydrate fast.",            type:"binary", points:1 },
-      { id:"rn-sleep",   title:"Sleep 7+ hours",            emoji:"ðŸŒ™", quip:"You grow between the runs.",         type:"binary", points:2 },
+      { id:"rn-stretch", title:"Post-run stretch",          emoji:"🧘", quip:"Skipping this is how injuries happen.", type:"binary", points:2 },
+      { id:"rn-water",   title:"Hydration 2L",              emoji:"💧", quip:"Runners dehydrate fast.",            type:"binary", points:1 },
+      { id:"rn-sleep",   title:"Sleep 7+ hours",            emoji:"🌙", quip:"You grow between the runs.",         type:"binary", points:2 },
     ]
   },
   {
-    id: "creative", name: "Creative Challenge", emoji: "ðŸŽ¨", category: "lifestyle",
-    description: "30 days of daily creative practice. Write, draw, build, make â€” just create something.",
+    id: "creative", name: "Creative Challenge", emoji: "🎨", category: "lifestyle",
+    description: "30 days of daily creative practice. Write, draw, build, make — just create something.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"cr-create",  title:"Create something today",    emoji:"âœ¨", quip:"It doesn't have to be good. It has to exist.", type:"binary", points:4 },
-      { id:"cr-idea",    title:"Brainstorm 10 ideas",       emoji:"ðŸ’¡", quip:"Most will be bad. That's the point.", type:"binary", points:2 },
-      { id:"cr-study",   title:"Study your craft",          emoji:"ðŸ“š", quip:"The greats never stop learning.",    type:"binary", points:2 },
-      { id:"cr-noscroll",title:"No mindless scrolling",     emoji:"ðŸ“µ", quip:"Consumption kills creation.",        type:"binary", points:2 },
+      { id:"cr-create",  title:"Create something today",    emoji:"✨", quip:"It doesn't have to be good. It has to exist.", type:"binary", points:4 },
+      { id:"cr-idea",    title:"Brainstorm 10 ideas",       emoji:"💡", quip:"Most will be bad. That's the point.", type:"binary", points:2 },
+      { id:"cr-study",   title:"Study your craft",          emoji:"📚", quip:"The greats never stop learning.",    type:"binary", points:2 },
+      { id:"cr-noscroll",title:"No mindless scrolling",     emoji:"📵", quip:"Consumption kills creation.",        type:"binary", points:2 },
     ]
   },
   {
-    id: "strength", name: "Strength Training", emoji: "ðŸ‹ï¸", category: "movement",
+    id: "strength", name: "Strength Training", emoji: "🏋️", category: "movement",
     description: "30 days of consistent lifting. Build the habit, then build the muscle.",
     duration: 30, weeklyGoal: 90, defaultMode: "strict",
     habits: [
-      { id:"st-lift",    title:"Lift session",              emoji:"ðŸ‹ï¸", quip:"Show up. Lift. Repeat.",               type:"binary", points:5 },
-      { id:"st-protein", title:"Protein at every meal",     emoji:"ðŸ¥©", quip:"Muscle is built in the kitchen too.",  type:"binary", points:2 },
-      { id:"st-sleep",   title:"8+ hours sleep",            emoji:"ðŸŒ™", quip:"Muscle grows when you sleep.",         type:"binary", points:2 },
-      { id:"st-stretch", title:"Post-lift stretch",         emoji:"ðŸ¦µ", quip:"Skipping this is how injuries happen.",type:"binary", points:1 },
+      { id:"st-lift",    title:"Lift session",              emoji:"🏋️", quip:"Show up. Lift. Repeat.",               type:"binary", points:5 },
+      { id:"st-protein", title:"Protein at every meal",     emoji:"🥩", quip:"Muscle is built in the kitchen too.",  type:"binary", points:2 },
+      { id:"st-sleep",   title:"8+ hours sleep",            emoji:"🌙", quip:"Muscle grows when you sleep.",         type:"binary", points:2 },
+      { id:"st-stretch", title:"Post-lift stretch",         emoji:"🦵", quip:"Skipping this is how injuries happen.",type:"binary", points:1 },
     ]
   },
   {
-    id: "meditation", name: "Meditation", emoji: "ðŸ§˜", category: "lifestyle",
+    id: "meditation", name: "Meditation", emoji: "🧘", category: "lifestyle",
     description: "30 days of daily stillness. Calm the mind, sharpen the focus.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"med-sit",    title:"Meditate 10 min",           emoji:"ðŸ§˜", quip:"10 minutes. Eyes closed. Phone away.", type:"binary", points:4 },
-      { id:"med-breath", title:"Breathing exercise",        emoji:"ðŸ’¨", quip:"4-7-8 or box breathing. Just breathe.",type:"binary", points:2 },
-      { id:"med-screen", title:"No screens 1h before bed",  emoji:"ðŸ“µ", quip:"Protect your sleep and mind.",         type:"binary", points:2 },
-      { id:"med-journal",title:"Gratitude journal",         emoji:"âœï¸", quip:"Three things. Two minutes.",           type:"binary", points:2 },
+      { id:"med-sit",    title:"Meditate 10 min",           emoji:"🧘", quip:"10 minutes. Eyes closed. Phone away.", type:"binary", points:4 },
+      { id:"med-breath", title:"Breathing exercise",        emoji:"💨", quip:"4-7-8 or box breathing. Just breathe.",type:"binary", points:2 },
+      { id:"med-screen", title:"No screens 1h before bed",  emoji:"📵", quip:"Protect your sleep and mind.",         type:"binary", points:2 },
+      { id:"med-journal",title:"Gratitude journal",         emoji:"✍️", quip:"Three things. Two minutes.",           type:"binary", points:2 },
     ]
   },
   {
-    id: "cold-exposure", name: "Cold Exposure", emoji: "ðŸ§Š", category: "transformation",
+    id: "cold-exposure", name: "Cold Exposure", emoji: "🧊", category: "transformation",
     description: "30 days of cold showers. Builds mental resilience like nothing else.",
     duration: 30, weeklyGoal: 75, defaultMode: "strict",
     habits: [
-      { id:"ce-cold",    title:"Cold shower",               emoji:"ðŸ§Š", quip:"Get in. Don't think about it.",        type:"binary", points:5 },
-      { id:"ce-breath",  title:"Breathwork (Wim Hof)",      emoji:"ðŸ’¨", quip:"Breathe deep before you go cold.",     type:"binary", points:2 },
-      { id:"ce-reflect", title:"Post-session reflection",   emoji:"ðŸ§ ", quip:"Hardship processed becomes growth.",   type:"binary", points:2 },
+      { id:"ce-cold",    title:"Cold shower",               emoji:"🧊", quip:"Get in. Don't think about it.",        type:"binary", points:5 },
+      { id:"ce-breath",  title:"Breathwork (Wim Hof)",      emoji:"💨", quip:"Breathe deep before you go cold.",     type:"binary", points:2 },
+      { id:"ce-reflect", title:"Post-session reflection",   emoji:"🧠", quip:"Hardship processed becomes growth.",   type:"binary", points:2 },
     ]
   },
   {
-    id: "sleep-reset", name: "Sleep Reset", emoji: "ðŸ˜´", category: "lifestyle",
+    id: "sleep-reset", name: "Sleep Reset", emoji: "😴", category: "lifestyle",
     description: "21 days to fix your sleep. Consistent schedule, no screens, real rest.",
     duration: 21, weeklyGoal: 80, defaultMode: "strict",
     habits: [
-      { id:"sl-hours",   title:"8+ hours sleep",            emoji:"ðŸŒ™", quip:"Non-negotiable.",                      type:"binary", points:4 },
-      { id:"sl-screen",  title:"No screens after 9pm",      emoji:"ðŸ“µ", quip:"Blue light kills melatonin.",          type:"binary", points:3 },
-      { id:"sl-caffeine",title:"No caffeine after 2pm",     emoji:"â˜•", quip:"It stays in your system 6+ hours.",    type:"binary", points:2 },
-      { id:"sl-routine", title:"Same wake-up time",         emoji:"â°", quip:"Consistency locks the rhythm.",        type:"binary", points:2 },
+      { id:"sl-hours",   title:"8+ hours sleep",            emoji:"🌙", quip:"Non-negotiable.",                      type:"binary", points:4 },
+      { id:"sl-screen",  title:"No screens after 9pm",      emoji:"📵", quip:"Blue light kills melatonin.",          type:"binary", points:3 },
+      { id:"sl-caffeine",title:"No caffeine after 2pm",     emoji:"☕", quip:"It stays in your system 6+ hours.",    type:"binary", points:2 },
+      { id:"sl-routine", title:"Same wake-up time",         emoji:"⏰", quip:"Consistency locks the rhythm.",        type:"binary", points:2 },
     ]
   },
   {
-    id: "no-sugar", name: "No Sugar", emoji: "ðŸš«ðŸ¬", category: "lifestyle",
+    id: "no-sugar", name: "No Sugar", emoji: "🚫🍬", category: "lifestyle",
     description: "30 days without added sugar. Clearer skin, better energy, no crashes.",
     duration: 30, weeklyGoal: 75, defaultMode: "strict",
     habits: [
-      { id:"ns-nosugar",  title:"Zero added sugar today",    emoji:"ðŸš«", quip:"Read the label. It's in everything.",   type:"binary", points:5 },
-      { id:"ns-water",    title:"Drink 2L water",            emoji:"ðŸ’§", quip:"Cravings are often just dehydration.",  type:"binary", points:2 },
-      { id:"ns-fruit",    title:"Eat whole fruit (no juice)",emoji:"ðŸŽ", quip:"Fibre intact. Spike avoided.",          type:"binary", points:1 },
-      { id:"ns-label",    title:"Read every food label",     emoji:"ðŸ”", quip:"Knowledge is the weapon.",             type:"binary", points:1 },
+      { id:"ns-nosugar",  title:"Zero added sugar today",    emoji:"🚫", quip:"Read the label. It's in everything.",   type:"binary", points:5 },
+      { id:"ns-water",    title:"Drink 2L water",            emoji:"💧", quip:"Cravings are often just dehydration.",  type:"binary", points:2 },
+      { id:"ns-fruit",    title:"Eat whole fruit (no juice)",emoji:"🍎", quip:"Fibre intact. Spike avoided.",          type:"binary", points:1 },
+      { id:"ns-label",    title:"Read every food label",     emoji:"🔍", quip:"Knowledge is the weapon.",             type:"binary", points:1 },
     ]
   },
   {
-    id: "morning-routine", name: "Morning Routine", emoji: "ðŸŒ…", category: "lifestyle",
+    id: "morning-routine", name: "Morning Routine", emoji: "🌅", category: "lifestyle",
     description: "30 days of owning the first hour. Win the morning, win the day.",
     duration: 30, weeklyGoal: 80, defaultMode: "soft",
     habits: [
-      { id:"mr-wake",     title:"Wake up on time â€” no snooze",emoji:"â°", quip:"First decision of the day. Make it right.", type:"binary", points:3 },
-      { id:"mr-move",     title:"Move your body (10 min)",    emoji:"ðŸƒ", quip:"Anything counts. Don't overthink it.",  type:"binary", points:3 },
-      { id:"mr-nophone",  title:"No phone for first 30 min",  emoji:"ðŸ“µ", quip:"Protect your mind before the world gets in.", type:"binary", points:2 },
-      { id:"mr-hydrate",  title:"Drink water before coffee",  emoji:"ðŸ’§", quip:"You wake up dehydrated every time.",   type:"binary", points:1 },
-      { id:"mr-journal",  title:"Write 3 priorities for today",emoji:"ðŸ““",quip:"Clear mind. Clear direction.",          type:"binary", points:2 },
+      { id:"mr-wake",     title:"Wake up on time — no snooze",emoji:"⏰", quip:"First decision of the day. Make it right.", type:"binary", points:3 },
+      { id:"mr-move",     title:"Move your body (10 min)",    emoji:"🏃", quip:"Anything counts. Don't overthink it.",  type:"binary", points:3 },
+      { id:"mr-nophone",  title:"No phone for first 30 min",  emoji:"📵", quip:"Protect your mind before the world gets in.", type:"binary", points:2 },
+      { id:"mr-hydrate",  title:"Drink water before coffee",  emoji:"💧", quip:"You wake up dehydrated every time.",   type:"binary", points:1 },
+      { id:"mr-journal",  title:"Write 3 priorities for today",emoji:"📓",quip:"Clear mind. Clear direction.",          type:"binary", points:2 },
     ]
   },
   {
-    id: "yoga-flexibility", name: "Yoga & Flexibility", emoji: "ðŸ§˜â€â™€ï¸", category: "movement",
+    id: "yoga-flexibility", name: "Yoga & Flexibility", emoji: "🧘‍♀️", category: "movement",
     description: "30 days of daily yoga and stretching. Move better, recover faster, feel lighter.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"yf-yoga",     title:"Yoga session (20 min+)",     emoji:"ðŸ§˜", quip:"Show up to the mat. That's the whole job.", type:"binary", points:4 },
-      { id:"yf-stretch",  title:"Full-body stretch (10 min)", emoji:"ðŸ¦µ", quip:"Tight muscles are slow muscles.",        type:"binary", points:2 },
-      { id:"yf-breathe",  title:"Breathwork (5 min)",         emoji:"ðŸ’¨", quip:"Breath controls everything else.",       type:"binary", points:2 },
-      { id:"yf-hydrate",  title:"Hydration 2L",               emoji:"ðŸ’§", quip:"Flexibility and dehydration don't mix.",  type:"binary", points:1 },
+      { id:"yf-yoga",     title:"Yoga session (20 min+)",     emoji:"🧘", quip:"Show up to the mat. That's the whole job.", type:"binary", points:4 },
+      { id:"yf-stretch",  title:"Full-body stretch (10 min)", emoji:"🦵", quip:"Tight muscles are slow muscles.",        type:"binary", points:2 },
+      { id:"yf-breathe",  title:"Breathwork (5 min)",         emoji:"💨", quip:"Breath controls everything else.",       type:"binary", points:2 },
+      { id:"yf-hydrate",  title:"Hydration 2L",               emoji:"💧", quip:"Flexibility and dehydration don't mix.",  type:"binary", points:1 },
     ]
   },
   {
-    id: "digital-detox", name: "Digital Detox", emoji: "ðŸ“µ", category: "lifestyle",
+    id: "digital-detox", name: "Digital Detox", emoji: "📵", category: "lifestyle",
     description: "30 days of intentional screen use. Take back your attention.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"dd-limit",    title:"Max 1h social media",        emoji:"ðŸ“±", quip:"Your attention is the product. Guard it.", type:"binary", points:4 },
-      { id:"dd-morning",  title:"No phone first 30 min",      emoji:"ðŸŒ…", quip:"Start the day on your terms.",            type:"binary", points:3 },
-      { id:"dd-nobed",    title:"No phone in bed",            emoji:"ðŸ›ï¸", quip:"Better sleep starts here.",               type:"binary", points:2 },
-      { id:"dd-outside",  title:"Spend 30 min outside",       emoji:"ðŸŒ³", quip:"Real world. Real rest.",                  type:"binary", points:2 },
+      { id:"dd-limit",    title:"Max 1h social media",        emoji:"📱", quip:"Your attention is the product. Guard it.", type:"binary", points:4 },
+      { id:"dd-morning",  title:"No phone first 30 min",      emoji:"🌅", quip:"Start the day on your terms.",            type:"binary", points:3 },
+      { id:"dd-nobed",    title:"No phone in bed",            emoji:"🛏️", quip:"Better sleep starts here.",               type:"binary", points:2 },
+      { id:"dd-outside",  title:"Spend 30 min outside",       emoji:"🌳", quip:"Real world. Real rest.",                  type:"binary", points:2 },
     ]
   },
   {
-    id: "intermittent-fasting", name: "Intermittent Fasting", emoji: "â±ï¸", category: "transformation",
+    id: "intermittent-fasting", name: "Intermittent Fasting", emoji: "⏱️", category: "transformation",
     description: "30 days of 16:8. Eat in an 8-hour window, fast for 16. Simple, effective.",
     duration: 30, weeklyGoal: 80, defaultMode: "strict",
     habits: [
-      { id:"if-fast",     title:"16-hour fast completed",     emoji:"â±ï¸", quip:"The window is the whole game.",          type:"binary", points:5 },
-      { id:"if-water",    title:"Drink water during fast",    emoji:"ðŸ’§", quip:"Water, black coffee, and tea only.",     type:"binary", points:2 },
-      { id:"if-nosnack",  title:"No snacking outside window", emoji:"ðŸš«", quip:"Discipline between meals matters.",      type:"binary", points:2 },
-      { id:"if-protein",  title:"Protein-first meal",         emoji:"ðŸ¥©", quip:"Break the fast right.",                  type:"binary", points:1 },
+      { id:"if-fast",     title:"16-hour fast completed",     emoji:"⏱️", quip:"The window is the whole game.",          type:"binary", points:5 },
+      { id:"if-water",    title:"Drink water during fast",    emoji:"💧", quip:"Water, black coffee, and tea only.",     type:"binary", points:2 },
+      { id:"if-nosnack",  title:"No snacking outside window", emoji:"🚫", quip:"Discipline between meals matters.",      type:"binary", points:2 },
+      { id:"if-protein",  title:"Protein-first meal",         emoji:"🥩", quip:"Break the fast right.",                  type:"binary", points:1 },
     ]
   },
   {
-    id: "core-abs", name: "Core & Abs", emoji: "ðŸ”¥", category: "movement",
-    description: "30 days of daily core work. Planks, crunches, leg raises â€” build real strength.",
+    id: "core-abs", name: "Core & Abs", emoji: "🔥", category: "movement",
+    description: "30 days of daily core work. Planks, crunches, leg raises — build real strength.",
     duration: 30, weeklyGoal: 80, defaultMode: "strict",
     habits: [
-      { id:"ca-core",     title:"Core workout (15 min)",      emoji:"ðŸ’ª", quip:"15 minutes. No excuses.",                type:"binary", points:5 },
-      { id:"ca-plank",    title:"2-min plank hold",           emoji:"â±ï¸", quip:"The plank is honest.",                   type:"binary", points:2 },
-      { id:"ca-protein",  title:"Protein at every meal",      emoji:"ðŸ¥©", quip:"Muscle needs fuel.",                     type:"binary", points:2 },
-      { id:"ca-stretch",  title:"Hip flexor stretch",         emoji:"ðŸ¦µ", quip:"Core work tightens everything. Stretch.", type:"binary", points:1 },
+      { id:"ca-core",     title:"Core workout (15 min)",      emoji:"💪", quip:"15 minutes. No excuses.",                type:"binary", points:5 },
+      { id:"ca-plank",    title:"2-min plank hold",           emoji:"⏱️", quip:"The plank is honest.",                   type:"binary", points:2 },
+      { id:"ca-protein",  title:"Protein at every meal",      emoji:"🥩", quip:"Muscle needs fuel.",                     type:"binary", points:2 },
+      { id:"ca-stretch",  title:"Hip flexor stretch",         emoji:"🦵", quip:"Core work tightens everything. Stretch.", type:"binary", points:1 },
     ]
   },
 
   {
-    id: "journaling", name: "Daily Journaling", emoji: "âœï¸", category: "lifestyle",
+    id: "journaling", name: "Daily Journaling", emoji: "✍️", category: "lifestyle",
     description: "30 days of daily writing. Process your thoughts, track your growth, find clarity.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"jn-write",  title:"Write in journal",         emoji:"ðŸ““", quip:"Even five minutes counts. Just start.",          type:"binary", points:4 },
-      { id:"jn-prompt", title:"Answer a writing prompt",  emoji:"ðŸ’¡", quip:"A question asked is a thought unlocked.",        type:"binary", points:2 },
-      { id:"jn-gratit", title:"List 3 gratitudes",        emoji:"ðŸ™", quip:"What you appreciate, appreciates.",              type:"binary", points:2 },
-      { id:"jn-review", title:"Review yesterday's entry", emoji:"ðŸ”„", quip:"Reflection compounds the learning.",            type:"binary", points:1 },
+      { id:"jn-write",  title:"Write in journal",         emoji:"📓", quip:"Even five minutes counts. Just start.",          type:"binary", points:4 },
+      { id:"jn-prompt", title:"Answer a writing prompt",  emoji:"💡", quip:"A question asked is a thought unlocked.",        type:"binary", points:2 },
+      { id:"jn-gratit", title:"List 3 gratitudes",        emoji:"🙏", quip:"What you appreciate, appreciates.",              type:"binary", points:2 },
+      { id:"jn-review", title:"Review yesterday's entry", emoji:"🔄", quip:"Reflection compounds the learning.",            type:"binary", points:1 },
     ]
   },
   {
-    id: "monk-mode", name: "Monk Mode", emoji: "ðŸ§ ", category: "transformation",
-    description: "30 days of intense focus. No social media, no distractions â€” just deep work, learning, and execution.",
+    id: "monk-mode", name: "Monk Mode", emoji: "🧠", category: "transformation",
+    description: "30 days of intense focus. No social media, no distractions — just deep work, learning, and execution.",
     duration: 30, weeklyGoal: 120, defaultMode: "strict",
     habits: [
-      { id:"mm-focus",   title:"Deep work â€” 2 hours",    emoji:"ðŸ’»", quip:"Two hours. Zero distractions. Phone off.",        type:"binary", points:5 },
-      { id:"mm-nosocial",title:"No social media",        emoji:"ðŸ“µ", quip:"Your attention is your most valuable asset.",      type:"binary", points:3 },
-      { id:"mm-learn",   title:"Deliberate learning â€” 1h",emoji:"ðŸ“š",quip:"One hour of intentional study every day.",        type:"binary", points:3 },
-      { id:"mm-move",    title:"Move your body",         emoji:"ðŸƒ", quip:"The mind needs a body that moves.",               type:"binary", points:2 },
-      { id:"mm-reflect", title:"Evening reflection",     emoji:"âœï¸", quip:"What did you build today?",                       type:"binary", points:2 },
+      { id:"mm-focus",   title:"Deep work — 2 hours",    emoji:"💻", quip:"Two hours. Zero distractions. Phone off.",        type:"binary", points:5 },
+      { id:"mm-nosocial",title:"No social media",        emoji:"📵", quip:"Your attention is your most valuable asset.",      type:"binary", points:3 },
+      { id:"mm-learn",   title:"Deliberate learning — 1h",emoji:"📚",quip:"One hour of intentional study every day.",        type:"binary", points:3 },
+      { id:"mm-move",    title:"Move your body",         emoji:"🏃", quip:"The mind needs a body that moves.",               type:"binary", points:2 },
+      { id:"mm-reflect", title:"Evening reflection",     emoji:"✍️", quip:"What did you build today?",                       type:"binary", points:2 },
     ]
   },
 
-  // â”€â”€ Endurance Sport Training â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Endurance Sport Training ─────────────────────────────────────────────
   {
-    id: "half-marathon-prep", name: "Half Marathon Prep", emoji: "ðŸƒ", category: "endurance",
+    id: "half-marathon-prep", name: "Half Marathon Prep", emoji: "🏃", category: "endurance",
     description: "12 weeks to race day. Build your base, sharpen your speed, and cross that finish line.",
     duration: 84, weeklyGoal: 75, defaultMode: "soft",
     habits: [
-      { id:"hm-run",    title:"Run session",          emoji:"ðŸƒ", quip:"Every km counts.",                         type:"binary", points:5 },
-      { id:"hm-xt",     title:"Cross-train",          emoji:"ðŸš´", quip:"Swim, bike, yoga â€” anything non-run.",      type:"binary", points:3 },
-      { id:"hm-stretch",title:"Stretch & recover",    emoji:"ðŸ¦µ", quip:"Tight hips = slower times.",               type:"binary", points:2 },
-      { id:"hm-sleep",  title:"Sleep 8+ hours",       emoji:"ðŸŒ™", quip:"Sleep is the best performance drug.",       type:"binary", points:2 },
-      { id:"hm-fuel",   title:"Eat & hydrate clean",  emoji:"ðŸ¥—", quip:"Fuel the engine right.",                   type:"binary", points:3 },
+      { id:"hm-run",    title:"Run session",          emoji:"🏃", quip:"Every km counts.",                         type:"binary", points:5 },
+      { id:"hm-xt",     title:"Cross-train",          emoji:"🚴", quip:"Swim, bike, yoga — anything non-run.",      type:"binary", points:3 },
+      { id:"hm-stretch",title:"Stretch & recover",    emoji:"🦵", quip:"Tight hips = slower times.",               type:"binary", points:2 },
+      { id:"hm-sleep",  title:"Sleep 8+ hours",       emoji:"🌙", quip:"Sleep is the best performance drug.",       type:"binary", points:2 },
+      { id:"hm-fuel",   title:"Eat & hydrate clean",  emoji:"🥗", quip:"Fuel the engine right.",                   type:"binary", points:3 },
     ]
   },
   {
-    id: "marathon-training", name: "Marathon Training", emoji: "ðŸ…", category: "endurance",
+    id: "marathon-training", name: "Marathon Training", emoji: "🏅", category: "endurance",
     description: "16 weeks of structured training to get you to the 42.2 km finish line.",
     duration: 112, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"mt-run",    title:"Run session",           emoji:"ðŸƒ", quip:"Miles in the bank.",                       type:"binary", points:5 },
-      { id:"mt-xt",     title:"Cross-train",           emoji:"ðŸŠ", quip:"Active recovery is still recovery.",       type:"binary", points:3 },
-      { id:"mt-stretch",title:"Stretch & foam roll",   emoji:"ðŸ¦µ", quip:"15 min saves your IT bands.",              type:"binary", points:2 },
-      { id:"mt-sleep",  title:"Sleep 8+ hours",        emoji:"ðŸŒ™", quip:"Legs rebuild at night.",                   type:"binary", points:2 },
-      { id:"mt-fuel",   title:"Fuel & hydrate",        emoji:"ðŸŒ", quip:"Carbs are your friend on long-run days.",  type:"binary", points:3 },
+      { id:"mt-run",    title:"Run session",           emoji:"🏃", quip:"Miles in the bank.",                       type:"binary", points:5 },
+      { id:"mt-xt",     title:"Cross-train",           emoji:"🏊", quip:"Active recovery is still recovery.",       type:"binary", points:3 },
+      { id:"mt-stretch",title:"Stretch & foam roll",   emoji:"🦵", quip:"15 min saves your IT bands.",              type:"binary", points:2 },
+      { id:"mt-sleep",  title:"Sleep 8+ hours",        emoji:"🌙", quip:"Legs rebuild at night.",                   type:"binary", points:2 },
+      { id:"mt-fuel",   title:"Fuel & hydrate",        emoji:"🍌", quip:"Carbs are your friend on long-run days.",  type:"binary", points:3 },
     ]
   },
   {
-    id: "ironman-703", name: "Ironman 70.3", emoji: "ðŸŠ", category: "endurance",
-    description: "20 weeks of swim, bike, run. Half the distance â€” all the glory.",
+    id: "ironman-703", name: "Ironman 70.3", emoji: "🏊", category: "endurance",
+    description: "20 weeks of swim, bike, run. Half the distance — all the glory.",
     duration: 140, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"703-swim",   title:"Swim session",         emoji:"ðŸŠ", quip:"Smooth strokes save energy.",              type:"binary", points:5 },
-      { id:"703-bike",   title:"Bike session",         emoji:"ðŸš´", quip:"The bike is where races are won.",         type:"binary", points:5 },
-      { id:"703-run",    title:"Run session",          emoji:"ðŸƒ", quip:"Hold form when it hurts.",                 type:"binary", points:5 },
-      { id:"703-recover",title:"Recovery & stretch",   emoji:"ðŸ¦µ", quip:"Three sports means three ways to injure.", type:"binary", points:2 },
-      { id:"703-sleep",  title:"Sleep 8+ hours",       emoji:"ðŸŒ™", quip:"Training stress + sleep = adaptation.",    type:"binary", points:2 },
+      { id:"703-swim",   title:"Swim session",         emoji:"🏊", quip:"Smooth strokes save energy.",              type:"binary", points:5 },
+      { id:"703-bike",   title:"Bike session",         emoji:"🚴", quip:"The bike is where races are won.",         type:"binary", points:5 },
+      { id:"703-run",    title:"Run session",          emoji:"🏃", quip:"Hold form when it hurts.",                 type:"binary", points:5 },
+      { id:"703-recover",title:"Recovery & stretch",   emoji:"🦵", quip:"Three sports means three ways to injure.", type:"binary", points:2 },
+      { id:"703-sleep",  title:"Sleep 8+ hours",       emoji:"🌙", quip:"Training stress + sleep = adaptation.",    type:"binary", points:2 },
     ]
   },
   {
-    id: "ironman-full", name: "Full Ironman", emoji: "ðŸ…", category: "endurance",
+    id: "ironman-full", name: "Full Ironman", emoji: "🏅", category: "endurance",
     description: "24 weeks to conquer 3.8 km swim, 180 km bike, and a full marathon. The ultimate endurance test.",
     duration: 168, weeklyGoal: 65, defaultMode: "soft",
     habits: [
-      { id:"im-swim",    title:"Swim session",         emoji:"ðŸŠ", quip:"Technique beats thrashing every time.",    type:"binary", points:5 },
-      { id:"im-bike",    title:"Bike session",         emoji:"ðŸš´", quip:"Ride smart â€” you still have to run.",      type:"binary", points:5 },
-      { id:"im-run",     title:"Run session",          emoji:"ðŸƒ", quip:"Brick runs build race-day legs.",          type:"binary", points:5 },
-      { id:"im-strength",title:"Strength training",    emoji:"ðŸ‹ï¸", quip:"Injury prevention starts in the gym.",    type:"binary", points:3 },
-      { id:"im-recover", title:"Recovery protocol",    emoji:"ðŸ›", quip:"Ice bath, compression, elevation.",        type:"binary", points:2 },
-      { id:"im-sleep",   title:"Sleep 8+ hours",       emoji:"ðŸŒ™", quip:"Ironman is built in the hours you sleep.", type:"binary", points:2 },
+      { id:"im-swim",    title:"Swim session",         emoji:"🏊", quip:"Technique beats thrashing every time.",    type:"binary", points:5 },
+      { id:"im-bike",    title:"Bike session",         emoji:"🚴", quip:"Ride smart — you still have to run.",      type:"binary", points:5 },
+      { id:"im-run",     title:"Run session",          emoji:"🏃", quip:"Brick runs build race-day legs.",          type:"binary", points:5 },
+      { id:"im-strength",title:"Strength training",    emoji:"🏋️", quip:"Injury prevention starts in the gym.",    type:"binary", points:3 },
+      { id:"im-recover", title:"Recovery protocol",    emoji:"🛁", quip:"Ice bath, compression, elevation.",        type:"binary", points:2 },
+      { id:"im-sleep",   title:"Sleep 8+ hours",       emoji:"🌙", quip:"Ironman is built in the hours you sleep.", type:"binary", points:2 },
     ]
   },
   {
-    id: "tough-mudder", name: "Tough Mudder Prep", emoji: "ðŸª–", category: "endurance",
-    description: "8 weeks to become obstacle-ready. Mud, walls, electric shocks â€” bring it on.",
+    id: "tough-mudder", name: "Tough Mudder Prep", emoji: "🪖", category: "endurance",
+    description: "8 weeks to become obstacle-ready. Mud, walls, electric shocks — bring it on.",
     duration: 56, weeklyGoal: 80, defaultMode: "strict",
     habits: [
-      { id:"tm-cardio",  title:"Cardio session",       emoji:"ðŸƒ", quip:"You'll be running 16â€“19 km on race day.",  type:"binary", points:5 },
-      { id:"tm-strength",title:"Strength & lift",      emoji:"ðŸ‹ï¸", quip:"Carry your teammates over walls.",        type:"binary", points:5 },
-      { id:"tm-grip",    title:"Grip & obstacle drills",emoji:"ðŸ§—", quip:"Monkey bars are harder than they look.",  type:"binary", points:4 },
-      { id:"tm-cold",    title:"Cold exposure",        emoji:"ðŸ§Š", quip:"Ice water is just part of the course.",    type:"binary", points:3 },
-      { id:"tm-mental",  title:"No excuses today",     emoji:"ðŸ§ ", quip:"Mindset separates finishers from quitters.",type:"binary",points:3 },
+      { id:"tm-cardio",  title:"Cardio session",       emoji:"🏃", quip:"You'll be running 16–19 km on race day.",  type:"binary", points:5 },
+      { id:"tm-strength",title:"Strength & lift",      emoji:"🏋️", quip:"Carry your teammates over walls.",        type:"binary", points:5 },
+      { id:"tm-grip",    title:"Grip & obstacle drills",emoji:"🧗", quip:"Monkey bars are harder than they look.",  type:"binary", points:4 },
+      { id:"tm-cold",    title:"Cold exposure",        emoji:"🧊", quip:"Ice water is just part of the course.",    type:"binary", points:3 },
+      { id:"tm-mental",  title:"No excuses today",     emoji:"🧠", quip:"Mindset separates finishers from quitters.",type:"binary",points:3 },
     ]
   },
   {
-    id: "spartan-race", name: "Spartan Race Prep", emoji: "âš”ï¸", category: "endurance",
-    description: "12 weeks of OCR training. 30 burpees per missed obstacle â€” don't miss any.",
+    id: "spartan-race", name: "Spartan Race Prep", emoji: "⚔️", category: "endurance",
+    description: "12 weeks of OCR training. 30 burpees per missed obstacle — don't miss any.",
     duration: 84, weeklyGoal: 75, defaultMode: "strict",
     habits: [
-      { id:"sr-wod",     title:"Spartan WOD",          emoji:"âš”ï¸", quip:"AROO!",                                   type:"binary", points:5 },
-      { id:"sr-obstacle",title:"Obstacle conditioning", emoji:"ðŸ§—", quip:"Spear throw, rope climb, sandbag carry.", type:"binary", points:4 },
-      { id:"sr-run",     title:"Trail or road run",    emoji:"ðŸƒ", quip:"Spartans run on rough terrain.",           type:"binary", points:5 },
-      { id:"sr-strength",title:"Strength circuit",     emoji:"ðŸ‹ï¸", quip:"Burpees count. Weakness does not.",       type:"binary", points:3 },
-      { id:"sr-fuel",    title:"Fuel clean",           emoji:"ðŸ¥©", quip:"Real food only. Spartan diet.",            type:"binary", points:3 },
+      { id:"sr-wod",     title:"Spartan WOD",          emoji:"⚔️", quip:"AROO!",                                   type:"binary", points:5 },
+      { id:"sr-obstacle",title:"Obstacle conditioning", emoji:"🧗", quip:"Spear throw, rope climb, sandbag carry.", type:"binary", points:4 },
+      { id:"sr-run",     title:"Trail or road run",    emoji:"🏃", quip:"Spartans run on rough terrain.",           type:"binary", points:5 },
+      { id:"sr-strength",title:"Strength circuit",     emoji:"🏋️", quip:"Burpees count. Weakness does not.",       type:"binary", points:3 },
+      { id:"sr-fuel",    title:"Fuel clean",           emoji:"🥩", quip:"Real food only. Spartan diet.",            type:"binary", points:3 },
     ]
   },
 
-  // â”€â”€ Health Tracking â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Health Tracking ──────────────────────────────────────────────────────
   {
-    id: "weight-loss-30", name: "Weight Loss 30", emoji: "âš–ï¸", category: "health",
+    id: "weight-loss-30", name: "Weight Loss 30", emoji: "⚖️", category: "health",
     description: "30 days of daily weigh-ins and healthy habits. Track your weight, build the routine.",
     duration: 30, weeklyGoal: 80, defaultMode: "soft",
     habits: [
-      { id:"wl-weight",  title:"Log weight",         emoji:"âš–ï¸", quip:"Same time each morning. Consistency beats precision.", type:"measurement", unit:"weight", decimals:1 },
-      { id:"wl-deficit", title:"Calorie deficit day", emoji:"ðŸ¥—", quip:"Eat less than you burn. Simple, not easy.",           type:"binary",      points:5 },
-      { id:"wl-exercise",title:"Exercise 30 min",    emoji:"ðŸƒ", quip:"Cardio, weights, walk â€” it all counts.",              type:"binary",      points:5 },
-      { id:"wl-water",   title:"Drink 3L water",     emoji:"ðŸ’§", quip:"Hunger is often thirst in disguise.",                 type:"binary",      points:3 },
-      { id:"wl-sleep",   title:"Sleep 8+ hours",     emoji:"ðŸŒ™", quip:"Sleep deprivation kills fat loss.",                   type:"binary",      points:2 },
+      { id:"wl-weight",  title:"Log weight",         emoji:"⚖️", quip:"Same time each morning. Consistency beats precision.", type:"measurement", unit:"weight", decimals:1 },
+      { id:"wl-deficit", title:"Calorie deficit day", emoji:"🥗", quip:"Eat less than you burn. Simple, not easy.",           type:"binary",      points:5 },
+      { id:"wl-exercise",title:"Exercise 30 min",    emoji:"🏃", quip:"Cardio, weights, walk — it all counts.",              type:"binary",      points:5 },
+      { id:"wl-water",   title:"Drink 3L water",     emoji:"💧", quip:"Hunger is often thirst in disguise.",                 type:"binary",      points:3 },
+      { id:"wl-sleep",   title:"Sleep 8+ hours",     emoji:"🌙", quip:"Sleep deprivation kills fat loss.",                   type:"binary",      points:2 },
     ]
   },
   {
-    id: "body-composition", name: "Body Composition", emoji: "ðŸ“Š", category: "health",
+    id: "body-composition", name: "Body Composition", emoji: "📊", category: "health",
     description: "90 days tracking weight, body fat %, and lean muscle mass. Know your numbers.",
     duration: 90, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"bc-weight",  title:"Log weight",         emoji:"âš–ï¸", quip:"Weekly is fine â€” daily is better.",                  type:"measurement", unit:"weight",  decimals:1 },
-      { id:"bc-fat",     title:"Log body fat %",     emoji:"ðŸ“‰", quip:"DEXA, calipers, smart scale â€” pick one and stick to it.", type:"measurement", unit:"%",      decimals:1 },
-      { id:"bc-lean",    title:"Log lean mass",      emoji:"ðŸ’ª", quip:"Lean mass = weight Ã— (1 âˆ’ fat% / 100).",             type:"measurement", unit:"weight",  decimals:1 },
-      { id:"bc-protein", title:"Hit protein goal",   emoji:"ðŸ¥©", quip:"1g per lb of bodyweight. Non-negotiable.",           type:"binary",      points:5 },
-      { id:"bc-lift",    title:"Lift session",       emoji:"ðŸ‹ï¸", quip:"Muscle doesn't build itself.",                       type:"binary",      points:5 },
+      { id:"bc-weight",  title:"Log weight",         emoji:"⚖️", quip:"Weekly is fine — daily is better.",                  type:"measurement", unit:"weight",  decimals:1 },
+      { id:"bc-fat",     title:"Log body fat %",     emoji:"📉", quip:"DEXA, calipers, smart scale — pick one and stick to it.", type:"measurement", unit:"%",      decimals:1 },
+      { id:"bc-lean",    title:"Log lean mass",      emoji:"💪", quip:"Lean mass = weight × (1 − fat% / 100).",             type:"measurement", unit:"weight",  decimals:1 },
+      { id:"bc-protein", title:"Hit protein goal",   emoji:"🥩", quip:"1g per lb of bodyweight. Non-negotiable.",           type:"binary",      points:5 },
+      { id:"bc-lift",    title:"Lift session",       emoji:"🏋️", quip:"Muscle doesn't build itself.",                       type:"binary",      points:5 },
     ]
   },
   {
-    id: "blood-pressure", name: "Blood Pressure Monitor", emoji: "ðŸ©º", category: "health",
+    id: "blood-pressure", name: "Blood Pressure Monitor", emoji: "🩺", category: "health",
     description: "30 days of daily blood pressure logging plus heart-healthy habits. Share the data with your doctor.",
     duration: 30, weeklyGoal: 85, defaultMode: "strict",
     habits: [
-      { id:"bp-sys",     title:"Log systolic (top #)",   emoji:"â¤ï¸", quip:"Normal: below 120 mmHg.",                        type:"measurement", unit:"mmHg",    decimals:0 },
-      { id:"bp-dia",     title:"Log diastolic (bottom #)",emoji:"ðŸ’™", quip:"Normal: below 80 mmHg.",                        type:"measurement", unit:"mmHg",    decimals:0 },
-      { id:"bp-walk",    title:"30-min walk",            emoji:"ðŸš¶", quip:"Regular walks lower BP more than most meds.",    type:"binary",      points:5 },
-      { id:"bp-sodium",  title:"Low sodium today",       emoji:"ðŸ§‚", quip:"Under 1,500 mg Na/day for high-BP.",             type:"binary",      points:5 },
-      { id:"bp-stress",  title:"Stress management",      emoji:"ðŸ§˜", quip:"Meditation, breathing, or just a quiet 10 min.", type:"binary",      points:3 },
+      { id:"bp-sys",     title:"Log systolic (top #)",   emoji:"❤️", quip:"Normal: below 120 mmHg.",                        type:"measurement", unit:"mmHg",    decimals:0 },
+      { id:"bp-dia",     title:"Log diastolic (bottom #)",emoji:"💙", quip:"Normal: below 80 mmHg.",                        type:"measurement", unit:"mmHg",    decimals:0 },
+      { id:"bp-walk",    title:"30-min walk",            emoji:"🚶", quip:"Regular walks lower BP more than most meds.",    type:"binary",      points:5 },
+      { id:"bp-sodium",  title:"Low sodium today",       emoji:"🧂", quip:"Under 1,500 mg Na/day for high-BP.",             type:"binary",      points:5 },
+      { id:"bp-stress",  title:"Stress management",      emoji:"🧘", quip:"Meditation, breathing, or just a quiet 10 min.", type:"binary",      points:3 },
     ]
   },
   {
-    id: "glucose-control", name: "Glucose Control", emoji: "ðŸ©¸", category: "health",
+    id: "glucose-control", name: "Glucose Control", emoji: "🩸", category: "health",
     description: "60 days of fasting glucose tracking and blood-sugar-friendly habits. Export to share with your doctor.",
     duration: 60, weeklyGoal: 85, defaultMode: "strict",
     habits: [
-      { id:"gc-glucose",title:"Log fasting glucose",    emoji:"ðŸ©¸", quip:"Measure before eating, first thing in the morning.", type:"measurement", unit:"mg/dL",  decimals:0 },
-      { id:"gc-lowcarb",title:"Low-carb meals",         emoji:"ðŸ¥¦", quip:"Aim for under 50g net carbs.",                      type:"binary",      points:5 },
-      { id:"gc-exercise",title:"Exercise 30 min",       emoji:"ðŸƒ", quip:"Muscle is the biggest glucose sink in the body.",    type:"binary",      points:5 },
-      { id:"gc-sugar",   title:"No added sugar",        emoji:"ðŸš«", quip:"Check labels. Sugar hides everywhere.",             type:"binary",      points:5 },
-      { id:"gc-sleep",   title:"Sleep 8+ hours",        emoji:"ðŸŒ™", quip:"One bad night raises fasting glucose the next day.",type:"binary",      points:3 },
+      { id:"gc-glucose",title:"Log fasting glucose",    emoji:"🩸", quip:"Measure before eating, first thing in the morning.", type:"measurement", unit:"mg/dL",  decimals:0 },
+      { id:"gc-lowcarb",title:"Low-carb meals",         emoji:"🥦", quip:"Aim for under 50g net carbs.",                      type:"binary",      points:5 },
+      { id:"gc-exercise",title:"Exercise 30 min",       emoji:"🏃", quip:"Muscle is the biggest glucose sink in the body.",    type:"binary",      points:5 },
+      { id:"gc-sugar",   title:"No added sugar",        emoji:"🚫", quip:"Check labels. Sugar hides everywhere.",             type:"binary",      points:5 },
+      { id:"gc-sleep",   title:"Sleep 8+ hours",        emoji:"🌙", quip:"One bad night raises fasting glucose the next day.",type:"binary",      points:3 },
     ]
   },
   {
-    id: "sleep-tracker", name: "Sleep Tracker", emoji: "ðŸ’¤", category: "health",
+    id: "sleep-tracker", name: "Sleep Tracker", emoji: "💤", category: "health",
     description: "30 days of sleep logging plus habits that actually improve sleep quality.",
     duration: 30, weeklyGoal: 85, defaultMode: "strict",
     habits: [
-      { id:"st-hours",  title:"Log hours slept",       emoji:"ðŸ˜´", quip:"Aim for 7â€“9 hours. Log it honestly.",              type:"measurement", unit:"hrs",     decimals:1 },
-      { id:"st-quality",title:"Log sleep quality 1â€“10",emoji:"â­", quip:"How rested do you feel? 10 = fully charged.",       type:"measurement", unit:"/10",     decimals:0 },
-      { id:"st-bedtime",title:"Consistent bedtime",    emoji:"â°", quip:"Same time Â±30 min â€” even weekends.",               type:"binary",      points:5 },
-      { id:"st-screen", title:"No screens 1h before bed",emoji:"ðŸ“µ",quip:"Blue light delays melatonin by 90 min.",          type:"binary",      points:5 },
-      { id:"st-light",  title:"Morning sunlight 10 min",emoji:"â˜€ï¸",quip:"Sets your circadian clock for the next 24 hours.", type:"binary",      points:3 },
+      { id:"st-hours",  title:"Log hours slept",       emoji:"😴", quip:"Aim for 7–9 hours. Log it honestly.",              type:"measurement", unit:"hrs",     decimals:1 },
+      { id:"st-quality",title:"Log sleep quality 1–10",emoji:"⭐", quip:"How rested do you feel? 10 = fully charged.",       type:"measurement", unit:"/10",     decimals:0 },
+      { id:"st-bedtime",title:"Consistent bedtime",    emoji:"⏰", quip:"Same time ±30 min — even weekends.",               type:"binary",      points:5 },
+      { id:"st-screen", title:"No screens 1h before bed",emoji:"📵",quip:"Blue light delays melatonin by 90 min.",          type:"binary",      points:5 },
+      { id:"st-light",  title:"Morning sunlight 10 min",emoji:"☀️",quip:"Sets your circadian clock for the next 24 hours.", type:"binary",      points:3 },
     ]
   },
 
-  // â”€â”€ Movement: beginner / body-weight progressions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Movement: beginner / body-weight progressions ───────────────────────
   {
-    id: "c25k", name: "Couch to 5K", emoji: "ðŸƒ", category: "movement",
-    description: "9 weeks of run/walk intervals that take beginners from the sofa to a 5K finish line. 3 sessions per week â€” rest days count too.",
+    id: "c25k", name: "Couch to 5K", emoji: "🏃", category: "movement",
+    description: "9 weeks of run/walk intervals that take beginners from the sofa to a 5K finish line. 3 sessions per week — rest days count too.",
     duration: 63, weeklyGoal: 50, defaultMode: "soft",
     habits: [
-      { id:"c25k-run",     title:"Run/walk session",          emoji:"ðŸ‘Ÿ", quip:"3 sessions a week. Each one builds the next.",     type:"binary", points:5 },
-      { id:"c25k-stretch", title:"Post-session stretch",      emoji:"ðŸ¦µ", quip:"5 minutes now saves weeks of injury later.",       type:"binary", points:2 },
-      { id:"c25k-water",   title:"Hydration 2L",              emoji:"ðŸ’§", quip:"Runners dehydrate faster than they think.",        type:"binary", points:1 },
-      { id:"c25k-sleep",   title:"Sleep 7+ hours",            emoji:"ðŸŒ™", quip:"Legs rebuild at night.",                           type:"binary", points:2 },
+      { id:"c25k-run",     title:"Run/walk session",          emoji:"👟", quip:"3 sessions a week. Each one builds the next.",     type:"binary", points:5 },
+      { id:"c25k-stretch", title:"Post-session stretch",      emoji:"🦵", quip:"5 minutes now saves weeks of injury later.",       type:"binary", points:2 },
+      { id:"c25k-water",   title:"Hydration 2L",              emoji:"💧", quip:"Runners dehydrate faster than they think.",        type:"binary", points:1 },
+      { id:"c25k-sleep",   title:"Sleep 7+ hours",            emoji:"🌙", quip:"Legs rebuild at night.",                           type:"binary", points:2 },
     ]
   },
   {
-    id: "5k-prep", name: "5K Prep", emoji: "ðŸŽ½", category: "movement",
-    description: "30 days to a faster 5K. Run 4Ã— a week, add strides, and race-day yourself at the end.",
+    id: "5k-prep", name: "5K Prep", emoji: "🎽", category: "movement",
+    description: "30 days to a faster 5K. Run 4× a week, add strides, and race-day yourself at the end.",
     duration: 30, weeklyGoal: 65, defaultMode: "soft",
     habits: [
-      { id:"5k-run",     title:"Run session",             emoji:"ðŸƒ", quip:"Shoes on. Door open. Go.",                       type:"tiered", points:3,
+      { id:"5k-run",     title:"Run session",             emoji:"🏃", quip:"Shoes on. Door open. Go.",                       type:"tiered", points:3,
         tiers:[{label:"Easy 20 min",pts:3},{label:"Tempo 30 min",pts:5},{label:"Interval session",pts:7}] },
-      { id:"5k-strides", title:"Strides after easy runs", emoji:"âš¡", quip:"6 Ã— 20-second pick-ups. More speed than you think.", type:"binary", points:2 },
-      { id:"5k-stretch", title:"Post-run stretch",        emoji:"ðŸ¦µ", quip:"Tight calves slow you down. Fix them.",             type:"binary", points:2 },
-      { id:"5k-sleep",   title:"Sleep 7+ hours",          emoji:"ðŸŒ™", quip:"Speed adaptations happen in deep sleep.",            type:"binary", points:2 },
+      { id:"5k-strides", title:"Strides after easy runs", emoji:"⚡", quip:"6 × 20-second pick-ups. More speed than you think.", type:"binary", points:2 },
+      { id:"5k-stretch", title:"Post-run stretch",        emoji:"🦵", quip:"Tight calves slow you down. Fix them.",             type:"binary", points:2 },
+      { id:"5k-sleep",   title:"Sleep 7+ hours",          emoji:"🌙", quip:"Speed adaptations happen in deep sleep.",            type:"binary", points:2 },
     ]
   },
   {
-    id: "10k-prep", name: "10K Prep", emoji: "ðŸ…", category: "movement",
+    id: "10k-prep", name: "10K Prep", emoji: "🏅", category: "movement",
     description: "45 days to your best 10K. Build weekly mileage, sharpen with intervals, and trust the process.",
     duration: 45, weeklyGoal: 65, defaultMode: "soft",
     habits: [
-      { id:"10k-run",    title:"Run session",            emoji:"ðŸƒ", quip:"Every kilometre is a deposit.",                       type:"tiered", points:3,
+      { id:"10k-run",    title:"Run session",            emoji:"🏃", quip:"Every kilometre is a deposit.",                       type:"tiered", points:3,
         tiers:[{label:"Easy 30 min",pts:3},{label:"Tempo 40 min",pts:5},{label:"Long run 60+ min",pts:7}] },
-      { id:"10k-xt",     title:"Cross-train",            emoji:"ðŸš´", quip:"Bike, swim, or yoga â€” protect the legs.",             type:"binary", points:2 },
-      { id:"10k-stretch",title:"Stretch & foam-roll",    emoji:"ðŸ¦µ", quip:"15 minutes now = fewer physio bills later.",          type:"binary", points:2 },
-      { id:"10k-sleep",  title:"Sleep 8+ hours",         emoji:"ðŸŒ™", quip:"Volume training demands good recovery.",              type:"binary", points:2 },
+      { id:"10k-xt",     title:"Cross-train",            emoji:"🚴", quip:"Bike, swim, or yoga — protect the legs.",             type:"binary", points:2 },
+      { id:"10k-stretch",title:"Stretch & foam-roll",    emoji:"🦵", quip:"15 minutes now = fewer physio bills later.",          type:"binary", points:2 },
+      { id:"10k-sleep",  title:"Sleep 8+ hours",         emoji:"🌙", quip:"Volume training demands good recovery.",              type:"binary", points:2 },
     ]
   },
   {
-    id: "run-streak", name: "Run Streak", emoji: "ðŸ”¥", category: "movement",
+    id: "run-streak", name: "Run Streak", emoji: "🔥", category: "movement",
     description: "Run at least 1 mile every day for 30 days. No exceptions. Simple rule, brutal consistency.",
     duration: 30, weeklyGoal: 60, defaultMode: "strict",
     habits: [
-      { id:"rs-run",     title:"Run minimum 1 mile",     emoji:"ðŸ‘Ÿ", quip:"One mile. Every day. No skipping.",                  type:"tiered", points:4,
+      { id:"rs-run",     title:"Run minimum 1 mile",     emoji:"👟", quip:"One mile. Every day. No skipping.",                  type:"tiered", points:4,
         tiers:[{label:"1 mile",pts:4},{label:"3 miles",pts:6},{label:"5+ miles",pts:8}] },
-      { id:"rs-log",     title:"Log your mileage",       emoji:"ðŸ“Š", quip:"What gets measured gets improved.",                   type:"binary", points:1 },
-      { id:"rs-stretch", title:"Post-run stretch",       emoji:"ðŸ¦µ", quip:"Daily running without stretching is how streaks end.", type:"binary", points:2 },
-      { id:"rs-sleep",   title:"Sleep 7+ hours",         emoji:"ðŸŒ™", quip:"Recovery is part of the streak.",                    type:"binary", points:2 },
+      { id:"rs-log",     title:"Log your mileage",       emoji:"📊", quip:"What gets measured gets improved.",                   type:"binary", points:1 },
+      { id:"rs-stretch", title:"Post-run stretch",       emoji:"🦵", quip:"Daily running without stretching is how streaks end.", type:"binary", points:2 },
+      { id:"rs-sleep",   title:"Sleep 7+ hours",         emoji:"🌙", quip:"Recovery is part of the streak.",                    type:"binary", points:2 },
     ]
   },
   {
-    id: "30-squats", name: "30-Day Squat", emoji: "ðŸ¦µ", category: "movement",
+    id: "30-squats", name: "30-Day Squat", emoji: "🦵", category: "movement",
     description: "A progressive squat challenge that takes you from 20 reps to 250 in 30 days. Lower body strength you'll feel.",
     duration: 30, weeklyGoal: 60, defaultMode: "strict",
     habits: [
-      { id:"sq-squats",  title:"Daily squats",           emoji:"ðŸ¦µ", quip:"Whatever today's number is â€” do it.",                type:"tiered", points:4,
-        tiers:[{label:"20â€“50 reps",pts:4},{label:"51â€“100 reps",pts:6},{label:"100+ reps",pts:8}] },
-      { id:"sq-stretch", title:"Hip flexor stretch",     emoji:"ðŸ§˜", quip:"Squats tighten hips. Undo it daily.",                type:"binary", points:2 },
-      { id:"sq-protein", title:"Protein at every meal",  emoji:"ðŸ¥©", quip:"Quads don't grow on air.",                           type:"binary", points:2 },
-      { id:"sq-sleep",   title:"8+ hours sleep",         emoji:"ðŸŒ™", quip:"Strength is built while you sleep.",                 type:"binary", points:2 },
+      { id:"sq-squats",  title:"Daily squats",           emoji:"🦵", quip:"Whatever today's number is — do it.",                type:"tiered", points:4,
+        tiers:[{label:"20–50 reps",pts:4},{label:"51–100 reps",pts:6},{label:"100+ reps",pts:8}] },
+      { id:"sq-stretch", title:"Hip flexor stretch",     emoji:"🧘", quip:"Squats tighten hips. Undo it daily.",                type:"binary", points:2 },
+      { id:"sq-protein", title:"Protein at every meal",  emoji:"🥩", quip:"Quads don't grow on air.",                           type:"binary", points:2 },
+      { id:"sq-sleep",   title:"8+ hours sleep",         emoji:"🌙", quip:"Strength is built while you sleep.",                 type:"binary", points:2 },
     ]
   },
   {
-    id: "30-plank", name: "30-Day Plank", emoji: "â±ï¸", category: "movement",
-    description: "Progressive plank challenge â€” from 20 seconds to 5 minutes over 30 days. Core strength you can actually feel.",
+    id: "30-plank", name: "30-Day Plank", emoji: "⏱️", category: "movement",
+    description: "Progressive plank challenge — from 20 seconds to 5 minutes over 30 days. Core strength you can actually feel.",
     duration: 30, weeklyGoal: 65, defaultMode: "strict",
     habits: [
-      { id:"pl-plank",   title:"Daily plank hold",       emoji:"â±ï¸", quip:"Whatever today's target is â€” hold it.",              type:"tiered", points:5,
-        tiers:[{label:"Under 1 min",pts:5},{label:"1â€“3 min",pts:7},{label:"3+ min",pts:9}] },
-      { id:"pl-core",    title:"Supplemental core (5 min)",emoji:"ðŸ’ª",quip:"Dead bugs, leg raises, bird-dogs. Keep it short.",  type:"binary", points:2 },
-      { id:"pl-stretch", title:"Hip flexor stretch",     emoji:"ðŸ¦µ", quip:"Planks compress the hip flexors. Stretch them out.", type:"binary", points:2 },
+      { id:"pl-plank",   title:"Daily plank hold",       emoji:"⏱️", quip:"Whatever today's target is — hold it.",              type:"tiered", points:5,
+        tiers:[{label:"Under 1 min",pts:5},{label:"1–3 min",pts:7},{label:"3+ min",pts:9}] },
+      { id:"pl-core",    title:"Supplemental core (5 min)",emoji:"💪",quip:"Dead bugs, leg raises, bird-dogs. Keep it short.",  type:"binary", points:2 },
+      { id:"pl-stretch", title:"Hip flexor stretch",     emoji:"🦵", quip:"Planks compress the hip flexors. Stretch them out.", type:"binary", points:2 },
     ]
   },
   {
-    id: "pilates", name: "Pilates Challenge", emoji: "ðŸŒ¸", category: "movement",
-    description: "30 days of mat Pilates â€” build deep core strength, improve posture, and move better every day.",
+    id: "pilates", name: "Pilates Challenge", emoji: "🌸", category: "movement",
+    description: "30 days of mat Pilates — build deep core strength, improve posture, and move better every day.",
     duration: 30, weeklyGoal: 55, defaultMode: "soft",
     habits: [
-      { id:"pil-session", title:"Pilates session (20 min+)", emoji:"ðŸŒ¸", quip:"Mat out. Clothes on. Start the video.",           type:"binary", points:5 },
-      { id:"pil-breath",  title:"Pilates breathing (5 min)", emoji:"ðŸ’¨", quip:"Breath is the engine of every Pilates movement.", type:"binary", points:2 },
-      { id:"pil-stretch", title:"Full-body stretch",         emoji:"ðŸ¦µ", quip:"End every session lengthened, not compressed.",   type:"binary", points:2 },
+      { id:"pil-session", title:"Pilates session (20 min+)", emoji:"🌸", quip:"Mat out. Clothes on. Start the video.",           type:"binary", points:5 },
+      { id:"pil-breath",  title:"Pilates breathing (5 min)", emoji:"💨", quip:"Breath is the engine of every Pilates movement.", type:"binary", points:2 },
+      { id:"pil-stretch", title:"Full-body stretch",         emoji:"🦵", quip:"End every session lengthened, not compressed.",   type:"binary", points:2 },
     ]
   },
   {
-    id: "12-3-30", name: "12-3-30 Challenge", emoji: "ðŸ”ï¸", category: "movement",
+    id: "12-3-30", name: "12-3-30 Challenge", emoji: "🏔️", category: "movement",
     description: "Treadmill at 12% incline, 3 mph, for 30 minutes. Every day for 30 days. Simple, brutal, effective.",
     duration: 30, weeklyGoal: 60, defaultMode: "strict",
     habits: [
-      { id:"1230-walk",   title:"12-3-30 session",        emoji:"ðŸ”ï¸", quip:"12% incline. 3 mph. 30 minutes. No shortcuts.",    type:"binary", points:6 },
-      { id:"1230-water",  title:"Hydration 2L",           emoji:"ðŸ’§", quip:"You sweat more than you think on that incline.",    type:"binary", points:2 },
-      { id:"1230-stretch",title:"Stretch calves & hamstrings",emoji:"ðŸ¦µ",quip:"High incline walks are brutal on calves.",       type:"binary", points:2 },
+      { id:"1230-walk",   title:"12-3-30 session",        emoji:"🏔️", quip:"12% incline. 3 mph. 30 minutes. No shortcuts.",    type:"binary", points:6 },
+      { id:"1230-water",  title:"Hydration 2L",           emoji:"💧", quip:"You sweat more than you think on that incline.",    type:"binary", points:2 },
+      { id:"1230-stretch",title:"Stretch calves & hamstrings",emoji:"🦵",quip:"High incline walks are brutal on calves.",       type:"binary", points:2 },
     ]
   },
   {
-    id: "spin", name: "Spin Challenge", emoji: "ðŸš²", category: "movement",
-    description: "30 days of indoor cycling. 4â€“5 sessions per week of high-intensity spinning to build cardio and legs.",
+    id: "spin", name: "Spin Challenge", emoji: "🚲", category: "movement",
+    description: "30 days of indoor cycling. 4–5 sessions per week of high-intensity spinning to build cardio and legs.",
     duration: 30, weeklyGoal: 65, defaultMode: "soft",
     habits: [
-      { id:"sp-ride",    title:"Spin session",            emoji:"ðŸš²", quip:"Clip in. Turn up the resistance. Go.",              type:"tiered", points:4,
+      { id:"sp-ride",    title:"Spin session",            emoji:"🚲", quip:"Clip in. Turn up the resistance. Go.",              type:"tiered", points:4,
         tiers:[{label:"20 min recovery",pts:3},{label:"45 min class",pts:5},{label:"60 min hard ride",pts:7}] },
-      { id:"sp-water",   title:"Hydration 2L",            emoji:"ðŸ’§", quip:"You lose a litre in a hard spin class.",            type:"binary", points:2 },
-      { id:"sp-stretch", title:"Stretch hips & quads",    emoji:"ðŸ¦µ", quip:"Indoor cycling locks up the hips. Undo it.",       type:"binary", points:2 },
-      { id:"sp-fuel",    title:"Carb-up before long ride", emoji:"ðŸŒ", quip:"Empty fuel tanks kill performance.",               type:"binary", points:1 },
+      { id:"sp-water",   title:"Hydration 2L",            emoji:"💧", quip:"You lose a litre in a hard spin class.",            type:"binary", points:2 },
+      { id:"sp-stretch", title:"Stretch hips & quads",    emoji:"🦵", quip:"Indoor cycling locks up the hips. Undo it.",       type:"binary", points:2 },
+      { id:"sp-fuel",    title:"Carb-up before long ride", emoji:"🍌", quip:"Empty fuel tanks kill performance.",               type:"binary", points:1 },
     ]
   },
 
-  // â”€â”€ Nutrition / Health habits â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Nutrition / Health habits ────────────────────────────────────────────
   {
-    id: "protein-challenge", name: "Protein Challenge", emoji: "ðŸ¥©", category: "health",
+    id: "protein-challenge", name: "Protein Challenge", emoji: "🥩", category: "health",
     description: "30 days of hitting your protein target every single day. Build muscle, cut cravings, and eat smarter.",
     duration: 30, weeklyGoal: 65, defaultMode: "strict",
     habits: [
-      { id:"pc-hit",     title:"Hit daily protein target", emoji:"ðŸ¥©", quip:"0.8â€“1g per lb of bodyweight. Every day.",          type:"tiered", points:4,
-        tiers:[{label:"80â€“100g",pts:4},{label:"100â€“140g",pts:6},{label:"140g+",pts:8}] },
-      { id:"pc-breakfast",title:"Protein-first breakfast",emoji:"ðŸ³", quip:"30g at breakfast kills cravings all day.",           type:"binary", points:2 },
-      { id:"pc-log",     title:"Log meals",                emoji:"ðŸ“Š", quip:"You can't hit what you don't track.",               type:"binary", points:2 },
-      { id:"pc-water",   title:"Hydration 2L",             emoji:"ðŸ’§", quip:"High protein diets need more water. Non-negotiable.", type:"binary", points:1 },
+      { id:"pc-hit",     title:"Hit daily protein target", emoji:"🥩", quip:"0.8–1g per lb of bodyweight. Every day.",          type:"tiered", points:4,
+        tiers:[{label:"80–100g",pts:4},{label:"100–140g",pts:6},{label:"140g+",pts:8}] },
+      { id:"pc-breakfast",title:"Protein-first breakfast",emoji:"🍳", quip:"30g at breakfast kills cravings all day.",           type:"binary", points:2 },
+      { id:"pc-log",     title:"Log meals",                emoji:"📊", quip:"You can't hit what you don't track.",               type:"binary", points:2 },
+      { id:"pc-water",   title:"Hydration 2L",             emoji:"💧", quip:"High protein diets need more water. Non-negotiable.", type:"binary", points:1 },
     ]
   },
   {
-    id: "meal-prep", name: "Meal Prep Challenge", emoji: "ðŸ¥¡", category: "lifestyle",
+    id: "meal-prep", name: "Meal Prep Challenge", emoji: "🥡", category: "lifestyle",
     description: "30 days of cooking and eating real food you prepared yourself. Less takeout. Less guessing. More control.",
     duration: 30, weeklyGoal: 55, defaultMode: "soft",
     habits: [
-      { id:"mp-home",    title:"Eat home-prepped food",   emoji:"ðŸ½ï¸", quip:"Food you cooked is food you control.",              type:"binary", points:4 },
-      { id:"mp-notake",  title:"No takeout today",        emoji:"ðŸš«", quip:"Every delivery skipped is money and macros saved.", type:"binary", points:3 },
-      { id:"mp-plan",    title:"Plan tomorrow's meals",   emoji:"ðŸ“‹", quip:"5 minutes of planning = zero decision fatigue.",    type:"binary", points:2 },
+      { id:"mp-home",    title:"Eat home-prepped food",   emoji:"🍽️", quip:"Food you cooked is food you control.",              type:"binary", points:4 },
+      { id:"mp-notake",  title:"No takeout today",        emoji:"🚫", quip:"Every delivery skipped is money and macros saved.", type:"binary", points:3 },
+      { id:"mp-plan",    title:"Plan tomorrow's meals",   emoji:"📋", quip:"5 minutes of planning = zero decision fatigue.",    type:"binary", points:2 },
     ]
   },
   {
-    id: "hydration", name: "Hydration Challenge", emoji: "ðŸ’§", category: "health",
+    id: "hydration", name: "Hydration Challenge", emoji: "💧", category: "health",
     description: "30 days of hitting your water target every day. Better skin, energy, focus, and recovery.",
     duration: 30, weeklyGoal: 55, defaultMode: "soft",
     habits: [
-      { id:"hy-water",   title:"Hit daily water target",  emoji:"ðŸ’§", quip:"Personalise to your size and climate.",             type:"tiered", points:4,
-        tiers:[{label:"1.5â€“2L",pts:4},{label:"2â€“3L",pts:6},{label:"3L+",pts:8}] },
-      { id:"hy-morning", title:"2 glasses before coffee", emoji:"ðŸŒ…", quip:"You wake up dehydrated every single morning.",      type:"binary", points:2 },
-      { id:"hy-nosoda",  title:"No soda or juice",        emoji:"ðŸš«", quip:"Liquid calories don't satisfy hunger. Cut them.",   type:"binary", points:2 },
+      { id:"hy-water",   title:"Hit daily water target",  emoji:"💧", quip:"Personalise to your size and climate.",             type:"tiered", points:4,
+        tiers:[{label:"1.5–2L",pts:4},{label:"2–3L",pts:6},{label:"3L+",pts:8}] },
+      { id:"hy-morning", title:"2 glasses before coffee", emoji:"🌅", quip:"You wake up dehydrated every single morning.",      type:"binary", points:2 },
+      { id:"hy-nosoda",  title:"No soda or juice",        emoji:"🚫", quip:"Liquid calories don't satisfy hunger. Cut them.",   type:"binary", points:2 },
     ]
   },
 
-  // â”€â”€ Lifestyle: financial + productivity â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Lifestyle: financial + productivity ──────────────────────────────────
   {
-    id: "project-50", name: "Project 50", emoji: "ðŸš€", category: "transformation",
-    description: "50 days of non-negotiable daily disciplines â€” exercise, reading, sobriety, and a morning routine. Less extreme than 75 Hard. More sustainable than nothing.",
+    id: "project-50", name: "Project 50", emoji: "🚀", category: "transformation",
+    description: "50 days of non-negotiable daily disciplines — exercise, reading, sobriety, and a morning routine. Less extreme than 75 Hard. More sustainable than nothing.",
     duration: 50, weeklyGoal: 75, defaultMode: "strict",
     habits: [
-      { id:"p50-move",   title:"Exercise 30 min",         emoji:"ðŸ‹ï¸", quip:"Any movement counts. Showing up is the whole job.", type:"binary", points:4 },
-      { id:"p50-read",   title:"Read 10 pages",           emoji:"ðŸ“–", quip:"10 pages a day is a book a month.",                 type:"binary", points:2 },
-      { id:"p50-noalc",  title:"No alcohol",              emoji:"ðŸš«", quip:"50 days sober changes your baseline.",               type:"binary", points:3 },
-      { id:"p50-water",  title:"Drink 2L water",          emoji:"ðŸ’§", quip:"Hydration is the cheapest performance hack.",       type:"binary", points:2 },
-      { id:"p50-morning",title:"Morning routine complete", emoji:"ðŸŒ…", quip:"Start before the world gets loud.",                type:"binary", points:3 },
+      { id:"p50-move",   title:"Exercise 30 min",         emoji:"🏋️", quip:"Any movement counts. Showing up is the whole job.", type:"binary", points:4 },
+      { id:"p50-read",   title:"Read 10 pages",           emoji:"📖", quip:"10 pages a day is a book a month.",                 type:"binary", points:2 },
+      { id:"p50-noalc",  title:"No alcohol",              emoji:"🚫", quip:"50 days sober changes your baseline.",               type:"binary", points:3 },
+      { id:"p50-water",  title:"Drink 2L water",          emoji:"💧", quip:"Hydration is the cheapest performance hack.",       type:"binary", points:2 },
+      { id:"p50-morning",title:"Morning routine complete", emoji:"🌅", quip:"Start before the world gets loud.",                type:"binary", points:3 },
     ]
   },
   {
-    id: "no-spend", name: "No-Spend Challenge", emoji: "ðŸ’°", category: "lifestyle",
+    id: "no-spend", name: "No-Spend Challenge", emoji: "💰", category: "lifestyle",
     description: "30 days of cutting non-essential spending. Buy only what you need. Cook at home. Build the savings habit.",
     duration: 30, weeklyGoal: 50, defaultMode: "soft",
     habits: [
-      { id:"ns-nospend", title:"No non-essential purchases",emoji:"ðŸ’°",quip:"Need vs want. Today it's want. Skip it.",          type:"binary", points:5 },
-      { id:"ns-cook",    title:"Cook at home",             emoji:"ðŸ³", quip:"The restaurant markup is your savings.",            type:"binary", points:2 },
-      { id:"ns-log",     title:"Log spending",             emoji:"ðŸ“Š", quip:"Where does the money actually go? Find out.",      type:"binary", points:2 },
+      { id:"ns-nospend", title:"No non-essential purchases",emoji:"💰",quip:"Need vs want. Today it's want. Skip it.",          type:"binary", points:5 },
+      { id:"ns-cook",    title:"Cook at home",             emoji:"🍳", quip:"The restaurant markup is your savings.",            type:"binary", points:2 },
+      { id:"ns-log",     title:"Log spending",             emoji:"📊", quip:"Where does the money actually go? Find out.",      type:"binary", points:2 },
     ]
   },
 
-  // â”€â”€ Expedition Routes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Expedition Routes ────────────────────────────────────────────────────
   {
-    id: "everest-bc", name: "Everest Base Camp", emoji: "ðŸ”ï¸", category: "expedition",
+    id: "everest-bc", name: "Everest Base Camp", emoji: "🏔️", category: "expedition",
     description: "Trek 130 km through the Himalayas to the foot of the world's highest peak.",
     duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 130,
     milestones: [
-      { km: 10,  name: "Phakding",          emoji: "ðŸ¡" },
-      { km: 40,  name: "Namche Bazaar",      emoji: "ðŸ™ï¸" },
-      { km: 65,  name: "Tengboche",          emoji: "â›©ï¸" },
-      { km: 100, name: "Gorak Shep",         emoji: "â›º" },
-      { km: 130, name: "Everest Base Camp",  emoji: "ðŸ”ï¸" },
+      { km: 10,  name: "Phakding",          emoji: "🏡" },
+      { km: 40,  name: "Namche Bazaar",      emoji: "🏙️" },
+      { km: 65,  name: "Tengboche",          emoji: "⛩️" },
+      { km: 100, name: "Gorak Shep",         emoji: "⛺" },
+      { km: 130, name: "Everest Base Camp",  emoji: "🏔️" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"ðŸƒ", quip:"Walk, run, cycle, swim or row â€” it all counts.", type:"distance", points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🏃", quip:"Walk, run, cycle, swim or row — it all counts.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
-    id: "camino", name: "Camino de Santiago", emoji: "â›ª", category: "expedition",
+    id: "camino", name: "Camino de Santiago", emoji: "⛪", category: "expedition",
     description: "Walk 790 km across Spain on the ancient pilgrimage route to Santiago de Compostela.",
     duration: 90, weeklyGoal: 5, defaultMode: "soft", routeKm: 790,
     milestones: [
-      { km: 75,  name: "Pamplona",               emoji: "ðŸŸï¸" },
-      { km: 250, name: "Burgos",                  emoji: "ðŸ°" },
-      { km: 400, name: "LeÃ³n",                    emoji: "ðŸ¦" },
-      { km: 590, name: "Ponferrada",              emoji: "ðŸ¯" },
-      { km: 790, name: "Santiago de Compostela",  emoji: "â›ª" },
+      { km: 75,  name: "Pamplona",               emoji: "🏟️" },
+      { km: 250, name: "Burgos",                  emoji: "🏰" },
+      { km: 400, name: "León",                    emoji: "🦁" },
+      { km: 590, name: "Ponferrada",              emoji: "🏯" },
+      { km: 790, name: "Santiago de Compostela",  emoji: "⛪" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"ðŸš¶", quip:"Every step brings you closer to Santiago.", type:"distance", points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🚶", quip:"Every step brings you closer to Santiago.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
-    id: "appalachian", name: "Appalachian Trail", emoji: "ðŸŒ²", category: "expedition",
-    description: "Hike the full 3,540 km from Georgia to Maine â€” one of the world's great long trails.",
+    id: "appalachian", name: "Appalachian Trail", emoji: "🌲", category: "expedition",
+    description: "Hike the full 3,540 km from Georgia to Maine — one of the world's great long trails.",
     duration: 365, weeklyGoal: 5, defaultMode: "soft", routeKm: 3540,
     milestones: [
-      { km: 300,  name: "Shenandoah Valley",    emoji: "ðŸŒ¿" },
-      { km: 900,  name: "Pennsylvania",          emoji: "ðŸª¨" },
-      { km: 1800, name: "New England",           emoji: "ðŸ‚" },
-      { km: 2600, name: "White Mountains, NH",   emoji: "â„ï¸" },
-      { km: 3540, name: "Mount Katahdin, Maine", emoji: "ðŸ”ï¸" },
+      { km: 300,  name: "Shenandoah Valley",    emoji: "🌿" },
+      { km: 900,  name: "Pennsylvania",          emoji: "🪨" },
+      { km: 1800, name: "New England",           emoji: "🍂" },
+      { km: 2600, name: "White Mountains, NH",   emoji: "❄️" },
+      { km: 3540, name: "Mount Katahdin, Maine", emoji: "🏔️" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"ðŸ¥¾", quip:"Miles in the legs. Wilderness in the soul.", type:"distance", points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🥾", quip:"Miles in the legs. Wilderness in the soul.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
-    id: "tour-de-france", name: "Tour de France", emoji: "ðŸš´", category: "expedition",
+    id: "tour-de-france", name: "Tour de France", emoji: "🚴", category: "expedition",
     description: "Ride the full 3,490 km route of the world's most iconic cycling race.",
     duration: 120, weeklyGoal: 5, defaultMode: "soft", routeKm: 3490,
     milestones: [
-      { km: 400,  name: "Brittany Coast",     emoji: "ðŸŒŠ" },
-      { km: 900,  name: "Massif Central",     emoji: "ðŸ—ºï¸" },
-      { km: 1600, name: "The Pyrenees",       emoji: "â›°ï¸" },
-      { km: 2400, name: "The Alps",           emoji: "ðŸ”ï¸" },
-      { km: 3490, name: "Paris â€” Champs-Ã‰lysÃ©es", emoji: "ðŸ—¼" },
+      { km: 400,  name: "Brittany Coast",     emoji: "🌊" },
+      { km: 900,  name: "Massif Central",     emoji: "🗺️" },
+      { km: 1600, name: "The Pyrenees",       emoji: "⛰️" },
+      { km: 2400, name: "The Alps",           emoji: "🏔️" },
+      { km: 3490, name: "Paris — Champs-Élysées", emoji: "🗼" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"ðŸš´", quip:"Clip in. Every km is a stage.", type:"distance", points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🚴", quip:"Clip in. Every km is a stage.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
-    id: "route66", name: "Route 66", emoji: "ðŸš—", category: "expedition",
+    id: "route66", name: "Route 66", emoji: "🚗", category: "expedition",
     description: "Travel the 3,940 km Mother Road from Chicago, Illinois to Santa Monica, California.",
     duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 3940,
     milestones: [
-      { km: 500,  name: "Springfield, IL",   emoji: "ðŸŒ½" },
-      { km: 1100, name: "Oklahoma City",      emoji: "ðŸ™ï¸" },
-      { km: 1900, name: "Amarillo, TX",       emoji: "ðŸ¤ " },
-      { km: 2700, name: "Albuquerque, NM",    emoji: "ðŸŒµ" },
-      { km: 3940, name: "Santa Monica Pier",  emoji: "ðŸŽ¡" },
+      { km: 500,  name: "Springfield, IL",   emoji: "🌽" },
+      { km: 1100, name: "Oklahoma City",      emoji: "🏙️" },
+      { km: 1900, name: "Amarillo, TX",       emoji: "🤠" },
+      { km: 2700, name: "Albuquerque, NM",    emoji: "🌵" },
+      { km: 3940, name: "Santa Monica Pier",  emoji: "🎡" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"ðŸš—", quip:"Get your kicks. Road is open.", type:"distance", points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🚗", quip:"Get your kicks. Road is open.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
-    id: "amazon-river", name: "Amazon River", emoji: "ðŸŒ¿", category: "expedition",
+    id: "amazon-river", name: "Amazon River", emoji: "🌿", category: "expedition",
     description: "Navigate 6,437 km down the world's greatest river from the Andes to the Atlantic.",
     duration: 365, weeklyGoal: 5, defaultMode: "soft", routeKm: 6437,
     milestones: [
-      { km: 500,  name: "Iquitos, Peru",   emoji: "ðŸŠ" },
-      { km: 1500, name: "Leticia",          emoji: "ðŸ¦œ" },
-      { km: 3000, name: "Manaus",           emoji: "ðŸ™ï¸" },
-      { km: 5000, name: "SantarÃ©m",         emoji: "ðŸŒŠ" },
-      { km: 6437, name: "Atlantic Ocean",   emoji: "ðŸŒŠ" },
+      { km: 500,  name: "Iquitos, Peru",   emoji: "🐊" },
+      { km: 1500, name: "Leticia",          emoji: "🦜" },
+      { km: 3000, name: "Manaus",           emoji: "🏙️" },
+      { km: 5000, name: "Santarém",         emoji: "🌊" },
+      { km: 6437, name: "Atlantic Ocean",   emoji: "🌊" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"ðŸš£", quip:"The river never stops. Neither do you.", type:"distance", points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🚣", quip:"The river never stops. Neither do you.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
-    id: "pct", name: "Pacific Crest Trail", emoji: "ðŸŒ²", category: "expedition",
-    description: "Walk 4,286 km from the Mexican border to the Canadian border â€” through the Sierra Nevada and Cascades. 5 months. No shortcuts.",
+    id: "pct", name: "Pacific Crest Trail", emoji: "🌲", category: "expedition",
+    description: "Walk 4,286 km from the Mexican border to the Canadian border — through the Sierra Nevada and Cascades. 5 months. No shortcuts.",
     duration: 150, weeklyGoal: 5, defaultMode: "soft", routeKm: 4286,
     milestones: [
-      { km:  160, name: "San Diego foothills", emoji: "ðŸŒµ" },
-      { km:  700, name: "Los Angeles area",    emoji: "ðŸŒ†" },
-      { km: 1300, name: "Mojave Desert",       emoji: "â˜€ï¸" },
-      { km: 2000, name: "Sierra Nevada",       emoji: "â›°ï¸" },
-      { km: 2600, name: "Northern California", emoji: "ðŸŒ²" },
-      { km: 3100, name: "Oregon",              emoji: "ðŸŒ‹" },
-      { km: 3800, name: "Washington",          emoji: "ðŸ”ï¸" },
-      { km: 4286, name: "Canadian Border",     emoji: "ðŸ" },
+      { km:  160, name: "San Diego foothills", emoji: "🌵" },
+      { km:  700, name: "Los Angeles area",    emoji: "🌆" },
+      { km: 1300, name: "Mojave Desert",       emoji: "☀️" },
+      { km: 2000, name: "Sierra Nevada",       emoji: "⛰️" },
+      { km: 2600, name: "Northern California", emoji: "🌲" },
+      { km: 3100, name: "Oregon",              emoji: "🌋" },
+      { km: 3800, name: "Washington",          emoji: "🏔️" },
+      { km: 4286, name: "Canadian Border",     emoji: "🍁" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"ðŸ¥¾", quip:"Every step north is progress.", type:"distance", points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🥾", quip:"Every step north is progress.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
-    id: "everest-stairmaster", name: "Everest StairMaster", emoji: "ðŸ‹ï¸", category: "expedition",
-    description: "Climb 2,903 floors â€” the StairMaster equivalent of summiting Mount Everest from sea level. No oxygen tank. No shortcuts.",
+    id: "everest-stairmaster", name: "Everest StairMaster", emoji: "🏋️", category: "expedition",
+    description: "Climb 2,903 floors — the StairMaster equivalent of summiting Mount Everest from sea level. No oxygen tank. No shortcuts.",
     duration: 365, weeklyGoal: 5, defaultMode: "strict", routeKm: 2903.2,
     milestones: [
-      { km: 100,  name: "Foothills",             emoji: "â›°ï¸" },
-      { km: 500,  name: "Camp I",                emoji: "â›º" },
-      { km: 1000, name: "Camp II",               emoji: "ðŸ•ï¸" },
-      { km: 1500, name: "Camp III",              emoji: "â„ï¸" },
-      { km: 2000, name: "Death Zone",            emoji: "â˜ ï¸" },
-      { km: 2903, name: "Summit â€” 8,849 m",     emoji: "ðŸ”ï¸" },
+      { km: 100,  name: "Foothills",             emoji: "⛰️" },
+      { km: 500,  name: "Camp I",                emoji: "⛺" },
+      { km: 1000, name: "Camp II",               emoji: "🏕️" },
+      { km: 1500, name: "Camp III",              emoji: "❄️" },
+      { km: 2000, name: "Death Zone",            emoji: "☠️" },
+      { km: 2903, name: "Summit — 8,849 m",     emoji: "🏔️" },
     ],
     habits: [
-      { id:"floors", title:"Floors climbed today", emoji:"ðŸ¢", quip:"One floor at a time. 2,903 to go.", type:"distance", points:1, unit:"floors" },
+      { id:"floors", title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 2,903 to go.", type:"distance", points:1, unit:"floors" },
     ],
   },
 
-  // â”€â”€ Running Expeditions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Running Expeditions ──────────────────────────────────────────────────
   {
-    id: "comrades-ultra", name: "Comrades Ultra", emoji: "ðŸƒ", category: "expedition",
+    id: "comrades-ultra", name: "Comrades Ultra", emoji: "🏃", category: "expedition",
     description: "Run the legendary 89 km Comrades Marathon from Pietermaritzburg to Durban, South Africa.",
     duration: 21, weeklyGoal: 5, defaultMode: "soft", routeKm: 89,
     milestones: [
-      { km: 17,  name: "Drummond",     emoji: "ðŸŒ¿" },
-      { km: 36,  name: "Botha's Hill", emoji: "â›°ï¸" },
-      { km: 55,  name: "Fields Hill",  emoji: "ðŸ”ï¸" },
-      { km: 82,  name: "Tollgate",     emoji: "ðŸš¦" },
-      { km: 89,  name: "Durban!",      emoji: "ðŸŒŠ" },
+      { km: 17,  name: "Drummond",     emoji: "🌿" },
+      { km: 36,  name: "Botha's Hill", emoji: "⛰️" },
+      { km: 55,  name: "Fields Hill",  emoji: "🏔️" },
+      { km: 82,  name: "Tollgate",     emoji: "🚦" },
+      { km: 89,  name: "Durban!",      emoji: "🌊" },
     ],
     habits: [
-      { id:"cu-run", title:"Running", emoji:"ðŸƒ", quip:"Every step toward Durban.", type:"distance", unit:"km" },
+      { id:"cu-run", title:"Running", emoji:"🏃", quip:"Every step toward Durban.", type:"distance", unit:"km" },
     ]
   },
   {
-    id: "utmb", name: "Ultra Trail du Mont Blanc", emoji: "â›°ï¸", category: "expedition",
+    id: "utmb", name: "Ultra Trail du Mont Blanc", emoji: "⛰️", category: "expedition",
     description: "Tackle the 171 km UTMB course circling Mont Blanc through France, Italy and Switzerland.",
     duration: 40, weeklyGoal: 5, defaultMode: "soft", routeKm: 171,
     milestones: [
-      { km: 22,  name: "Les Houches",  emoji: "ðŸŒ²" },
-      { km: 50,  name: "Courmayeur",   emoji: "ðŸ‡®ðŸ‡¹" },
-      { km: 80,  name: "Champex-Lac",  emoji: "ðŸŠ" },
-      { km: 122, name: "Vallorcine",   emoji: "ðŸ”ï¸" },
-      { km: 152, name: "La FlÃ©gÃ¨re",   emoji: "â›·ï¸" },
-      { km: 171, name: "Chamonix!",    emoji: "ðŸŽ‰" },
+      { km: 22,  name: "Les Houches",  emoji: "🌲" },
+      { km: 50,  name: "Courmayeur",   emoji: "🇮🇹" },
+      { km: 80,  name: "Champex-Lac",  emoji: "🏊" },
+      { km: 122, name: "Vallorcine",   emoji: "🏔️" },
+      { km: 152, name: "La Flégère",   emoji: "⛷️" },
+      { km: 171, name: "Chamonix!",    emoji: "🎉" },
     ],
     habits: [
-      { id:"utmb-run", title:"Running", emoji:"ðŸƒ", quip:"The mountains are waiting.", type:"distance", unit:"km" },
+      { id:"utmb-run", title:"Running", emoji:"🏃", quip:"The mountains are waiting.", type:"distance", unit:"km" },
     ]
   },
   {
-    id: "run-5-marathons", name: "5 Marathon Challenge", emoji: "ðŸƒ", category: "expedition",
-    description: "Run the equivalent of 5 consecutive marathons â€” 211 km total. Pace doesn't matter. Showing up does.",
+    id: "run-5-marathons", name: "5 Marathon Challenge", emoji: "🏃", category: "expedition",
+    description: "Run the equivalent of 5 consecutive marathons — 211 km total. Pace doesn't matter. Showing up does.",
     duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 211,
     milestones: [
-      { km: 42,  name: "Marathon 1", emoji: "ðŸ…" },
-      { km: 84,  name: "Marathon 2", emoji: "ðŸ…" },
-      { km: 126, name: "Marathon 3", emoji: "ðŸ…" },
-      { km: 168, name: "Marathon 4", emoji: "ðŸ…" },
-      { km: 211, name: "Marathon 5", emoji: "ðŸŽ–ï¸" },
+      { km: 42,  name: "Marathon 1", emoji: "🏅" },
+      { km: 84,  name: "Marathon 2", emoji: "🏅" },
+      { km: 126, name: "Marathon 3", emoji: "🏅" },
+      { km: 168, name: "Marathon 4", emoji: "🏅" },
+      { km: 211, name: "Marathon 5", emoji: "🎖️" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"ðŸƒ", quip:"Every km counts. Log it.", type:"distance", points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🏃", quip:"Every km counts. Log it.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
-    id: "run-jogle", name: "Land's End to John o'Groats", emoji: "ðŸƒ", category: "expedition",
-    description: "Run the entire length of Great Britain â€” 1,407 km from Land's End to John o'Groats. End to end.",
+    id: "run-jogle", name: "Land's End to John o'Groats", emoji: "🏃", category: "expedition",
+    description: "Run the entire length of Great Britain — 1,407 km from Land's End to John o'Groats. End to end.",
     duration: 90, weeklyGoal: 5, defaultMode: "soft", routeKm: 1407,
     milestones: [
-      { km: 1,    name: "Land's End",       emoji: "ðŸŒŠ" },
-      { km: 340,  name: "Bristol",          emoji: "ðŸ™ï¸" },
-      { km: 600,  name: "Manchester",       emoji: "ðŸ­" },
-      { km: 900,  name: "Scottish Border",  emoji: "ðŸ´" },
-      { km: 1407, name: "John o'Groats",    emoji: "ðŸ”ï¸" },
+      { km: 1,    name: "Land's End",       emoji: "🌊" },
+      { km: 340,  name: "Bristol",          emoji: "🏙️" },
+      { km: 600,  name: "Manchester",       emoji: "🏭" },
+      { km: 900,  name: "Scottish Border",  emoji: "🏴" },
+      { km: 1407, name: "John o'Groats",    emoji: "🏔️" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"ðŸƒ", quip:"North. Always north.", type:"distance", points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🏃", quip:"North. Always north.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
-    id: "run-trans-america", name: "Trans-America Run", emoji: "ðŸƒ", category: "expedition",
-    description: "Run across the United States â€” 4,989 km from San Francisco to New York City.",
+    id: "run-trans-america", name: "Trans-America Run", emoji: "🏃", category: "expedition",
+    description: "Run across the United States — 4,989 km from San Francisco to New York City.",
     duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 4989,
     milestones: [
-      { km: 1,    name: "San Francisco",     emoji: "ðŸŒ‰" },
-      { km: 1500, name: "Rocky Mountains",   emoji: "â›°ï¸" },
-      { km: 2500, name: "Great Plains",      emoji: "ðŸŒ¾" },
-      { km: 3500, name: "Mississippi River", emoji: "ðŸŒŠ" },
-      { km: 4989, name: "New York City",     emoji: "ðŸ—½" },
+      { km: 1,    name: "San Francisco",     emoji: "🌉" },
+      { km: 1500, name: "Rocky Mountains",   emoji: "⛰️" },
+      { km: 2500, name: "Great Plains",      emoji: "🌾" },
+      { km: 3500, name: "Mississippi River", emoji: "🌊" },
+      { km: 4989, name: "New York City",     emoji: "🗽" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"ðŸƒ", quip:"Coast to coast. One step at a time.", type:"distance", points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🏃", quip:"Coast to coast. One step at a time.", type:"distance", points:1, unit:"km" },
     ],
   },
 
-  // â”€â”€ Additional Cycling Expeditions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Additional Cycling Expeditions ──────────────────────────────────────
   {
-    id: "raid-pyrenees", name: "Raid PyrÃ©nÃ©en", emoji: "ðŸš´", category: "expedition",
-    description: "Cycle all 726 km of the legendary PyrÃ©nÃ©es mountain route from the Atlantic coast to the Mediterranean.",
+    id: "raid-pyrenees", name: "Raid Pyrénéen", emoji: "🚴", category: "expedition",
+    description: "Cycle all 726 km of the legendary Pyrénées mountain route from the Atlantic coast to the Mediterranean.",
     duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 726,
     milestones: [
-      { km: 1,   name: "Hendaye â€” Atlantic",     emoji: "ðŸŒŠ" },
-      { km: 150, name: "First High Passes",       emoji: "â›°ï¸" },
-      { km: 400, name: "Andorra",                 emoji: "ðŸ”ï¸" },
-      { km: 600, name: "Final Cols",              emoji: "ðŸš´" },
-      { km: 726, name: "CerbÃ¨re â€” Mediterranean", emoji: "â˜€ï¸" },
+      { km: 1,   name: "Hendaye — Atlantic",     emoji: "🌊" },
+      { km: 150, name: "First High Passes",       emoji: "⛰️" },
+      { km: 400, name: "Andorra",                 emoji: "🏔️" },
+      { km: 600, name: "Final Cols",              emoji: "🚴" },
+      { km: 726, name: "Cerbère — Mediterranean", emoji: "☀️" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"ðŸš´", quip:"Pedal. Climb. Breathe.", type:"distance", points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🚴", quip:"Pedal. Climb. Breathe.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
-    id: "trans-am-bike", name: "Trans-America Bike", emoji: "ðŸš´", category: "expedition",
+    id: "trans-am-bike", name: "Trans-America Bike", emoji: "🚴", category: "expedition",
     description: "Ride the 6,771 km TransAm Bike Trail from Yorktown, Virginia to Astoria, Oregon.",
     duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 6771,
     milestones: [
-      { km: 1,    name: "Yorktown, Virginia",  emoji: "ðŸ›ï¸" },
-      { km: 900,  name: "Blue Ridge Parkway",  emoji: "ðŸŒ„" },
-      { km: 2700, name: "Missouri River",      emoji: "ðŸŒŠ" },
-      { km: 4500, name: "Colorado Rockies",    emoji: "ðŸ”ï¸" },
-      { km: 6771, name: "Astoria, Oregon",     emoji: "ðŸŒŠ" },
+      { km: 1,    name: "Yorktown, Virginia",  emoji: "🏛️" },
+      { km: 900,  name: "Blue Ridge Parkway",  emoji: "🌄" },
+      { km: 2700, name: "Missouri River",      emoji: "🌊" },
+      { km: 4500, name: "Colorado Rockies",    emoji: "🏔️" },
+      { km: 6771, name: "Astoria, Oregon",     emoji: "🌊" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"ðŸš´", quip:"Every state. Every climb. No shortcuts.", type:"distance", points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🚴", quip:"Every state. Every climb. No shortcuts.", type:"distance", points:1, unit:"km" },
     ],
   },
 
-  // â”€â”€ Additional Rowing Expeditions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Additional Rowing Expeditions ────────────────────────────────────────
   {
-    id: "thames-row", name: "Thames Row", emoji: "ðŸš£", category: "expedition",
-    description: "Row the full length of the Thames from its source in the Cotswolds to the open sea â€” 346 km.",
+    id: "thames-row", name: "Thames Row", emoji: "🚣", category: "expedition",
+    description: "Row the full length of the Thames from its source in the Cotswolds to the open sea — 346 km.",
     duration: 30, weeklyGoal: 5, defaultMode: "soft", routeKm: 346,
     milestones: [
-      { km: 1,   name: "The Source, Cotswolds", emoji: "ðŸŒ¿" },
-      { km: 75,  name: "Oxford",                emoji: "ðŸŽ“" },
-      { km: 170, name: "Windsor Castle",        emoji: "ðŸ°" },
-      { km: 280, name: "London Bridge",         emoji: "ðŸŒ‰" },
-      { km: 346, name: "Thames Estuary",        emoji: "ðŸŒŠ" },
+      { km: 1,   name: "The Source, Cotswolds", emoji: "🌿" },
+      { km: 75,  name: "Oxford",                emoji: "🎓" },
+      { km: 170, name: "Windsor Castle",        emoji: "🏰" },
+      { km: 280, name: "London Bridge",         emoji: "🌉" },
+      { km: 346, name: "Thames Estuary",        emoji: "🌊" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"ðŸš£", quip:"Pull. The river knows the way.", type:"distance", points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🚣", quip:"Pull. The river knows the way.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
-    id: "danube-row", name: "Danube Row", emoji: "ðŸš£", category: "expedition",
-    description: "Row 2,860 km down the Danube from Germany to the Black Sea â€” through 10 countries.",
+    id: "danube-row", name: "Danube Row", emoji: "🚣", category: "expedition",
+    description: "Row 2,860 km down the Danube from Germany to the Black Sea — through 10 countries.",
     duration: 120, weeklyGoal: 5, defaultMode: "soft", routeKm: 2860,
     milestones: [
-      { km: 1,    name: "Donaueschingen, Germany", emoji: "ðŸ‡©ðŸ‡ª" },
-      { km: 360,  name: "Vienna",                  emoji: "ðŸŽ¼" },
-      { km: 680,  name: "Budapest",                emoji: "ðŸ°" },
-      { km: 1400, name: "Iron Gates Gorge",         emoji: "â›°ï¸" },
-      { km: 2860, name: "Black Sea",               emoji: "ðŸŒŠ" },
+      { km: 1,    name: "Donaueschingen, Germany", emoji: "🇩🇪" },
+      { km: 360,  name: "Vienna",                  emoji: "🎼" },
+      { km: 680,  name: "Budapest",                emoji: "🏰" },
+      { km: 1400, name: "Iron Gates Gorge",         emoji: "⛰️" },
+      { km: 2860, name: "Black Sea",               emoji: "🌊" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"ðŸš£", quip:"Downstream. Europe unrolling behind you.", type:"distance", points:1, unit:"km" },
+      { id:"dist", title:"Log distance", emoji:"🚣", quip:"Downstream. Europe unrolling behind you.", type:"distance", points:1, unit:"km" },
     ],
   },
 ];
 
-// â”€â”€ Badge Definitions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Badge Definitions ──────────────────────────────────────────────────────
 
-// Universal badges â€” earned once across all challenges (tracked in state.globalBadges)
+// Universal badges — earned once across all challenges (tracked in state.globalBadges)
 const UNIVERSAL_BADGES = [
   // Streak milestones (best streak across any challenge)
-  { id:"u-3d",     label:"âœ¨ Getting Started",   desc:"Reach a 3-day streak in any challenge.",              test: u => u.longestStreak >= 3 },
-  { id:"u-7d",     label:"ðŸ”¥ On Fire",            desc:"7-day streak.",                                       test: u => u.longestStreak >= 7 },
-  { id:"u-14d",    label:"ðŸ¦¾ Iron Week",          desc:"14-day streak.",                                      test: u => u.longestStreak >= 14 },
-  { id:"u-21d",    label:"ðŸ§  Habit Locked",       desc:"21-day streak. Neurologically, it's a habit now.",   test: u => u.longestStreak >= 21 },
-  { id:"u-30d",    label:"ðŸ’ª Locked In",          desc:"30-day streak.",                                      test: u => u.longestStreak >= 30 },
-  { id:"u-60d",    label:"ðŸ“† Two Months",         desc:"60-day streak.",                                      test: u => u.longestStreak >= 60 },
-  { id:"u-75d",    label:"ðŸ† 75 Streak",          desc:"75 consecutive days. Legendary.",                     test: u => u.longestStreak >= 75 },
+  { id:"u-3d",     label:"✨ Getting Started",   desc:"Reach a 3-day streak in any challenge.",              test: u => u.longestStreak >= 3 },
+  { id:"u-7d",     label:"🔥 On Fire",            desc:"7-day streak.",                                       test: u => u.longestStreak >= 7 },
+  { id:"u-14d",    label:"🦾 Iron Week",          desc:"14-day streak.",                                      test: u => u.longestStreak >= 14 },
+  { id:"u-21d",    label:"🧠 Habit Locked",       desc:"21-day streak. Neurologically, it's a habit now.",   test: u => u.longestStreak >= 21 },
+  { id:"u-30d",    label:"💪 Locked In",          desc:"30-day streak.",                                      test: u => u.longestStreak >= 30 },
+  { id:"u-60d",    label:"📆 Two Months",         desc:"60-day streak.",                                      test: u => u.longestStreak >= 60 },
+  { id:"u-75d",    label:"🏆 75 Streak",          desc:"75 consecutive days. Legendary.",                     test: u => u.longestStreak >= 75 },
   // Points (all-time total across all challenges)
-  { id:"u-p10",    label:"â­ First Points",       desc:"Earn your first 10 points.",                         test: u => u.totalPts >= 10 },
-  { id:"u-p100",   label:"ðŸ’¯ Century",            desc:"100 points total.",                                   test: u => u.totalPts >= 100 },
-  { id:"u-p500",   label:"ðŸ… Point Collector",    desc:"500 total points.",                                   test: u => u.totalPts >= 500 },
-  { id:"u-p1k",    label:"ðŸ’œ Elite",              desc:"1,000 total points. Rare.",                           test: u => u.totalPts >= 1000 },
+  { id:"u-p10",    label:"⭐ First Points",       desc:"Earn your first 10 points.",                         test: u => u.totalPts >= 10 },
+  { id:"u-p100",   label:"💯 Century",            desc:"100 points total.",                                   test: u => u.totalPts >= 100 },
+  { id:"u-p500",   label:"🏅 Point Collector",    desc:"500 total points.",                                   test: u => u.totalPts >= 500 },
+  { id:"u-p1k",    label:"💜 Elite",              desc:"1,000 total points. Rare.",                           test: u => u.totalPts >= 1000 },
   // Body tracking (global)
-  { id:"u-scale",  label:"âš–ï¸ On The Scale",       desc:"Log your first weight check-in.",                    test: u => u.weighIns >= 1 },
-  { id:"u-1lb",    label:"ðŸ“‰ First Pound",        desc:"Lose 1 lb from your starting weight.",               test: u => u.weightLost >= 1 },
-  { id:"u-5lb",    label:"ðŸ“‰ 5 lbs Down",         desc:"Lose 5 lbs.",                                        test: u => u.weightLost >= 5 },
-  { id:"u-10lb",   label:"ðŸ’ª 10 lbs Down",        desc:"Lose 10 lbs. Seriously impressive.",                 test: u => u.weightLost >= 10 },
-  { id:"u-wgoal",  label:"ðŸŽ¯ Goal Reached",       desc:"Hit your goal weight.",                               test: u => u.weightGoalReached },
+  { id:"u-scale",  label:"⚖️ On The Scale",       desc:"Log your first weight check-in.",                    test: u => u.weighIns >= 1 },
+  { id:"u-1lb",    label:"📉 First Pound",        desc:"Lose 1 lb from your starting weight.",               test: u => u.weightLost >= 1 },
+  { id:"u-5lb",    label:"📉 5 lbs Down",         desc:"Lose 5 lbs.",                                        test: u => u.weightLost >= 5 },
+  { id:"u-10lb",   label:"💪 10 lbs Down",        desc:"Lose 10 lbs. Seriously impressive.",                 test: u => u.weightLost >= 10 },
+  { id:"u-wgoal",  label:"🎯 Goal Reached",       desc:"Hit your goal weight.",                               test: u => u.weightGoalReached },
   // Modes & behaviour
-  { id:"u-cmback", label:"ðŸ§¡ Comeback Kid",       desc:"Use the Save My Day recovery.",                      test: u => u.anyRecovered },
+  { id:"u-cmback", label:"🧡 Comeback Kid",       desc:"Use the Save My Day recovery.",                      test: u => u.anyRecovered },
   // Challenge milestones
-  { id:"u-first",  label:"ðŸŒŠ First Wave",         desc:"Complete 100% of habits on your very first day.",   test: u => u.anyFirstDay },
-  { id:"u-done1",  label:"âœ… Challenge Done",     desc:"Finish your first challenge.",                        test: u => u.completedChallenges >= 1 },
-  { id:"u-done3",  label:"ðŸ† Triple Threat",      desc:"Complete 3 challenges.",                              test: u => u.completedChallenges >= 3 },
-  { id:"u-multi",  label:"ðŸ”€ Multi-Tasker",       desc:"Run 2 challenges at the same time.",                 test: u => u.activeChallenges >= 2 },
+  { id:"u-first",  label:"🌊 First Wave",         desc:"Complete 100% of habits on your very first day.",   test: u => u.anyFirstDay },
+  { id:"u-done1",  label:"✅ Challenge Done",     desc:"Finish your first challenge.",                        test: u => u.completedChallenges >= 1 },
+  { id:"u-done3",  label:"🏆 Triple Threat",      desc:"Complete 3 challenges.",                              test: u => u.completedChallenges >= 3 },
+  { id:"u-multi",  label:"🔀 Multi-Tasker",       desc:"Run 2 challenges at the same time.",                 test: u => u.activeChallenges >= 2 },
 ];
 
-// Lifetime achievements â€” cross-challenge milestones earned once (tracked in state.globalBadges)
+// Lifetime achievements — cross-challenge milestones earned once (tracked in state.globalBadges)
 const LIFETIME_BADGES = [
-  { id:"lt-100h",   label:"ðŸ“¦ 100 Habits",         desc:"Log 100 individual habits across all challenges.",  test: l => l.totalHabitsLogged >= 100 },
-  { id:"lt-500h",   label:"ðŸ”¥ 500 Habits",         desc:"Log 500 habits total. You're built different.",    test: l => l.totalHabitsLogged >= 500 },
-  { id:"lt-5c",     label:"ðŸŽ–ï¸ Serial Challenger",  desc:"Complete 5 challenges.",                            test: l => l.completedChallenges >= 5 },
-  { id:"lt-cats",   label:"ðŸŒ Well Rounded",        desc:"Complete a challenge in all 3 categories.",        test: l => l.allCategoriesDone },
-  { id:"lt-wk10",   label:"ðŸ“Š Consistent",          desc:"Hit the weekly goal 10 times across all challenges.", test: l => l.weeklyGoalsHit >= 10 },
-  { id:"lt-perf",   label:"ðŸ’Ž Perfect Run",         desc:"Complete a challenge without a single missed day.", test: l => l.perfectChallenge },
-  { id:"lt-freeze", label:"â„ï¸ Ice Age",             desc:"Use a streak freeze to save a streak.",             test: l => l.freezeUsed },
+  { id:"lt-100h",   label:"📦 100 Habits",         desc:"Log 100 individual habits across all challenges.",  test: l => l.totalHabitsLogged >= 100 },
+  { id:"lt-500h",   label:"🔥 500 Habits",         desc:"Log 500 habits total. You're built different.",    test: l => l.totalHabitsLogged >= 500 },
+  { id:"lt-5c",     label:"🎖️ Serial Challenger",  desc:"Complete 5 challenges.",                            test: l => l.completedChallenges >= 5 },
+  { id:"lt-cats",   label:"🌍 Well Rounded",        desc:"Complete a challenge in all 3 categories.",        test: l => l.allCategoriesDone },
+  { id:"lt-wk10",   label:"📊 Consistent",          desc:"Hit the weekly goal 10 times across all challenges.", test: l => l.weeklyGoalsHit >= 10 },
+  { id:"lt-perf",   label:"💎 Perfect Run",         desc:"Complete a challenge without a single missed day.", test: l => l.perfectChallenge },
+  { id:"lt-freeze", label:"❄️ Ice Age",             desc:"Use a streak freeze to save a streak.",             test: l => l.freezeUsed },
 ];
 
-// Template-specific badges â€” 5 per template, only shown/counted for that challenge (tracked in challenge.badges)
+// Template-specific badges — 5 per template, only shown/counted for that challenge (tracked in challenge.badges)
 const TEMPLATE_BADGES = {
   "cruise-control": [
-    { id:"cc-start",    label:"ðŸŒŠ Day 1 Done",          desc:"Complete 100% on Day 1.",                          test: c => c.dayNumber >= 1 && c.complete },
-    { id:"cc-month",    label:"ðŸ“… One Month",            desc:"Complete 4 full weeks.",                           test: c => c.completedWeeks >= 4 },
-    { id:"cc-halfway",  label:"âš¡ Halfway",              desc:"Reach the 43-day mark.",                           test: c => c.pctDone >= 50 },
-    { id:"cc-week8",    label:"ðŸ“† Two Months",           desc:"Complete 8 full weeks.",                           test: c => c.completedWeeks >= 8 },
-    { id:"cc-done",     label:"ðŸ”± 86 Days",              desc:"Complete the full 86-day transformation.",         test: c => c.pctDone >= 99 && c.complete },
+    { id:"cc-start",    label:"🌊 Day 1 Done",          desc:"Complete 100% on Day 1.",                          test: c => c.dayNumber >= 1 && c.complete },
+    { id:"cc-month",    label:"📅 One Month",            desc:"Complete 4 full weeks.",                           test: c => c.completedWeeks >= 4 },
+    { id:"cc-halfway",  label:"⚡ Halfway",              desc:"Reach the 43-day mark.",                           test: c => c.pctDone >= 50 },
+    { id:"cc-week8",    label:"📆 Two Months",           desc:"Complete 8 full weeks.",                           test: c => c.completedWeeks >= 8 },
+    { id:"cc-done",     label:"🔱 86 Days",              desc:"Complete the full 86-day transformation.",         test: c => c.pctDone >= 99 && c.complete },
   ],
   "75-hard": [
-    { id:"hard-start",   label:"ðŸ’ª Day 1",               desc:"Complete 100% on Day 1 of 75 Hard.",               test: c => c.dayNumber >= 1 && c.complete },
-    { id:"hard-3wk",     label:"ðŸ“… 3 Weeks In",          desc:"Complete 3 full weeks. No compromises.",           test: c => c.completedWeeks >= 3 },
-    { id:"hard-photos",  label:"ðŸ“¸ 7 Photo Days",        desc:"Log the progress photo habit 7 times.",            test: c => c.photosLogged >= 7 },
-    { id:"hard-halfway", label:"âš¡ Halfway",             desc:"Day 37+. You're past the hard part.",              test: c => c.pctDone >= 50 },
-    { id:"hard-done",    label:"ðŸ† 75 Hard Complete",    desc:"Finish all 75 days. Zero compromises.",            test: c => c.pctDone >= 99 && c.complete },
+    { id:"hard-start",   label:"💪 Day 1",               desc:"Complete 100% on Day 1 of 75 Hard.",               test: c => c.dayNumber >= 1 && c.complete },
+    { id:"hard-3wk",     label:"📅 3 Weeks In",          desc:"Complete 3 full weeks. No compromises.",           test: c => c.completedWeeks >= 3 },
+    { id:"hard-photos",  label:"📸 7 Photo Days",        desc:"Log the progress photo habit 7 times.",            test: c => c.photosLogged >= 7 },
+    { id:"hard-halfway", label:"⚡ Halfway",             desc:"Day 37+. You're past the hard part.",              test: c => c.pctDone >= 50 },
+    { id:"hard-done",    label:"🏆 75 Hard Complete",    desc:"Finish all 75 days. Zero compromises.",            test: c => c.pctDone >= 99 && c.complete },
   ],
   "75-soft": [
-    { id:"soft-start",   label:"ðŸ§˜ Day 1",               desc:"Complete Day 1.",                                  test: c => c.dayNumber >= 1 && c.complete },
-    { id:"soft-month",   label:"ðŸ“… One Month",           desc:"Complete 4 full weeks.",                           test: c => c.completedWeeks >= 4 },
-    { id:"soft-halfway", label:"ðŸŒŠ Halfway",             desc:"Day 37+.",                                         test: c => c.pctDone >= 50 },
-    { id:"soft-done",    label:"âœ… 75 Soft Done",        desc:"Complete all 75 days.",                            test: c => c.pctDone >= 99 && c.complete },
-    { id:"soft-lvlup",   label:"â¬†ï¸ Level Up Ready",      desc:"Finished 75 Soft â€” now try 75 Hard.",              test: c => c.pctDone >= 99 && c.complete },
+    { id:"soft-start",   label:"🧘 Day 1",               desc:"Complete Day 1.",                                  test: c => c.dayNumber >= 1 && c.complete },
+    { id:"soft-month",   label:"📅 One Month",           desc:"Complete 4 full weeks.",                           test: c => c.completedWeeks >= 4 },
+    { id:"soft-halfway", label:"🌊 Halfway",             desc:"Day 37+.",                                         test: c => c.pctDone >= 50 },
+    { id:"soft-done",    label:"✅ 75 Soft Done",        desc:"Complete all 75 days.",                            test: c => c.pctDone >= 99 && c.complete },
+    { id:"soft-lvlup",   label:"⬆️ Level Up Ready",      desc:"Finished 75 Soft — now try 75 Hard.",              test: c => c.pctDone >= 99 && c.complete },
   ],
   "30-pushups": [
-    { id:"pu-first",    label:"ðŸ’¥ First Rep",            desc:"Log your first push-up session.",                  test: c => c.daysLogged >= 1 },
-    { id:"pu-week",     label:"ðŸ“… Push-Up Week",         desc:"7 consecutive push-up days.",                      test: c => c.streak >= 7 },
-    { id:"pu-halfway",  label:"ðŸ’ª Halfway",              desc:"15 days logged.",                                  test: c => c.daysLogged >= 15 },
-    { id:"pu-boss",     label:"ðŸ’ª Beast Mode",           desc:"Log 25 push-up sessions.",                         test: c => c.daysLogged >= 25 },
-    { id:"pu-done",     label:"ðŸ’¥ 30 Days Strong",       desc:"Complete the full 30-day challenge.",               test: c => c.pctDone >= 99 && c.complete },
+    { id:"pu-first",    label:"💥 First Rep",            desc:"Log your first push-up session.",                  test: c => c.daysLogged >= 1 },
+    { id:"pu-week",     label:"📅 Push-Up Week",         desc:"7 consecutive push-up days.",                      test: c => c.streak >= 7 },
+    { id:"pu-halfway",  label:"💪 Halfway",              desc:"15 days logged.",                                  test: c => c.daysLogged >= 15 },
+    { id:"pu-boss",     label:"💪 Beast Mode",           desc:"Log 25 push-up sessions.",                         test: c => c.daysLogged >= 25 },
+    { id:"pu-done",     label:"💥 30 Days Strong",       desc:"Complete the full 30-day challenge.",               test: c => c.pctDone >= 99 && c.complete },
   ],
   "dry-month": [
-    { id:"dm-day1",     label:"ðŸš« Day 1 Sober",          desc:"First alcohol-free day.",                          test: c => c.soberStreak >= 1 },
-    { id:"dm-week",     label:"ðŸš« Sober Week",           desc:"7-day alcohol-free streak.",                       test: c => c.soberStreak >= 7 },
-    { id:"dm-halfway",  label:"ðŸ’§ Halfway",              desc:"15 days alcohol-free.",                            test: c => c.soberStreak >= 15 },
-    { id:"dm-month",    label:"ðŸ’Ž Sober Month",          desc:"30 days alcohol-free.",                            test: c => c.soberStreak >= 30 },
-    { id:"dm-done",     label:"âœ… Dry Month Done",       desc:"Complete the full 30-day dry month.",              test: c => c.pctDone >= 99 && c.complete },
+    { id:"dm-day1",     label:"🚫 Day 1 Sober",          desc:"First alcohol-free day.",                          test: c => c.soberStreak >= 1 },
+    { id:"dm-week",     label:"🚫 Sober Week",           desc:"7-day alcohol-free streak.",                       test: c => c.soberStreak >= 7 },
+    { id:"dm-halfway",  label:"💧 Halfway",              desc:"15 days alcohol-free.",                            test: c => c.soberStreak >= 15 },
+    { id:"dm-month",    label:"💎 Sober Month",          desc:"30 days alcohol-free.",                            test: c => c.soberStreak >= 30 },
+    { id:"dm-done",     label:"✅ Dry Month Done",       desc:"Complete the full 30-day dry month.",              test: c => c.pctDone >= 99 && c.complete },
   ],
   "reading": [
-    { id:"rd-first",    label:"ðŸ“– First Chapter",        desc:"Log your first reading session.",                  test: c => c.daysLogged >= 1 },
-    { id:"rd-week",     label:"ðŸ“š Reading Week",         desc:"7-day reading streak.",                            test: c => c.streak >= 7 },
-    { id:"rd-halfway",  label:"ðŸ“– Halfway",              desc:"15 reading sessions.",                             test: c => c.daysLogged >= 15 },
-    { id:"rd-bkworm",   label:"ðŸ“š Bookworm",             desc:"Log 20 reading sessions.",                         test: c => c.daysLogged >= 20 },
-    { id:"rd-done",     label:"âœ… Reading Month Done",   desc:"Complete 30 days of reading.",                     test: c => c.pctDone >= 99 && c.complete },
+    { id:"rd-first",    label:"📖 First Chapter",        desc:"Log your first reading session.",                  test: c => c.daysLogged >= 1 },
+    { id:"rd-week",     label:"📚 Reading Week",         desc:"7-day reading streak.",                            test: c => c.streak >= 7 },
+    { id:"rd-halfway",  label:"📖 Halfway",              desc:"15 reading sessions.",                             test: c => c.daysLogged >= 15 },
+    { id:"rd-bkworm",   label:"📚 Bookworm",             desc:"Log 20 reading sessions.",                         test: c => c.daysLogged >= 20 },
+    { id:"rd-done",     label:"✅ Reading Month Done",   desc:"Complete 30 days of reading.",                     test: c => c.pctDone >= 99 && c.complete },
   ],
   "dog-walk": [
-    { id:"dw-first",    label:"ðŸ• First Walk",           desc:"Log your first dog walk.",                         test: c => c.daysLogged >= 1 },
-    { id:"dw-6km",      label:"ðŸ—ºï¸ Adventure Walk",       desc:"Log a 6 km+ walk.",                               test: c => c.has6kmWalk },
-    { id:"dw-week",     label:"ðŸŒ… Walk Week",            desc:"7-day walking streak.",                            test: c => c.streak >= 7 },
-    { id:"dw-halfway",  label:"ðŸ¾ Halfway",              desc:"15 walks logged.",                                 test: c => c.daysLogged >= 15 },
-    { id:"dw-done",     label:"âœ… 30 Walks Done",        desc:"Complete the full 30-day dog walk challenge.",     test: c => c.pctDone >= 99 && c.complete },
+    { id:"dw-first",    label:"🐕 First Walk",           desc:"Log your first dog walk.",                         test: c => c.daysLogged >= 1 },
+    { id:"dw-6km",      label:"🗺️ Adventure Walk",       desc:"Log a 6 km+ walk.",                               test: c => c.has6kmWalk },
+    { id:"dw-week",     label:"🌅 Walk Week",            desc:"7-day walking streak.",                            test: c => c.streak >= 7 },
+    { id:"dw-halfway",  label:"🐾 Halfway",              desc:"15 walks logged.",                                 test: c => c.daysLogged >= 15 },
+    { id:"dw-done",     label:"✅ 30 Walks Done",        desc:"Complete the full 30-day dog walk challenge.",     test: c => c.pctDone >= 99 && c.complete },
   ],
   "cycling": [
-    { id:"cy-first",    label:"ðŸš² First Ride",           desc:"Log your first bike ride.",                        test: c => c.daysLogged >= 1 },
-    { id:"cy-50km",     label:"ðŸ”ï¸ Epic Ride",            desc:"Log a 50 km+ ride.",                              test: c => c.has50kmRide },
-    { id:"cy-week",     label:"ðŸš´ Saddle Week",          desc:"7 consecutive riding days.",                       test: c => c.streak >= 7 },
-    { id:"cy-halfway",  label:"âš¡ Halfway",              desc:"15 rides logged.",                                 test: c => c.daysLogged >= 15 },
-    { id:"cy-done",     label:"âœ… 30 Days Cycling",      desc:"Complete the full 30-day challenge.",               test: c => c.pctDone >= 99 && c.complete },
+    { id:"cy-first",    label:"🚲 First Ride",           desc:"Log your first bike ride.",                        test: c => c.daysLogged >= 1 },
+    { id:"cy-50km",     label:"🏔️ Epic Ride",            desc:"Log a 50 km+ ride.",                              test: c => c.has50kmRide },
+    { id:"cy-week",     label:"🚴 Saddle Week",          desc:"7 consecutive riding days.",                       test: c => c.streak >= 7 },
+    { id:"cy-halfway",  label:"⚡ Halfway",              desc:"15 rides logged.",                                 test: c => c.daysLogged >= 15 },
+    { id:"cy-done",     label:"✅ 30 Days Cycling",      desc:"Complete the full 30-day challenge.",               test: c => c.pctDone >= 99 && c.complete },
   ],
   "walking": [
-    { id:"wk-first",    label:"ðŸ‘Ÿ First Steps",          desc:"Log your first walk.",                             test: c => c.daysLogged >= 1 },
-    { id:"wk-10km",     label:"âš¡ 10 km Walk",           desc:"Log a 10 km+ walk.",                              test: c => c.has10kmWalk },
-    { id:"wk-week",     label:"ðŸš¶ Walk Week",            desc:"7-day walking streak.",                            test: c => c.streak >= 7 },
-    { id:"wk-halfway",  label:"ðŸš¶ Halfway",              desc:"15 walks logged.",                                 test: c => c.daysLogged >= 15 },
-    { id:"wk-done",     label:"âœ… Walking Month Done",   desc:"Complete 30 days of walking.",                     test: c => c.pctDone >= 99 && c.complete },
+    { id:"wk-first",    label:"👟 First Steps",          desc:"Log your first walk.",                             test: c => c.daysLogged >= 1 },
+    { id:"wk-10km",     label:"⚡ 10 km Walk",           desc:"Log a 10 km+ walk.",                              test: c => c.has10kmWalk },
+    { id:"wk-week",     label:"🚶 Walk Week",            desc:"7-day walking streak.",                            test: c => c.streak >= 7 },
+    { id:"wk-halfway",  label:"🚶 Halfway",              desc:"15 walks logged.",                                 test: c => c.daysLogged >= 15 },
+    { id:"wk-done",     label:"✅ Walking Month Done",   desc:"Complete 30 days of walking.",                     test: c => c.pctDone >= 99 && c.complete },
   ],
   "running": [
-    { id:"rn-first",    label:"ðŸ‘Ÿ First Run",            desc:"Log your first run.",                              test: c => c.runsLogged >= 1 },
-    { id:"rn-5k",       label:"ðŸ… 5k Done",              desc:"Run 5 km or further.",                             test: c => c.hasRun5k },
-    { id:"rn-10",       label:"ðŸƒ Ten Runs",             desc:"Log 10 run sessions.",                             test: c => c.runsLogged >= 10 },
-    { id:"rn-halfway",  label:"ðŸ”¥ Halfway",              desc:"15 runs logged.",                                  test: c => c.runsLogged >= 15 },
-    { id:"rn-done",     label:"âœ… Running Month Done",   desc:"Complete 30 days of running.",                     test: c => c.pctDone >= 99 && c.complete },
+    { id:"rn-first",    label:"👟 First Run",            desc:"Log your first run.",                              test: c => c.runsLogged >= 1 },
+    { id:"rn-5k",       label:"🏅 5k Done",              desc:"Run 5 km or further.",                             test: c => c.hasRun5k },
+    { id:"rn-10",       label:"🏃 Ten Runs",             desc:"Log 10 run sessions.",                             test: c => c.runsLogged >= 10 },
+    { id:"rn-halfway",  label:"🔥 Halfway",              desc:"15 runs logged.",                                  test: c => c.runsLogged >= 15 },
+    { id:"rn-done",     label:"✅ Running Month Done",   desc:"Complete 30 days of running.",                     test: c => c.pctDone >= 99 && c.complete },
   ],
   "creative": [
-    { id:"cr-first",    label:"âœ¨ First Creation",       desc:"Log your first creative session.",                 test: c => c.daysLogged >= 1 },
-    { id:"cr-week",     label:"ðŸŽ¨ Creative Week",        desc:"7-day creative streak.",                           test: c => c.streak >= 7 },
-    { id:"cr-boss",     label:"ðŸš€ Shipped It",           desc:"Log 10 creative sessions.",                        test: c => c.daysLogged >= 10 },
-    { id:"cr-halfway",  label:"âœ¨ Halfway",              desc:"15 creative sessions.",                            test: c => c.daysLogged >= 15 },
-    { id:"cr-done",     label:"âœ… Creative Month Done",  desc:"Complete 30 days of creativity.",                  test: c => c.pctDone >= 99 && c.complete },
+    { id:"cr-first",    label:"✨ First Creation",       desc:"Log your first creative session.",                 test: c => c.daysLogged >= 1 },
+    { id:"cr-week",     label:"🎨 Creative Week",        desc:"7-day creative streak.",                           test: c => c.streak >= 7 },
+    { id:"cr-boss",     label:"🚀 Shipped It",           desc:"Log 10 creative sessions.",                        test: c => c.daysLogged >= 10 },
+    { id:"cr-halfway",  label:"✨ Halfway",              desc:"15 creative sessions.",                            test: c => c.daysLogged >= 15 },
+    { id:"cr-done",     label:"✅ Creative Month Done",  desc:"Complete 30 days of creativity.",                  test: c => c.pctDone >= 99 && c.complete },
   ],
   "strength": [
-    { id:"st-first",    label:"ðŸ‹ï¸ First Rep",            desc:"Log your first lift session.",                     test: c => c.hasLifted },
-    { id:"st-pr",       label:"âš¡ PR Hunter",             desc:"Hit a personal record.",                           test: c => c.hasPR },
-    { id:"st-week",     label:"ðŸ’ª Training Week",        desc:"7-day lifting streak.",                            test: c => c.streak >= 7 },
-    { id:"st-20",       label:"ðŸ‹ï¸ Gym Rat",              desc:"Log 20 lift sessions.",                            test: c => c.liftsLogged >= 20 },
-    { id:"st-done",     label:"âœ… Strength Month Done",  desc:"Complete 30 days of strength training.",           test: c => c.pctDone >= 99 && c.complete },
+    { id:"st-first",    label:"🏋️ First Rep",            desc:"Log your first lift session.",                     test: c => c.hasLifted },
+    { id:"st-pr",       label:"⚡ PR Hunter",             desc:"Hit a personal record.",                           test: c => c.hasPR },
+    { id:"st-week",     label:"💪 Training Week",        desc:"7-day lifting streak.",                            test: c => c.streak >= 7 },
+    { id:"st-20",       label:"🏋️ Gym Rat",              desc:"Log 20 lift sessions.",                            test: c => c.liftsLogged >= 20 },
+    { id:"st-done",     label:"✅ Strength Month Done",  desc:"Complete 30 days of strength training.",           test: c => c.pctDone >= 99 && c.complete },
   ],
   "meditation": [
-    { id:"med-first",   label:"ðŸ§˜ First Sit",            desc:"Log your first meditation.",                       test: c => c.meditationLogged >= 1 },
-    { id:"med-week",    label:"ðŸŒ¿ Inner Peace",          desc:"7-day meditation streak.",                         test: c => c.meditationStreak >= 7 },
-    { id:"med-deep",    label:"ðŸŒŠ Deep State",           desc:"Complete 20 meditation sessions.",                  test: c => c.meditationLogged >= 20 },
-    { id:"med-halfway", label:"ðŸ§˜ Halfway",              desc:"15 meditation sessions.",                          test: c => c.meditationLogged >= 15 },
-    { id:"med-done",    label:"âœ… Meditation Month Done",desc:"Complete 30 days of meditation.",                  test: c => c.pctDone >= 99 && c.complete },
+    { id:"med-first",   label:"🧘 First Sit",            desc:"Log your first meditation.",                       test: c => c.meditationLogged >= 1 },
+    { id:"med-week",    label:"🌿 Inner Peace",          desc:"7-day meditation streak.",                         test: c => c.meditationStreak >= 7 },
+    { id:"med-deep",    label:"🌊 Deep State",           desc:"Complete 20 meditation sessions.",                  test: c => c.meditationLogged >= 20 },
+    { id:"med-halfway", label:"🧘 Halfway",              desc:"15 meditation sessions.",                          test: c => c.meditationLogged >= 15 },
+    { id:"med-done",    label:"✅ Meditation Month Done",desc:"Complete 30 days of meditation.",                  test: c => c.pctDone >= 99 && c.complete },
   ],
   "cold-exposure": [
-    { id:"ce-first",    label:"ðŸ§Š First Plunge",         desc:"Take your first cold shower.",                     test: c => c.coldShowersLogged >= 1 },
-    { id:"ce-week",     label:"â„ï¸ Cold Warrior",         desc:"7-day cold shower streak.",                        test: c => c.coldShowerStreak >= 7 },
-    { id:"ce-plunge",   label:"ðŸ”ï¸ Ice Bath",             desc:"Complete a full 5-min cold plunge.",               test: c => c.hasColdPlunge },
-    { id:"ce-halfway",  label:"ðŸ§Š Halfway",              desc:"15 cold sessions.",                                test: c => c.coldShowersLogged >= 15 },
-    { id:"ce-done",     label:"âœ… Cold Month Done",      desc:"Complete 30 days of cold exposure.",               test: c => c.pctDone >= 99 && c.complete },
+    { id:"ce-first",    label:"🧊 First Plunge",         desc:"Take your first cold shower.",                     test: c => c.coldShowersLogged >= 1 },
+    { id:"ce-week",     label:"❄️ Cold Warrior",         desc:"7-day cold shower streak.",                        test: c => c.coldShowerStreak >= 7 },
+    { id:"ce-plunge",   label:"🏔️ Ice Bath",             desc:"Complete a full 5-min cold plunge.",               test: c => c.hasColdPlunge },
+    { id:"ce-halfway",  label:"🧊 Halfway",              desc:"15 cold sessions.",                                test: c => c.coldShowersLogged >= 15 },
+    { id:"ce-done",     label:"✅ Cold Month Done",      desc:"Complete 30 days of cold exposure.",               test: c => c.pctDone >= 99 && c.complete },
   ],
   "sleep-reset": [
-    { id:"sl-first",    label:"ðŸ˜´ Lights Out",           desc:"Log your first sleep habit.",                      test: c => c.sleepHabitsLogged >= 1 },
-    { id:"sl-week",     label:"ðŸŒ™ Deep Sleeper",         desc:"7-day sleep streak.",                              test: c => c.sleepStreak >= 7 },
-    { id:"sl-boss",     label:"â­ Perfect Night",        desc:"Complete 15 sleep sessions.",                      test: c => c.sleepHabitsLogged >= 15 },
-    { id:"sl-halfway",  label:"ðŸ˜´ Halfway",              desc:"10+ days of sleep habits.",                        test: c => c.sleepHabitsLogged >= 10 },
-    { id:"sl-done",     label:"âœ… Sleep Reset Done",     desc:"Complete all 21 days.",                            test: c => c.pctDone >= 99 && c.complete },
+    { id:"sl-first",    label:"😴 Lights Out",           desc:"Log your first sleep habit.",                      test: c => c.sleepHabitsLogged >= 1 },
+    { id:"sl-week",     label:"🌙 Deep Sleeper",         desc:"7-day sleep streak.",                              test: c => c.sleepStreak >= 7 },
+    { id:"sl-boss",     label:"⭐ Perfect Night",        desc:"Complete 15 sleep sessions.",                      test: c => c.sleepHabitsLogged >= 15 },
+    { id:"sl-halfway",  label:"😴 Halfway",              desc:"10+ days of sleep habits.",                        test: c => c.sleepHabitsLogged >= 10 },
+    { id:"sl-done",     label:"✅ Sleep Reset Done",     desc:"Complete all 21 days.",                            test: c => c.pctDone >= 99 && c.complete },
   ],
   "no-sugar": [
-    { id:"ns-first",    label:"ðŸš« Sugar Free",           desc:"Your first no-sugar day.",                         test: c => c.noSugarLogged >= 1 },
-    { id:"ns-week",     label:"ðŸŽ Sweet Freedom",        desc:"7-day no-sugar streak.",                           test: c => c.noSugarStreak >= 7 },
-    { id:"ns-halfway",  label:"ðŸš« Halfway",              desc:"15 sugar-free days.",                              test: c => c.noSugarLogged >= 15 },
-    { id:"ns-pure",     label:"ðŸ’Ž Pure",                 desc:"Log 25 sugar-free days.",                          test: c => c.noSugarLogged >= 25 },
-    { id:"ns-done",     label:"âœ… No Sugar Done",        desc:"Complete 30 days without added sugar.",            test: c => c.pctDone >= 99 && c.complete },
+    { id:"ns-first",    label:"🚫 Sugar Free",           desc:"Your first no-sugar day.",                         test: c => c.noSugarLogged >= 1 },
+    { id:"ns-week",     label:"🍎 Sweet Freedom",        desc:"7-day no-sugar streak.",                           test: c => c.noSugarStreak >= 7 },
+    { id:"ns-halfway",  label:"🚫 Halfway",              desc:"15 sugar-free days.",                              test: c => c.noSugarLogged >= 15 },
+    { id:"ns-pure",     label:"💎 Pure",                 desc:"Log 25 sugar-free days.",                          test: c => c.noSugarLogged >= 25 },
+    { id:"ns-done",     label:"✅ No Sugar Done",        desc:"Complete 30 days without added sugar.",            test: c => c.pctDone >= 99 && c.complete },
   ],
   "morning-routine": [
-    { id:"mr-first",    label:"ðŸŒ… Early Bird",           desc:"Complete your first morning routine.",             test: c => c.morningRoutineLogged >= 1 },
-    { id:"mr-week",     label:"â˜€ï¸ Sunrise Club",         desc:"7-day morning streak.",                            test: c => c.morningRoutineStreak >= 7 },
-    { id:"mr-cold",     label:"ðŸ§Š Cold Morning",         desc:"Log 20 morning routines.",                         test: c => c.morningRoutineLogged >= 20 },
-    { id:"mr-halfway",  label:"ðŸŒ… Halfway",              desc:"15 mornings logged.",                              test: c => c.morningRoutineLogged >= 15 },
-    { id:"mr-done",     label:"âœ… Morning Routine Done", desc:"Complete 30 days of morning routines.",            test: c => c.pctDone >= 99 && c.complete },
+    { id:"mr-first",    label:"🌅 Early Bird",           desc:"Complete your first morning routine.",             test: c => c.morningRoutineLogged >= 1 },
+    { id:"mr-week",     label:"☀️ Sunrise Club",         desc:"7-day morning streak.",                            test: c => c.morningRoutineStreak >= 7 },
+    { id:"mr-cold",     label:"🧊 Cold Morning",         desc:"Log 20 morning routines.",                         test: c => c.morningRoutineLogged >= 20 },
+    { id:"mr-halfway",  label:"🌅 Halfway",              desc:"15 mornings logged.",                              test: c => c.morningRoutineLogged >= 15 },
+    { id:"mr-done",     label:"✅ Morning Routine Done", desc:"Complete 30 days of morning routines.",            test: c => c.pctDone >= 99 && c.complete },
   ],
   "yoga-flexibility": [
-    { id:"yf-first",    label:"ðŸ§˜ First Flow",           desc:"Complete your first yoga session.",                 test: c => c.yogaLogged >= 1 },
-    { id:"yf-week",     label:"ðŸŒ¿ Flexible Mind",        desc:"7-day yoga streak.",                               test: c => c.yogaStreak >= 7 },
-    { id:"yf-flow",     label:"ðŸŒŠ Full Flow",            desc:"Log 20 yoga sessions.",                            test: c => c.yogaLogged >= 20 },
-    { id:"yf-halfway",  label:"ðŸ§˜ Halfway",              desc:"15 yoga sessions.",                                test: c => c.yogaLogged >= 15 },
-    { id:"yf-done",     label:"âœ… Yoga Month Done",      desc:"Complete 30 days of yoga.",                        test: c => c.pctDone >= 99 && c.complete },
+    { id:"yf-first",    label:"🧘 First Flow",           desc:"Complete your first yoga session.",                 test: c => c.yogaLogged >= 1 },
+    { id:"yf-week",     label:"🌿 Flexible Mind",        desc:"7-day yoga streak.",                               test: c => c.yogaStreak >= 7 },
+    { id:"yf-flow",     label:"🌊 Full Flow",            desc:"Log 20 yoga sessions.",                            test: c => c.yogaLogged >= 20 },
+    { id:"yf-halfway",  label:"🧘 Halfway",              desc:"15 yoga sessions.",                                test: c => c.yogaLogged >= 15 },
+    { id:"yf-done",     label:"✅ Yoga Month Done",      desc:"Complete 30 days of yoga.",                        test: c => c.pctDone >= 99 && c.complete },
   ],
   "digital-detox": [
-    { id:"dd-first",    label:"ðŸ“µ Unplugged",            desc:"Complete your first detox day.",                    test: c => c.detoxLogged >= 1 },
-    { id:"dd-week",     label:"ðŸŒ³ Screen Free",          desc:"7-day detox streak.",                              test: c => c.detoxStreak >= 7 },
-    { id:"dd-zero",     label:"ðŸ† Zero Social",          desc:"Log 20 screen-free days.",                         test: c => c.detoxLogged >= 20 },
-    { id:"dd-halfway",  label:"ðŸ“µ Halfway",              desc:"15 detox days.",                                   test: c => c.detoxLogged >= 15 },
-    { id:"dd-done",     label:"âœ… Detox Done",           desc:"Complete 30 days of digital detox.",               test: c => c.pctDone >= 99 && c.complete },
+    { id:"dd-first",    label:"📵 Unplugged",            desc:"Complete your first detox day.",                    test: c => c.detoxLogged >= 1 },
+    { id:"dd-week",     label:"🌳 Screen Free",          desc:"7-day detox streak.",                              test: c => c.detoxStreak >= 7 },
+    { id:"dd-zero",     label:"🏆 Zero Social",          desc:"Log 20 screen-free days.",                         test: c => c.detoxLogged >= 20 },
+    { id:"dd-halfway",  label:"📵 Halfway",              desc:"15 detox days.",                                   test: c => c.detoxLogged >= 15 },
+    { id:"dd-done",     label:"✅ Detox Done",           desc:"Complete 30 days of digital detox.",               test: c => c.pctDone >= 99 && c.complete },
   ],
   "intermittent-fasting": [
-    { id:"if-first",    label:"â±ï¸ First Fast",            desc:"Complete your first 16-hour fast.",               test: c => c.fastingLogged >= 1 },
-    { id:"if-week",     label:"ðŸ”¥ Fat Adapted",          desc:"7-day fasting streak.",                            test: c => c.fastingStreak >= 7 },
-    { id:"if-20hr",     label:"âš¡ 20-Hour Fast",         desc:"Log 20 fasting days.",                             test: c => c.fastingLogged >= 20 },
-    { id:"if-halfway",  label:"â±ï¸ Halfway",              desc:"15 fasts completed.",                              test: c => c.fastingLogged >= 15 },
-    { id:"if-done",     label:"âœ… Fasting Month Done",   desc:"Complete 30 days of fasting.",                     test: c => c.pctDone >= 99 && c.complete },
+    { id:"if-first",    label:"⏱️ First Fast",            desc:"Complete your first 16-hour fast.",               test: c => c.fastingLogged >= 1 },
+    { id:"if-week",     label:"🔥 Fat Adapted",          desc:"7-day fasting streak.",                            test: c => c.fastingStreak >= 7 },
+    { id:"if-20hr",     label:"⚡ 20-Hour Fast",         desc:"Log 20 fasting days.",                             test: c => c.fastingLogged >= 20 },
+    { id:"if-halfway",  label:"⏱️ Halfway",              desc:"15 fasts completed.",                              test: c => c.fastingLogged >= 15 },
+    { id:"if-done",     label:"✅ Fasting Month Done",   desc:"Complete 30 days of fasting.",                     test: c => c.pctDone >= 99 && c.complete },
   ],
   "core-abs": [
-    { id:"ca-first",    label:"ðŸ’ª Core Activated",       desc:"Log your first core session.",                     test: c => c.coreLogged >= 1 },
-    { id:"ca-week",     label:"ðŸ”¥ Iron Core",            desc:"7-day core streak.",                               test: c => c.streak >= 7 },
-    { id:"ca-blast",    label:"ðŸ† Core Blast",           desc:"Log 15 core sessions.",                            test: c => c.coreLogged >= 15 },
-    { id:"ca-20",       label:"ðŸ’ª 20 Core Sessions",     desc:"Log 20 core workouts.",                            test: c => c.coreLogged >= 20 },
-    { id:"ca-done",     label:"âœ… Core Month Done",      desc:"Complete 30 days of core training.",               test: c => c.pctDone >= 99 && c.complete },
+    { id:"ca-first",    label:"💪 Core Activated",       desc:"Log your first core session.",                     test: c => c.coreLogged >= 1 },
+    { id:"ca-week",     label:"🔥 Iron Core",            desc:"7-day core streak.",                               test: c => c.streak >= 7 },
+    { id:"ca-blast",    label:"🏆 Core Blast",           desc:"Log 15 core sessions.",                            test: c => c.coreLogged >= 15 },
+    { id:"ca-20",       label:"💪 20 Core Sessions",     desc:"Log 20 core workouts.",                            test: c => c.coreLogged >= 20 },
+    { id:"ca-done",     label:"✅ Core Month Done",      desc:"Complete 30 days of core training.",               test: c => c.pctDone >= 99 && c.complete },
   ],
 
-  // Expedition routes â€” km-milestone badges
+  // Expedition routes — km-milestone badges
   "everest-bc": [
-    { id:"ebc-start",     label:"ðŸ¥¾ First Steps",          desc:"Log your first km on the trail.",                  test: c => c.totalKm >= 1 },
-    { id:"ebc-phakding",  label:"ðŸ¡ Phakding",             desc:"Reach the first mountain village (10 km).",        test: c => c.totalKm >= 10 },
-    { id:"ebc-namche",    label:"ðŸ™ï¸ Namche Bazaar",        desc:"Climb to the Sherpa capital (40 km).",             test: c => c.totalKm >= 40 },
-    { id:"ebc-gorak",     label:"â›º Gorak Shep",           desc:"Reach the highest camp (100 km).",                 test: c => c.totalKm >= 100 },
-    { id:"ebc-done",      label:"ðŸ”ï¸ Base Camp!",           desc:"Conquer Everest Base Camp â€” all 130 km.",          test: c => c.totalKm >= 130 },
+    { id:"ebc-start",     label:"🥾 First Steps",          desc:"Log your first km on the trail.",                  test: c => c.totalKm >= 1 },
+    { id:"ebc-phakding",  label:"🏡 Phakding",             desc:"Reach the first mountain village (10 km).",        test: c => c.totalKm >= 10 },
+    { id:"ebc-namche",    label:"🏙️ Namche Bazaar",        desc:"Climb to the Sherpa capital (40 km).",             test: c => c.totalKm >= 40 },
+    { id:"ebc-gorak",     label:"⛺ Gorak Shep",           desc:"Reach the highest camp (100 km).",                 test: c => c.totalKm >= 100 },
+    { id:"ebc-done",      label:"🏔️ Base Camp!",           desc:"Conquer Everest Base Camp — all 130 km.",          test: c => c.totalKm >= 130 },
   ],
   "camino": [
-    { id:"cam-start",     label:"ðŸŽ’ Buen Camino",          desc:"Log your first km on the Way.",                    test: c => c.totalKm >= 1 },
-    { id:"cam-pamplona",  label:"ðŸŸï¸ Pamplona",             desc:"Reach Pamplona (75 km).",                          test: c => c.totalKm >= 75 },
-    { id:"cam-burgos",    label:"ðŸ° Burgos",               desc:"Reach the Gothic city of Burgos (250 km).",        test: c => c.totalKm >= 250 },
-    { id:"cam-leon",      label:"ðŸ¦ LeÃ³n",                 desc:"Pass through the city of LeÃ³n (400 km).",          test: c => c.totalKm >= 400 },
-    { id:"cam-done",      label:"â›ª Santiago!",            desc:"Arrive at Santiago de Compostela â€” all 790 km.",   test: c => c.totalKm >= 790 },
+    { id:"cam-start",     label:"🎒 Buen Camino",          desc:"Log your first km on the Way.",                    test: c => c.totalKm >= 1 },
+    { id:"cam-pamplona",  label:"🏟️ Pamplona",             desc:"Reach Pamplona (75 km).",                          test: c => c.totalKm >= 75 },
+    { id:"cam-burgos",    label:"🏰 Burgos",               desc:"Reach the Gothic city of Burgos (250 km).",        test: c => c.totalKm >= 250 },
+    { id:"cam-leon",      label:"🦁 León",                 desc:"Pass through the city of León (400 km).",          test: c => c.totalKm >= 400 },
+    { id:"cam-done",      label:"⛪ Santiago!",            desc:"Arrive at Santiago de Compostela — all 790 km.",   test: c => c.totalKm >= 790 },
   ],
   "appalachian": [
-    { id:"at-start",      label:"ðŸŒ… Georgia Start",        desc:"Log your first km on the AT.",                     test: c => c.totalKm >= 1 },
-    { id:"at-shenandoah", label:"ðŸŒ¿ Shenandoah",           desc:"Hike through Shenandoah Valley (300 km).",         test: c => c.totalKm >= 300 },
-    { id:"at-halfway",    label:"ðŸª¨ Halfway There",         desc:"Pass the halfway mark in Pennsylvania (900 km).",  test: c => c.totalKm >= 900 },
-    { id:"at-newengland", label:"ðŸ‚ New England",          desc:"Enter the final stretch (1,800 km).",              test: c => c.totalKm >= 1800 },
-    { id:"at-done",       label:"ðŸ”ï¸ Katahdin!",            desc:"Reach Mount Katahdin â€” all 3,540 km.",             test: c => c.totalKm >= 3540 },
+    { id:"at-start",      label:"🌅 Georgia Start",        desc:"Log your first km on the AT.",                     test: c => c.totalKm >= 1 },
+    { id:"at-shenandoah", label:"🌿 Shenandoah",           desc:"Hike through Shenandoah Valley (300 km).",         test: c => c.totalKm >= 300 },
+    { id:"at-halfway",    label:"🪨 Halfway There",         desc:"Pass the halfway mark in Pennsylvania (900 km).",  test: c => c.totalKm >= 900 },
+    { id:"at-newengland", label:"🍂 New England",          desc:"Enter the final stretch (1,800 km).",              test: c => c.totalKm >= 1800 },
+    { id:"at-done",       label:"🏔️ Katahdin!",            desc:"Reach Mount Katahdin — all 3,540 km.",             test: c => c.totalKm >= 3540 },
   ],
   "tour-de-france": [
-    { id:"tdf-start",     label:"ðŸŸ¡ Maillot Jaune",        desc:"Clip in and log your first km.",                   test: c => c.totalKm >= 1 },
-    { id:"tdf-brittany",  label:"ðŸŒŠ Brittany",             desc:"Clear the Brittany coast (400 km).",               test: c => c.totalKm >= 400 },
-    { id:"tdf-pyrenees",  label:"â›°ï¸ Les PyrÃ©nÃ©es",         desc:"Conquer the Pyrenees (1,600 km).",                 test: c => c.totalKm >= 1600 },
-    { id:"tdf-alps",      label:"ðŸ”ï¸ Les Alpes",            desc:"Survive the Alps (2,400 km).",                     test: c => c.totalKm >= 2400 },
-    { id:"tdf-done",      label:"ðŸ—¼ Paris!",               desc:"Roll onto the Champs-Ã‰lysÃ©es â€” all 3,490 km.",     test: c => c.totalKm >= 3490 },
+    { id:"tdf-start",     label:"🟡 Maillot Jaune",        desc:"Clip in and log your first km.",                   test: c => c.totalKm >= 1 },
+    { id:"tdf-brittany",  label:"🌊 Brittany",             desc:"Clear the Brittany coast (400 km).",               test: c => c.totalKm >= 400 },
+    { id:"tdf-pyrenees",  label:"⛰️ Les Pyrénées",         desc:"Conquer the Pyrenees (1,600 km).",                 test: c => c.totalKm >= 1600 },
+    { id:"tdf-alps",      label:"🏔️ Les Alpes",            desc:"Survive the Alps (2,400 km).",                     test: c => c.totalKm >= 2400 },
+    { id:"tdf-done",      label:"🗼 Paris!",               desc:"Roll onto the Champs-Élysées — all 3,490 km.",     test: c => c.totalKm >= 3490 },
   ],
   "route66": [
-    { id:"r66-start",     label:"ðŸ›£ï¸ Hit the Road",         desc:"Start the Mother Road â€” log your first km.",       test: c => c.totalKm >= 1 },
-    { id:"r66-springfield",label:"ðŸŒ½ Springfield",         desc:"Roll through Springfield, IL (500 km).",           test: c => c.totalKm >= 500 },
-    { id:"r66-okc",       label:"ðŸ¤  Oklahoma City",        desc:"Reach Oklahoma City (1,100 km).",                  test: c => c.totalKm >= 1100 },
-    { id:"r66-abq",       label:"ðŸŒµ Albuquerque",          desc:"Cross the desert to Albuquerque (2,700 km).",      test: c => c.totalKm >= 2700 },
-    { id:"r66-done",      label:"ðŸŽ¡ Santa Monica!",        desc:"Reach the end of Route 66 â€” all 3,940 km.",        test: c => c.totalKm >= 3940 },
+    { id:"r66-start",     label:"🛣️ Hit the Road",         desc:"Start the Mother Road — log your first km.",       test: c => c.totalKm >= 1 },
+    { id:"r66-springfield",label:"🌽 Springfield",         desc:"Roll through Springfield, IL (500 km).",           test: c => c.totalKm >= 500 },
+    { id:"r66-okc",       label:"🤠 Oklahoma City",        desc:"Reach Oklahoma City (1,100 km).",                  test: c => c.totalKm >= 1100 },
+    { id:"r66-abq",       label:"🌵 Albuquerque",          desc:"Cross the desert to Albuquerque (2,700 km).",      test: c => c.totalKm >= 2700 },
+    { id:"r66-done",      label:"🎡 Santa Monica!",        desc:"Reach the end of Route 66 — all 3,940 km.",        test: c => c.totalKm >= 3940 },
   ],
   "amazon-river": [
-    { id:"amz-start",     label:"ðŸŒ¿ Into the Jungle",      desc:"Launch onto the Amazon â€” log your first km.",      test: c => c.totalKm >= 1 },
-    { id:"amz-iquitos",   label:"ðŸŠ Iquitos",              desc:"Pass through Iquitos, Peru (500 km).",              test: c => c.totalKm >= 500 },
-    { id:"amz-manaus",    label:"ðŸ™ï¸ Manaus",               desc:"Reach the heart of the Amazon (3,000 km).",        test: c => c.totalKm >= 3000 },
-    { id:"amz-santarem",  label:"ðŸ¦œ SantarÃ©m",             desc:"Approach the Atlantic delta (5,000 km).",          test: c => c.totalKm >= 5000 },
-    { id:"amz-done",      label:"ðŸŒŠ Atlantic!",            desc:"Flow into the Atlantic Ocean â€” all 6,437 km.",     test: c => c.totalKm >= 6437 },
+    { id:"amz-start",     label:"🌿 Into the Jungle",      desc:"Launch onto the Amazon — log your first km.",      test: c => c.totalKm >= 1 },
+    { id:"amz-iquitos",   label:"🐊 Iquitos",              desc:"Pass through Iquitos, Peru (500 km).",              test: c => c.totalKm >= 500 },
+    { id:"amz-manaus",    label:"🏙️ Manaus",               desc:"Reach the heart of the Amazon (3,000 km).",        test: c => c.totalKm >= 3000 },
+    { id:"amz-santarem",  label:"🦜 Santarém",             desc:"Approach the Atlantic delta (5,000 km).",          test: c => c.totalKm >= 5000 },
+    { id:"amz-done",      label:"🌊 Atlantic!",            desc:"Flow into the Atlantic Ocean — all 6,437 km.",     test: c => c.totalKm >= 6437 },
   ],
   "everest-stairmaster": [
-    { id:"esm-start",   label:"ðŸ¢ First Floor",        desc:"Log your first floor. The climb begins.",             test: c => c.totalKm >= 1     },
-    { id:"esm-100",     label:"â›°ï¸ Foothills",           desc:"Reach 100 floors â€” the foothills.",                  test: c => c.totalKm >= 100   },
-    { id:"esm-1000",    label:"ðŸ•ï¸ Camp II",             desc:"1,000 floors deep. Basecamp II altitude.",           test: c => c.totalKm >= 1000  },
-    { id:"esm-2000",    label:"â˜ ï¸ Death Zone",           desc:"2,000 floors. The air is dangerously thin.",         test: c => c.totalKm >= 2000  },
-    { id:"esm-summit",  label:"ðŸ”ï¸ Everest Summit!",     desc:"2,903 floors. You climbed an entire mountain.",      test: c => c.totalKm >= 2903.2},
+    { id:"esm-start",   label:"🏢 First Floor",        desc:"Log your first floor. The climb begins.",             test: c => c.totalKm >= 1     },
+    { id:"esm-100",     label:"⛰️ Foothills",           desc:"Reach 100 floors — the foothills.",                  test: c => c.totalKm >= 100   },
+    { id:"esm-1000",    label:"🏕️ Camp II",             desc:"1,000 floors deep. Basecamp II altitude.",           test: c => c.totalKm >= 1000  },
+    { id:"esm-2000",    label:"☠️ Death Zone",           desc:"2,000 floors. The air is dangerously thin.",         test: c => c.totalKm >= 2000  },
+    { id:"esm-summit",  label:"🏔️ Everest Summit!",     desc:"2,903 floors. You climbed an entire mountain.",      test: c => c.totalKm >= 2903.2},
   ],
   "journaling": [
-    { id:"jn-d1",    label:"âœï¸ First Entry",       desc:"Write your first journal entry.",                          test: c => c.dayNumber >= 1 && c.complete },
-    { id:"jn-d7",    label:"ðŸ““ One Week In",        desc:"Complete a full week of journaling.",                     test: c => c.streak >= 7 },
-    { id:"jn-d14",   label:"ðŸ’¡ Two Weeks Clear",    desc:"14 days of consistent reflection.",                       test: c => c.streak >= 14 },
-    { id:"jn-d21",   label:"ðŸ”„ 21-Day Habit",       desc:"Science says habits form in 21 days. You did it.",       test: c => c.streak >= 21 },
-    { id:"jn-done",  label:"ðŸ“– Full Journal",       desc:"30 days. A complete record of who you became.",          test: c => c.complete && c.dayNumber >= 30 },
+    { id:"jn-d1",    label:"✍️ First Entry",       desc:"Write your first journal entry.",                          test: c => c.dayNumber >= 1 && c.complete },
+    { id:"jn-d7",    label:"📓 One Week In",        desc:"Complete a full week of journaling.",                     test: c => c.streak >= 7 },
+    { id:"jn-d14",   label:"💡 Two Weeks Clear",    desc:"14 days of consistent reflection.",                       test: c => c.streak >= 14 },
+    { id:"jn-d21",   label:"🔄 21-Day Habit",       desc:"Science says habits form in 21 days. You did it.",       test: c => c.streak >= 21 },
+    { id:"jn-done",  label:"📖 Full Journal",       desc:"30 days. A complete record of who you became.",          test: c => c.complete && c.dayNumber >= 30 },
   ],
   "monk-mode": [
-    { id:"mm-d1",    label:"ðŸ§  Monk's First Day",   desc:"Complete Day 1 in full focus mode.",                      test: c => c.dayNumber >= 1 && c.complete },
-    { id:"mm-d7",    label:"ðŸ“µ Social-Free Week",   desc:"7 days without social media.",                            test: c => c.streak >= 7 },
-    { id:"mm-d14",   label:"ðŸ’» Deep Work Streak",   desc:"14 consecutive days of 2-hour deep work blocks.",        test: c => c.streak >= 14 },
-    { id:"mm-d21",   label:"âš¡ Flow State",          desc:"21 days of monk mode â€” you've found your rhythm.",       test: c => c.streak >= 21 },
-    { id:"mm-done",  label:"ðŸ† Monk Certified",     desc:"30 days. You built a mind like a weapon.",               test: c => c.complete && c.dayNumber >= 30 },
+    { id:"mm-d1",    label:"🧠 Monk's First Day",   desc:"Complete Day 1 in full focus mode.",                      test: c => c.dayNumber >= 1 && c.complete },
+    { id:"mm-d7",    label:"📵 Social-Free Week",   desc:"7 days without social media.",                            test: c => c.streak >= 7 },
+    { id:"mm-d14",   label:"💻 Deep Work Streak",   desc:"14 consecutive days of 2-hour deep work blocks.",        test: c => c.streak >= 14 },
+    { id:"mm-d21",   label:"⚡ Flow State",          desc:"21 days of monk mode — you've found your rhythm.",       test: c => c.streak >= 21 },
+    { id:"mm-done",  label:"🏆 Monk Certified",     desc:"30 days. You built a mind like a weapon.",               test: c => c.complete && c.dayNumber >= 30 },
   ],
   "pct": [
-    { id:"pct-start",  label:"ðŸŒµ Mexico Border",    desc:"Step off from the southern terminus. The journey begins.", test: c => c.totalKm >= 1    },
-    { id:"pct-sierra", label:"â›°ï¸ High Sierra",      desc:"Enter the Sierra Nevada (2,000 km).",                     test: c => c.totalKm >= 2000 },
-    { id:"pct-oregon", label:"ðŸŒ‹ Into Oregon",      desc:"Cross into Oregon (3,100 km).",                           test: c => c.totalKm >= 3100 },
-    { id:"pct-wa",     label:"ðŸ”ï¸ Washington",       desc:"Enter the final state (3,800 km).",                       test: c => c.totalKm >= 3800 },
-    { id:"pct-done",   label:"ðŸ Canada!",           desc:"4,286 km. You walked from Mexico to Canada.",            test: c => c.totalKm >= 4286 },
+    { id:"pct-start",  label:"🌵 Mexico Border",    desc:"Step off from the southern terminus. The journey begins.", test: c => c.totalKm >= 1    },
+    { id:"pct-sierra", label:"⛰️ High Sierra",      desc:"Enter the Sierra Nevada (2,000 km).",                     test: c => c.totalKm >= 2000 },
+    { id:"pct-oregon", label:"🌋 Into Oregon",      desc:"Cross into Oregon (3,100 km).",                           test: c => c.totalKm >= 3100 },
+    { id:"pct-wa",     label:"🏔️ Washington",       desc:"Enter the final state (3,800 km).",                       test: c => c.totalKm >= 3800 },
+    { id:"pct-done",   label:"🍁 Canada!",           desc:"4,286 km. You walked from Mexico to Canada.",            test: c => c.totalKm >= 4286 },
   ],
   "run-5-marathons": [
-    { id:"r5m-start",   label:"ðŸ‘Ÿ First Steps",      desc:"Log your first km.",                                      test: c => c.totalKm >= 1   },
-    { id:"r5m-mar1",    label:"ðŸ… Marathon 1",        desc:"Cover 42 km â€” first marathon done.",                     test: c => c.totalKm >= 42  },
-    { id:"r5m-halfway", label:"ðŸ”¥ Halfway",           desc:"105 km â€” halfway through all 5 marathons.",              test: c => c.totalKm >= 105 },
-    { id:"r5m-mar4",    label:"ðŸƒ Marathon 4",        desc:"168 km â€” fourth marathon complete.",                     test: c => c.totalKm >= 168 },
-    { id:"r5m-done",    label:"ðŸŽ–ï¸ Five Marathons!",   desc:"All 211 km done. Five consecutive marathons.",           test: c => c.totalKm >= 211 },
+    { id:"r5m-start",   label:"👟 First Steps",      desc:"Log your first km.",                                      test: c => c.totalKm >= 1   },
+    { id:"r5m-mar1",    label:"🏅 Marathon 1",        desc:"Cover 42 km — first marathon done.",                     test: c => c.totalKm >= 42  },
+    { id:"r5m-halfway", label:"🔥 Halfway",           desc:"105 km — halfway through all 5 marathons.",              test: c => c.totalKm >= 105 },
+    { id:"r5m-mar4",    label:"🏃 Marathon 4",        desc:"168 km — fourth marathon complete.",                     test: c => c.totalKm >= 168 },
+    { id:"r5m-done",    label:"🎖️ Five Marathons!",   desc:"All 211 km done. Five consecutive marathons.",           test: c => c.totalKm >= 211 },
   ],
   "run-jogle": [
-    { id:"jogle-start",   label:"ðŸŒŠ Land's End",       desc:"Start your JOGLE run.",                                 test: c => c.totalKm >= 1    },
-    { id:"jogle-bristol", label:"ðŸ™ï¸ Bristol",           desc:"Reach Bristol (340 km in).",                           test: c => c.totalKm >= 340  },
-    { id:"jogle-manc",    label:"ðŸ­ Manchester",        desc:"Run through Manchester (600 km).",                      test: c => c.totalKm >= 600  },
-    { id:"jogle-border",  label:"ðŸ´ Scotland",          desc:"Cross the Scottish Border (900 km).",                  test: c => c.totalKm >= 900  },
-    { id:"jogle-done",    label:"ðŸ”ï¸ John o'Groats!",   desc:"Run the full length of Britain â€” 1,407 km.",           test: c => c.totalKm >= 1407 },
+    { id:"jogle-start",   label:"🌊 Land's End",       desc:"Start your JOGLE run.",                                 test: c => c.totalKm >= 1    },
+    { id:"jogle-bristol", label:"🏙️ Bristol",           desc:"Reach Bristol (340 km in).",                           test: c => c.totalKm >= 340  },
+    { id:"jogle-manc",    label:"🏭 Manchester",        desc:"Run through Manchester (600 km).",                      test: c => c.totalKm >= 600  },
+    { id:"jogle-border",  label:"🏴 Scotland",          desc:"Cross the Scottish Border (900 km).",                  test: c => c.totalKm >= 900  },
+    { id:"jogle-done",    label:"🏔️ John o'Groats!",   desc:"Run the full length of Britain — 1,407 km.",           test: c => c.totalKm >= 1407 },
   ],
   "run-trans-america": [
-    { id:"rta-start",   label:"ðŸŒ‰ San Francisco",     desc:"Set off from the Bay Area.",                             test: c => c.totalKm >= 1    },
-    { id:"rta-rockies", label:"â›°ï¸ Rockies",           desc:"Cross the Rocky Mountains (1,500 km).",                 test: c => c.totalKm >= 1500 },
-    { id:"rta-plains",  label:"ðŸŒ¾ Great Plains",      desc:"Run through the Great Plains (2,500 km).",               test: c => c.totalKm >= 2500 },
-    { id:"rta-miss",    label:"ðŸŒŠ Mississippi",       desc:"Cross the Mississippi River (3,500 km).",               test: c => c.totalKm >= 3500 },
-    { id:"rta-done",    label:"ðŸ—½ New York City!",    desc:"Run coast to coast â€” all 4,989 km.",                    test: c => c.totalKm >= 4989 },
+    { id:"rta-start",   label:"🌉 San Francisco",     desc:"Set off from the Bay Area.",                             test: c => c.totalKm >= 1    },
+    { id:"rta-rockies", label:"⛰️ Rockies",           desc:"Cross the Rocky Mountains (1,500 km).",                 test: c => c.totalKm >= 1500 },
+    { id:"rta-plains",  label:"🌾 Great Plains",      desc:"Run through the Great Plains (2,500 km).",               test: c => c.totalKm >= 2500 },
+    { id:"rta-miss",    label:"🌊 Mississippi",       desc:"Cross the Mississippi River (3,500 km).",               test: c => c.totalKm >= 3500 },
+    { id:"rta-done",    label:"🗽 New York City!",    desc:"Run coast to coast — all 4,989 km.",                    test: c => c.totalKm >= 4989 },
   ],
   "raid-pyrenees": [
-    { id:"rp-start",    label:"ðŸŒŠ Hendaye",           desc:"Clip in at the Atlantic start.",                         test: c => c.totalKm >= 1   },
-    { id:"rp-pass1",    label:"â›°ï¸ First High Pass",   desc:"Conquer the first high passes (150 km).",               test: c => c.totalKm >= 150 },
-    { id:"rp-andorra",  label:"ðŸ”ï¸ Andorra",           desc:"Reach Andorra at the halfway point (400 km).",          test: c => c.totalKm >= 400 },
-    { id:"rp-final",    label:"ðŸš´ Final Cols",         desc:"Enter the final mountain stretch (600 km).",             test: c => c.totalKm >= 600 },
-    { id:"rp-done",     label:"â˜€ï¸ Mediterranean!",    desc:"Reach CerbÃ¨re and the Mediterranean â€” all 726 km.",     test: c => c.totalKm >= 726 },
+    { id:"rp-start",    label:"🌊 Hendaye",           desc:"Clip in at the Atlantic start.",                         test: c => c.totalKm >= 1   },
+    { id:"rp-pass1",    label:"⛰️ First High Pass",   desc:"Conquer the first high passes (150 km).",               test: c => c.totalKm >= 150 },
+    { id:"rp-andorra",  label:"🏔️ Andorra",           desc:"Reach Andorra at the halfway point (400 km).",          test: c => c.totalKm >= 400 },
+    { id:"rp-final",    label:"🚴 Final Cols",         desc:"Enter the final mountain stretch (600 km).",             test: c => c.totalKm >= 600 },
+    { id:"rp-done",     label:"☀️ Mediterranean!",    desc:"Reach Cerbère and the Mediterranean — all 726 km.",     test: c => c.totalKm >= 726 },
   ],
   "trans-am-bike": [
-    { id:"tab-start",   label:"ðŸ›ï¸ Yorktown",          desc:"Roll out from the East Coast.",                          test: c => c.totalKm >= 1    },
-    { id:"tab-ridge",   label:"ðŸŒ„ Blue Ridge",        desc:"Ride the Blue Ridge Parkway (900 km).",                  test: c => c.totalKm >= 900  },
-    { id:"tab-river",   label:"ðŸŒŠ Missouri River",    desc:"Cross the Missouri River (2,700 km).",                  test: c => c.totalKm >= 2700 },
-    { id:"tab-rockies", label:"ðŸ”ï¸ Colorado Rockies",  desc:"Conquer the Colorado Rockies (4,500 km).",               test: c => c.totalKm >= 4500 },
-    { id:"tab-done",    label:"ðŸŒŠ Astoria!",          desc:"Reach the Pacific â€” all 6,771 km.",                     test: c => c.totalKm >= 6771 },
+    { id:"tab-start",   label:"🏛️ Yorktown",          desc:"Roll out from the East Coast.",                          test: c => c.totalKm >= 1    },
+    { id:"tab-ridge",   label:"🌄 Blue Ridge",        desc:"Ride the Blue Ridge Parkway (900 km).",                  test: c => c.totalKm >= 900  },
+    { id:"tab-river",   label:"🌊 Missouri River",    desc:"Cross the Missouri River (2,700 km).",                  test: c => c.totalKm >= 2700 },
+    { id:"tab-rockies", label:"🏔️ Colorado Rockies",  desc:"Conquer the Colorado Rockies (4,500 km).",               test: c => c.totalKm >= 4500 },
+    { id:"tab-done",    label:"🌊 Astoria!",          desc:"Reach the Pacific — all 6,771 km.",                     test: c => c.totalKm >= 6771 },
   ],
   "thames-row": [
-    { id:"thr-start",   label:"ðŸŒ¿ The Source",        desc:"Push off from the Thames source.",                       test: c => c.totalKm >= 1   },
-    { id:"thr-oxford",  label:"ðŸŽ“ Oxford",            desc:"Row through Oxford (75 km).",                           test: c => c.totalKm >= 75  },
-    { id:"thr-windsor", label:"ðŸ° Windsor Castle",    desc:"Pass Windsor Castle (170 km).",                         test: c => c.totalKm >= 170 },
-    { id:"thr-london",  label:"ðŸŒ‰ London Bridge",     desc:"Row under London Bridge (280 km).",                     test: c => c.totalKm >= 280 },
-    { id:"thr-done",    label:"ðŸŒŠ To the Sea!",       desc:"Reach the Thames Estuary â€” all 346 km.",                test: c => c.totalKm >= 346 },
+    { id:"thr-start",   label:"🌿 The Source",        desc:"Push off from the Thames source.",                       test: c => c.totalKm >= 1   },
+    { id:"thr-oxford",  label:"🎓 Oxford",            desc:"Row through Oxford (75 km).",                           test: c => c.totalKm >= 75  },
+    { id:"thr-windsor", label:"🏰 Windsor Castle",    desc:"Pass Windsor Castle (170 km).",                         test: c => c.totalKm >= 170 },
+    { id:"thr-london",  label:"🌉 London Bridge",     desc:"Row under London Bridge (280 km).",                     test: c => c.totalKm >= 280 },
+    { id:"thr-done",    label:"🌊 To the Sea!",       desc:"Reach the Thames Estuary — all 346 km.",                test: c => c.totalKm >= 346 },
   ],
   "danube-row": [
-    { id:"dan-start",    label:"ðŸ‡©ðŸ‡ª Donaueschingen",  desc:"Launch on the Danube in Germany.",                       test: c => c.totalKm >= 1    },
-    { id:"dan-vienna",   label:"ðŸŽ¼ Vienna",           desc:"Row past Vienna (360 km).",                             test: c => c.totalKm >= 360  },
-    { id:"dan-budapest", label:"ðŸ° Budapest",         desc:"Pass through Budapest (680 km).",                       test: c => c.totalKm >= 680  },
-    { id:"dan-gorge",    label:"â›°ï¸ Iron Gates",       desc:"Navigate the Iron Gates Gorge (1,400 km).",             test: c => c.totalKm >= 1400 },
-    { id:"dan-done",     label:"ðŸŒŠ Black Sea!",       desc:"Row to the Black Sea â€” all 2,860 km.",                  test: c => c.totalKm >= 2860 },
+    { id:"dan-start",    label:"🇩🇪 Donaueschingen",  desc:"Launch on the Danube in Germany.",                       test: c => c.totalKm >= 1    },
+    { id:"dan-vienna",   label:"🎼 Vienna",           desc:"Row past Vienna (360 km).",                             test: c => c.totalKm >= 360  },
+    { id:"dan-budapest", label:"🏰 Budapest",         desc:"Pass through Budapest (680 km).",                       test: c => c.totalKm >= 680  },
+    { id:"dan-gorge",    label:"⛰️ Iron Gates",       desc:"Navigate the Iron Gates Gorge (1,400 km).",             test: c => c.totalKm >= 1400 },
+    { id:"dan-done",     label:"🌊 Black Sea!",       desc:"Row to the Black Sea — all 2,860 km.",                  test: c => c.totalKm >= 2860 },
   ],
 };
 
-// â”€â”€ Challenge Chains (what comes next after each template) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Challenge Chains (what comes next after each template) ────────────────
 const CHALLENGE_CHAINS = {
   "30-pushups":         "strength",
   "75-soft":            "75-hard",
@@ -1459,7 +1459,7 @@ const CHALLENGE_CHAINS = {
   "spartan-race":       "ironman-703",
 };
 
-// â”€â”€ PhotoDB â€” IndexedDB wrapper for progress photos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── PhotoDB — IndexedDB wrapper for progress photos ───────────────────────
 const PhotoDB = {
   _db: null,
   async open() {
@@ -1509,7 +1509,7 @@ const PhotoDB = {
   },
 };
 
-// â”€â”€ State Management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── State Management ───────────────────────────────────────────────────────
 
 let state = loadState();
 let activeTab = "today";
@@ -1526,7 +1526,7 @@ let editForm = null;         // temp copy of edit fields so Cancel truly reverts
 let settingsOpen = false;
 let justCompletedId  = null;   // challenge shown in completion modal right now
 let justCompletedIds = [];     // queue of IDs waiting to be shown after the current one
-let _confirmDialog   = null;   // { msg, onConfirm } â€” replaces window.confirm()
+let _confirmDialog   = null;   // { msg, onConfirm } — replaces window.confirm()
 let _cloudAuthError   = "";    // error message for cloud auth form (settings)
 let _cloudAuthLoading = false; // loading spinner for cloud auth (settings)
 let _shareModalChallenge = null;    // challenge shown in share card modal
@@ -1534,11 +1534,11 @@ let _shareModalDone      = false;   // true = challenge completion card, false =
 let _shareCardDataUrl    = null;    // cached base64 PNG of the last drawn share card
 let _notifNudgeDismissed = false;   // dismissal flag for the Day-3 notification nudge
 let builderQuizAnswers   = { goal: null, time: null, level: null };
-let _badgeSheetQueue     = [];       // { label, desc, tier } â€” queued badge celebrations
+let _badgeSheetQueue     = [];       // { label, desc, tier } — queued badge celebrations
 let _notifPromptVisible  = false;   // post-challenge-start notification prompt
 let _templateFilter      = "all";   // "all" | "short" | "medium" | "long"
 let _statsCollapsed      = null;    // null = auto (collapse Day 1-2), true/false = user override
-let _savedFlash          = false;   // brief "Saved âœ“" indicator after habit tap
+let _savedFlash          = false;   // brief "Saved ✓" indicator after habit tap
 let _obAuthError      = "";    // error message for onboarding account screen
 let _obAuthLoading    = false; // loading spinner for onboarding account screen
 let _obAuthMode       = "signup"; // "signup" | "signin" on the account screen
@@ -1547,11 +1547,11 @@ let _skipCloudPush    = false; // prevent redundant push after pull
 let reminderTimeout = null;
 let _pwaInstallPrompt = null;  // beforeinstallprompt event (PWA install)
 let _showInstallBanner = false; // show the PWA install nudge
-let _newWeekBanner = null;     // { pts } â€” Monday new-week ceremony, null when dismissed
-let _levelUpOverlay = null;   // { level, name, emoji, total } â€” full-screen level-up celebration
+let _newWeekBanner = null;     // { pts } — Monday new-week ceremony, null when dismissed
+let _levelUpOverlay = null;   // { level, name, emoji, total } — full-screen level-up celebration
 let _resetConfirm = false;    // shows inline confirm step before wiping all data
 
-// â”€â”€ Analytics helper (Plausible â€” graceful no-op if script not loaded) â”€â”€â”€â”€â”€â”€â”€
+// ── Analytics helper (Plausible — graceful no-op if script not loaded) ───────
 function trackEvent(name, props) {
   try {
     if (typeof window.plausible === "function") {
@@ -1560,7 +1560,7 @@ function trackEvent(name, props) {
   } catch(e) { /* silent */ }
 }
 
-// â”€â”€ Cloud Sync (Supabase) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Cloud Sync (Supabase) ──────────────────────────────────────────────────
 const SUPABASE_URL = "https://rmyvpndnwpgrxosqrqff.supabase.co";
 const SUPABASE_KEY = "sb_publishable_NEeo1fUgGclLFN6VGGhl6w_ROgAEQJg";
 let _sbClient = null;
@@ -1641,7 +1641,7 @@ const CloudSync = {
       saveState();
       _skipCloudPush = false;
       render();
-      showToast("â˜ï¸ Data restored from cloud.");
+      showToast("☁️ Data restored from cloud.");
     } catch(e) { console.warn("Cloud pull failed:", e); }
   },
 };
@@ -1649,7 +1649,7 @@ let onboardingStep = null;   // null = done, 0-3 = active step
 let bodyHistoryLimit = 5;    // how many history rows to show in Body tab
 let _lastViewKey = "";       // for scroll-to-top on navigation changes
 let _animHabitId = null;     // habit that just got checked (for pop animation)
-let _eventsBound = false;        // event listeners are added once â€” not re-added on every render
+let _eventsBound = false;        // event listeners are added once — not re-added on every render
 let viewingDate       = null;     // null = today; set to a past dateKey to backfill habits
 let challengeDetailView = "weeks"; // "weeks" | "calendar"
 let calendarViewMonth   = null;    // null = auto; or "YYYY-MM-DD" (first of month)
@@ -1658,7 +1658,7 @@ function defaultBuilderForm() {
   return {
     templateId: null,
     name: "",
-    emoji: "ðŸŽ¯",
+    emoji: "🎯",
     startDate: todayKey(),
     endDate: addDays(todayKey(), 29),
     mode: "soft",
@@ -1667,7 +1667,7 @@ function defaultBuilderForm() {
     noEndDate: false,
     goalWeight: null,
     habits: [],
-    newHabitEmoji: "â­",
+    newHabitEmoji: "⭐",
     newHabitName: "",
     newHabitPoints: 2,
     newHabitType: "binary",
@@ -1711,7 +1711,7 @@ function saveBuilderFormFromDOM() {
 function normalizeDay(raw) {
   if (!raw || typeof raw !== "object") raw = {};
   return {
-    mode:       raw.mode === "rest" ? "rest" : "standard", // minimum/boss â†’ standard
+    mode:       raw.mode === "rest" ? "rest" : "standard", // minimum/boss → standard
     done:       Array.isArray(raw.done) ? raw.done : [],
     recovered:  raw.recovered  === true,
     pts:        typeof raw.pts === "number" ? raw.pts : 0,
@@ -1727,7 +1727,7 @@ function normalizeHabit(raw) {
   const habit = {
     id:          typeof raw.id === "string" && raw.id ? raw.id : uid(),
     title:       typeof raw.title === "string" ? raw.title : "Habit",
-    emoji:       typeof raw.emoji === "string" ? raw.emoji : "â­",
+    emoji:       typeof raw.emoji === "string" ? raw.emoji : "⭐",
     quip:        typeof raw.quip  === "string" ? raw.quip  : "",
     type:        ["binary","tiered","distance","measurement"].includes(raw.type) ? raw.type : "binary",
     points:      typeof raw.points === "number" && raw.points >= 1 ? Math.round(raw.points) : 2,
@@ -1746,7 +1746,7 @@ function normalizeChallenge(raw) {
   return {
     id:         raw.id || uid(),
     name:       raw.name || "My Challenge",
-    emoji:      raw.emoji || "ðŸŽ¯",
+    emoji:      raw.emoji || "🎯",
     description:raw.description || "",
     templateId: raw.templateId || null,
     startDate:  raw.startDate || todayKey(),
@@ -1829,7 +1829,7 @@ function loadState() {
 
 function migrateCruiseMode(old, newState) {
   if (!old || typeof old !== "object") return;
-  // Convert old days â€” runKm/stepsCount â†’ tiers
+  // Convert old days — runKm/stepsCount → tiers
   const newDays = {};
   const rawDays = old.days || {};
   for (const [k, d] of Object.entries(rawDays)) {
@@ -1842,7 +1842,7 @@ function migrateCruiseMode(old, newState) {
       tiers:     { run: d.runKm ?? null, steps: d.stepsCount ?? null },
     };
   }
-  // Build the challenge â€” derive dates from actual logged data
+  // Build the challenge — derive dates from actual logged data
   const rawDayKeys  = Object.keys(newDays).sort();
   const migrStart   = rawDayKeys[0]   || old.settings?.startDate || todayKey();
   const migrEnd     = old.settings?.endDate || addDays(migrStart, 85);
@@ -1850,7 +1850,7 @@ function migrateCruiseMode(old, newState) {
   const c = normalizeChallenge({
     id: "cruise-migrated",
     name: "Cruise Control",
-    emoji: "ðŸš¢",
+    emoji: "🚢",
     description: "Your original 86-day transformation challenge.",
     templateId: "cruise-control",
     startDate: migrStart,
@@ -1889,16 +1889,16 @@ function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch(e) {
     console.warn("saveState failed (storage quota?):", e);
-    showToast("âš ï¸ Storage full â€” export a backup to avoid losing data.");
+    showToast("⚠️ Storage full — export a backup to avoid losing data.");
   }
-  // Debounced cloud push â€” 5 s after last save so rapid taps don't spam
+  // Debounced cloud push — 5 s after last save so rapid taps don't spam
   if (!_skipCloudPush && CloudSync.isSignedIn) {
     clearTimeout(_cloudPushTimer);
     _cloudPushTimer = setTimeout(() => CloudSync.push(), 5000);
   }
 }
 
-// â”€â”€ Date Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Date Helpers ───────────────────────────────────────────────────────────
 
 function todayKey() { return toKey(new Date()); }
 function toKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
@@ -1916,7 +1916,7 @@ function challengeDayNumber(c, dateKey) {
   return clamp(raw, 1, totalDays);
 }
 
-// â”€â”€ Challenge Engine â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Challenge Engine ───────────────────────────────────────────────────────
 
 function getActiveChallenges() {
   const today = todayKey();
@@ -2016,7 +2016,7 @@ function calcChallengeStreak(challenge) {
       streak++;
       d.setDate(d.getDate()-1);
     } else if (softMode && !graceUsed) {
-      // Soft mode: one grace day â€” skip but don't break the streak
+      // Soft mode: one grace day — skip but don't break the streak
       graceUsed = true;
       d.setDate(d.getDate()-1);
     } else {
@@ -2044,7 +2044,7 @@ function challengeWeeks(challenge) {
     while (fd <= wCap) { allDays.push(toKey(fd)); fd.setDate(fd.getDate()+1); }
     const today = todayKey();
     const days  = allDays.filter(k => k <= today);
-    const label = formatDate(wStart,{month:"short",day:"numeric"}) + " â€“ " + formatDate(wCap,{month:"short",day:"numeric"});
+    const label = formatDate(wStart,{month:"short",day:"numeric"}) + " – " + formatDate(wCap,{month:"short",day:"numeric"});
     weeks.push({ num, label, days, allDays });
     cursor.setDate(cursor.getDate()+7);
     num++;
@@ -2058,7 +2058,7 @@ function createChallenge(form) {
   const c = normalizeChallenge({
     id: uid(),
     name: form.name || (template ? template.name : "My Challenge"),
-    emoji: form.emoji || (template ? template.emoji : "ðŸŽ¯"),
+    emoji: form.emoji || (template ? template.emoji : "🎯"),
     description: template ? template.description : "",
     templateId: form.templateId || null,
     startDate: form.startDate,
@@ -2086,7 +2086,7 @@ function updateChallengeStatuses() {
     if (c.status === "active" && !c.noEndDate && c.endDate < today) {
       c.finalStreak = calcChallengeStreak(c); // snapshot before status changes
       c.status = "completed";
-      // Queue â€” show first one immediately, rest after user dismisses
+      // Queue — show first one immediately, rest after user dismisses
       if (!justCompletedId) justCompletedId = c.id;
       else justCompletedIds.push(c.id);
       changed = true;
@@ -2095,7 +2095,7 @@ function updateChallengeStatuses() {
   if (changed) saveState();
 }
 
-// â”€â”€ Badge Checks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Badge Checks ───────────────────────────────────────────────────────────
 
 function checkBadges(challenge) {
   const today    = todayKey();
@@ -2108,10 +2108,10 @@ function checkBadges(challenge) {
   const dayNumber = challengeDayNumber(challenge);
   const pctDone   = Math.round((dayNumber / totalDays) * 100);
   const daysLogged = allDays.filter(d => dayLogged(d)).length;
-  // Compute once â€” reused in completedWeeks (cCtx) and checkStreakFreezeAward
+  // Compute once — reused in completedWeeks (cCtx) and checkStreakFreezeAward
   const myWeeks  = challengeWeeks(challenge);
 
-  // â”€â”€ Habit-type detection (template-agnostic) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Habit-type detection (template-agnostic) ──────────────────────────────
   const _runIds     = challenge.habits.filter(h =>
     h.type==="tiered" && h.tiers?.some(t => Number(t.value)===1 && /\bkm\b/i.test(t.label))
   ).map(h=>h.id);
@@ -2164,7 +2164,7 @@ function checkBadges(challenge) {
     h.id==="cy-ride"
   ).map(h=>h.id);
 
-  // â”€â”€ 1. Template-specific context â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── 1. Template-specific context ─────────────────────────────────────────
   const cCtx = {
     dayNumber, pctDone, streak, totalPts, daysLogged,
     complete:              info.done === info.total && info.total > 0,
@@ -2216,7 +2216,7 @@ function checkBadges(challenge) {
       challenge.badges.push(b.id);
       _badgeSheetQueue.push({ label: b.label, desc: b.desc || "", tier: TEMPLATE_TIERS[challenge.templateId] || "common" });
       earned = true;
-      // Completion badge â†’ finalise challenge status and queue the modal
+      // Completion badge → finalise challenge status and queue the modal
       if (b.id.endsWith("-done") && challenge.status !== "completed") {
         challenge.finalStreak = calcChallengeStreak(challenge);
         challenge.status = "completed";
@@ -2227,7 +2227,7 @@ function checkBadges(challenge) {
     }
   });
 
-  // â”€â”€ 2. Universal context (best/totals across all challenges) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── 2. Universal context (best/totals across all challenges) ─────────────
   const allChallenges = Object.values(state.challenges);
   const allDaysAll    = allChallenges.flatMap(c => Object.values(c.days));
   const uCtx = {
@@ -2268,7 +2268,7 @@ function checkBadges(challenge) {
     }
   });
 
-  // â”€â”€ 3. Lifetime context (cumulative cross-challenge achievements) â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── 3. Lifetime context (cumulative cross-challenge achievements) ─────────
   const pb = computePersonalBests();
   const lCtx = {
     totalHabitsLogged: pb.totalHabits,
@@ -2334,8 +2334,8 @@ function checkStreakFreezeAward(challenge, weeks) {
     if (!challenge.streakFreezeWeeksAwarded) challenge.streakFreezeWeeksAwarded = [];
     const isFirst = challenge.streakFreezeWeeksAwarded.length === 0;
     challenge.streakFreezeWeeksAwarded.push(weekKey);
-    showBigToast("ðŸ…", "Weekly goal hit!", "Streak freeze banked â€” it protects your streak if you miss a day.");
-    if (isFirst) setTimeout(() => showToast("â„ï¸ Streak Freeze: tap the snowflake bar on any day you miss to use it."), 3500);
+    showBigToast("🏅", "Weekly goal hit!", "Streak freeze banked — it protects your streak if you miss a day.");
+    if (isFirst) setTimeout(() => showToast("❄️ Streak Freeze: tap the snowflake bar on any day you miss to use it."), 3500);
     saveState();
   }
 }
@@ -2358,7 +2358,7 @@ function lastNDays(n) {
   return Array.from({length:n},()=>{ const k=toKey(d); d.setDate(d.getDate()-1); return k; });
 }
 
-// â”€â”€ Confirm Modal (replaces window.confirm â€” works in standalone PWA) â”€â”€â”€â”€â”€
+// ── Confirm Modal (replaces window.confirm — works in standalone PWA) ─────
 
 function showConfirm(msg, onConfirm) {
   _confirmDialog = { msg, onConfirm };
@@ -2379,7 +2379,7 @@ function renderConfirmModal() {
   </div>`;
 }
 
-// â”€â”€ Launch UX â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Launch UX ────────────────────────────────────────────────────────────
 
 // Monday new-week ceremony
 function checkNewWeekCeremony() {
@@ -2434,7 +2434,7 @@ function renderLevelUpOverlay() {
       <div class="luo-level">${o.level}</div>
       <div class="luo-name">${o.name}</div>
       <div class="luo-total">${o.total.toLocaleString()} XP total</div>
-      <button class="primary-button luo-cta" data-close-levelup>Keep going ðŸ”¥</button>
+      <button class="primary-button luo-cta" data-close-levelup>Keep going 🔥</button>
     </div>
   </div>`;
 }
@@ -2478,7 +2478,7 @@ function checkMilestones(challenge) {
   if (dayNumber === 1 && info.percent === 100 && !challenge.flags.day1done) {
     challenge.flags.day1done = true;
     setTimeout(() => {
-      showBigToast("âœ…", "Day 1 done.", "Come back tomorrow. Your streak starts now.");
+      showBigToast("✅", "Day 1 done.", "Come back tomorrow. Your streak starts now.");
       if (_pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
         setTimeout(() => { _showInstallBanner = true; render(); }, 3000);
       }
@@ -2491,17 +2491,17 @@ function checkMilestones(challenge) {
   // Halfway
   if (dayNumber >= Math.ceil(totalDays / 2) && info.percent === 100 && !challenge.flags.halfway) {
     challenge.flags.halfway = true;
-    setTimeout(() => showBigToast("ðŸŽ¯", "Halfway there.", "Most people quit here. You didn't."), 600);
+    setTimeout(() => showBigToast("🎯", "Halfway there.", "Most people quit here. You didn't."), 600);
   }
-  // Streak milestones â€” fire only when the streak just hit that number today
+  // Streak milestones — fire only when the streak just hit that number today
   const STREAK_MILESTONES = [
-    { n:7,  icon:"ðŸ”¥", title:"7-day streak!", sub:"One week straight. The habit is forming." },
-    { n:14, icon:"ðŸ’ª", title:"14 days!",       sub:"Two weeks. You're building something real." },
-    { n:21, icon:"âš¡", title:"21-day streak!", sub:"Three weeks in. This is who you are now." },
-    { n:30, icon:"ðŸ†", title:"30 days!",        sub:"One month. Elite 1% territory." },
-    { n:50, icon:"ðŸŒŸ", title:"50-day streak!", sub:"Fifty days of showing up. Unbelievable." },
-    { n:75,  icon:"ðŸ‘‘", title:"75 days!",         sub:"The full distance. You are unstoppable." },
-    { n:100, icon:"ðŸ’Ž", title:"100-day streak!", sub:"Triple digits. You are an absolute legend." },
+    { n:7,  icon:"🔥", title:"7-day streak!", sub:"One week straight. The habit is forming." },
+    { n:14, icon:"💪", title:"14 days!",       sub:"Two weeks. You're building something real." },
+    { n:21, icon:"⚡", title:"21-day streak!", sub:"Three weeks in. This is who you are now." },
+    { n:30, icon:"🏆", title:"30 days!",        sub:"One month. Elite 1% territory." },
+    { n:50, icon:"🌟", title:"50-day streak!", sub:"Fifty days of showing up. Unbelievable." },
+    { n:75,  icon:"👑", title:"75 days!",         sub:"The full distance. You are unstoppable." },
+    { n:100, icon:"💎", title:"100-day streak!", sub:"Triple digits. You are an absolute legend." },
   ];
   for (const ms of STREAK_MILESTONES) {
     const flagKey = `streak${ms.n}`;
@@ -2512,7 +2512,7 @@ function checkMilestones(challenge) {
       break; // only one streak toast per toggle
     }
   }
-  // Phase completion toasts (all phases except the last â€” challenge completion has its own moment)
+  // Phase completion toasts (all phases except the last — challenge completion has its own moment)
   const phases = getChallengePhases(challenge);
   if (phases && info.percent === 100) {
     for (let i = 0; i < phases.length - 1; i++) {
@@ -2520,7 +2520,7 @@ function checkMilestones(challenge) {
       if (dayNumber === phases[i].end && !challenge.flags[flagKey]) {
         challenge.flags[flagKey] = true;
         const nextPhase = phases[i + 1];
-        setTimeout(() => showBigToast("ðŸ”ï¸", `Phase ${i + 1} complete!`, `Up next: ${nextPhase.name}`), 800);
+        setTimeout(() => showBigToast("🏔️", `Phase ${i + 1} complete!`, `Up next: ${nextPhase.name}`), 800);
         break;
       }
     }
@@ -2565,7 +2565,7 @@ function getChallengePhaseInfo(challenge, dayNumber) {
   return { phase: phases[phases.length - 1], phaseIndex: phases.length, totalPhases: phases.length };
 }
 
-// â”€â”€ Render Core â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Render Core ────────────────────────────────────────────────────────────
 
 function applyTheme() {
   document.documentElement.setAttribute("data-theme", state?.settings?.journeyTheme || "mountain");
@@ -2575,7 +2575,7 @@ function applyTheme() {
 function render() {
   applyTheme();
   const app = document.getElementById("app");
-  // Full-screen onboarding â€” render only the onboarding screen
+  // Full-screen onboarding — render only the onboarding screen
   if (onboardingStep !== null) {
     app.innerHTML = renderOnboarding();
     if (!_eventsBound) { bindEvents(); _eventsBound = true; }
@@ -2614,13 +2614,13 @@ function render() {
   if (_showInstallBanner && _pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
     html += `
     <div class="install-banner">
-      <span style="font-size:28px">ðŸ“²</span>
+      <span style="font-size:28px">📲</span>
       <div class="install-banner-text">
         <strong>Add Conqur to your Home Screen</strong>
         <span>Works offline. Opens like a native app.</span>
       </div>
       <button class="install-banner-btn" data-install-accept>Install</button>
-      <button class="install-banner-dismiss" data-install-dismiss aria-label="Dismiss">Ã—</button>
+      <button class="install-banner-dismiss" data-install-dismiss aria-label="Dismiss">×</button>
     </div>`;
   }
   app.innerHTML = html;
@@ -2635,7 +2635,7 @@ function render() {
       const cid = ppStrip.id.replace("pp-strip-", "");
       PhotoDB.list(cid + "_").then(photos => {
         if (!photos.length) {
-          ppStrip.innerHTML = `<p class="pp-empty">No photos yet â€” tap ðŸ“· on the progress photo habit to capture one.</p>`;
+          ppStrip.innerHTML = `<p class="pp-empty">No photos yet — tap 📷 on the progress photo habit to capture one.</p>`;
         } else {
           ppStrip.innerHTML = `<div class="pp-grid">${
             photos.slice(-9).reverse().map(p => {
@@ -2644,7 +2644,7 @@ function render() {
               return `<div class="pp-item">
                 <img src="${p.dataURL}" class="pp-img" alt="Progress ${label}">
                 <div class="pp-date">${label}</div>
-                <button class="pp-delete" data-delete-photo="${esc(p.key)}" title="Delete photo" aria-label="Delete photo">ðŸ—‘</button>
+                <button class="pp-delete" data-delete-photo="${esc(p.key)}" title="Delete photo" aria-label="Delete photo">🗑</button>
               </div>`;
             }).join("")
           }</div><p class="pp-count">${photos.length} photo${photos.length===1?"":"s"}</p>`;
@@ -2705,7 +2705,7 @@ function renderNav() {
   </nav>`;
 }
 
-// â”€â”€ Today Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Today Tab ─────────────────────────────────────────────────────────────
 
 function renderToday() {
   const active = getActiveChallenges();
@@ -2752,54 +2752,54 @@ function renderToday() {
       <span class="xmb-badge">${xpTheme.emoji} Lv.${xpInfo.level}</span>
       <span class="xmb-name">${xpInfo.name}</span>
       <span class="xmb-track"><span class="xmb-fill" style="width:${xpInfo.pct}%"></span></span>
-      <span class="xmb-hint">${xpToNext ? xpToNext + " XP to next Â· XP never resets" : "Max Level ðŸ†"}</span>
+      <span class="xmb-hint">${xpToNext ? xpToNext + " XP to next · XP never resets" : "Max Level 🏆"}</span>
     </div>
     ${active.length > 1 ? renderChallengePills(active) : ""}
     ${renderWeeklyRecap(challenge)}
     ${_newWeekBanner ? `
     <div class="new-week-banner">
-      <h3>ðŸ—“ New week. Clean slate.</h3>
+      <h3>🗓 New week. Clean slate.</h3>
       <p>Last week: <strong>${_newWeekBanner.pts} pts</strong>. Come back stronger.</p>
-      <button class="new-week-dismiss" data-dismiss-newweek aria-label="Dismiss">Ã—</button>
+      <button class="new-week-dismiss" data-dismiss-newweek aria-label="Dismiss">×</button>
     </div>` : ""}
     ${missedStreak >= 2 ? `
     <div class="comeback-banner">
-      <strong>Welcome back.</strong> ${missedStreak} days missed â€” that's okay. <span class="cb-alive">Your challenge is still running.</span> Today still counts.
+      <strong>Welcome back.</strong> ${missedStreak} days missed — that's okay. <span class="cb-alive">Your challenge is still running.</span> Today still counts.
     </div>` : missedStreak === 1 ? `
     <div class="comeback-banner comeback-banner--soft">
       Streak paused at ${streak} days. Come back today to restart. <span class="cb-alive">Your challenge is still running.</span>
     </div>` : ""}
     <div class="date-nav">
-      <button class="date-nav-arrow ${canGoBack?"":"disabled"}" data-date-back ${canGoBack?"":"disabled"} aria-label="Previous day">â€¹</button>
+      <button class="date-nav-arrow ${canGoBack?"":"disabled"}" data-date-back ${canGoBack?"":"disabled"} aria-label="Previous day">‹</button>
       <div class="date-nav-center">
         <span class="date-nav-label ${!isToday?"date-nav-past":""}">
           ${isToday ? "Today" : formatDate(parseDate(effDate), {weekday:"short", month:"short", day:"numeric"})}
         </span>
-        ${isToday && canGoBack ? `<span class="date-nav-hint">â€¹ tap to log a past day</span>` : ""}
+        ${isToday && canGoBack ? `<span class="date-nav-hint">‹ tap to log a past day</span>` : ""}
       </div>
-      <button class="date-nav-arrow ${canGoFwd?"":"disabled"}" data-date-fwd ${canGoFwd?"":"disabled"} aria-label="Next day">â€º</button>
+      <button class="date-nav-arrow ${canGoFwd?"":"disabled"}" data-date-fwd ${canGoFwd?"":"disabled"} aria-label="Next day">›</button>
     </div>
-    ${!isToday ? `<div class="backfill-banner">âœï¸ Editing ${formatDate(parseDate(effDate),{weekday:"long"})} â€” changes save immediately.</div>` : ""}
+    ${!isToday ? `<div class="backfill-banner">✏️ Editing ${formatDate(parseDate(effDate),{weekday:"long"})} — changes save immediately.</div>` : ""}
     <section class="hero">
       <div class="hero-title-row">
         <span class="hero-challenge-name">${esc(challenge.emoji)} ${esc(challenge.name)}</span>
-        ${streak > 0 && isToday ? `<span class="hero-streak-chip">ðŸ”¥${streak}</span>` : ""}
+        ${streak > 0 && isToday ? `<span class="hero-streak-chip">🔥${streak}</span>` : ""}
         <span class="hero-day-badge">Day ${dayNumber}${totalDays ? `<span class="hero-day-of"> / ${totalDays}</span>` : ""}</span>
       </div>
       ${journeyPct !== null ? `<div class="journey-track"><div class="journey-fill" style="width:${journeyPct}%"></div></div>` : ""}
-      <div class="hero-meta">${phaseInfo ? `ðŸ” ${phaseInfo.phase.name} Â· ` : ""}${challenge.noEndDate ? "Ongoing" : daysLeft > 0 ? daysLeft+" days left" : "Final day!"}${isToday ? ` Â· <button class="link-btn hero-settings-link" data-view-challenge="${challenge.id}">âœï¸ Edit</button>` : ""}</div>
+      <div class="hero-meta">${phaseInfo ? `🏔 ${phaseInfo.phase.name} · ` : ""}${challenge.noEndDate ? "Ongoing" : daysLeft > 0 ? daysLeft+" days left" : "Final day!"}${isToday ? ` · <button class="link-btn hero-settings-link" data-view-challenge="${challenge.id}">✏️ Edit</button>` : ""}</div>
       ${isToday ? `<div class="greeting">${currentGreeting(challenge, dayNumber, streak)}</div>` : ""}
       ${isToday ? renderModeSelector(day, challenge) : ""}
     </section>
     ${phaseInfo && isToday && dayNumber === phaseInfo.phase.end && dayNumber > 1 ? `
-    <div class="boss-day-callout">âš¡ Phase finale â€” last day of <strong>${phaseInfo.phase.name}</strong>. Finish strong.</div>` : ""}
+    <div class="boss-day-callout">⚡ Phase finale — last day of <strong>${phaseInfo.phase.name}</strong>. Finish strong.</div>` : ""}
 
     <section>
       <div class="section-head">
         ${challenge.habits.some(h => h.type === "distance")
           ? `<div class="section-label" style="margin:0">Distance</div>`
           : `<div class="section-label" style="margin:0">Habits</div>
-             <div style="font-size:12px;font-weight:300;color:var(--text-dim)">${_savedFlash ? `<span class="saved-flash">Saved âœ“</span>` : dayNumber === 1 && info.done === 0 ? "Tap to log your first day â†’" : `${info.done} / ${info.total}`}</div>`}
+             <div style="font-size:12px;font-weight:300;color:var(--text-dim)">${_savedFlash ? `<span class="saved-flash">Saved ✓</span>` : dayNumber === 1 && info.done === 0 ? "Tap to log your first day →" : `${info.done} / ${info.total}`}</div>`}
       </div>
       <div class="habit-list">
         ${challenge.habits.map(h => renderHabit(h, day, challenge)).join("")}
@@ -2812,9 +2812,9 @@ function renderToday() {
       if (shouldShowBackupNudge(challenge)) return renderBackupNudge(challenge);
       if (dayNumber >= 3 && !_notifNudgeDismissed && ("Notification" in window) && Notification.permission === "default") {
         return `<div class="notif-nudge" data-notif-nudge>
-          <span class="notif-nudge-icon">ðŸ””</span>
-          <span class="notif-nudge-text">Never miss a day â€” <button class="notif-nudge-link" data-request-notif-permission>enable reminders</button></span>
-          <button class="notif-nudge-close" data-dismiss-notif-nudge aria-label="Dismiss">Ã—</button>
+          <span class="notif-nudge-icon">🔔</span>
+          <span class="notif-nudge-text">Never miss a day — <button class="notif-nudge-link" data-request-notif-permission>enable reminders</button></span>
+          <button class="notif-nudge-close" data-dismiss-notif-nudge aria-label="Dismiss">×</button>
         </div>`;
       }
       return "";
@@ -2827,11 +2827,11 @@ function renderToday() {
     ${(() => {
       const autoCollapse = dayNumber <= 2;
       const collapsed = _statsCollapsed === null ? autoCollapse : _statsCollapsed;
-      const chevron = collapsed ? "â€º" : "â€¹";
+      const chevron = collapsed ? "›" : "‹";
       return `
     <div class="stats-collapsible">
       <button class="stats-collapse-toggle" data-toggle-stats aria-expanded="${!collapsed}">
-        <span class="stats-collapse-label">ðŸ“Š Stats</span>
+        <span class="stats-collapse-label">📊 Stats</span>
         <span class="stats-collapse-chevron" style="transform:rotate(${collapsed?"90deg":"270deg"})">${chevron}</span>
       </button>
       ${!collapsed ? `
@@ -2865,15 +2865,15 @@ function renderTodayAll(active) {
     ${renderChallengePills(active)}
     ${isToday ? renderXPBar() : ""}
     <div class="all-today-banner">
-      <div class="atb-title">ðŸ“‹ All Active Challenges</div>
-      <div class="atb-stats">${totalDone} / ${totalHabits} habits done today Â· ${allPct}%</div>
+      <div class="atb-title">📋 All Active Challenges</div>
+      <div class="atb-stats">${totalDone} / ${totalHabits} habits done today · ${allPct}%</div>
     </div>
     ${active.map(c => {
       const day = c.days[effDate] || normalizeDay({});
       const info = completionInfo(c, day);
       const dots = c.habits
         .filter(h => h.type !== "distance")
-        .map(h => `<span class="atc-dot${day.done.includes(h.id)?" atc-dot--done":""}">${day.done.includes(h.id)?"âœ“":"â—‹"}</span>`)
+        .map(h => `<span class="atc-dot${day.done.includes(h.id)?" atc-dot--done":""}">${day.done.includes(h.id)?"✓":"○"}</span>`)
         .join("");
       return `
       <button class="all-today-card" data-today-challenge="${c.id}">
@@ -2885,7 +2885,7 @@ function renderTodayAll(active) {
           </div>
           <div class="atc-right">
             <div class="atc-pct${info.percent===100?" atc-done":""}">${info.percent}%</div>
-            <div class="atc-cta">Log â†’</div>
+            <div class="atc-cta">Log →</div>
           </div>
         </div>
         <div class="cc-track"><div class="cc-fill" style="width:${info.percent}%"></div></div>
@@ -2906,14 +2906,14 @@ function renderChallengePills(active) {
       const journeyPct = clamp(Math.round((dayNum / totalDays) * 100), 0, 100);
       const todayD     = c.days[today];
       const todayInfo  = completionInfo(c, todayD || normalizeDay({}));
-      const todayDot   = todayInfo.percent === 100 ? "âœ…" : todayInfo.percent > 0 ? "ðŸ”¸" : "";
+      const todayDot   = todayInfo.percent === 100 ? "✅" : todayInfo.percent > 0 ? "🔸" : "";
       const isExp      = c.habits.some(h => h.type === "distance");
       const expTpl     = isExp && c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
       const distPct    = expTpl?.routeKm
         ? Math.min(100, Math.round((challengeTotalKm(c) / expTpl.routeKm) * 100))
         : null;
       const pctStr     = isExp && distPct !== null
-        ? `ðŸ—º${distPct}% â±${journeyPct}%`
+        ? `🗺${distPct}% ⏱${journeyPct}%`
         : `${journeyPct}%`;
       return `<button class="c-pill ${c.id===todayChallengeId?"active":""}" data-today-challenge="${c.id}">
         ${todayDot}${esc(c.emoji)} ${esc(c.name)} <span class="c-pill-pct">${pctStr}</span>
@@ -2942,12 +2942,12 @@ function renderNoChallenge() {
     <p class="welcome-sub">${upcoming.length ? "Your next challenge starts soon." : hasPast ? "All challenges complete. Start a new one." : "Pick a challenge. Build the habit. Win."}</p>
 
     ${isFirstTime ? `
-    <p class="welcome-desc">Build any habit in 21â€“86 days. Log daily, earn streaks and badges, and watch yourself change.</p>
+    <p class="welcome-desc">Build any habit in 21–86 days. Log daily, earn streaks and badges, and watch yourself change.</p>
     <div class="welcome-features">
-      <div class="wf-item"><span class="wf-icon">ðŸ†</span><span class="wf-text">50+ challenges â€” 75 Hard, Cold Exposure, Morning Routine, Pacific Crest Trail and more</span></div>
-      <div class="wf-item"><span class="wf-icon">ðŸ˜´</span><span class="wf-text">Rest days built in â€” use your jokers wisely, streak stays safe</span></div>
-      <div class="wf-item"><span class="wf-icon">ðŸ”¥</span><span class="wf-text">Streaks, badges, streak freezes, and weekly recaps that keep you honest</span></div>
-      <div class="wf-item"><span class="wf-icon">ðŸ“µ</span><span class="wf-text">Works offline. No ads. Your data stays on your device.</span></div>
+      <div class="wf-item"><span class="wf-icon">🏆</span><span class="wf-text">50+ challenges — 75 Hard, Cold Exposure, Morning Routine, Pacific Crest Trail and more</span></div>
+      <div class="wf-item"><span class="wf-icon">😴</span><span class="wf-text">Rest days built in — use your jokers wisely, streak stays safe</span></div>
+      <div class="wf-item"><span class="wf-icon">🔥</span><span class="wf-text">Streaks, badges, streak freezes, and weekly recaps that keep you honest</span></div>
+      <div class="wf-item"><span class="wf-icon">📵</span><span class="wf-text">Works offline. No ads. Your data stays on your device.</span></div>
     </div>` : ""}
 
     ${upcoming.length ? `
@@ -2958,7 +2958,7 @@ function renderNoChallenge() {
           <div class="cc-emoji">${c.emoji}</div>
           <div class="cc-info">
             <div class="cc-name">${c.name}</div>
-            <div class="cc-meta">Starts ${c.startDate} Â· ${diffDays(today, c.startDate)} day${diffDays(today,c.startDate)===1?"":"s"} away</div>
+            <div class="cc-meta">Starts ${c.startDate} · ${diffDays(today, c.startDate)} day${diffDays(today,c.startDate)===1?"":"s"} away</div>
           </div>
           <div class="cc-right"><div class="cc-status" style="color:var(--text-dim)">upcoming</div></div>
         </div>
@@ -2969,7 +2969,7 @@ function renderNoChallenge() {
     </button>
     ${isFirstTime && !CloudSync.isSignedIn ? `
     <div class="device-only-nudge">
-      <span class="don-icon">ðŸ’¾</span>
+      <span class="don-icon">💾</span>
       <div>Your data lives on this device only. <button class="link-btn" data-open-settings>Create a free account</button> to back it up.</div>
     </div>` : ""}
     ${isFirstTime ? `<p class="welcome-hint">No ads. No tracking. Just you and the challenge.</p>` : ""}
@@ -3009,9 +3009,9 @@ function renderRing(info, day, streak, challenge) {
     </svg>
     <div class="ring-center">
       ${day.mode === "rest"
-        ? `<div class="percent" style="font-size:2.2rem">ðŸ˜´</div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">rest day</div>`
+        ? `<div class="percent" style="font-size:2.2rem">😴</div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">rest day</div>`
         : isExpedition
-          ? `<div class="percent" style="font-size:${todayKmD > 0 ? "1.6rem" : "2rem"}">${todayKmD > 0 ? todayKmD.toFixed(ringIsFloors?0:1) : "â€”"}</div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">${todayKmD > 0 ? ringDUnit+" today" : "log "+ringDUnit}</div>`
+          ? `<div class="percent" style="font-size:${todayKmD > 0 ? "1.6rem" : "2rem"}">${todayKmD > 0 ? todayKmD.toFixed(ringIsFloors?0:1) : "—"}</div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">${todayKmD > 0 ? ringDUnit+" today" : "log "+ringDUnit}</div>`
           : `<div class="percent">${info.percent}%</div><div class="ring-pts">${info.points}<span class="ring-pts-max">/${info.maxPoints}</span><span class="ring-pts-label"> pts</span></div>`
       }
     </div>
@@ -3024,7 +3024,7 @@ function renderRing(info, day, streak, challenge) {
     </div>
     <div class="ring-stat-sep"></div>
     <div class="ring-stat">
-      <div class="ring-stat-value">${routeKm ? Math.min(100,Math.round((totalKmNative/routeKm)*100)) : "â€”"}<span class="ring-stat-sub">${routeKm ? "%" : ""}</span></div>
+      <div class="ring-stat-value">${routeKm ? Math.min(100,Math.round((totalKmNative/routeKm)*100)) : "—"}<span class="ring-stat-sub">${routeKm ? "%" : ""}</span></div>
       <div class="ring-stat-label">route done</div>
     </div>` : `
     <div class="ring-stat">
@@ -3038,7 +3038,7 @@ function renderRing(info, day, streak, challenge) {
     </div>`}
     <div class="ring-stat-sep"></div>
     <div class="ring-stat">
-      <div class="ring-stat-value">${streak}${gracePip?`<span style="font-size:10px;color:#ffcc44;margin-left:2px" title="Grace day used yesterday â€” don't miss today!">ðŸ›Ÿ</span>`:""}</div>
+      <div class="ring-stat-value">${streak}${gracePip?`<span style="font-size:10px;color:#ffcc44;margin-left:2px" title="Grace day used yesterday — don't miss today!">🛟</span>`:""}</div>
       <div class="ring-stat-label">day streak${gracePip?`<span style="display:block;font-size:9px;color:#ffcc44">grace used</span>`:""}</div>
     </div>
   </div>`;
@@ -3052,7 +3052,7 @@ function renderStreakFreezeUI(challenge) {
   if (freezes === 0) return "";
   return `
   <div class="freeze-bar">
-    <span class="freeze-bar-label">â„ï¸ ${freezes} streak freeze${freezes > 1 ? "s" : ""}</span>
+    <span class="freeze-bar-label">❄️ ${freezes} streak freeze${freezes > 1 ? "s" : ""}</span>
     ${yesterdayUnlogged
       ? `<button class="pill-btn" data-use-freeze>Protect streak</button>`
       : `<span class="freeze-bar-hint">Ready if you miss a day</span>`}
@@ -3070,18 +3070,18 @@ function renderModeSelector(day, challenge) {
 
   // Compact single-line chip row
   if (noRestDay) {
-    return `<div class="mode-chip-row"><button class="mode-chip mode-chip--active" data-mode="rest" title="No rest days on this challenge">ðŸŽ¯ Standard Day <span class="mode-chip-no-rest">Â· no rest days</span></button></div>`;
+    return `<div class="mode-chip-row"><button class="mode-chip mode-chip--active" data-mode="rest" title="No rest days on this challenge">🎯 Standard Day <span class="mode-chip-no-rest">· no rest days</span></button></div>`;
   }
   const restLabel = todayIsRest
-    ? "ðŸ˜´ Rest Day â€” active"
+    ? "😴 Rest Day — active"
     : budgetExhausted
-      ? `ðŸ˜´ Rest (0 left)`
-      : `ðŸ˜´ Rest Day (${jokersLeft} left)`;
+      ? `😴 Rest (0 left)`
+      : `😴 Rest Day (${jokersLeft} left)`;
   const restDisabled = budgetExhausted ? "mode-chip--disabled" : "";
   const activeChip   = todayIsRest ? "mode-chip--rest-active" : "mode-chip--active";
   return `
   <div class="mode-chip-row">
-    <button class="mode-chip ${!todayIsRest ? activeChip : ""}" data-mode="standard">ðŸŽ¯ Standard</button>
+    <button class="mode-chip ${!todayIsRest ? activeChip : ""}" data-mode="standard">🎯 Standard</button>
     <button class="mode-chip mode-chip--rest ${todayIsRest ? "mode-chip--rest-active" : ""} ${restDisabled}" data-mode="rest" ${budgetExhausted ? 'aria-disabled="true"' : ""}>${restLabel}</button>
   </div>`;
 }
@@ -3102,23 +3102,23 @@ function renderHabit(habit, day, challenge) {
     <span class="habit-emoji">${esc(habit.emoji)}</span>
     <span class="habit-info">
       <span class="habit-title">${esc(habit.title)}</span>
-      <span class="habit-quip">${checked ? "Photo logged âœ“" : esc(habit.quip)}</span>
+      <span class="habit-quip">${checked ? "Photo logged ✓" : esc(habit.quip)}</span>
     </span>
     <div class="photo-habit-actions">
-      <button class="camera-btn" data-capture-photo="${habit.id}" aria-label="Take progress photo">ðŸ“·</button>
-      <button class="check-circle ${checked?"":"check-hollow"}" data-habit="${habit.id}" aria-label="Mark done">${checked?"âœ“":""}</button>
+      <button class="camera-btn" data-capture-photo="${habit.id}" aria-label="Take progress photo">📷</button>
+      <button class="check-circle ${checked?"":"check-hollow"}" data-habit="${habit.id}" aria-label="Mark done">${checked?"✓":""}</button>
     </div>
   </div>`;
   }
   return `
   <button class="habit-card ${checked?"checked":""} ${locked?"locked":""} ${popping?"habit-pop":""}" data-habit="${habit.id}" ${locked?`aria-disabled="true"`:""}>
     <span class="accent"></span>
-    <span class="habit-emoji">${locked?"ðŸ”’":esc(habit.emoji)}</span>
+    <span class="habit-emoji">${locked?"🔒":esc(habit.emoji)}</span>
     <span class="habit-info">
       <span class="habit-title">${esc(habit.title)}</span>
-      <span class="habit-quip">${locked?"Rest Day â€” recover well.":esc(habit.quip)}</span>
+      <span class="habit-quip">${locked?"Rest Day — recover well.":esc(habit.quip)}</span>
     </span>
-    <span class="check-circle">${checked?"âœ“":""}</span>
+    <span class="check-circle">${checked?"✓":""}</span>
   </button>`;
 }
 
@@ -3129,10 +3129,10 @@ function renderTieredHabit(habit, day, challenge) {
   if (locked) return `
   <div class="habit-card locked" aria-disabled="true">
     <span class="accent"></span>
-    <span class="habit-emoji">ðŸ”’</span>
+    <span class="habit-emoji">🔒</span>
     <span class="habit-info">
       <span class="habit-title">${esc(habit.title)}</span>
-      <span class="habit-quip">Rest Day â€” recover well.</span>
+      <span class="habit-quip">Rest Day — recover well.</span>
     </span>
     <span class="check-circle"></span>
   </div>`;
@@ -3148,7 +3148,7 @@ function renderTieredHabit(habit, day, challenge) {
       </div>
       ${!checked ? `<span class="tier-hint">Tap to log</span>` : ""}
     </div>
-    <span class="check-circle">${checked && selVal != null ? (tierPoints(habit,selVal)+"pts") : checked ? "âœ“" : ""}</span>
+    <span class="check-circle">${checked && selVal != null ? (tierPoints(habit,selVal)+"pts") : checked ? "✓" : ""}</span>
   </div>`;
 }
 
@@ -3162,7 +3162,7 @@ function renderDistanceHabit(habit, day, challenge) {
   const KM_PER_MI  = 1.60934;
   const globalDist = state.settings.units.distance || "km";
   const displayUnit = isFloors ? "floors" : (globalDist === "miles" ? "mi" : "km");
-  // Convert stored km â†’ display unit for input value
+  // Convert stored km → display unit for input value
   const displayVal = isFloors ? storedVal :
     (displayUnit === "mi" ? Math.round(storedVal * MI_PER_KM * 100) / 100 : storedVal);
 
@@ -3179,18 +3179,18 @@ function renderDistanceHabit(habit, day, challenge) {
   if (locked) return `
   <div class="habit-card locked" aria-disabled="true">
     <span class="accent"></span>
-    <span class="habit-emoji">ðŸ”’</span>
+    <span class="habit-emoji">🔒</span>
     <span class="habit-info">
       <span class="habit-title">${esc(habit.title)}</span>
-      <span class="habit-quip">Rest Day â€” recover well.</span>
+      <span class="habit-quip">Rest Day — recover well.</span>
     </span>
     <span class="check-circle"></span>
   </div>`;
   const checked = day.done.includes(habit.id);
   const quip = checked
-    ? `${displayVal} ${displayUnit} logged today âœ“`
+    ? `${displayVal} ${displayUnit} logged today ✓`
     : remaining !== null && remaining === 0
-      ? `${isFloors ? "Summit" : "Route"} complete! ðŸŽ‰`
+      ? `${isFloors ? "Summit" : "Route"} complete! 🎉`
       : remaining !== null
         ? `${remaining.toFixed(1)} ${displayUnit} left`
         : esc(habit.quip);
@@ -3220,7 +3220,7 @@ function renderDistanceHabit(habit, day, challenge) {
 function renderMeasurementHabit(habit, day) {
   const locked   = day.mode === "rest";
   const rawUnit  = habit.unit || "";
-  // "weight" is a sentinel â€” resolve to the user's weight unit setting
+  // "weight" is a sentinel — resolve to the user's weight unit setting
   const unit     = rawUnit === "weight" ? (state.settings.units.weight || "kg") : rawUnit;
   const decimals = typeof habit.decimals === "number" ? habit.decimals : 1;
   const stored   = day.distances?.[habit.id] ?? 0;
@@ -3228,10 +3228,10 @@ function renderMeasurementHabit(habit, day) {
   if (locked) return `
   <div class="habit-card locked" aria-disabled="true">
     <span class="accent"></span>
-    <span class="habit-emoji">ðŸ”’</span>
+    <span class="habit-emoji">🔒</span>
     <span class="habit-info">
       <span class="habit-title">${esc(habit.title)}</span>
-      <span class="habit-quip">Rest Day â€” recover well.</span>
+      <span class="habit-quip">Rest Day — recover well.</span>
     </span>
     <span class="check-circle"></span>
   </div>`;
@@ -3239,7 +3239,7 @@ function renderMeasurementHabit(habit, day) {
   const checked = day.done.includes(habit.id);
   const refRange = UNIT_RANGES[unit] || null;
   const quip = checked
-    ? `${stored.toFixed(decimals)} ${unit} logged âœ“`
+    ? `${stored.toFixed(decimals)} ${unit} logged ✓`
     : refRange ? refRange : esc(habit.quip);
 
   return `
@@ -3253,7 +3253,7 @@ function renderMeasurementHabit(habit, day) {
     <div class="measurement-input-wrap">
       <input type="number" class="measurement-input" data-measurement-habit="${habit.id}"
         value="${stored > 0 ? stored.toFixed(decimals) : ""}" min="0" max="99999"
-        step="${decimals === 0 ? "1" : "0.1"}" placeholder="â€”"
+        step="${decimals === 0 ? "1" : "0.1"}" placeholder="—"
         inputmode="decimal" aria-label="${esc(habit.title)} in ${unit}">
       <span class="measurement-unit">${esc(unit)}</span>
     </div>
@@ -3295,8 +3295,8 @@ function renderRouteProgress(challenge, template) {
     </div>
     <div class="route-pace">
       ${remaining > 0
-        ? `${remaining.toFixed(1)} ${displayUnit} remaining${next ? ` Â· next: ${next.emoji} ${next.name}` : ""}`
-        : `ðŸŽ‰ ${isFloors ? "Summit reached" : "Route complete"}! You conquered ${template.name}.`}
+        ? `${remaining.toFixed(1)} ${displayUnit} remaining${next ? ` · next: ${next.emoji} ${next.name}` : ""}`
+        : `🎉 ${isFloors ? "Summit reached" : "Route complete"}! You conquered ${template.name}.`}
     </div>
     ${reached && totalNative > 0 ? `
     <div class="route-milestone-banner">
@@ -3319,7 +3319,7 @@ function renderWeightWidget() {
   const lost = sw ? parseFloat((sw-latest.weight).toFixed(1)) : null;
   const pct  = (sw&&gw&&sw>gw) ? clamp(Math.round(((sw-latest.weight)/(sw-gw))*100),0,100) : null;
   const toGoal = (gw&&latest.weight>gw) ? parseFloat((latest.weight-gw).toFixed(1)) : 0;
-  const lostText = lost===null?"":lost>0?`â†“ ${lost} ${unit} lost`:lost<0?`â†‘ ${Math.abs(lost)} ${unit} gained`:"Holding steady";
+  const lostText = lost===null?"":lost>0?`↓ ${lost} ${unit} lost`:lost<0?`↑ ${Math.abs(lost)} ${unit} gained`:"Holding steady";
   return `
   <div class="weight-widget">
     <div class="ww-left">
@@ -3329,7 +3329,7 @@ function renderWeightWidget() {
     <div class="ww-right">
       ${lost!==null?`<div class="ww-lost ${lost>0?"ww-good":lost<0?"ww-bad":""}">${lostText}</div>`:""}
       ${pct!==null?`<div class="ww-track"><div class="ww-fill" style="width:${pct}%"></div></div>
-        <div class="ww-goal">${toGoal>0?`${toGoal} ${unit} to go`:"ðŸŽ¯ Goal reached!"}</div>`:""}
+        <div class="ww-goal">${toGoal>0?`${toGoal} ${unit} to go`:"🎯 Goal reached!"}</div>`:""}
     </div>
   </div>`;
 }
@@ -3340,7 +3340,7 @@ function renderTodayWeightLog() {
   const unit = state.settings.units.weight;
   return `
   <div class="today-weight-log">
-    <div class="twl-label">âš–ï¸ Log today's weight</div>
+    <div class="twl-label">⚖️ Log today's weight</div>
     <div class="twl-row">
       <input id="twl-weight" type="number" step="0.1" inputmode="decimal" placeholder="${unit==="lbs"?"185.0":"84.0"}" class="twl-input">
       <span class="twl-unit">${unit}</span>
@@ -3349,18 +3349,18 @@ function renderTodayWeightLog() {
   </div>`;
 }
 
-// Minimal weight chip â€” only shown in Today if body tracking is active but today not yet logged
+// Minimal weight chip — only shown in Today if body tracking is active but today not yet logged
 function renderWeightChip() {
   const bt = state.bodyTracking;
   if (!bt.startWeight && !bt.entries.length) return ""; // weight tracking not set up
   if (bt.entries.some(e => e.date === todayKey())) return ""; // already logged today
-  return `<button class="weight-chip" data-tab="body">âš–ï¸ Log weight</button>`;
+  return `<button class="weight-chip" data-tab="body">⚖️ Log weight</button>`;
 }
 
 function renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToday) {
   if (info.done!==info.total || info.total===0) return "";
   const isExpedition = challenge?.habits.some(h => h.type === "distance");
-  if (day.mode==="rest") return `<div class="complete-banner rest-complete"><span class="cb-icon">ðŸ˜´</span><div class="cb-body"><div class="cb-title">Rest Day</div><div class="cb-sub">Recover. Come back stronger.</div></div></div>`;
+  if (day.mode==="rest") return `<div class="complete-banner rest-complete"><span class="cb-icon">😴</span><div class="cb-body"><div class="cb-title">Rest Day</div><div class="cb-sub">Recover. Come back stronger.</div></div></div>`;
   if (isExpedition) {
     const distHabit  = challenge.habits.find(h => h.type === "distance");
     const habitUnit  = distHabit?.unit || "km";
@@ -3377,16 +3377,16 @@ function renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToda
     const totalD = Math.round(totalNative * factor * 10) / 10;
     const remD   = remNative !== null ? Math.round(remNative * factor * 10) / 10 : null;
     const sub = remD !== null
-      ? `${totalD.toFixed(1)} ${dUnit} covered Â· ${remD.toFixed(1)} ${dUnit} to go`
+      ? `${totalD.toFixed(1)} ${dUnit} covered · ${remD.toFixed(1)} ${dUnit} to go`
       : `${totalD.toFixed(1)} ${dUnit} covered`;
-    return `<div class="complete-banner"><span class="cb-icon">ðŸ—ºï¸</span><div class="cb-body"><div class="cb-title">${todayD.toFixed(isFloors?0:1)} ${dUnit} today</div><div class="cb-sub">${sub}</div></div></div>`;
+    return `<div class="complete-banner"><span class="cb-icon">🗺️</span><div class="cb-body"><div class="cb-title">${todayD.toFixed(isFloors?0:1)} ${dUnit} today</div><div class="cb-sub">${sub}</div></div></div>`;
   }
   const currentStreak = challenge ? calcChallengeStreak(challenge) : 0;
-  const streakShare = currentStreak >= 2 ? `<button class="cb-share-btn" data-share-streak>ðŸ“¤ Share streak</button>` : "";
+  const streakShare = currentStreak >= 2 ? `<button class="cb-share-btn" data-share-streak>📤 Share streak</button>` : "";
   const tomorrowHook = isToday && dayNumber && totalDays && dayNumber < totalDays
-    ? `<div class="cb-tomorrow">Day ${dayNumber + 1} tomorrow â€” ðŸ”¥ keep the streak alive</div>`
+    ? `<div class="cb-tomorrow">Day ${dayNumber + 1} tomorrow — 🔥 keep the streak alive</div>`
     : "";
-  return `<div class="complete-banner"><span class="cb-icon">ðŸ”¥</span><div class="cb-body"><div class="cb-title">Full Send</div><div class="cb-sub">All habits done Â· ${info.points} pts</div>${tomorrowHook}${streakShare}</div></div>`;
+  return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">Full Send</div><div class="cb-sub">All habits done · ${info.points} pts</div>${tomorrowHook}${streakShare}</div></div>`;
 }
 
 function renderXPBar() {
@@ -3398,16 +3398,16 @@ function renderXPBar() {
   return `
   <div class="xp-bar-wrap">
     <div class="xp-bar-header">
-      <span class="xp-level-badge">âš¡ Lv.${info.level} <span class="xp-level-name">${info.name}</span></span>
+      <span class="xp-level-badge">⚡ Lv.${info.level} <span class="xp-level-name">${info.name}</span></span>
       <div style="display:flex;align-items:center;gap:8px">
-        ${freezes > 0 ? `<span class="xp-freeze-badge" title="Streak freezes â€” use one to protect a missed day">â„ï¸ ${freezes}</span>` : ""}
+        ${freezes > 0 ? `<span class="xp-freeze-badge" title="Streak freezes — use one to protect a missed day">❄️ ${freezes}</span>` : ""}
         <span class="xp-bar-to-next">${isMax ? "Max Level" : `${toNext.toLocaleString()} XP to Lv.${info.next.level}`}</span>
       </div>
     </div>
     <div class="xp-bar-track" role="progressbar" aria-valuenow="${info.pct}" aria-valuemin="0" aria-valuemax="100">
       <div class="xp-bar-fill" style="width:${info.pct}%"></div>
     </div>
-    <div class="xp-bar-explainer">Points fuel your weekly goal Â· XP builds your level forever</div>
+    <div class="xp-bar-explainer">Points fuel your weekly goal · XP builds your level forever</div>
   </div>`;
 }
 
@@ -3426,18 +3426,18 @@ function renderWeeklyGoalBar(challenge) {
   return `
   <div class="weekly-goal-bar">
     <div class="wgb-row">
-      <span class="wgb-label">${hit ? "âœ… Weekly goal hit!" : `Week: ${pts} / ${challenge.weeklyGoal} pts`}</span>
+      <span class="wgb-label">${hit ? "✅ Weekly goal hit!" : `Week: ${pts} / ${challenge.weeklyGoal} pts`}</span>
       <span class="wgb-pct">${pct}%</span>
     </div>
     <div class="wgb-track"><div class="wgb-fill ${hit?"wgb-done":""}" style="width:${pct}%"></div></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
-      ${hit ? `<span style="font-size:11px;color:var(--success)">Week badge unlocked ðŸ…</span>` : `<span style="font-size:11px;color:var(--text-dim)">Hit the goal â†’ badge + streak freeze ðŸ…</span>`}
+      ${hit ? `<span style="font-size:11px;color:var(--success)">Week badge unlocked 🏅</span>` : `<span style="font-size:11px;color:var(--text-dim)">Hit the goal → badge + streak freeze 🏅</span>`}
       ${bestLabel}
     </div>
   </div>`;
 }
 
-// â”€â”€ Weekly Recap (Sunday card) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Weekly Recap (Sunday card) ────────────────────────────────────────────
 
 function renderWeeklyRecap(challenge) {
   if (state.weeklyRecapDismissed?.[challenge.id] === todayKey()) return "";  // already dismissed today
@@ -3459,8 +3459,8 @@ function renderWeeklyRecap(challenge) {
   }, 0) : null;
   const delta = prevPts != null ? pts - prevPts : null;
   const deltaStr = delta == null ? "" :
-    delta > 0 ? `<span class="wrc-delta up">â†‘ +${delta} vs last week</span>` :
-    delta < 0 ? `<span class="wrc-delta down">â†“ ${delta} vs last week</span>` :
+    delta > 0 ? `<span class="wrc-delta up">↑ +${delta} vs last week</span>` :
+    delta < 0 ? `<span class="wrc-delta down">↓ ${delta} vs last week</span>` :
                 `<span class="wrc-delta flat">= same as last week</span>`;
   const isExpedition = challenge.habits.some(h => h.type === "distance");
   const weekKm = isExpedition ? lastWeek.allDays.reduce((s,k) => {
@@ -3469,14 +3469,14 @@ function renderWeeklyRecap(challenge) {
     return s + Object.values(d.distances).reduce((ss,km) => ss + (Number(km)||0), 0);
   }, 0) : null;
   const msgs = hitGoal
-    ? ["Last week was strong. Build on it.", "Goal hit. That's what consistency looks like.", "Momentum is real â€” keep it going."]
+    ? ["Last week was strong. Build on it.", "Goal hit. That's what consistency looks like.", "Momentum is real — keep it going."]
     : ["Progress compounds. Keep stacking.", "New week, fresh start. Let's go.", "Every logged day is a win."];
   const msg = msgs[new Date().getDate() % msgs.length];
   return `
   <div class="weekly-recap-card">
     <div class="wrc-top">
-      <div class="wrc-title">ðŸ“‹ Week ${lastWeek.num} Review</div>
-      <button class="wrc-dismiss" data-dismiss-weekly-recap="${challenge.id}" aria-label="Dismiss">âœ•</button>
+      <div class="wrc-title">📋 Week ${lastWeek.num} Review</div>
+      <button class="wrc-dismiss" data-dismiss-weekly-recap="${challenge.id}" aria-label="Dismiss">✕</button>
     </div>
     <div class="wrc-stats">
       ${isExpedition
@@ -3488,12 +3488,12 @@ function renderWeeklyRecap(challenge) {
       <div class="wrc-stat"><span class="wrc-val">${streak}</span><span class="wrc-lbl">streak</span></div>
     </div>
     ${deltaStr ? `<div class="wrc-delta-row">${deltaStr}</div>` : ""}
-    <div class="wrc-msg">${hitGoal ? "âœ… Goal hit! " : ""}${msg}</div>
+    <div class="wrc-msg">${hitGoal ? "✅ Goal hit! " : ""}${msg}</div>
   </div>`;
 }
 
 
-// â”€â”€ Challenge Suggestions (post-completion) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Challenge Suggestions (post-completion) ───────────────────────────────
 
 function suggestNextChallenges(c) {
   const finishedId = c.templateId;
@@ -3509,7 +3509,7 @@ function suggestNextChallenges(c) {
 
 function renderCompletionSuggestions(c) {
   const chainNextId = c.templateId && CHALLENGE_CHAINS[c.templateId];
-  // Exclude the chain template â€” it's already featured prominently above
+  // Exclude the chain template — it's already featured prominently above
   let sugs = suggestNextChallenges(c).filter(t => t.id !== chainNextId);
   if (!sugs.length) return "";
   return `
@@ -3520,14 +3520,14 @@ function renderCompletionSuggestions(c) {
       <span class="cs-emoji">${t.emoji}</span>
       <div class="cs-info">
         <div class="cs-name">${t.name}</div>
-        <div class="cs-meta">${t.duration}d Â· ${t.category}</div>
+        <div class="cs-meta">${t.duration}d · ${t.category}</div>
       </div>
-      <span class="cs-arrow">â†’</span>
+      <span class="cs-arrow">→</span>
     </button>`).join("")}
   </div>`;
 }
 
-// â”€â”€ Personal Bests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Personal Bests ────────────────────────────────────────────────────────
 
 function computePersonalBests() {
   const all = getAllChallenges();
@@ -3556,10 +3556,10 @@ function renderPersonalBests() {
   return `
   <div class="section-label" style="margin-top:8px">Personal Bests</div>
   <div class="pb-grid">
-    ${pbCard("ðŸ”¥ Longest Streak", pb.longestStreak, "days")}
-    ${pbCard("â­ Best Week",       pb.bestWeekPts,   "pts")}
-    ${pbCard("âœ… Habits Logged",  pb.totalHabits,   "")}
-    ${pbCard("ðŸ“… Days Shown Up",  pb.totalDays,     "")}
+    ${pbCard("🔥 Longest Streak", pb.longestStreak, "days")}
+    ${pbCard("⭐ Best Week",       pb.bestWeekPts,   "pts")}
+    ${pbCard("✅ Habits Logged",  pb.totalHabits,   "")}
+    ${pbCard("📅 Days Shown Up",  pb.totalDays,     "")}
   </div>`;
 }
 
@@ -3608,7 +3608,7 @@ function drawShareCard(challenge, isDone) {
   // Challenge emoji
   ctx.font      = `${Math.round(s * 0.12)}px serif`;
   ctx.textAlign = "center";
-  ctx.fillText(challenge.emoji || "ðŸ†", s / 2, s * 0.25);
+  ctx.fillText(challenge.emoji || "🏆", s / 2, s * 0.25);
 
   // Challenge name
   ctx.fillStyle = "#f0eff8";
@@ -3622,8 +3622,8 @@ function drawShareCard(challenge, isDone) {
   const totalDays  = diffDays(challenge.startDate, challenge.endDate) + 1;
 
   const statLine = isDone
-    ? `${totalDays} days Â· ${totalPts} pts Â· ${streak}-day streak`
-    : `Day ${dayNum} Â· ${streak}-day streak Â· ${totalPts} pts`;
+    ? `${totalDays} days · ${totalPts} pts · ${streak}-day streak`
+    : `Day ${dayNum} · ${streak}-day streak · ${totalPts} pts`;
 
   // Pill background
   const pillW = s * 0.78, pillH = s * 0.085, pillX = (s - pillW) / 2, pillY = s * 0.44;
@@ -3647,7 +3647,7 @@ function drawShareCard(challenge, isDone) {
   ctx.fillText(statLine, s / 2, pillY + pillH * 0.64);
 
   // Headline
-  const headline = isDone ? "Challenge complete. ðŸ†" : `${streak} days straight. ðŸ”¥`;
+  const headline = isDone ? "Challenge complete. 🏆" : `${streak} days straight. 🔥`;
   ctx.fillStyle = grad;
   ctx.font      = `700 ${Math.round(s * 0.055)}px 'Arial', sans-serif`;
   ctx.fillText(headline, s / 2, s * 0.65);
@@ -3662,7 +3662,7 @@ function drawShareCard(challenge, isDone) {
   const _scTheme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
   ctx.fillStyle = "rgba(152,150,184,0.55)";
   ctx.font      = `400 ${Math.round(s * 0.03)}px 'Arial', sans-serif`;
-  ctx.fillText(`${_scTheme.emoji} ${_scTheme.label} Â· Lv.${_scLevel.level} ${_scLevel.name}`, s / 2, s * 0.81);
+  ctx.fillText(`${_scTheme.emoji} ${_scTheme.label} · Lv.${_scLevel.level} ${_scLevel.name}`, s / 2, s * 0.81);
 
   // Watermark
   ctx.fillStyle = "rgba(152,150,184,0.4)";
@@ -3679,19 +3679,19 @@ function renderShareModal() {
   const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate) + 1;
   const dayNum    = challengeDayNumber(_shareModalChallenge);
   const shareText = _shareModalDone
-    ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! ðŸ†\n${totalDays} days Â· ${totalPts} pts Â· ${streak}-day streak.\nBuilding habits that stick. ðŸ’ª\nconqur.netlify.app`
-    : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge â€” ${streak}-day streak. ðŸ”¥\nBuilding habits one day at a time.\nconqur.netlify.app`;
+    ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\nconqur.netlify.app`
+    : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\nconqur.netlify.app`;
 
   return `
   <div class="share-modal-overlay" data-close-share-modal>
     <div class="share-modal-inner" onclick="event.stopPropagation()">
       <img src="${_shareCardDataUrl}" class="share-card-img" alt="Share card">
       <div class="share-modal-actions">
-        <button class="primary-button" data-share-card-native style="margin-bottom:8px">ðŸ“¤ Share</button>
-        <button class="secondary-button" data-download-share-card>â¬‡ï¸ Save image</button>
-        <button class="secondary-button" data-copy-share-text style="margin-top:8px">ðŸ“‹ Copy text</button>
+        <button class="primary-button" data-share-card-native style="margin-bottom:8px">📤 Share</button>
+        <button class="secondary-button" data-download-share-card>⬇️ Save image</button>
+        <button class="secondary-button" data-copy-share-text style="margin-top:8px">📋 Copy text</button>
       </div>
-      <button class="share-modal-close" data-close-share-modal aria-label="Close">Ã—</button>
+      <button class="share-modal-close" data-close-share-modal aria-label="Close">×</button>
     </div>
   </div>`;
 }
@@ -3713,8 +3713,8 @@ function renderCompletionModal(c) {
   const mFactor       = mDUnit === "mi" ? 0.621371 : 1;
   const mTotalD       = isExpedition ? Math.round(totalKmNativeM * mFactor * 10) / 10 : null;
   const completionSub = isExpedition
-    ? `${mTotalD.toFixed(mIsFloors?0:1)} ${mDUnit} covered Â· ${totalDays} days Â· ${finalStreak}-day streak.<br>${routeFinished ? "You finished the route. Legendary." : "You stayed the course. That's what commitment looks like."}`
-    : `${totalDays} days Â· ${totalPts} pts Â· ${finalStreak}-day streak.<br>That's what commitment looks like.`;
+    ? `${mTotalD.toFixed(mIsFloors?0:1)} ${mDUnit} covered · ${totalDays} days · ${finalStreak}-day streak.<br>${routeFinished ? "You finished the route. Legendary." : "You stayed the course. That's what commitment looks like."}`
+    : `${totalDays} days · ${totalPts} pts · ${finalStreak}-day streak.<br>That's what commitment looks like.`;
   return `
   <div class="sheet-backdrop" data-close-completion>
     <section class="sheet completion-modal" role="dialog">
@@ -3725,18 +3725,18 @@ function renderCompletionModal(c) {
       ${nextT ? `
       <button class="chain-cta" data-start-suggested="${nextT.id}">
         <span class="chain-cta-pre">Continue your journey</span>
-        <span class="chain-cta-main">${nextT.emoji} ${nextT.name} â†’</span>
-        <span class="chain-cta-sub">${nextT.duration} days Â· Level up ðŸš€</span>
+        <span class="chain-cta-main">${nextT.emoji} ${nextT.name} →</span>
+        <span class="chain-cta-sub">${nextT.duration} days · Level up 🚀</span>
       </button>` : ""}
-      <button class="${nextT?"secondary-button":"primary-button"}" data-close-completion style="margin-top:${nextT?"8":"20"}px">Hell yeah! ðŸŽ‰</button>
-      ${canShare ? `<button class="secondary-button" data-share-completion style="margin-top:8px">ðŸ”— Share your achievement</button>` : ""}
-      <button class="secondary-button" data-completion-new-challenge style="margin-top:8px">Browse all challenges â†’</button>
+      <button class="${nextT?"secondary-button":"primary-button"}" data-close-completion style="margin-top:${nextT?"8":"20"}px">Hell yeah! 🎉</button>
+      ${canShare ? `<button class="secondary-button" data-share-completion style="margin-top:8px">🔗 Share your achievement</button>` : ""}
+      <button class="secondary-button" data-completion-new-challenge style="margin-top:8px">Browse all challenges →</button>
       ${renderCompletionSuggestions(c)}
     </section>
   </div>`;
 }
 
-// â”€â”€ Challenges Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Challenges Tab ────────────────────────────────────────────────────────
 
 function renderChallenges() {
   const all   = getAllChallenges();
@@ -3754,18 +3754,18 @@ function renderChallenges() {
   return `
   <main>
     <div class="challenge-sub-tabs">
-      <button class="csub-btn${challengeSubTab==="habits"?" active":""}" data-challenge-sub="habits">ðŸŽ¯ Habits</button>
-      <button class="csub-btn${challengeSubTab==="expeditions"?" active":""}" data-challenge-sub="expeditions">ðŸ—ºï¸ Expeditions</button>
+      <button class="csub-btn${challengeSubTab==="habits"?" active":""}" data-challenge-sub="habits">🎯 Habits</button>
+      <button class="csub-btn${challengeSubTab==="expeditions"?" active":""}" data-challenge-sub="expeditions">🗺️ Expeditions</button>
     </div>
     ${showEmailCapture ? (emailCapState === "submitted" ? `
     <div class="email-cap-card email-cap-done">
-      <span>âœ… You're on the list â€” we'll let you know when Pro launches!</span>
-      <button class="email-cap-x" data-dismiss-email-capture aria-label="Dismiss">Ã—</button>
+      <span>✅ You're on the list — we'll let you know when Pro launches!</span>
+      <button class="email-cap-x" data-dismiss-email-capture aria-label="Dismiss">×</button>
     </div>` : `
     <div class="email-cap-card">
-      <button class="email-cap-x" data-dismiss-email-capture aria-label="Dismiss">Ã—</button>
-      <div class="email-cap-title">ðŸš€ Conqur Pro is coming</div>
-      <div class="email-cap-sub">ðŸ“Š Weekly charts Â· ðŸ† Leaderboards Â· ðŸ“¤ Export Â· ðŸ”” Per-habit reminders<br><span style="color:var(--text-faint);font-size:11px">Be first to know â€” no spam.</span></div>
+      <button class="email-cap-x" data-dismiss-email-capture aria-label="Dismiss">×</button>
+      <div class="email-cap-title">🚀 Conqur Pro is coming</div>
+      <div class="email-cap-sub">📊 Weekly charts · 🏆 Leaderboards · 📤 Export · 🔔 Per-habit reminders<br><span style="color:var(--text-faint);font-size:11px">Be first to know — no spam.</span></div>
       <div class="email-cap-row">
         <input type="email" id="email-cap-input" class="email-cap-input" placeholder="your@email.com" autocomplete="email">
         <button class="email-cap-btn" data-email-capture-submit>Notify me</button>
@@ -3776,7 +3776,7 @@ function renderChallenges() {
       <button class="pill-btn" data-open-builder>${challengeSubTab==="expeditions"?"+ Route":"+ New"}</button>
     </div>
     ${active.length ? active.map(c=>renderChallengeCard(c)).join("") : `<div class="empty-state">${emptyMsg}</div>`}
-    ${paused.length ? `<div class="section-label">â¸ Paused</div>${paused.map(c=>renderChallengeCard(c)).join("")}` : ""}
+    ${paused.length ? `<div class="section-label">⏸ Paused</div>${paused.map(c=>renderChallengeCard(c)).join("")}` : ""}
     ${past.length   ? `<div class="section-label">Past</div>${past.map(c=>renderChallengeCard(c)).join("")}` : ""}
   </main>`;
 }
@@ -3814,31 +3814,31 @@ function renderChallengeCard(c) {
         <div class="cc-info">
           <div class="cc-name"${tierData?` style="color:${tierData.color}"`:""}>${esc(c.name)}${tierTag(c.templateId)}${c.noEndDate?` <span class="ongoing-badge">Ongoing</span>`:""}</div>
           <div class="cc-meta">${isExpedition && tpl?.routeKm
-            ? `${Math.round(totalKmVal * factor * 10)/10} / ${Math.round(tpl.routeKm * factor).toLocaleString()} ${dUnit} Â· Day ${dayNumber}`
-            : c.noEndDate ? `Ongoing Â· ${c.mode} Â· Day ${dayNumber}` : `${totalDays}d Â· ${c.mode} Â· Day ${dayNumber}`}</div>
+            ? `${Math.round(totalKmVal * factor * 10)/10} / ${Math.round(tpl.routeKm * factor).toLocaleString()} ${dUnit} · Day ${dayNumber}`
+            : c.noEndDate ? `Ongoing · ${c.mode} · Day ${dayNumber}` : `${totalDays}d · ${c.mode} · Day ${dayNumber}`}</div>
         </div>
         <div class="cc-right">
           ${c.status!=="active"
-            ? `<div class="cc-status" style="color:${statusColor}">${c.status==="paused"?"â¸ paused":c.status}</div>`
+            ? `<div class="cc-status" style="color:${statusColor}">${c.status==="paused"?"⏸ paused":c.status}</div>`
             : isExpedition
-              ? `<div class="cc-today">${todayNativeKm !== null && todayNativeKm > 0 ? (Math.round(todayNativeKm*factor*10)/10)+" "+dUnit : "â€”"}</div>`
-              : `<div class="cc-today">${todayInfo?todayInfo.percent+"%":"â€”"}</div>`}
-          <div class="cc-streak">ðŸ”¥ ${streak}</div>
+              ? `<div class="cc-today">${todayNativeKm !== null && todayNativeKm > 0 ? (Math.round(todayNativeKm*factor*10)/10)+" "+dUnit : "—"}</div>`
+              : `<div class="cc-today">${todayInfo?todayInfo.percent+"%":"—"}</div>`}
+          <div class="cc-streak">🔥 ${streak}</div>
         </div>
       </div>
       <div class="cc-track">
         <div class="cc-fill" style="width:${isExpedition && routePct !== null ? routePct : pct}%"></div>
       </div>
       <div class="cc-sub">${isExpedition && routePct !== null
-        ? `ðŸ—º ${routePct}% dist Â· âœ“ ${todayInfo ? todayInfo.percent : 0}% today Â· â± ${pct}% time`
-        : `${pct}% complete Â· ${c.badges.length} ${c.badges.length === 1 ? "badge" : "badges"}`}</div>
+        ? `🗺 ${routePct}% dist · ✓ ${todayInfo ? todayInfo.percent : 0}% today · ⏱ ${pct}% time`
+        : `${pct}% complete · ${c.badges.length} ${c.badges.length === 1 ? "badge" : "badges"}`}</div>
     </button>
-    ${c.status === "active" ? `<button class="pin-btn${c.pinned?" pin-btn--active":""}" data-pin-challenge="${c.id}" aria-label="${c.pinned?"Unpin":"Pin"} challenge" title="${c.pinned?"Unpin":"Pin to top"}">ðŸ“Œ</button>` : ""}
-    ${resumeNudge ? `<div class="resume-nudge">â° Reminder to resume! <button class="link-btn" data-pause-challenge="${c.id}">Resume now â†’</button></div>` : ""}
+    ${c.status === "active" ? `<button class="pin-btn${c.pinned?" pin-btn--active":""}" data-pin-challenge="${c.id}" aria-label="${c.pinned?"Unpin":"Pin"} challenge" title="${c.pinned?"Unpin":"Pin to top"}">📌</button>` : ""}
+    ${resumeNudge ? `<div class="resume-nudge">⏰ Reminder to resume! <button class="link-btn" data-pause-challenge="${c.id}">Resume now →</button></div>` : ""}
   </div>`;
 }
 
-// â”€â”€ Sparkline helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Sparkline helper ─────────────────────────────────────────────────────
 
 function renderSparkline(values, w = 88, h = 28) {
   const pts = values.filter(v => v != null && v > 0);
@@ -3858,7 +3858,7 @@ function renderSparkline(values, w = 88, h = 28) {
   </svg>`;
 }
 
-// â”€â”€ Challenge Detail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Challenge Detail ──────────────────────────────────────────────────────
 
 function renderChallengeDetail(c) {
   if (!c) return `<main><div class="empty-state">Challenge not found.</div></main>`;
@@ -3895,31 +3895,31 @@ function renderChallengeDetail(c) {
       </button>
       <div>
         <div style="font-size:18px;font-weight:700">${esc(c.emoji)} ${(()=>{ const t=c.templateId?TEMPLATE_TIERS[c.templateId]:null; const td=t?TIERS[t]:null; return td?`<span style="color:${td.color}">${esc(c.name)}</span>${tierTag(c.templateId)}`:esc(c.name); })()}</div>
-        <div style="font-size:12px;color:var(--text-dim)">${c.startDate}${c.noEndDate ? " Â· Ongoing" : ` â†’ ${c.endDate}`}</div>
+        <div style="font-size:12px;color:var(--text-dim)">${c.startDate}${c.noEndDate ? " · Ongoing" : ` → ${c.endDate}`}</div>
       </div>
     </div>
     <div class="stats-grid" style="margin-bottom:14px">
-      ${statCard("ðŸ”¥ Streak", streak, "days")}
+      ${statCard("🔥 Streak", streak, "days")}
       ${isExpedition
-        ? statCard("ðŸ—ºï¸ Distance", totalKmDisplay.toFixed(isFloorsDet?0:1), dUnitDet)
-        : statCard("â­ Total pts", totalPts, "")}
-      ${statCard("âœ… Active days", `${activeDaysDone}/${activeTotal}`, "")}
-      ${statCard("ðŸ… Badges", c.badges.length, "")}
+        ? statCard("🗺️ Distance", totalKmDisplay.toFixed(isFloorsDet?0:1), dUnitDet)
+        : statCard("⭐ Total pts", totalPts, "")}
+      ${statCard("✅ Active days", `${activeDaysDone}/${activeTotal}`, "")}
+      ${statCard("🏅 Badges", c.badges.length, "")}
     </div>
-    ${pct !== null ? `<div class="detail-progress-bar" style="margin-bottom:14px"><div class="detail-progress-fill" style="width:${pct}%"></div><div class="detail-progress-label">${pct}% journey complete</div></div>` : `<div class="detail-progress-bar" style="margin-bottom:14px"><div class="detail-progress-label">Day ${dayNumber} Â· Ongoing</div></div>`}
+    ${pct !== null ? `<div class="detail-progress-bar" style="margin-bottom:14px"><div class="detail-progress-fill" style="width:${pct}%"></div><div class="detail-progress-label">${pct}% journey complete</div></div>` : `<div class="detail-progress-bar" style="margin-bottom:14px"><div class="detail-progress-label">Day ${dayNumber} · Ongoing</div></div>`}
     ${isExpedition ? renderRouteProgress(c, tpl) : ""}
 
 
     ${nextChainT && c.status === "completed" ? `
     <div class="chain-next-banner" data-start-suggested="${nextChainT.id}">
-      <div class="cnb-label">Continue your journey â†’</div>
+      <div class="cnb-label">Continue your journey →</div>
       <div class="cnb-row">
         <span class="cnb-emoji">${nextChainT.emoji}</span>
         <div class="cnb-info">
           <div class="cnb-name">${nextChainT.name}</div>
-          <div class="cnb-meta">${nextChainT.duration} days Â· Level up ðŸš€</div>
+          <div class="cnb-meta">${nextChainT.duration} days · Level up 🚀</div>
         </div>
-        <span class="cnb-arrow">â†’</span>
+        <span class="cnb-arrow">→</span>
       </div>
     </div>` : ""}
 
@@ -3942,7 +3942,7 @@ function renderChallengeDetail(c) {
           const routePct = routeKm ? Math.min(100, Math.round((kmTotal / routeKm) * 100)) : null;
           return `<div class="habit-preview-item">
             <span>${esc(h.emoji)} ${esc(h.title)}</span>
-            <span class="hpi-rate" style="color:var(--accent)">${kmTotal.toFixed(1)} km${routePct !== null ? ` Â· ${routePct}% of route` : ` Â· ${daysLogged}d logged`}</span>
+            <span class="hpi-rate" style="color:var(--accent)">${kmTotal.toFixed(1)} km${routePct !== null ? ` · ${routePct}% of route` : ` · ${daysLogged}d logged`}</span>
           </div>`;
         }
         if (h.type === "measurement") {
@@ -3958,13 +3958,13 @@ function renderChallengeDetail(c) {
           const sparkData = sortedDays.map(d => d.distances?.[h.id] ?? null);
           const goalW = (h.unit === "weight" || h.unit === "lbs" || h.unit === "kg") && c.goalWeight ? c.goalWeight : null;
           const goalLine = goalW && latest != null
-            ? `<span class="hpi-goal ${latest <= goalW ? "hpi-goal--reached":""}">${latest <= goalW ? "âœ“ Goal reached!" : `${Math.abs(latest - goalW).toFixed(decimals)} ${unit} to goal`}</span>`
+            ? `<span class="hpi-goal ${latest <= goalW ? "hpi-goal--reached":""}">${latest <= goalW ? "✓ Goal reached!" : `${Math.abs(latest - goalW).toFixed(decimals)} ${unit} to goal`}</span>`
             : "";
           return `<div class="habit-preview-item habit-preview-meas">
             <div class="hpm-top">
               <span>${esc(h.emoji)} ${esc(h.title)}</span>
               <span class="hpi-rate" style="color:var(--accent)">
-                ${latest != null ? `${latest.toFixed(decimals)} ${unit}` : "No entries"}${avg != null ? ` Â· avg ${avg.toFixed(decimals)}` : ""}
+                ${latest != null ? `${latest.toFixed(decimals)} ${unit}` : "No entries"}${avg != null ? ` · avg ${avg.toFixed(decimals)}` : ""}
               </span>
             </div>
             ${goalLine}
@@ -3985,22 +3985,22 @@ function renderChallengeDetail(c) {
 
     ${hasPhotoHabit ? `
     <div class="section-label">Progress Photos</div>
-    <div id="pp-strip-${c.id}" class="pp-strip"><div class="pp-loading">Loading photosâ€¦</div></div>
+    <div id="pp-strip-${c.id}" class="pp-strip"><div class="pp-loading">Loading photos…</div></div>
     ` : ""}
 
     ${c.habits.some(h => h.type === "measurement") ? `
     <div style="margin-top:16px">
-      <button class="secondary-button" data-export-health="${c.id}">ðŸ“Š Export Health Data (CSV)</button>
+      <button class="secondary-button" data-export-health="${c.id}">📊 Export Health Data (CSV)</button>
     </div>` : ""}
     ${(c.status==="active"||c.status==="paused")?`
     <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
-      ${c.status==="active"?`<button class="secondary-button" data-edit-challenge="${c.id}">âœï¸ Edit</button>`:""}
-      <button class="secondary-button" data-pause-challenge="${c.id}">${c.status==="paused"?"â–¶ï¸ Resume":"â¸ Pause"}</button>
+      ${c.status==="active"?`<button class="secondary-button" data-edit-challenge="${c.id}">✏️ Edit</button>`:""}
+      <button class="secondary-button" data-pause-challenge="${c.id}">${c.status==="paused"?"▶️ Resume":"⏸ Pause"}</button>
       <button class="secondary-button danger" data-abandon-challenge="${c.id}">Abandon</button>
     </div>`:""}
     ${(c.status==="completed"||c.status==="failed")?`
     <div style="margin-top:16px">
-      <button class="secondary-button danger" data-delete-challenge="${c.id}">ðŸ—‘ Delete challenge</button>
+      <button class="secondary-button danger" data-delete-challenge="${c.id}">🗑 Delete challenge</button>
     </div>`:""}
   </main>`;
 }
@@ -4052,9 +4052,9 @@ function renderEditChallenge(c) {
                   ? `<span class="custom-habit-pts" style="font-size:11px">${h.tiers.map(t=>t.label||`Tier`).join(" / ")}</span>`
                   : `<input id="ech-pts" type="number" value="${h.points}" min="1" max="20" style="width:52px">`}
               </div>
-              ${isTiered ? `<p style="font-size:11px;color:var(--text-dim);margin:0">Tiered habit â€” to change tiers, delete and re-add.</p>` : ""}
+              ${isTiered ? `<p style="font-size:11px;color:var(--text-dim);margin:0">Tiered habit — to change tiers, delete and re-add.</p>` : ""}
               <div class="ech-edit-actions">
-                <button class="pill-btn" data-ec-save-habit>Save âœ“</button>
+                <button class="pill-btn" data-ec-save-habit>Save ✓</button>
                 <button class="secondary-button" style="padding:6px 12px;font-size:13px" data-ec-cancel-habit-edit>Cancel</button>
               </div>
             </div>`;
@@ -4063,9 +4063,9 @@ function renderEditChallenge(c) {
           <div class="custom-habit-row">
             <span class="custom-habit-emoji">${esc(h.emoji)}</span>
             <span class="custom-habit-name">${esc(h.title)}</span>
-            <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points}â€“${h.tiers[h.tiers.length-1].points}pt` : h.points+"pt"}</span>
-            <button class="icon-btn" data-ec-edit-habit="${i}" title="Edit">âœï¸</button>
-            <button class="icon-btn" data-ec-delete-habit="${i}" title="Delete" style="color:var(--secondary)">âœ•</button>
+            <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points}–${h.tiers[h.tiers.length-1].points}pt` : h.points+"pt"}</span>
+            <button class="icon-btn" data-ec-edit-habit="${i}" title="Edit">✏️</button>
+            <button class="icon-btn" data-ec-delete-habit="${i}" title="Delete" style="color:var(--secondary)">✕</button>
           </div>`;
         }).join("")}
         ${(() => {
@@ -4075,7 +4075,7 @@ function renderEditChallenge(c) {
           return `
         <div class="add-habit-form">
           <div class="add-habit-top-row">
-            <input id="ech-new-emoji" class="emoji-input" type="text" value="${esc(ef.newHabitEmoji||"â­")}" maxlength="2" placeholder="â­" style="width:46px">
+            <input id="ech-new-emoji" class="emoji-input" type="text" value="${esc(ef.newHabitEmoji||"⭐")}" maxlength="2" placeholder="⭐" style="width:46px">
             <input id="ech-new-title" type="text" value="${esc(ef.newHabitTitle||"")}" placeholder="New habit name" style="flex:1">
             <div class="habit-type-toggle">
               <button class="ht-btn ${newType!=="tiered"?"active":""}" data-ech-type="binary">Simple</button>
@@ -4089,7 +4089,7 @@ function renderEditChallenge(c) {
             <div class="tier-row">
               <input class="tier-label-input" id="ech-tier-${i}-label" type="text" value="${esc(t.label)}" placeholder="e.g. 3 km">
               <input class="tier-pts-input" id="ech-tier-${i}-pts" type="number" value="${t.points}" min="1" max="20">
-              ${newTiers.length>2?`<button class="icon-btn" data-ech-remove-tier="${i}" style="font-size:11px">âœ•</button>`:""}
+              ${newTiers.length>2?`<button class="icon-btn" data-ech-remove-tier="${i}" style="font-size:11px">✕</button>`:""}
             </div>`).join("")}
             ${newTiers.length<5?`<button class="link-btn" data-ech-add-tier style="font-size:12px;margin-top:2px">+ Add tier</button>`:""}
           </div>` : `
@@ -4102,7 +4102,7 @@ function renderEditChallenge(c) {
         })()}
       </div>
 
-      <button class="primary-button" data-save-edit style="margin-top:20px">Save Changes âœ“</button>
+      <button class="primary-button" data-save-edit style="margin-top:20px">Save Changes ✓</button>
       <button class="secondary-button" style="margin-top:8px" data-close-edit>Cancel</button>
     </div>
   </main>`;
@@ -4132,7 +4132,7 @@ function renderWeekCard(c, week, isCurrent) {
   <div class="${isCurrent?"week-card week-card-current":"week-card"}">
     <div class="wc-top">
       <span class="wc-num">Week ${week.num}</span>
-      ${hitGoal?`<span class="wc-goal-hit">âœ“ Goal</span>`:`<span class="wc-days">${logged}/${week.allDays.length}</span>`}
+      ${hitGoal?`<span class="wc-goal-hit">✓ Goal</span>`:`<span class="wc-days">${logged}/${week.allDays.length}</span>`}
     </div>
     <div class="wc-label">${week.label}</div>
     <div class="wc-dots">${week.allDays.map(k=>{
@@ -4151,7 +4151,7 @@ function renderWeekCard(c, week, isCurrent) {
   </div>`;
 }
 
-// â”€â”€ Month Calendar Heatmap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Month Calendar Heatmap ────────────────────────────────────────────────
 
 function renderMonthCalendar(challenge) {
   const today = todayKey();
@@ -4193,8 +4193,8 @@ function renderMonthCalendar(challenge) {
       return `<div class="cal-cell cal-missed${todayCls}">${dn}</div>`;
     }
     const info = completionInfo(challenge, day);
-    if (day.mode === "rest")                             return `<div class="cal-cell cal-rest${todayCls}">ðŸ˜´</div>`;
-    if (day.freezeUsed && !day.done.length)              return `<div class="cal-cell cal-freeze${todayCls}">â„ï¸</div>`;
+    if (day.mode === "rest")                             return `<div class="cal-cell cal-rest${todayCls}">😴</div>`;
+    if (day.freezeUsed && !day.done.length)              return `<div class="cal-cell cal-freeze${todayCls}">❄️</div>`;
     if (info.percent === 100)                            return `<div class="cal-cell cal-full${todayCls}">${dn}</div>`;
     return `<div class="cal-cell cal-partial${todayCls}">${dn}</div>`;
   }).join("");
@@ -4202,25 +4202,25 @@ function renderMonthCalendar(challenge) {
   return `
   <div class="month-cal">
     <div class="cal-nav">
-      <button class="cal-nav-btn${hasPrev?"":" cal-nav-dis"}" data-cal-prev="${prevKey}" ${hasPrev?"":"disabled"}>â€¹</button>
+      <button class="cal-nav-btn${hasPrev?"":" cal-nav-dis"}" data-cal-prev="${prevKey}" ${hasPrev?"":"disabled"}>‹</button>
       <span class="cal-month-label">${monthLabel}</span>
-      <button class="cal-nav-btn${hasNext?"":" cal-nav-dis"}" data-cal-next="${nextKey}" ${hasNext?"":"disabled"}>â€º</button>
+      <button class="cal-nav-btn${hasNext?"":" cal-nav-dis"}" data-cal-next="${nextKey}" ${hasNext?"":"disabled"}>›</button>
     </div>
     <div class="cal-header">
       ${["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=>`<div class="cal-wd">${d}</div>`).join("")}
     </div>
     <div class="cal-grid">${cellHTML}</div>
     <div class="cal-legend">
-      <span class="cal-leg full">âœ“ Full</span>
-      <span class="cal-leg partial">â— Partial</span>
-      <span class="cal-leg rest">ðŸ˜´ Rest</span>
-      <span class="cal-leg freeze">â„ï¸ Frozen</span>
-      <span class="cal-leg missed">â€” Missed</span>
+      <span class="cal-leg full">✓ Full</span>
+      <span class="cal-leg partial">● Partial</span>
+      <span class="cal-leg rest">😴 Rest</span>
+      <span class="cal-leg freeze">❄️ Frozen</span>
+      <span class="cal-leg missed">— Missed</span>
     </div>
   </div>`;
 }
 
-// â”€â”€ Builder Quiz â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Builder Quiz ──────────────────────────────────────────────────────────
 
 function getQuizRecommendation(q) {
   const { goal, time, level } = q;
@@ -4242,26 +4242,26 @@ function renderBuilderQuiz() {
   const q = builderQuizAnswers;
   const ready = q.goal && q.time && q.level;
   const goalOpts  = [
-    { id:"fitness",    label:"Get physically fitter",         emoji:"ðŸ’ª" },
-    { id:"discipline", label:"Build daily discipline",        emoji:"ðŸŽ¯" },
-    { id:"wellness",   label:"Mental health & mindfulness",   emoji:"ðŸ§˜" },
-    { id:"routine",    label:"Build a morning routine",       emoji:"ðŸŒ…" },
+    { id:"fitness",    label:"Get physically fitter",         emoji:"💪" },
+    { id:"discipline", label:"Build daily discipline",        emoji:"🎯" },
+    { id:"wellness",   label:"Mental health & mindfulness",   emoji:"🧘" },
+    { id:"routine",    label:"Build a morning routine",       emoji:"🌅" },
   ];
   const timeOpts  = [
-    { id:"15", label:"15â€“30 min" },
-    { id:"30", label:"30â€“60 min" },
-    { id:"60", label:"60â€“90 min" },
+    { id:"15", label:"15–30 min" },
+    { id:"30", label:"30–60 min" },
+    { id:"60", label:"60–90 min" },
     { id:"90", label:"90 min+"  },
   ];
   const levelOpts = [
-    { id:"beginner", label:"Beginner â€” just starting out" },
+    { id:"beginner", label:"Beginner — just starting out" },
     { id:"some",     label:"Some experience"              },
-    { id:"hardcore", label:"Experienced â€” I push hard"   },
+    { id:"hardcore", label:"Experienced — I push hard"   },
   ];
   return `
   <div class="builder-quiz">
     <div class="bq-title">Find your challenge</div>
-    <div class="bq-sub">3 quick questions â†’ 1 perfect match</div>
+    <div class="bq-sub">3 quick questions → 1 perfect match</div>
 
     <div class="bq-question">What's your main goal?</div>
     <div class="bq-options">
@@ -4284,15 +4284,15 @@ function renderBuilderQuiz() {
     </div>
 
     <button class="primary-button" style="margin-top:20px" data-quiz-find ${ready?"":"disabled style='opacity:.35'"}>
-      ${ready ? "Find my challenge â†’" : "Answer all 3 to continue"}
+      ${ready ? "Find my challenge →" : "Answer all 3 to continue"}
     </button>
     <div style="text-align:center;margin-top:10px">
-      <button class="link-btn" data-quiz-skip>Skip â€” browse all challenges â†’</button>
+      <button class="link-btn" data-quiz-skip>Skip — browse all challenges →</button>
     </div>
   </div>`;
 }
 
-// â”€â”€ Builder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Builder ───────────────────────────────────────────────────────────────
 
 function renderBuilder() {
   return `
@@ -4314,12 +4314,12 @@ function renderBuilder() {
 
 function renderBuilderTemplates() {
   const cats = [
-    { id:"transformation", label:"ðŸ”¥ Transformation" },
-    { id:"movement",       label:"ðŸƒ Movement"       },
-    { id:"endurance",      label:"ðŸ† Endurance"      },
-    { id:"health",         label:"â¤ï¸ Health"         },
-    { id:"lifestyle",      label:"ðŸŒ± Lifestyle"      },
-    { id:"expedition",     label:"ðŸ—ºï¸ Expeditions"    },
+    { id:"transformation", label:"🔥 Transformation" },
+    { id:"movement",       label:"🏃 Movement"       },
+    { id:"endurance",      label:"🏆 Endurance"      },
+    { id:"health",         label:"❤️ Health"         },
+    { id:"lifestyle",      label:"🌱 Lifestyle"      },
+    { id:"expedition",     label:"🗺️ Expeditions"    },
   ];
   const orderedCats = challengeSubTab === "expeditions"
     ? [cats.find(c => c.id === "expedition"), ...cats.filter(c => c.id !== "expedition")]
@@ -4327,9 +4327,9 @@ function renderBuilderTemplates() {
   const POPULAR_IDS = ["75-hard", "75-soft", "mental-toughness", "cold-shower", "morning-routine", "no-alcohol", "meditation-21", "journaling", "walking", "no-sugar"];
   const filterTabs = [
     { id:"all",      label:"All" },
-    { id:"popular",  label:"ðŸ”¥ Popular" },
-    { id:"short",    label:"â‰¤30 days" },
-    { id:"medium",   label:"31â€“60 days" },
+    { id:"popular",  label:"🔥 Popular" },
+    { id:"short",    label:"≤30 days" },
+    { id:"medium",   label:"31–60 days" },
     { id:"long",     label:"61+ days" },
   ];
   const passesFilter = t => {
@@ -4348,17 +4348,17 @@ function renderBuilderTemplates() {
     const dUnit        = isFloors ? "floors" : (globalDist === "miles" ? "mi" : "km");
     const factor       = dUnit === "mi" ? MI_PER_KM : 1;
     const meta = isExpedition
-      ? `${Math.round(t.routeKm * factor).toLocaleString()} ${dUnit} Â· ${t.duration} days`
-      : `${t.duration} days Â· ${t.defaultMode}`;
+      ? `${Math.round(t.routeKm * factor).toLocaleString()} ${dUnit} · ${t.duration} days`
+      : `${t.duration} days · ${t.defaultMode}`;
     const tier     = TEMPLATE_TIERS[t.id] || "common";
     const tierData = TIERS[tier];
     const diff     = TEMPLATE_DIFFICULTY[t.id] || "intermediate";
     const hasSafety = !!TEMPLATE_SAFETY[t.id];
     return `
     <button class="template-card${isExpedition?" tc-cat expedition":""}" data-select-template="${t.id}">
-      <div class="tc-emoji">${t.emoji}${hasSafety?` <span class="tc-safety-icon" title="Safety note">âš ï¸</span>`:""}</div>
+      <div class="tc-emoji">${t.emoji}${hasSafety?` <span class="tc-safety-icon" title="Safety note">⚠️</span>`:""}</div>
       <div class="tc-name" style="color:${tierData.color}">${t.name}</div>
-      <div class="tc-difficulty" style="color:${tierData.color}">${tierData.label} Â· <span style="color:${DIFF_COLOR[diff]};font-weight:600">${DIFF_LABEL[diff]}</span></div>
+      <div class="tc-difficulty" style="color:${tierData.color}">${tierData.label} · <span style="color:${DIFF_COLOR[diff]};font-weight:600">${DIFF_LABEL[diff]}</span></div>
       <div class="tc-meta">${meta}</div>
       <div class="tc-desc">${t.description}</div>
     </button>`;
@@ -4374,10 +4374,10 @@ function renderBuilderTemplates() {
     <div class="template-grid">${group.map(templateCard).join("")}</div>`;
   }).join("");
   const customSection = _templateFilter === "all" ? `
-  <div class="template-cat-label">âœï¸ Custom</div>
+  <div class="template-cat-label">✏️ Custom</div>
   <div class="template-grid">
     <button class="template-card" data-select-template="custom">
-      <div class="tc-emoji">ðŸŽ¯</div>
+      <div class="tc-emoji">🎯</div>
       <div class="tc-name">Custom</div>
       <div class="tc-meta">Any duration</div>
       <div class="tc-desc">Build your own challenge from scratch.</div>
@@ -4394,7 +4394,7 @@ function renderBuilderCustomize() {
     ${isCustom ? `
     <label class="field" style="margin-bottom:14px">
       Emoji
-      <input id="bf-emoji" type="text" value="${esc(builderForm.emoji)}" maxlength="2" class="emoji-input" style="width:64px" placeholder="ðŸŽ¯">
+      <input id="bf-emoji" type="text" value="${esc(builderForm.emoji)}" maxlength="2" class="emoji-input" style="width:64px" placeholder="🎯">
     </label>` : ""}
     <label class="field" style="margin-bottom:14px">
       Challenge name
@@ -4402,12 +4402,12 @@ function renderBuilderCustomize() {
     </label>
     <div class="field-grid" style="margin-bottom:6px">
       <label class="field">Start date<input id="bf-start" type="date" value="${builderForm.startDate}"></label>
-      ${builderForm.noEndDate ? `<label class="field" style="opacity:.4">End date<input type="date" disabled value="â€”"></label>` : `<label class="field">End date<input id="bf-end" type="date" value="${builderForm.endDate}"></label>`}
+      ${builderForm.noEndDate ? `<label class="field" style="opacity:.4">End date<input type="date" disabled value="—"></label>` : `<label class="field">End date<input id="bf-end" type="date" value="${builderForm.endDate}"></label>`}
     </div>
     <div class="ongoing-toggle" style="margin-bottom:14px">
       <label class="ongoing-toggle-label">
         <input type="checkbox" id="bf-ongoing" ${builderForm.noEndDate?"checked":""} style="width:16px;height:16px;accent-color:var(--accent)">
-        <span>Ongoing habit â€” no end date</span>
+        <span>Ongoing habit — no end date</span>
       </label>
     </div>
     <div class="section-label" style="margin:0 0 8px">Challenge Mode</div>
@@ -4415,20 +4415,20 @@ function renderBuilderCustomize() {
       <button class="mode-button ${builderForm.mode==="soft"?"active":""}" data-bf-mode="soft">Soft</button>
       <button class="mode-button ${builderForm.mode==="strict"?"active":""}" data-bf-mode="strict">Strict</button>
     </div>
-    <p class="mode-desc" style="margin-bottom:14px">${builderForm.mode==="soft"?"One grace day allowed if you miss â€” streak stays alive.":"Zero misses. Every day counts. No exceptions."}</p>
+    <p class="mode-desc" style="margin-bottom:14px">${builderForm.mode==="soft"?"One grace day allowed if you miss — streak stays alive.":"Zero misses. Every day counts. No exceptions."}</p>
     ${template?.noRestDay ? `
     <div class="joker-budget-row" style="margin-bottom:14px">
       <span class="field-label">Rest Days</span>
-      <span class="mode-desc" style="margin:0">Zero â€” no rest days on this challenge.</span>
+      <span class="mode-desc" style="margin:0">Zero — no rest days on this challenge.</span>
     </div>` : `
     <div class="joker-budget-row" style="margin-bottom:14px">
       <div class="field-label">Rest Days allowed</div>
       <div class="joker-stepper">
-        <button class="joker-step-btn" data-joker-adj="-1">âˆ’</button>
+        <button class="joker-step-btn" data-joker-adj="-1">−</button>
         <span class="joker-step-val" id="joker-val">${builderForm.jokerBudget}</span>
         <button class="joker-step-btn" data-joker-adj="1">+</button>
       </div>
-      <p class="mode-desc" style="margin:4px 0 0">${builderForm.jokerBudget === 0 ? "Zero compromise â€” no rest days." : `${builderForm.jokerBudget} day${builderForm.jokerBudget===1?"":"s"} you can skip without breaking your streak.`}</p>
+      <p class="mode-desc" style="margin:4px 0 0">${builderForm.jokerBudget === 0 ? "Zero compromise — no rest days." : `${builderForm.jokerBudget} day${builderForm.jokerBudget===1?"":"s"} you can skip without breaking your streak.`}</p>
     </div>`}
     ${(() => {
       const tpl = builderForm.templateId ? TEMPLATES.find(t=>t.id===builderForm.templateId) : null;
@@ -4436,12 +4436,12 @@ function renderBuilderCustomize() {
       if (!hasWeightHabit) return "";
       const wUnit = state.settings.units.weight || "lbs";
       return `<label class="field" style="margin-bottom:14px">
-        Goal weight (${wUnit}) <span style="font-size:11px;color:var(--text-dim)">optional â€” shown as progress in the app</span>
+        Goal weight (${wUnit}) <span style="font-size:11px;color:var(--text-dim)">optional — shown as progress in the app</span>
         <input id="bf-goalweight" type="number" value="${builderForm.goalWeight || ""}" min="0" max="999" step="0.1" placeholder="e.g. 150">
       </label>`;
     })()}
     <label class="field" style="margin-bottom:4px">
-      Weekly goal <span style="font-size:11px;font-weight:300;color:var(--text-dim)">points â€” auto-set for this challenge</span>
+      Weekly goal <span style="font-size:11px;font-weight:300;color:var(--text-dim)">points — auto-set for this challenge</span>
       <input id="bf-goal" type="number" value="${builderForm.weeklyGoal}" min="10" max="500">
     </label>
     ${(() => {
@@ -4462,13 +4462,13 @@ function renderBuilderCustomize() {
         <span class="route-info-emoji">${template.emoji}</span>
         <div>
           <div class="route-info-name">${template.name}</div>
-          <div class="route-info-km">${template.routeKm.toLocaleString()} km Â· ${template.milestones.length} milestones</div>
+          <div class="route-info-km">${template.routeKm.toLocaleString()} km · ${template.milestones.length} milestones</div>
         </div>
       </div>
       <div class="route-milestones-preview">
         ${template.milestones.map(m => `<span class="route-ms-chip">${m.emoji} ${m.name}</span>`).join("")}
       </div>
-      <p class="mode-desc" style="margin:8px 0 0">Log any distance each day â€” walking, running, cycling, swimming. It all counts toward your route.</p>
+      <p class="mode-desc" style="margin:8px 0 0">Log any distance each day — walking, running, cycling, swimming. It all counts toward your route.</p>
     </div>` : `
     <div class="section-label" style="margin:0 0 8px">Habits (${template?template.habits.length:builderForm.habits.length})</div>
     ${template ? `
@@ -4480,12 +4480,12 @@ function renderBuilderCustomize() {
           <div class="custom-habit-row">
             <span class="custom-habit-emoji">${esc(h.emoji)}</span>
             <span class="custom-habit-name">${esc(h.title)}</span>
-            <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points}â€“${h.tiers[h.tiers.length-1].points}pt` : h.points+"pt"}</span>
-            <button class="icon-btn" data-remove-habit="${i}">âœ•</button>
+            <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points}–${h.tiers[h.tiers.length-1].points}pt` : h.points+"pt"}</span>
+            <button class="icon-btn" data-remove-habit="${i}">✕</button>
           </div>`).join("")}
         <div class="add-habit-form">
           <div class="add-habit-top-row">
-            <input id="nh-emoji" class="emoji-input" type="text" value="${esc(builderForm.newHabitEmoji)}" maxlength="2" placeholder="â­" style="width:46px">
+            <input id="nh-emoji" class="emoji-input" type="text" value="${esc(builderForm.newHabitEmoji)}" maxlength="2" placeholder="⭐" style="width:46px">
             <input id="nh-name" type="text" value="${esc(builderForm.newHabitName)}" placeholder="Habit name" style="flex:1">
             <div class="habit-type-toggle">
               <button class="ht-btn ${builderForm.newHabitType!=="tiered"?"active":""}" data-nh-type="binary">Simple</button>
@@ -4499,7 +4499,7 @@ function renderBuilderCustomize() {
             <div class="tier-row">
               <input class="tier-label-input" id="nh-tier-${i}-label" type="text" value="${esc(t.label)}" placeholder="e.g. 1 km">
               <input class="tier-pts-input" id="nh-tier-${i}-pts" type="number" value="${t.points}" min="1" max="20">
-              ${builderForm.newHabitTiers.length>2?`<button class="icon-btn" data-nh-remove-tier="${i}" style="font-size:11px">âœ•</button>`:""}
+              ${builderForm.newHabitTiers.length>2?`<button class="icon-btn" data-nh-remove-tier="${i}" style="font-size:11px">✕</button>`:""}
             </div>`).join("")}
             ${builderForm.newHabitTiers.length<5?`<button class="link-btn" data-nh-add-tier style="font-size:12px;margin-top:2px">+ Add tier</button>`:""}
           </div>` : `
@@ -4512,25 +4512,25 @@ function renderBuilderCustomize() {
       </div>`}
     `}
     <div class="pts-explainer">
-      <div class="pts-explainer-title">â­ How points work</div>
-      <div class="pts-explainer-body">Check off habits to earn points. Hit your weekly goal to earn badges. Points reset every Monday â€” your streak doesn't.</div>
+      <div class="pts-explainer-title">⭐ How points work</div>
+      <div class="pts-explainer-body">Check off habits to earn points. Hit your weekly goal to earn badges. Points reset every Monday — your streak doesn't.</div>
     </div>
     ${("Notification" in window) && Notification.permission === "default" ? `
     <div class="builder-notif-request">
-      <div style="font-size:13px;font-weight:700;margin-bottom:4px">ðŸ”” Enable daily reminders?</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px">🔔 Enable daily reminders?</div>
       <div class="mode-desc" style="margin-bottom:8px">People who enable reminders are far more likely to finish. Takes one tap.</div>
       <button class="secondary-button" style="width:100%" data-request-notif-from-builder>Enable Reminders</button>
     </div>` : ("Notification" in window) && Notification.permission === "granted" ? `
-    <div class="builder-reminder-hint">âœ… Reminders on â€” we'll notify you at ${state.settings.reminderTime || "20:00"}.</div>` : `
-    <div class="builder-reminder-hint">ðŸ’¡ Enable daily reminders in âš™ï¸ Settings after you start â€” it's the best habit for actually finishing.</div>`}
+    <div class="builder-reminder-hint">✅ Reminders on — we'll notify you at ${state.settings.reminderTime || "20:00"}.</div>` : `
+    <div class="builder-reminder-hint">💡 Enable daily reminders in ⚙️ Settings after you start — it's the best habit for actually finishing.</div>`}
     <div class="builder-cta-footer">
-      <button class="primary-button" data-start-challenge>Start Challenge ðŸš€</button>
-      <button class="secondary-button" style="margin-top:8px" data-builder-back>â† Back</button>
+      <button class="primary-button" data-start-challenge>Start Challenge 🚀</button>
+      <button class="secondary-button" style="margin-top:8px" data-builder-back>← Back</button>
     </div>
   </div>`;
 }
 
-// â”€â”€ Body Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Body Tab ──────────────────────────────────────────────────────────────
 
 function renderBody() {
   const entries = state.bodyTracking.entries;
@@ -4553,18 +4553,18 @@ function renderBody() {
     <div class="section-label">Body Composition</div>
     ${!entries.length ? `
     <div style="padding:28px 20px;text-align:center;background:var(--surface-2);border-radius:12px;margin-bottom:12px">
-      <div style="font-size:32px;margin-bottom:8px">ðŸ“Š</div>
+      <div style="font-size:32px;margin-bottom:8px">📊</div>
       <p style="font-weight:700;margin:0 0 4px">No check-ins yet</p>
       <p style="font-size:13px;color:var(--text-dim);margin:0">Log your first weight below to start tracking your progress.</p>
     </div>` : ""}
     <div class="metric-row">
-      ${metricCard("Weight", cw!=null?cw.toFixed(1):"â€”", unit, wDelta, "weight")}
-      ${metricCard("Body fat", cb!=null?cb.toFixed(1):"â€”", "%", bDelta, "bf")}
-      ${metricCard("Lean est.", cl!=null?cl.toFixed(1):cw!=null&&cb!=null?((cw*(1-cb/100)).toFixed(1)):"â€”", unit, lDelta, "lean")}
+      ${metricCard("Weight", cw!=null?cw.toFixed(1):"—", unit, wDelta, "weight")}
+      ${metricCard("Body fat", cb!=null?cb.toFixed(1):"—", "%", bDelta, "bf")}
+      ${metricCard("Lean est.", cl!=null?cl.toFixed(1):cw!=null&&cb!=null?((cw*(1-cb/100)).toFixed(1)):"—", unit, lDelta, "lean")}
     </div>
     <div class="metric-row">
-      ${metricCard("Waist", cwa!=null?cwa.toFixed(1):"â€”", mUnit, waDelta, "waist")}
-      ${metricCard("Hips", chi!=null?chi.toFixed(1):"â€”", mUnit, hiDelta, "hips")}
+      ${metricCard("Waist", cwa!=null?cwa.toFixed(1):"—", mUnit, waDelta, "waist")}
+      ${metricCard("Hips", chi!=null?chi.toFixed(1):"—", mUnit, hiDelta, "hips")}
     </div>
     <div class="chart-card">
       <div class="chart-tabs">
@@ -4582,8 +4582,8 @@ function renderBody() {
         <label class="field">Body fat %<input id="bf-input" type="number" step="0.1" inputmode="decimal" placeholder="Optional"></label>
       </div>
       <div class="field-grid" style="margin-top:10px">
-        <label class="field">Start weight${state.bodyTracking.startWeight!=null?`<span class="field-set-hint">${state.bodyTracking.startWeight} ${unit}</span>`:""}<input id="start-input" type="number" step="0.1" inputmode="decimal" placeholder="${state.bodyTracking.startWeight!=null?"Updateâ€¦":"Set once"}"></label>
-        <label class="field">Goal weight${state.bodyTracking.goalWeight!=null?`<span class="field-set-hint">${state.bodyTracking.goalWeight} ${unit}</span>`:""}<input id="goal-input" type="number" step="0.1" inputmode="decimal" placeholder="${state.bodyTracking.goalWeight!=null?"Updateâ€¦":"Target"}"></label>
+        <label class="field">Start weight${state.bodyTracking.startWeight!=null?`<span class="field-set-hint">${state.bodyTracking.startWeight} ${unit}</span>`:""}<input id="start-input" type="number" step="0.1" inputmode="decimal" placeholder="${state.bodyTracking.startWeight!=null?"Update…":"Set once"}"></label>
+        <label class="field">Goal weight${state.bodyTracking.goalWeight!=null?`<span class="field-set-hint">${state.bodyTracking.goalWeight} ${unit}</span>`:""}<input id="goal-input" type="number" step="0.1" inputmode="decimal" placeholder="${state.bodyTracking.goalWeight!=null?"Update…":"Target"}"></label>
       </div>
       <div class="field-grid" style="margin-top:10px">
         <label class="field">Waist (${mUnit})<input id="waist-input" type="number" step="0.1" inputmode="decimal" placeholder="${mUnit==="cm"?"80.0":"32.0"}"></label>
@@ -4598,7 +4598,7 @@ function renderBody() {
 function metricCard(label, value, unit, delta, type) {
   let deltaClass="", deltaText="No prior data";
   if (delta!==null) {
-    const abs=Math.abs(delta).toFixed(1); const arrow=delta<0?"â†“":delta>0?"â†‘":"â†’";
+    const abs=Math.abs(delta).toFixed(1); const arrow=delta<0?"↓":delta>0?"↑":"→";
     deltaText=`${arrow} ${abs} ${unit}`;
     const isGood=(type==="weight"||type==="bf"||type==="waist"||type==="hips")?delta<0:delta>0;
     deltaClass=delta===0?"":isGood?"good":"bad";
@@ -4654,14 +4654,14 @@ function renderWeighInHistory(entries) {
   <div class="more-card" style="margin-bottom:0">
     <div class="summary-list">
       ${shown.map(w=>`<div class="summary-row"><span>${w.date}</span>
-        <strong>${w.weight} ${unit}${w.bodyFat!=null?` Â· ${w.bodyFat}% fat`:""}${w.waist!=null?` Â· ${w.waist} ${mUnit} waist`:""}</strong>
+        <strong>${w.weight} ${unit}${w.bodyFat!=null?` · ${w.bodyFat}% fat`:""}${w.waist!=null?` · ${w.waist} ${mUnit} waist`:""}</strong>
       </div>`).join("")}
     </div>
-    ${remaining>0?`<button class="link-btn" data-show-more-history style="margin-top:10px">Show ${remaining} more â†“</button>`:""}
+    ${remaining>0?`<button class="link-btn" data-show-more-history style="margin-top:10px">Show ${remaining} more ↓</button>`:""}
   </div>`;
 }
 
-// â”€â”€ Badges Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Badges Tab ────────────────────────────────────────────────────────────
 
 function renderLevelProfile() {
   const info  = getLevelInfo(state.xp);
@@ -4683,7 +4683,7 @@ function renderLevelProfile() {
     </div>
     <div class="lp-xp-row">
       <span>${state.xp.toLocaleString()} XP total</span>
-      <span>${isMax ? "Max Level ðŸ†" : `${toNext.toLocaleString()} XP to Lv.${info.next.level}`}</span>
+      <span>${isMax ? "Max Level 🏆" : `${toNext.toLocaleString()} XP to Lv.${info.next.level}`}</span>
     </div>
     <div class="level-road">
       ${XP_LEVELS.map(lvl => {
@@ -4723,8 +4723,8 @@ function renderBadges() {
         <div class="badge-overview-label">badges earned</div>
       </div>
       <div class="badge-overall-track"><div class="badge-overall-fill" style="width:${pct}%"></div></div>
-      ${renderBadgeCat("ðŸŒ Universal", UNIVERSAL_BADGES, state.globalBadges, null)}
-      ${renderBadgeCat("ðŸ’Ž Lifetime Achievements", LIFETIME_BADGES, state.globalBadges, null)}
+      ${renderBadgeCat("🌍 Universal", UNIVERSAL_BADGES, state.globalBadges, null)}
+      ${renderBadgeCat("💎 Lifetime Achievements", LIFETIME_BADGES, state.globalBadges, null)}
       ${startedChallenges.map(c => {
         const tBadges = TEMPLATE_BADGES[c.templateId];
         if (!tBadges) return "";
@@ -4779,10 +4779,10 @@ function renderConsistencyChart(allChallenges) {
       </div>
       <div class="pchart-blur-overlay">
         <div class="pchart-pro-content">
-          <div class="pchart-pro-lock">ðŸ”’</div>
+          <div class="pchart-pro-lock">🔒</div>
           <div class="pchart-pro-title">Weekly consistency chart</div>
-          <div class="pchart-pro-sub">ðŸ“Š Charts Â· ðŸ† Leaderboards Â· ðŸ“¤ Export Â· ðŸ”” Per-habit reminders</div>
-          <button class="pchart-pro-btn" data-tab="challenges">Join Conqur Pro early access â†’</button>
+          <div class="pchart-pro-sub">📊 Charts · 🏆 Leaderboards · 📤 Export · 🔔 Per-habit reminders</div>
+          <button class="pchart-pro-btn" data-tab="challenges">Join Conqur Pro early access →</button>
         </div>
       </div>
     </div>
@@ -4828,15 +4828,15 @@ function renderNotifPrompt() {
   <div class="notif-prompt-overlay">
     <div class="notif-prompt-backdrop" data-notif-prompt-skip></div>
     <div class="notif-prompt" role="dialog" aria-modal="true">
-      <div class="notif-prompt-icon">ðŸ””</div>
-      <div class="notif-prompt-title">Day 1 done â€” great start!</div>
-      <div class="notif-prompt-sub">People with daily reminders are 3Ã— more likely to finish. When should we nudge you?</div>
+      <div class="notif-prompt-icon">🔔</div>
+      <div class="notif-prompt-title">Day 1 done — great start!</div>
+      <div class="notif-prompt-sub">People with daily reminders are 3× more likely to finish. When should we nudge you?</div>
       <div class="notif-time-row">
         <label class="notif-time-label">Reminder time</label>
         <input type="time" id="notif-time-input" class="notif-time-input" value="${curTime}">
       </div>
       <button class="primary-button" style="margin-top:16px" data-notif-prompt-enable>Enable Reminders</button>
-      <button class="link-btn notif-prompt-skip-btn" data-notif-prompt-skip>I'll risk forgetting â†’</button>
+      <button class="link-btn notif-prompt-skip-btn" data-notif-prompt-skip>I'll risk forgetting →</button>
     </div>
   </div>`;
 }
@@ -4853,7 +4853,7 @@ function renderBadgeSheet(badge) {
       <div class="badge-sheet-tier" style="color:${td.color}">${td.label}</div>
       <div class="badge-sheet-title">${esc(title)}</div>
       <div class="badge-sheet-desc">${esc(badge.desc)}</div>
-      <div class="badge-sheet-congrats">Achievement unlocked! ðŸŽ‰</div>
+      <div class="badge-sheet-congrats">Achievement unlocked! 🎉</div>
       <button class="primary-button badge-sheet-cta" data-close-badge-sheet>Awesome!</button>
     </div>
   </div>`;
@@ -4869,13 +4869,13 @@ function renderBackupNudge(challenge) {
   if (!shouldShowBackupNudge(challenge)) return "";
   return `
   <div class="backup-nudge">
-    <button class="backup-nudge-close" data-dismiss-backup-nudge aria-label="Dismiss">Ã—</button>
-    <div class="backup-nudge-icon">â˜ï¸</div>
+    <button class="backup-nudge-close" data-dismiss-backup-nudge aria-label="Dismiss">×</button>
+    <div class="backup-nudge-icon">☁️</div>
     <div class="backup-nudge-body">
       <div class="backup-nudge-title">Protect your progress</div>
-      <div class="backup-nudge-sub">You've built a solid streak â€” back it up so you never lose it.</div>
+      <div class="backup-nudge-sub">You've built a solid streak — back it up so you never lose it.</div>
     </div>
-    <button class="secondary-button" style="margin-top:8px;width:100%" data-preview-onboarding>Back up free â†’</button>
+    <button class="secondary-button" style="margin-top:8px;width:100%" data-preview-onboarding>Back up free →</button>
   </div>`;
 }
 
@@ -4884,17 +4884,17 @@ function renderAlmostThereBadge(challenge, streak) {
   const next = milestones.find(m => m > streak && (m - streak) <= 2);
   if (!next) return "";
   const diff = next - streak;
-  return `<div class="almost-badge-chip">ðŸ… ${diff === 1 ? "One more day" : "2 days"} to unlock your ${next}-day badge!</div>`;
+  return `<div class="almost-badge-chip">🏅 ${diff === 1 ? "One more day" : "2 days"} to unlock your ${next}-day badge!</div>`;
 }
 
-// â”€â”€ Settings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Settings ──────────────────────────────────────────────────────────────
 
-// â”€â”€ Onboarding â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Onboarding ────────────────────────────────────────────────────────────
 
 const ONBOARDING_STEPS = [
-  { emoji:"ðŸŽ¯", title:"Pick a challenge",  body:"Choose from 50+ challenges â€” from Daily Journaling to the Pacific Crest Trail. Each one comes with daily habits to check off." },
-  { emoji:"â­", title:"Earn points daily",  body:"Every habit you check earns points and XP. Hit your weekly goal to unlock a badge and a streak freeze. Points reset Monday â€” streaks and XP don't." },
-  { emoji:"ðŸ”¥", title:"Come back tomorrow", body:"Your streak grows every day you log. Miss a day? Soft mode gives you grace. Rest days are built in. One day at a time." },
+  { emoji:"🎯", title:"Pick a challenge",  body:"Choose from 50+ challenges — from Daily Journaling to the Pacific Crest Trail. Each one comes with daily habits to check off." },
+  { emoji:"⭐", title:"Earn points daily",  body:"Every habit you check earns points and XP. Hit your weekly goal to unlock a badge and a streak freeze. Points reset Monday — streaks and XP don't." },
+  { emoji:"🔥", title:"Come back tomorrow", body:"Your streak grows every day you log. Miss a day? Soft mode gives you grace. Rest days are built in. One day at a time." },
 ];
 // onboardingStep: 0 = hero, 1-3 = info slides, 4 = account screen
 
@@ -4908,31 +4908,31 @@ function renderObHero() {
       <div class="ob-hero-tagline">Build the habits.<br>${theme.tagline}.</div>
     </div>
     <ul class="ob-features" aria-label="App features">
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">ðŸŽ¯</span><span>50+ challenges â€” from journaling to epic trails</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">â­</span><span>Daily points, streaks &amp; badges</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">ðŸ˜´</span><span>Rest days &amp; streak protection built in</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">ðŸ“´</span><span>Works offline â€” no account required</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">🎯</span><span>50+ challenges — from journaling to epic trails</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">⭐</span><span>Daily points, streaks &amp; badges</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">😴</span><span>Rest days &amp; streak protection built in</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">📴</span><span>Works offline — no account required</span></li>
     </ul>
-    <button class="primary-button ob-cta" data-ob-next>Let's go â†’</button>
+    <button class="primary-button ob-cta" data-ob-next>Let's go →</button>
     <button class="link-btn ob-link" data-ob-to-signin>Already have an account? Sign in</button>
   </div>`;
 }
 
 function renderObGoal() {
   const goals = [
-    { emoji:"ðŸƒ", label:"Get Active",          desc:"Walking, running, cycling",              template:"walking" },
-    { emoji:"ðŸ’ª", label:"Transform My Body",    desc:"75 Hard, nutrition, strength",           template:"75-soft" },
-    { emoji:"â¤ï¸", label:"Track My Health",      desc:"Weight, BP, glucose, sleep",             template:"sleep-tracker" },
-    { emoji:"ðŸŒ±", label:"Build Better Habits",  desc:"Morning routine, journaling, focus",     template:"morning-routine" },
-    { emoji:"ðŸ†", label:"Train for an Event",   desc:"Half marathon, ironman, OCR race",       template:"half-marathon-prep" },
-    { emoji:"ðŸ—ºï¸", label:"Conquer a Route",      desc:"Pacific Crest Trail, Camino, UTMB",     template:"camino" },
+    { emoji:"🏃", label:"Get Active",          desc:"Walking, running, cycling",              template:"walking" },
+    { emoji:"💪", label:"Transform My Body",    desc:"75 Hard, nutrition, strength",           template:"75-soft" },
+    { emoji:"❤️", label:"Track My Health",      desc:"Weight, BP, glucose, sleep",             template:"sleep-tracker" },
+    { emoji:"🌱", label:"Build Better Habits",  desc:"Morning routine, journaling, focus",     template:"morning-routine" },
+    { emoji:"🏆", label:"Train for an Event",   desc:"Half marathon, ironman, OCR race",       template:"half-marathon-prep" },
+    { emoji:"🗺️", label:"Conquer a Route",      desc:"Pacific Crest Trail, Camino, UTMB",     template:"camino" },
   ];
   return `
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
-      <div class="ob-emoji" aria-hidden="true">ðŸŽ¯</div>
+      <div class="ob-emoji" aria-hidden="true">🎯</div>
       <div class="ob-title">What's your main goal?</div>
-      <div class="ob-body">We'll open your recommended challenge â€” ready to start.</div>
+      <div class="ob-body">We'll open your recommended challenge — ready to start.</div>
     </div>
     <div class="ob-goal-grid">
       ${goals.map(g => `
@@ -4942,22 +4942,22 @@ function renderObGoal() {
           <div class="ob-goal-label">${g.label}</div>
           <div class="ob-goal-desc">${g.desc}</div>
         </div>
-        <span class="ob-goal-arrow">â†’</span>
+        <span class="ob-goal-arrow">→</span>
       </button>`).join("")}
     </div>
-    <button class="link-btn ob-link" data-ob-next>Skip â€” I'll choose myself â†’</button>
+    <button class="link-btn ob-link" data-ob-next>Skip — I'll choose myself →</button>
   </div>`;
 }
 
 function renderObSlide() {
   const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
   const slides = [
-    { emoji:"ðŸŽ¯", title:"Pick your challenge",
-      body:`Choose from 50+ challenges â€” from daily journaling to epic trails. Each one comes with daily habits to check off and XP to earn on your <strong>${theme.label}</strong> journey.` },
+    { emoji:"🎯", title:"Pick your challenge",
+      body:`Choose from 50+ challenges — from daily journaling to epic trails. Each one comes with daily habits to check off and XP to earn on your <strong>${theme.label}</strong> journey.` },
     { emoji:theme.emoji, title:"Earn XP. Level up.",
-      body:`Every habit you log earns XP. You start as a <strong>${theme.levels[0]}</strong> and climb all the way to Level 25 â€” <strong>${theme.levels[24]}</strong>. A real badge of persistence.` },
-    { emoji:"ðŸ”¥", title:"Show up every day.",
-      body:`Your streak grows every day you log. Weekly points reset Monday â€” but your XP and level never do. Every session brings you closer to the top.` },
+      body:`Every habit you log earns XP. You start as a <strong>${theme.levels[0]}</strong> and climb all the way to Level 25 — <strong>${theme.levels[24]}</strong>. A real badge of persistence.` },
+    { emoji:"🔥", title:"Show up every day.",
+      body:`Your streak grows every day you log. Weekly points reset Monday — but your XP and level never do. Every session brings you closer to the top.` },
   ];
   const step = slides[onboardingStep - 2];
   const dots = ONBOARDING_STEPS.map((_,i) =>
@@ -4971,8 +4971,8 @@ function renderObSlide() {
       <div class="ob-body">${step.body}</div>
     </div>
     <div class="ob-dots" aria-hidden="true">${dots}</div>
-    <button class="primary-button ob-cta" data-ob-next>${isLast ? "Let's go â†’" : "Next â†’"}</button>
-    <button class="link-btn ob-link" data-ob-skip>Skip intro â†’</button>
+    <button class="primary-button ob-cta" data-ob-next>${isLast ? "Let's go →" : "Next →"}</button>
+    <button class="link-btn ob-link" data-ob-skip>Skip intro →</button>
   </div>`;
 }
 
@@ -4981,7 +4981,7 @@ function renderObName() {
   return `
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
-      <div class="ob-emoji" aria-hidden="true">ðŸ‘‹</div>
+      <div class="ob-emoji" aria-hidden="true">👋</div>
       <div class="ob-title">What should we call you?</div>
       <div class="ob-body">We'll use your name to cheer you on along the way.</div>
     </div>
@@ -4990,7 +4990,7 @@ function renderObName() {
         First name
         <input id="ob-name" type="text" placeholder="Your name" autocomplete="given-name" value="${esc(saved)}">
       </label>
-      <button class="primary-button ob-cta" data-ob-save-name>Continue â†’</button>
+      <button class="primary-button ob-cta" data-ob-save-name>Continue →</button>
     </div>
     <button class="link-btn ob-link ob-link--faint" data-ob-skip-name>Skip</button>
   </div>`;
@@ -5001,7 +5001,7 @@ function renderObAccount() {
   return `
   <div class="ob-screen ob-screen--account" role="main">
     <div class="ob-slide-inner">
-      <div class="ob-emoji" aria-hidden="true">â˜ï¸</div>
+      <div class="ob-emoji" aria-hidden="true">☁️</div>
       <div class="ob-title">${isSignin ? "Welcome back" : "Save your progress"}</div>
       <div class="ob-body">${isSignin
         ? "Sign in to restore your challenges, streaks and badges."
@@ -5009,7 +5009,7 @@ function renderObAccount() {
     </div>
     ${_obAuthError ? `<div class="ob-auth-error">${esc(_obAuthError)}</div>` : ""}
     ${_obAuthLoading
-      ? `<div class="ob-loading">One momentâ€¦</div>`
+      ? `<div class="ob-loading">One moment…</div>`
       : `<div class="ob-form">
           <label class="field ob-field">
             Email
@@ -5017,14 +5017,14 @@ function renderObAccount() {
           </label>
           <label class="field ob-field">
             Password${!isSignin ? ` <span class="ob-pw-hint">(min 8 characters)</span>` : ""}
-            <input id="ob-password" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="${isSignin ? "current-password" : "new-password"}">
+            <input id="ob-password" type="password" placeholder="••••••••" autocomplete="${isSignin ? "current-password" : "new-password"}">
           </label>
           <button class="primary-button ob-cta" data-ob-auth>${isSignin ? "Sign In" : "Create Account"}</button>
         </div>`}
     <button class="link-btn ob-link" data-ob-toggle-auth>
       ${isSignin ? "No account yet? Create one" : "Already have an account? Sign in"}
     </button>
-    <button class="link-btn ob-link ob-link--faint" data-ob-skip-account>Skip â€” use offline</button>
+    <button class="link-btn ob-link ob-link--faint" data-ob-skip-account>Skip — use offline</button>
     ${!isSignin ? `<p class="ob-privacy-note">By creating an account you agree to our <a href="/privacy.html" target="_blank" class="ob-privacy-link">Privacy Policy</a>.</p>` : ""}
   </div>`;
 }
@@ -5034,9 +5034,9 @@ function renderObJourney() {
   return `
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
-      <div class="ob-emoji" aria-hidden="true">ðŸ—ºï¸</div>
+      <div class="ob-emoji" aria-hidden="true">🗺️</div>
       <div class="ob-title">Choose your journey</div>
-      <div class="ob-body">Pick the world that fits you. It changes your level names and app colors â€” and you can switch anytime in Settings.</div>
+      <div class="ob-body">Pick the world that fits you. It changes your level names and app colors — and you can switch anytime in Settings.</div>
     </div>
     <div class="ob-journey-grid">
       ${Object.entries(JOURNEY_THEMES).map(([id, t]) => `
@@ -5047,10 +5047,10 @@ function renderObJourney() {
           <div class="ob-journey-sub">${t.tagline}</div>
           <div class="ob-journey-peak">Lv.25: ${t.levels[24]}</div>
         </div>
-        ${cur === id ? `<span class="ob-journey-check">âœ“</span>` : ""}
+        ${cur === id ? `<span class="ob-journey-check">✓</span>` : ""}
       </button>`).join("")}
     </div>
-    <button class="primary-button ob-cta" data-ob-next>Continue â†’</button>
+    <button class="primary-button ob-cta" data-ob-next>Continue →</button>
   </div>`;
 }
 
@@ -5068,14 +5068,14 @@ function renderDataSettings() {
   <div class="section-label" style="margin-top:20px">Data</div>
   <div class="more-card">
     <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px">Export a full backup of your challenges, body tracking, and badges as a JSON file.</div>
-    <button class="secondary-button" data-export-data>Export backup â†“</button>
+    <button class="secondary-button" data-export-data>Export backup ↓</button>
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
       <div style="font-size:13px;color:var(--text-dim);margin-bottom:8px">Restore from a previously exported backup.</div>
       <label class="secondary-button" style="display:inline-block;cursor:pointer">
-        Restore backup â†‘
+        Restore backup ↑
         <input type="file" id="import-file-input" accept=".json" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none">
       </label>
-      <div style="font-size:12px;color:var(--text-dim);margin-top:8px">âš ï¸ Restoring will overwrite all current data.</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-top:8px">⚠️ Restoring will overwrite all current data.</div>
     </div>
   </div>
   <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
@@ -5093,7 +5093,7 @@ function renderDataSettings() {
   </div>
   <div style="margin-top:20px;text-align:center">
     <a href="/privacy.html" target="_blank" style="font-size:12px;color:var(--text-dim);text-decoration:none">Privacy Policy</a>
-    <span style="font-size:12px;color:var(--text-faint);margin:0 8px">Â·</span>
+    <span style="font-size:12px;color:var(--text-faint);margin:0 8px">·</span>
     <span style="font-size:12px;color:var(--text-faint)">v${APP_VERSION}</span>
   </div>
   <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);text-align:center">
@@ -5116,23 +5116,23 @@ function renderReminderSettings() {
     const isSafari  = /Safari/.test(ua) && !/Chrome/.test(ua);
     const isEdge    = /Edg/.test(ua);
     let steps = isChrome
-      ? `Click the <strong>ðŸ”’ lock icon</strong> in your address bar â†’ <strong>Notifications</strong> â†’ <strong>Allow</strong>`
+      ? `Click the <strong>🔒 lock icon</strong> in your address bar → <strong>Notifications</strong> → <strong>Allow</strong>`
       : isEdge
-      ? `Click the <strong>ðŸ”’ lock icon</strong> in your address bar â†’ <strong>Permissions for this site</strong> â†’ Notifications â†’ <strong>Allow</strong>`
+      ? `Click the <strong>🔒 lock icon</strong> in your address bar → <strong>Permissions for this site</strong> → Notifications → <strong>Allow</strong>`
       : isFirefox
-      ? `Click the <strong>ðŸ›¡ shield icon</strong> in your address bar â†’ <strong>Permissions</strong> â†’ Allow Notifications`
+      ? `Click the <strong>🛡 shield icon</strong> in your address bar → <strong>Permissions</strong> → Allow Notifications`
       : isSafari
-      ? `Go to <strong>Safari menu â†’ Settings for This Website â†’ Notifications â†’ Allow</strong>`
-      : `Click the icon next to the address bar â†’ find <strong>Notifications</strong> â†’ set to <strong>Allow</strong>`;
+      ? `Go to <strong>Safari menu → Settings for This Website → Notifications → Allow</strong>`
+      : `Click the icon next to the address bar → find <strong>Notifications</strong> → set to <strong>Allow</strong>`;
     body = `
     <div style="text-align:center;padding:8px 0">
-      <div style="font-size:32px;margin-bottom:10px">ðŸ”•</div>
+      <div style="font-size:32px;margin-bottom:10px">🔕</div>
       <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px">Notifications are blocked</div>
       <div style="font-size:13px;color:var(--text-dim);line-height:1.6;margin-bottom:14px">${steps}, then tap the button below.</div>
-      <button class="secondary-button" style="width:100%" onclick="window.location.reload()">I've enabled them â€” reload â†»</button>
+      <button class="secondary-button" style="width:100%" onclick="window.location.reload()">I've enabled them — reload ↻</button>
     </div>`;
   } else if (perm === "default") {
-    body = `<button class="primary-button" data-request-notif-permission>Enable reminders ðŸ””</button>
+    body = `<button class="primary-button" data-request-notif-permission>Enable reminders 🔔</button>
             <p class="reminder-note" style="margin-top:8px">We'll nudge you once a day if habits are still open.</p>`;
   } else {
     body = `
@@ -5160,37 +5160,37 @@ function renderReminderSettings() {
 
 function renderProSection() {
   if (CloudSync.isSignedIn) {
-    // Already a member â€” show compact "Pro" badge + sync controls
+    // Already a member — show compact "Pro" badge + sync controls
     return `
-    <div class="section-label">â˜ï¸ Cloud Backup</div>
+    <div class="section-label">☁️ Cloud Backup</div>
     <div class="more-card" style="margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-        <span style="font-size:18px">âœ…</span>
+        <span style="font-size:18px">✅</span>
         <div>
           <div style="font-size:13px;font-weight:700;color:var(--text)">${esc(CloudSync.userEmail || "")}</div>
           <div style="font-size:11px;color:var(--text-dim)">Data auto-syncs after each save</div>
         </div>
       </div>
       <div style="display:flex;gap:8px">
-        <button class="secondary-button" style="flex:1" data-cloud-sync>${_cloudAuthLoading?"Syncingâ€¦":"Sync Now"}</button>
+        <button class="secondary-button" style="flex:1" data-cloud-sync>${_cloudAuthLoading?"Syncing…":"Sync Now"}</button>
         <button class="secondary-button" style="flex:1" data-cloud-signout>Sign Out</button>
       </div>
     </div>`;
   }
   return `
-  <div class="section-label">â­ Conqur Pro</div>
+  <div class="section-label">⭐ Conqur Pro</div>
   <div class="more-card" style="margin-bottom:14px;background:linear-gradient(135deg,var(--primary-haze),var(--secondary-soft));border:1px solid var(--primary-glow)">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div style="font-size:16px;font-weight:900;color:var(--text)">Free forever â€” plus backup</div>
+      <div style="font-size:16px;font-weight:900;color:var(--text)">Free forever — plus backup</div>
       <div style="font-size:11px;font-weight:700;color:var(--primary);background:var(--primary-haze);border-radius:99px;padding:3px 10px">$4.99/mo</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">
-      <div style="font-size:13px;color:var(--text-dim);display:flex;gap:8px;align-items:flex-start"><span>â˜ï¸</span><span><strong style="color:var(--text)">Cloud backup</strong> â€” your streaks and badges survive a phone wipe or device switch</span></div>
-      <div style="font-size:13px;color:var(--text-dim);display:flex;gap:8px;align-items:flex-start"><span>ðŸ”„</span><span><strong style="color:var(--text)">Sync across devices</strong> â€” log on your phone, review on your tablet</span></div>
-      <div style="font-size:13px;color:var(--text-dim);display:flex;gap:8px;align-items:flex-start"><span>ðŸš€</span><span><strong style="color:var(--text)">Support development</strong> â€” early access to new challenges and features</span></div>
+      <div style="font-size:13px;color:var(--text-dim);display:flex;gap:8px;align-items:flex-start"><span>☁️</span><span><strong style="color:var(--text)">Cloud backup</strong> — your streaks and badges survive a phone wipe or device switch</span></div>
+      <div style="font-size:13px;color:var(--text-dim);display:flex;gap:8px;align-items:flex-start"><span>🔄</span><span><strong style="color:var(--text)">Sync across devices</strong> — log on your phone, review on your tablet</span></div>
+      <div style="font-size:13px;color:var(--text-dim);display:flex;gap:8px;align-items:flex-start"><span>🚀</span><span><strong style="color:var(--text)">Support development</strong> — early access to new challenges and features</span></div>
     </div>
     ${_cloudAuthError ? `<div class="cloud-auth-error">${esc(_cloudAuthError)}</div>` : ""}
-    ${_cloudAuthLoading ? `<div style="text-align:center;padding:12px;color:var(--text-dim);font-size:14px">Loadingâ€¦</div>` : `
+    ${_cloudAuthLoading ? `<div style="text-align:center;padding:12px;color:var(--text-dim);font-size:14px">Loading…</div>` : `
     <label class="field" style="margin-bottom:10px">
       Email
       <input id="cloud-email" type="email" placeholder="your@email.com" autocomplete="email" inputmode="email">
@@ -5201,7 +5201,7 @@ function renderProSection() {
     </label>
     <div style="display:flex;gap:8px">
       <button class="secondary-button" style="flex:1" data-cloud-signin>Sign In</button>
-      <button class="primary-button" style="flex:1" data-cloud-signup>Create Account â†’</button>
+      <button class="primary-button" style="flex:1" data-cloud-signup>Create Account →</button>
     </div>`}
   </div>`;
 }
@@ -5236,7 +5236,7 @@ function renderSettings() {
               <div class="ob-journey-sub">${t.tagline}</div>
               <div class="ob-journey-peak">Lv.25: ${t.levels[24]}</div>
             </div>
-            ${active ? `<span class="ob-journey-check">âœ“</span>` : ""}
+            ${active ? `<span class="ob-journey-check">✓</span>` : ""}
           </button>`;
         }).join("")}
       </div>
@@ -5260,13 +5260,13 @@ function renderSettings() {
     </div>
     <div class="section-label" style="margin-top:20px">How Conqur Works</div>
     <div class="more-card" style="font-size:13px;line-height:1.65;color:var(--text-dim)">
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">ðŸŽ¯ Challenges</strong> â€” Pick one of 50+ challenges. Each has daily habits to check off. Complete all habits for the day to earn full points.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">â­ Points &amp; Weekly Goal</strong> â€” Each habit is worth points. Hit your weekly goal to earn a streak freeze. Points reset each Monday; XP and streaks don't.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">ðŸ”¥ Streaks</strong> â€” Your streak grows every day you log all habits. Soft mode gives you one grace day before it breaks. Rest days don't break streaks.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">ðŸ˜´ Rest Days</strong> â€” Each challenge allows up to 3 rest days. They're planned recovery â€” not failures.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">âš¡ XP &amp; Levels</strong> â€” XP accumulates from points across all challenges and never resets. Climb from Base Camp all the way to Everest.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">ðŸ” Phases</strong> â€” Longer challenges are split into phases so the finish line always feels reachable. Each phase completion is celebrated.</div>
-      <div><strong style="color:var(--text)">ðŸ… Badges</strong> â€” Earn badges for streaks, weekly goals, and challenge completions. Proof of everything you've built.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">🎯 Challenges</strong> — Pick one of 50+ challenges. Each has daily habits to check off. Complete all habits for the day to earn full points.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">⭐ Points &amp; Weekly Goal</strong> — Each habit is worth points. Hit your weekly goal to earn a streak freeze. Points reset each Monday; XP and streaks don't.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">🔥 Streaks</strong> — Your streak grows every day you log all habits. Soft mode gives you one grace day before it breaks. Rest days don't break streaks.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">😴 Rest Days</strong> — Each challenge allows up to 3 rest days. They're planned recovery — not failures.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">⚡ XP &amp; Levels</strong> — XP accumulates from points across all challenges and never resets. Climb from Base Camp all the way to Everest.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">🏔 Phases</strong> — Longer challenges are split into phases so the finish line always feels reachable. Each phase completion is celebrated.</div>
+      <div><strong style="color:var(--text)">🏅 Badges</strong> — Earn badges for streaks, weekly goals, and challenge completions. Proof of everything you've built.</div>
     </div>
     ${renderProSection()}
     ${renderReminderSettings()}
@@ -5274,7 +5274,7 @@ function renderSettings() {
   </main>`;
 }
 
-// â”€â”€ Dynamic Visuals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Dynamic Visuals ───────────────────────────────────────────────────────
 
 function updateRingVisuals() {
   const ring = document.querySelector(".ring-value");
@@ -5284,7 +5284,7 @@ function updateRingVisuals() {
   ring.style.strokeDashoffset = RING_CIRC - (pct/100)*RING_CIRC;
 }
 
-// â”€â”€ Events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Events ────────────────────────────────────────────────────────────────
 
 function bindEvents() {
   on("[data-tab]",          el => { activeTab=el.dataset.tab; challengeSubTab="habits"; builderOpen=false; settingsOpen=false; viewChallengeId=null; editChallengeId=null; editForm=null; viewingDate=null; render(); });
@@ -5371,7 +5371,7 @@ function bindEvents() {
     // update the desc text inline without full re-render
     const row = el.closest(".joker-budget-row");
     const desc = row?.querySelector(".mode-desc");
-    if (desc) desc.textContent = builderForm.jokerBudget === 0 ? "Zero compromise â€” no rest days." : `${builderForm.jokerBudget} planned day${builderForm.jokerBudget===1?"":"s"} off. Use them wisely.`;
+    if (desc) desc.textContent = builderForm.jokerBudget === 0 ? "Zero compromise — no rest days." : `${builderForm.jokerBudget} planned day${builderForm.jokerBudget===1?"":"s"} off. Use them wisely.`;
   });
   on("[data-builder-back]", () => {
     if (builderStep === "customize")  { builderStep = "quickstart"; render(); }
@@ -5424,8 +5424,8 @@ function bindEvents() {
     const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate)+1;
     const dayNum    = challengeDayNumber(_shareModalChallenge);
     const text = _shareModalDone
-      ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! ðŸ†\n${totalDays} days Â· ${totalPts} pts Â· ${streak}-day streak.\nBuilding habits that stick. ðŸ’ª\nconqur.netlify.app`
-      : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge â€” ${streak}-day streak. ðŸ”¥\nBuilding habits one day at a time.\nconqur.netlify.app`;
+      ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\nconqur.netlify.app`
+      : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\nconqur.netlify.app`;
     if (navigator.share) {
       fetch(_shareCardDataUrl).then(r=>r.blob()).then(blob => {
         const file = new File([blob], "conqur-share.png", { type:"image/png" });
@@ -5451,14 +5451,14 @@ function bindEvents() {
     const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate)+1;
     const dayNum    = challengeDayNumber(_shareModalChallenge);
     const text = _shareModalDone
-      ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! ðŸ†\n${totalDays} days Â· ${totalPts} pts Â· ${streak}-day streak.\nBuilding habits that stick. ðŸ’ª\nconqur.netlify.app`
-      : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge â€” ${streak}-day streak. ðŸ”¥\nBuilding habits one day at a time.\nconqur.netlify.app`;
+      ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\nconqur.netlify.app`
+      : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\nconqur.netlify.app`;
     navigator.clipboard?.writeText(text).then(() => showToast("Copied!")).catch(() => showToast(text));
   });
   on("[data-dismiss-notif-nudge]", () => { _notifNudgeDismissed = true; render(); });
   on("[data-log-today-weight]", () => logTodayWeight());
 
-  // â”€â”€ Cloud Sync auth handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Cloud Sync auth handlers ───────────────────────────────────────────────
   on("[data-cloud-signin]", async () => {
     const email    = document.getElementById("cloud-email")?.value?.trim();
     const password = document.getElementById("cloud-password")?.value;
@@ -5467,7 +5467,7 @@ function bindEvents() {
     const res = await CloudSync.signIn(email, password);
     _cloudAuthLoading = false;
     if (res.error) { _cloudAuthError = res.error; render(); return; }
-    showToast("âœ… Signed in! Data restored.");
+    showToast("✅ Signed in! Data restored.");
     render();
   });
   on("[data-cloud-signup]", async () => {
@@ -5479,7 +5479,7 @@ function bindEvents() {
     const res = await CloudSync.signUp(email, password);
     _cloudAuthLoading = false;
     if (res.error) { _cloudAuthError = res.error; render(); return; }
-    showToast("âœ… Account created! Data syncing to cloud.");
+    showToast("✅ Account created! Data syncing to cloud.");
     render();
   });
   on("[data-cloud-signout]",   () => { CloudSync.signOut(); _cloudAuthError = ""; render(); });
@@ -5508,15 +5508,15 @@ function bindEvents() {
     _cloudAuthLoading = true; render();
     await CloudSync.push();
     _cloudAuthLoading = false;
-    showToast("â˜ï¸ Data synced to cloud."); render();
+    showToast("☁️ Data synced to cloud."); render();
   });
   on("[data-edit-challenge]", el => {
     const c = getChallenge(el.dataset.editChallenge); if (!c) return;
     editForm = {
       mode: c.mode,
-      habits: JSON.parse(JSON.stringify(c.habits)),  // deep copy â€” Cancel discards this
+      habits: JSON.parse(JSON.stringify(c.habits)),  // deep copy — Cancel discards this
       habitEditIdx: null,
-      newHabitEmoji: "â­", newHabitTitle: "", newHabitPoints: 2,
+      newHabitEmoji: "⭐", newHabitTitle: "", newHabitPoints: 2,
       newHabitType: "binary",
       newHabitTiers: [{ label:"", points:1 }, { label:"", points:2 }, { label:"", points:3 }],
     };
@@ -5528,7 +5528,7 @@ function bindEvents() {
   on("[data-ec-mode]",       el => { if (editForm) { editForm.mode=el.dataset.ecMode; render(); } });
   on("[data-save-edit]",         () => saveEditChallenge());
 
-  // â”€â”€ Habit CRUD inside Edit Challenge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Habit CRUD inside Edit Challenge ──────────────────────────────────────
   on("[data-ec-edit-habit]", el => {
     if (!editForm) return;
     editForm.habitEditIdx = Number(el.dataset.ecEditHabit);
@@ -5543,7 +5543,7 @@ function bindEvents() {
     if (!editForm || editForm.habitEditIdx == null) return;
     const i = editForm.habitEditIdx;
     const h = editForm.habits[i];
-    const emoji = (document.getElementById("ech-emoji")?.value || "â­").trim() || "â­";
+    const emoji = (document.getElementById("ech-emoji")?.value || "⭐").trim() || "⭐";
     const title = (document.getElementById("ech-title")?.value || "").trim();
     if (!title) { showToast("Habit needs a name."); return; }
     if (h.type === "tiered") {
@@ -5571,7 +5571,7 @@ function bindEvents() {
   });
   on("[data-ec-add-habit]", () => {
     if (!editForm) return;
-    const emoji = (document.getElementById("ech-new-emoji")?.value || "â­").trim() || "â­";
+    const emoji = (document.getElementById("ech-new-emoji")?.value || "⭐").trim() || "⭐";
     const title = (document.getElementById("ech-new-title")?.value || "").trim();
     if (!title) { showToast("Enter a habit name."); return; }
     if (editForm.newHabitType === "tiered") {
@@ -5586,7 +5586,7 @@ function bindEvents() {
       const pts = Math.max(1, Math.min(20, Number(document.getElementById("ech-new-pts")?.value) || 2));
       editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "binary", points: pts });
     }
-    editForm.newHabitEmoji  = "â­";
+    editForm.newHabitEmoji  = "⭐";
     editForm.newHabitTitle  = "";
     editForm.newHabitPoints = 2;
     editForm.newHabitType   = "binary";
@@ -5616,7 +5616,7 @@ function bindEvents() {
   on("[data-ech-type]", el => {
     if (!editForm) return;
     const newTitle = document.getElementById("ech-new-title")?.value || "";
-    const newEmoji = document.getElementById("ech-new-emoji")?.value || "â­";
+    const newEmoji = document.getElementById("ech-new-emoji")?.value || "⭐";
     editForm.newHabitTiers = (editForm.newHabitTiers || []).map((t, i) => ({
       ...t,
       label:  document.getElementById(`ech-tier-${i}-label`)?.value ?? t.label,
@@ -5658,7 +5658,7 @@ function bindEvents() {
     keys.forEach(k => localStorage.removeItem(k));
     CloudSync.signOut().catch(() => {}).finally(() => window.location.reload());
   });
-  // Import file â€” delegated so it works when settings panel opens after first render
+  // Import file — delegated so it works when settings panel opens after first render
   document.addEventListener("change", e => {
     if (!e.target.matches("#import-file-input")) return;
     const file = e.target.files?.[0]; if (!file) return;
@@ -5666,22 +5666,22 @@ function bindEvents() {
     reader.onload = ev => {
       try {
         const parsed = JSON.parse(ev.target.result);
-        // Basic shape check â€” must look like a Conqur backup
+        // Basic shape check — must look like a Conqur backup
         if (!parsed || typeof parsed !== "object" || !("challenges" in parsed)) {
           showToast("That doesn't look like a Conqur backup file."); return;
         }
         const cCount = Object.keys(parsed.challenges || {}).length;
         const normalized = normalizeState(parsed);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
-        showToast(`Backup restored (${cCount} challenge${cCount===1?"":"s"})! Reloadingâ€¦`);
+        showToast(`Backup restored (${cCount} challenge${cCount===1?"":"s"})! Reloading…`);
         setTimeout(() => window.location.reload(), 1400);
       } catch(err) {
-        showToast("Invalid backup file â€” couldn't restore.");
+        showToast("Invalid backup file — couldn't restore.");
       }
     };
     reader.readAsText(file);
   });
-  // â”€â”€ Onboarding navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Onboarding navigation ──────────────────────────────────────────────────
   on("[data-ob-journey]", el => {
     const id = el.dataset.obJourney;
     if (!JOURNEY_THEMES[id]) return;
@@ -5704,7 +5704,7 @@ function bindEvents() {
     render();
   });
   on("[data-ob-skip]", () => {
-    // Skip info slides â†’ jump straight to name screen
+    // Skip info slides → jump straight to name screen
     onboardingStep = ONBOARDING_STEPS.length + 2;
     _obAuthError = "";
     render();
@@ -5763,7 +5763,7 @@ function bindEvents() {
     _obAuthLoading = false;
     if (res.error) { _obAuthError = res.error; render(); return; }
     trackEvent(_obAuthMode === "signup" ? "Account Created" : "Sign In");
-    // Success â€” go to challenge picker (signup) or today tab (signin with existing data)
+    // Success — go to challenge picker (signup) or today tab (signin with existing data)
     onboardingStep = null;
     if (_obAuthMode === "signin" && Object.keys(state.challenges).length > 0) {
       activeTab = "today";
@@ -5794,7 +5794,7 @@ function bindEvents() {
         const strip = document.querySelector('[id^="pp-strip-"]');
         if (strip) delete strip.dataset.loaded;
         render();
-      } catch(e) { showToast("Couldn't delete photo â€” try again."); }
+      } catch(e) { showToast("Couldn't delete photo — try again."); }
     });
   });
   on("[data-show-more-history]",() => { bodyHistoryLimit += 10; render(); });
@@ -5827,7 +5827,7 @@ function bindEvents() {
     const inputVal = Math.max(0, parseFloat(e.target.value) || 0);
     logMeasurement(habitId, inputVal);
   });
-  // Distance habit input â€” delegated change event (persists across re-renders)
+  // Distance habit input — delegated change event (persists across re-renders)
   document.addEventListener("change", e => {
     if (!e.target.matches("[data-distance-habit]")) return;
     const habitId  = e.target.dataset.distanceHabit;
@@ -5845,14 +5845,14 @@ function bindEvents() {
 }
 
 function on(sel, fn) {
-  // Proper event delegation â€” works after DOM re-renders because the listener lives on document
+  // Proper event delegation — works after DOM re-renders because the listener lives on document
   document.addEventListener("click", e => {
     const el = e.target.closest(sel);
     if (el) fn(el, e);
   });
 }
 
-// â”€â”€ Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Actions ───────────────────────────────────────────────────────────────
 
 function currentChallenge() {
   if (!todayChallengeId) {
@@ -5867,14 +5867,14 @@ function setMode(mode) {
   // Block rest day if template forbids it, or if joker budget is exhausted
   if (mode === "rest") {
     const tpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
-    if (tpl?.noRestDay) { showToast("No rest days on this challenge â€” that's the point. ðŸ’ª"); return; }
+    if (tpl?.noRestDay) { showToast("No rest days on this challenge — that's the point. 💪"); return; }
     const dayKey = effectiveDate();
     const alreadyRest = c.days[dayKey]?.mode === "rest";
     if (!alreadyRest) {
       const used = Object.values(c.days).filter(d => d.mode === "rest").length;
       const budget = c.jokerBudget ?? 3;
       if (used >= budget) {
-        showToast(`No rest days left â€” you used all ${budget}. Keep going. ðŸ’ª`);
+        showToast(`No rest days left — you used all ${budget}. Keep going. 💪`);
         return;
       }
     }
@@ -5911,7 +5911,7 @@ function toggleHabit(id) {
     const _luT = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
     setTimeout(() => { _levelUpOverlay = { level: lvlInfo.level, name: lvlInfo.name, emoji: _luT.emoji, total: state.xp }; render(); }, 600);
   } else if (xpGain > 0) {
-    showToast(`âš¡ +${xpGain} XP`);
+    showToast(`⚡ +${xpGain} XP`);
   }
   saveState(); navigator.vibrate?.(10);
   _savedFlash = true;
@@ -5990,7 +5990,7 @@ function selectTier(habitId, rawVal) {
     const _luT2 = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
     setTimeout(() => { _levelUpOverlay = { level: lvlInfo2.level, name: lvlInfo2.name, emoji: _luT2.emoji, total: state.xp }; render(); }, 600);
   } else if (xpGain2 > 0) {
-    showToast(`âš¡ +${xpGain2} XP`);
+    showToast(`⚡ +${xpGain2} XP`);
   }
   saveState(); navigator.vibrate?.(10);
   checkBadges(c); checkMilestones(c); render();
@@ -6063,7 +6063,7 @@ function exportData() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  showToast("Backup downloaded âœ“");
+  showToast("Backup downloaded ✓");
 }
 
 function saveReminderTime() {
@@ -6071,14 +6071,14 @@ function saveReminderTime() {
   if (!el || !el.value) return;
   state.settings.reminderTime = el.value;
   saveState(); scheduleReminder();
-  showToast("Reminder set for " + el.value + " ðŸ””"); render();
+  showToast("Reminder set for " + el.value + " 🔔"); render();
 }
 
 function selectTemplate(id) {
   const template = id==="custom" ? null : TEMPLATES.find(t=>t.id===id);
   builderForm.templateId = id==="custom" ? null : id;
   builderForm.name  = template ? template.name  : "";
-  builderForm.emoji = template ? template.emoji : "ðŸŽ¯";
+  builderForm.emoji = template ? template.emoji : "🎯";
   builderForm.mode  = template ? template.defaultMode : "soft";
   builderForm.weeklyGoal = template ? template.weeklyGoal : 100;
   builderForm.endDate = addDays(builderForm.startDate, (template?template.duration:30)-1);
@@ -6103,26 +6103,26 @@ function renderBuilderQuickstart() {
       <div class="bqs-emoji">${template.emoji}</div>
       <div class="bqs-tier" style="color:${td.color}">${td.label}</div>
       <div class="bqs-name">${esc(template.name)}</div>
-      <div class="bqs-meta">${dur} days Â· starts today</div>
+      <div class="bqs-meta">${dur} days · starts today</div>
     </div>
     <div class="bqs-habits">
-      ${habits.map(h => `<div class="bqs-habit-row">âœ“ ${esc(h.title)}</div>`).join("")}
+      ${habits.map(h => `<div class="bqs-habit-row">✓ ${esc(h.title)}</div>`).join("")}
       ${template.habits.length > 5 ? `<div class="bqs-habit-row" style="color:var(--text-faint)">+ ${template.habits.length - 5} more habits</div>` : ""}
     </div>
     <div class="bqs-desc">${esc(template.description)}</div>
-    ${TEMPLATE_SAFETY[template.id] ? `<div class="bqs-safety-warning"><span class="bqs-safety-icon">âš ï¸</span><span>${TEMPLATE_SAFETY[template.id]}</span></div>` : ""}
+    ${TEMPLATE_SAFETY[template.id] ? `<div class="bqs-safety-warning"><span class="bqs-safety-icon">⚠️</span><span>${TEMPLATE_SAFETY[template.id]}</span></div>` : ""}
     <div class="bqs-xp-row">
       ${xpTheme.emoji} Earn ~<strong>${weeklyXP.toLocaleString()} XP</strong> per week logging every habit
     </div>
     <div class="bqs-mode-note">
       ${template.defaultMode === "soft"
-        ? "ðŸ’¡ <strong>Soft mode</strong> â€” one grace day per week if life gets in the way."
-        : "âš¡ <strong>Strict mode</strong> â€” no missed days. Zero compromise."}
+        ? "💡 <strong>Soft mode</strong> — one grace day per week if life gets in the way."
+        : "⚡ <strong>Strict mode</strong> — no missed days. Zero compromise."}
     </div>
     <div class="builder-cta-footer">
-      <button class="primary-button" data-start-challenge>Start ${dur}-Day Challenge ðŸš€</button>
-      <button class="secondary-button" style="margin-top:8px" data-quickstart-customise>Customise first â†’</button>
-      <button class="link-btn" style="margin-top:10px;text-align:center;display:block" data-builder-back>â† Choose a different challenge</button>
+      <button class="primary-button" data-start-challenge>Start ${dur}-Day Challenge 🚀</button>
+      <button class="secondary-button" style="margin-top:8px" data-quickstart-customise>Customise first →</button>
+      <button class="link-btn" style="margin-top:10px;text-align:center;display:block" data-builder-back>← Choose a different challenge</button>
     </div>
   </div>`;
 }
@@ -6156,7 +6156,7 @@ function startChallenge() {
 }
 
 function addCustomHabit() {
-  const emoji = (document.getElementById("nh-emoji")?.value||"â­").trim()||"â­";
+  const emoji = (document.getElementById("nh-emoji")?.value||"⭐").trim()||"⭐";
   const name  = (document.getElementById("nh-name")?.value||"").trim();
   if (!name) { showToast("Enter a habit name."); return; }
 
@@ -6173,7 +6173,7 @@ function addCustomHabit() {
     builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"binary", points:pts });
   }
 
-  builderForm.newHabitEmoji  = "â­";
+  builderForm.newHabitEmoji  = "⭐";
   builderForm.newHabitName   = "";
   builderForm.newHabitPoints = 2;
   builderForm.newHabitType   = "binary";
@@ -6201,7 +6201,7 @@ function saveEditChallenge() {
   c.mode       = editForm?.mode || c.mode;
   if (goal > 0) c.weeklyGoal = goal;
 
-  // â”€â”€ Apply habit changes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Apply habit changes ──────────────────────────────────────────────────
   if (editForm?.habits) {
     const newHabitIds = new Set(editForm.habits.map(h => h.id));
     // Strip deleted habits from every logged day
@@ -6230,7 +6230,7 @@ function saveEditChallenge() {
   editChallengeId = null;
   editForm        = null;
   viewChallengeId = c.id;
-  showToast("Challenge updated âœ“");
+  showToast("Challenge updated ✓");
   render();
 }
 
@@ -6315,13 +6315,13 @@ function useStreakFreeze() {
   const c = currentChallenge(); if (!c) return;
   if ((c.streakFreezes || 0) <= 0) { showToast("No streak freezes available."); return; }
   const yesterday = addDays(todayKey(), -1);
-  if (yesterday < c.startDate) { showToast("Nothing to freeze â€” challenge just started."); return; }
+  if (yesterday < c.startDate) { showToast("Nothing to freeze — challenge just started."); return; }
   const day = getChallengeDay(c, yesterday);
-  if (dayLogged(day)) { showToast("Yesterday is already logged â€” no freeze needed."); return; }
+  if (dayLogged(day)) { showToast("Yesterday is already logged — no freeze needed."); return; }
   day.freezeUsed = true;
   c.streakFreezes--;
   saveState();
-  showToast("â„ï¸ Streak freeze applied! Yesterday is covered. Streak protected.");
+  showToast("❄️ Streak freeze applied! Yesterday is covered. Streak protected.");
   render();
 }
 
@@ -6334,21 +6334,21 @@ async function captureProgressPhoto(habitId) {
     const file = e.target.files?.[0];
     document.body.removeChild(input);
     if (!file) return;
-    showToast("Saving photoâ€¦");
+    showToast("Saving photo…");
     const c = currentChallenge(); if (!c) return;
     const dateKey = effectiveDate();
     try {
       const dataURL = await compressPhoto(file);
-      if (!dataURL) { showToast("Couldn't process photo â€” try again."); return; }
+      if (!dataURL) { showToast("Couldn't process photo — try again."); return; }
       await PhotoDB.set(`${c.id}_${dateKey}`, dataURL);
       const day = getChallengeDay(c, dateKey);
       if (!day.done.includes(habitId)) {
         day.done.push(habitId); _animHabitId = habitId;
         updateDayPoints(c, day); state.xp = recalcXP(); saveState(); checkBadges(c);
       }
-      showToast("ðŸ“¸ Progress photo saved!");
+      showToast("📸 Progress photo saved!");
       render();
-    } catch(err) { showToast("Couldn't save photo â€” try again."); }
+    } catch(err) { showToast("Couldn't save photo — try again."); }
   };
   input.click();
 }
@@ -6385,7 +6385,7 @@ function saveNote() {
 // (meaning the grace day is "live" and today's log matters to keep the streak)
 function graceUsedYesterday(challenge) {
   if (challenge.mode !== "soft") return false;
-  if (dayLogged(challenge.days[todayKey()])) return false;  // today already logged â€” no warning needed
+  if (dayLogged(challenge.days[todayKey()])) return false;  // today already logged — no warning needed
   const yesterday = addDays(todayKey(), -1);
   if (yesterday < challenge.startDate) return false;
   const yDay = challenge.days[yesterday];
@@ -6397,7 +6397,7 @@ function graceUsedYesterday(challenge) {
   return dayLogged(twoDay);
 }
 
-// â”€â”€ Utilities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Utilities ─────────────────────────────────────────────────────────────
 
 function showToast(msg) {
   const stack = document.getElementById("toast-stack");
@@ -6415,21 +6415,21 @@ function currentGreeting(challenge, dayNumber, streak) {
     sum + Object.values(c.days).reduce((s, d) => s + (d.done?.length || 0), 0), 0);
   const h = new Date().getHours();
   const t = h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
-  // Streak-based (highest priority â€” most motivating)
-  if (streak >= 50) return `ðŸ”¥ ${streak}-day streak. You are in the 1%.`;
-  if (streak >= 30) return `âš¡ ${streak} days straight. Most people never get here.`;
-  if (streak >= 21) return `ðŸ† ${streak} days. The average person quits at day 12. You didn't.`;
-  if (streak >= 14) return `ðŸ”¥ ${streak} in a row. The week-one graveyard is behind you.`;
-  if (streak >= 7)  return `âš¡ ${streak}-day streak. Habit is forming. Don't stop now.`;
-  if (streak >= 3)  return `ðŸ”¥ ${streak} days in a row. The streak is real.`;
+  // Streak-based (highest priority — most motivating)
+  if (streak >= 50) return `🔥 ${streak}-day streak. You are in the 1%.`;
+  if (streak >= 30) return `⚡ ${streak} days straight. Most people never get here.`;
+  if (streak >= 21) return `🏆 ${streak} days. The average person quits at day 12. You didn't.`;
+  if (streak >= 14) return `🔥 ${streak} in a row. The week-one graveyard is behind you.`;
+  if (streak >= 7)  return `⚡ ${streak}-day streak. Habit is forming. Don't stop now.`;
+  if (streak >= 3)  return `🔥 ${streak} days in a row. The streak is real.`;
   // Data-driven on total habits logged
   if (totalHabits >= 200) return `${totalHabits} habits logged. You're not the same person you were.`;
   if (totalHabits >= 100) return `${totalHabits} habits. 100 small decisions that add up.`;
   if (totalHabits >= 50)  return `${totalHabits} habits logged. You've built more than you realise.`;
   // Day-number narrative
   if (dayNumber === 1) return `Day 1. Every legend has a first day. Make it count.`;
-  if (dayNumber <= 3)  return `Day ${dayNumber} â€” the hardest days are the first ones. You're in them.`;
-  if (dayNumber <= 7)  return `Day ${dayNumber} â€” still in the building phase. Trust the process.`;
+  if (dayNumber <= 3)  return `Day ${dayNumber} — the hardest days are the first ones. You're in them.`;
+  if (dayNumber <= 7)  return `Day ${dayNumber} — still in the building phase. Trust the process.`;
   if (dayNumber >= 21) return `Day ${dayNumber}. Most people never make it this far.`;
   if (dayNumber >= 14) return `Day ${dayNumber}. Habit is forming. Keep the chain unbroken.`;
   // Time-of-day fallback
@@ -6443,7 +6443,7 @@ function formatDate(d,opts) { return new Intl.DateTimeFormat(undefined,opts).for
 function pickRandom(arr,n) { return [...arr].sort(()=>Math.random()-0.5).slice(0,n); }
 function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
 
-// â”€â”€ Notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Notifications ────────────────────────────────────────────────────────
 
 function scheduleReminder() {
   clearTimeout(reminderTimeout);
@@ -6467,7 +6467,7 @@ function fireReminder() {
   const names = incomplete.length === 1
     ? incomplete[0].name
     : `${incomplete.length} challenges`;
-  new Notification("Conqur â€” Don't break the streak ðŸ”¥", {
+  new Notification("Conqur — Don't break the streak 🔥", {
     body: `${names}: you still have habits left for today.`,
     icon: "/icons/icon-192.svg",
     tag: "conqur-daily",
@@ -6484,7 +6484,7 @@ async function requestNotificationPermission() {
     state.settings.reminderEnabled = true;
     saveState();
     scheduleReminder();
-    showToast("Reminders on! ðŸ”” You'll be nudged at " + state.settings.reminderTime);
+    showToast("Reminders on! 🔔 You'll be nudged at " + state.settings.reminderTime);
   } else {
     state.settings.reminderEnabled = false;
     saveState();
@@ -6493,7 +6493,7 @@ async function requestNotificationPermission() {
   render();
 }
 
-// â”€â”€ Auto-update System â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Auto-update System ────────────────────────────────────────────────────
 
 async function clearAppCaches() {
   if (!("caches" in window)) return;
@@ -6508,7 +6508,7 @@ function reloadForUpdate() {
 }
 
 async function applyAppUpdate(next) {
-  console.info(`Conqur update: ${APP_VERSION} â†’ ${next}`);
+  console.info(`Conqur update: ${APP_VERSION} → ${next}`);
   await clearAppCaches();
   if ("serviceWorker" in navigator) {
     const reg = await navigator.serviceWorker.getRegistration();
@@ -6542,7 +6542,7 @@ function startUpdateChecks() {
   });
 }
 
-// â”€â”€ Boot â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Boot ──────────────────────────────────────────────────────────────────
 
 if ("serviceWorker" in navigator && location.protocol!=="file:") {
   window.addEventListener("load",()=>{
@@ -6568,7 +6568,7 @@ function setDynamicIcon() {
 
 startUpdateChecks();
 updateChallengeStatuses();
-// Migration: badge system V2 â€” universal/lifetime/template architecture replaces single flat list
+// Migration: badge system V2 — universal/lifetime/template architecture replaces single flat list
 if (!state.migrations["badgeSystemV2"]) {
   for (const c of Object.values(state.challenges)) { c.badges = []; }
   state.globalBadges = [];
@@ -6578,7 +6578,7 @@ if (!state.migrations["badgeSystemV2"]) {
   state.migrations["badgeSystemV2"] = true;
   saveState();
 }
-// Migration: XP system â€” calculate initial XP from all existing challenge data
+// Migration: XP system — calculate initial XP from all existing challenge data
 if (!state.migrations["xpSystemV1"]) {
   state.xp = recalcXP();
   state.migrations["xpSystemV1"] = true;
@@ -6616,4 +6616,3 @@ scheduleReminder();
 setDynamicIcon();
 CloudSync.init();
 render();
-
