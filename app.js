@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.19";
+const APP_VERSION = "2026.06.14.20";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -4967,10 +4967,10 @@ function renderObSlide() {
     { emoji:"🔥", title:"Show up every day.",
       body:`Your streak grows every day you log. Weekly points reset Monday — but your XP and level never do. Every session brings you closer to the top.` },
   ];
-  const step = slides[onboardingStep - 2];
+  const step = slides[onboardingStep - 3];
   const dots = ONBOARDING_STEPS.map((_,i) =>
-    `<span class="ob-dot ${i === onboardingStep - 2 ? "active" : ""}"></span>`).join("");
-  const isLast = onboardingStep === ONBOARDING_STEPS.length + 1;
+    `<span class="ob-dot ${i === onboardingStep - 3 ? "active" : ""}"></span>`).join("");
+  const isLast = onboardingStep === ONBOARDING_STEPS.length + 2;
   return `
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
@@ -5067,8 +5067,9 @@ function renderOnboarding() {
   if (onboardingStep === null) return "";
   if (onboardingStep === 0) return renderObHero();
   if (onboardingStep === 1) return renderObJourney();
-  if (onboardingStep <= ONBOARDING_STEPS.length + 1) return renderObSlide();
-  if (onboardingStep === ONBOARDING_STEPS.length + 2) return renderObName();
+  if (onboardingStep === 2) return renderObGoal();
+  if (onboardingStep <= ONBOARDING_STEPS.length + 2) return renderObSlide();
+  if (onboardingStep === ONBOARDING_STEPS.length + 3) return renderObName();
   return renderObAccount();
 }
 
@@ -5715,13 +5716,13 @@ function bindEvents() {
   });
   on("[data-ob-skip]", () => {
     // Skip info slides → jump straight to name screen
-    onboardingStep = ONBOARDING_STEPS.length + 2;
+    onboardingStep = ONBOARDING_STEPS.length + 3;
     _obAuthError = "";
     render();
   });
   on("[data-ob-to-signin]", () => {
     _obAuthMode = "signin";
-    onboardingStep = ONBOARDING_STEPS.length + 3; // skip name step for returning users
+    onboardingStep = ONBOARDING_STEPS.length + 4; // skip name step for returning users
     _obAuthError = "";
     render();
   });
