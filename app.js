@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.22";
+const APP_VERSION = "2026.06.15.1";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -1144,7 +1144,6 @@ const LIFETIME_BADGES = [
   { id:"lt-500h",   label:"🔥 500 Habits",         desc:"Log 500 habits total. You're built different.",    test: l => l.totalHabitsLogged >= 500 },
   { id:"lt-5c",     label:"🎖️ Serial Challenger",  desc:"Complete 5 challenges.",                            test: l => l.completedChallenges >= 5 },
   { id:"lt-cats",   label:"🌍 Well Rounded",        desc:"Complete a challenge in all 3 categories.",        test: l => l.allCategoriesDone },
-  { id:"lt-wk10",   label:"📊 Consistent",          desc:"Hit the weekly goal 10 times across all challenges.", test: l => l.weeklyGoalsHit >= 10 },
   { id:"lt-perf",   label:"💎 Perfect Run",         desc:"Complete a challenge without a single missed day.", test: l => l.perfectChallenge },
   { id:"lt-freeze", label:"❄️ Ice Age",             desc:"Use a streak freeze to save a streak.",             test: l => l.freezeUsed },
 ];
@@ -2289,18 +2288,6 @@ function checkBadges(challenge) {
       );
       return ["transformation","movement","lifestyle"].every(cat => cats.has(cat));
     })(),
-    weeklyGoalsHit: (() => {
-      let n = 0;
-      for (const c of allChallenges) {
-        for (const w of challengeWeeks(c)) {
-          const pts = w.days.reduce((s,k) => {
-            const d=c.days[k]; return s+(d?completionInfo(c,d).points:0);
-          }, 0);
-          if (pts >= c.weeklyGoal) n++;
-        }
-      }
-      return n;
-    })(),
     perfectChallenge: allChallenges.filter(c => c.status==="completed").some(c => {
       const start = parseDate(c.startDate), end = parseDate(c.endDate);
       const cur = new Date(start);
@@ -2333,15 +2320,15 @@ function checkStreakFreezeAward(challenge, weeks) {
   if (!curWeek) return;
   const weekKey = curWeek.allDays[0]; // first day of week = unique ID
   if ((challenge.streakFreezeWeeksAwarded || []).includes(weekKey)) return; // already awarded this week
-  const pts = curWeek.days.reduce((s,k) => {
-    const d = challenge.days[k]; return s + (d ? completionInfo(challenge,d).points : 0);
-  }, 0);
-  if (pts >= challenge.weeklyGoal) {
+  const daysLogged = curWeek.days.filter(k => {
+    const d = challenge.days[k]; return d && (d.done.length || d.recovered);
+  }).length;
+  if (daysLogged >= 5) {
     challenge.streakFreezes = (challenge.streakFreezes || 0) + 1;
     if (!challenge.streakFreezeWeeksAwarded) challenge.streakFreezeWeeksAwarded = [];
     const isFirst = challenge.streakFreezeWeeksAwarded.length === 0;
     challenge.streakFreezeWeeksAwarded.push(weekKey);
-    showBigToast("🏅", "Weekly goal hit!", "Streak freeze banked — it protects your streak if you miss a day.");
+    showBigToast("❄️", "Streak freeze banked!", "5 days logged this week — you've earned a streak freeze.");
     if (isFirst) setTimeout(() => showToast("❄️ Streak Freeze: tap the snowflake bar on any day you miss to use it."), 3500);
     saveState();
   }
@@ -2854,7 +2841,6 @@ function renderToday() {
           ${isToday ? renderStreakFreezeUI(challenge) : ""}
           ${renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToday)}
         </section>
-        ${isToday ? renderWeeklyGoalBar(challenge) : ""}
       ` : ""}
     </div>`;
     })()}
@@ -3420,35 +3406,10 @@ function renderXPBar() {
     <div class="xp-bar-track" role="progressbar" aria-valuenow="${info.pct}" aria-valuemin="0" aria-valuemax="100">
       <div class="xp-bar-fill" style="width:${info.pct}%"></div>
     </div>
-    <div class="xp-bar-explainer">Points fuel your weekly goal · XP builds your level forever</div>
+    <div class="xp-bar-explainer">XP builds your level forever</div>
   </div>`;
 }
 
-function renderWeeklyGoalBar(challenge) {
-  const today = todayKey();
-  const weeks = challengeWeeks(challenge);
-  const curWeek = weeks.find(w => w.allDays.includes(today));
-  if (!curWeek) return "";
-  const pts = curWeek.days.reduce((s,k) => {
-    const d = challenge.days[k]; return s + (d ? completionInfo(challenge,d).points : 0);
-  }, 0);
-  const pct = Math.min(100, Math.round((pts / challenge.weeklyGoal) * 100));
-  const hit = pts >= challenge.weeklyGoal;
-  const best = challengePersonalBest(challenge);
-  const bestLabel = best > 0 ? `<span style="font-size:11px;color:var(--text-dim)">Best: ${best} pts</span>` : "";
-  return `
-  <div class="weekly-goal-bar">
-    <div class="wgb-row">
-      <span class="wgb-label">${hit ? "✅ Weekly goal hit!" : `Week: ${pts} / ${challenge.weeklyGoal} pts`}</span>
-      <span class="wgb-pct">${pct}%</span>
-    </div>
-    <div class="wgb-track"><div class="wgb-fill ${hit?"wgb-done":""}" style="width:${pct}%"></div></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
-      ${hit ? `<span style="font-size:11px;color:var(--success)">Week badge unlocked 🏅</span>` : `<span style="font-size:11px;color:var(--text-dim)">Hit the goal → badge + streak freeze 🏅</span>`}
-      ${bestLabel}
-    </div>
-  </div>`;
-}
 
 // ── Weekly Recap (Sunday card) ────────────────────────────────────────────
 
@@ -3463,7 +3424,6 @@ function renderWeeklyRecap(challenge) {
     const d = challenge.days[k]; return sum + (d ? completionInfo(challenge,d).points : 0);
   }, 0);
   const logged = lastWeek.allDays.filter(k => { const d=challenge.days[k]; return d&&(d.done.length||d.recovered); }).length;
-  const hitGoal = pts >= challenge.weeklyGoal;
   const streak = calcChallengeStreak(challenge);
   // Week-over-week delta
   const prevWeek = curWeekIdx >= 2 ? weeks[curWeekIdx - 2] : null;
@@ -3481,9 +3441,7 @@ function renderWeeklyRecap(challenge) {
     if (!d?.distances) return s;
     return s + Object.values(d.distances).reduce((ss,km) => ss + (Number(km)||0), 0);
   }, 0) : null;
-  const msgs = hitGoal
-    ? ["Last week was strong. Build on it.", "Goal hit. That's what consistency looks like.", "Momentum is real — keep it going."]
-    : ["Progress compounds. Keep stacking.", "New week, fresh start. Let's go.", "Every logged day is a win."];
+  const msgs = ["Progress compounds. Keep stacking.", "New week, fresh start. Let's go.", "Every logged day is a win.", "Last week was strong. Build on it.", "Momentum is real — keep it going."];
   const msg = msgs[new Date().getDate() % msgs.length];
   return `
   <div class="weekly-recap-card">
@@ -3501,7 +3459,7 @@ function renderWeeklyRecap(challenge) {
       <div class="wrc-stat"><span class="wrc-val">${streak}</span><span class="wrc-lbl">streak</span></div>
     </div>
     ${deltaStr ? `<div class="wrc-delta-row">${deltaStr}</div>` : ""}
-    <div class="wrc-msg">${hitGoal ? "✅ Goal hit! " : ""}${msg}</div>
+    <div class="wrc-msg">${msg}</div>
   </div>`;
 }
 
@@ -4046,10 +4004,6 @@ function renderEditChallenge(c) {
         <button class="mode-button ${(editForm?.mode||c.mode)==="soft"?"active":""}" data-ec-mode="soft">Soft</button>
         <button class="mode-button ${(editForm?.mode||c.mode)==="strict"?"active":""}" data-ec-mode="strict">Strict</button>
       </div>
-      <label class="field" style="margin-bottom:20px">
-        Weekly point goal
-        <input id="ec-goal" type="number" value="${c.weeklyGoal}" min="10" max="500">
-      </label>
       <div class="section-label" style="margin:20px 0 8px">Habits</div>
       <div class="custom-habits-list">
         ${(editForm?.habits || []).map((h, i) => {
@@ -4132,8 +4086,6 @@ function renderWeekCard(c, week, isCurrent) {
   const today = todayKey();
   const pts = week.days.reduce((s,k)=>s+(c.days[k]?completionInfo(c,c.days[k]).points:0),0);
   const logged = week.days.filter(k=>{ const d=c.days[k]; return d&&(d.done.length||d.recovered); }).length;
-  const goalPct = Math.min(100,Math.round((pts/c.weeklyGoal)*100));
-  const hitGoal = !isCurrent && pts>=c.weeklyGoal;
   // Expedition: sum km across the week
   const isExpedition = c.habits.some(h => h.type === "distance");
   const weekKm = isExpedition ? week.allDays.reduce((s,k) => {
@@ -4145,7 +4097,7 @@ function renderWeekCard(c, week, isCurrent) {
   <div class="${isCurrent?"week-card week-card-current":"week-card"}">
     <div class="wc-top">
       <span class="wc-num">Week ${week.num}</span>
-      ${hitGoal?`<span class="wc-goal-hit">✓ Goal</span>`:`<span class="wc-days">${logged}/${week.allDays.length}</span>`}
+      <span class="wc-days">${logged}/${week.allDays.length}</span>
     </div>
     <div class="wc-label">${week.label}</div>
     <div class="wc-dots">${week.allDays.map(k=>{
@@ -4157,10 +4109,9 @@ function renderWeekCard(c, week, isCurrent) {
       return `<span class="wdot partial"></span>`;
     }).join("")}</div>
     <div class="wc-goal-row">
-      <span class="wc-pts">${pts} <span class="wc-goal-of">/ ${c.weeklyGoal} pts</span></span>
+      <span class="wc-pts">${pts} <span class="wc-goal-of">pts</span></span>
       ${weekKm !== null ? `<span class="wc-km-badge">${weekKm.toFixed(1)} km</span>` : ""}
     </div>
-    <div class="wc-goal-track"><div class="wc-goal-fill ${hitGoal?"wc-goal-done":""}" style="width:${goalPct}%"></div></div>
   </div>`;
 }
 
@@ -4453,10 +4404,6 @@ function renderBuilderCustomize() {
         <input id="bf-goalweight" type="number" value="${builderForm.goalWeight || ""}" min="0" max="999" step="0.1" placeholder="e.g. 150">
       </label>`;
     })()}
-    <label class="field" style="margin-bottom:4px">
-      Weekly goal <span style="font-size:11px;font-weight:300;color:var(--text-dim)">points — auto-set for this challenge</span>
-      <input id="bf-goal" type="number" value="${builderForm.weeklyGoal}" min="10" max="500">
-    </label>
     ${(() => {
       const habits = builderForm.templateId
         ? (TEMPLATES.find(t=>t.id===builderForm.templateId)?.habits || [])
@@ -4526,7 +4473,7 @@ function renderBuilderCustomize() {
     `}
     <div class="pts-explainer">
       <div class="pts-explainer-title">⭐ How points work</div>
-      <div class="pts-explainer-body">Check off habits to earn points. Hit your weekly goal to earn badges. Points reset every Monday — your streak doesn't.</div>
+      <div class="pts-explainer-body">Check off habits to earn points and XP. XP builds your level and never resets. Log 5 days in a week to earn a streak freeze.</div>
     </div>
     ${("Notification" in window) && Notification.permission === "default" ? `
     <div class="builder-notif-request">
@@ -4906,7 +4853,7 @@ function renderAlmostThereBadge(challenge, streak) {
 
 const ONBOARDING_STEPS = [
   { emoji:"🎯", title:"Pick a challenge",  body:"Choose from 50+ challenges — from Daily Journaling to the Pacific Crest Trail. Each one comes with daily habits to check off." },
-  { emoji:"⭐", title:"Earn points daily",  body:"Every habit you check earns points and XP. Hit your weekly goal to unlock a badge and a streak freeze. Points reset Monday — streaks and XP don't." },
+  { emoji:"⭐", title:"Earn points daily",  body:"Every habit you check earns points and XP. XP builds your level — it never resets. Log 5 days in a week and you'll bank a streak freeze." },
   { emoji:"🔥", title:"Come back tomorrow", body:"Your streak grows every day you log. Miss a day? Soft mode gives you grace. Rest days are built in. One day at a time." },
 ];
 // onboardingStep: 0 = hero, 1-3 = info slides, 4 = account screen
@@ -5276,12 +5223,12 @@ function renderSettings() {
     <div class="section-label" style="margin-top:20px">How Conqur Works</div>
     <div class="more-card" style="font-size:13px;line-height:1.65;color:var(--text-dim)">
       <div style="margin-bottom:12px"><strong style="color:var(--text)">🎯 Challenges</strong> — Pick one of 50+ challenges. Each has daily habits to check off. Complete all habits for the day to earn full points.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">⭐ Points &amp; Weekly Goal</strong> — Each habit is worth points. Hit your weekly goal to earn a streak freeze. Points reset each Monday; XP and streaks don't.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">⭐ Points &amp; XP</strong> — Each habit is worth points. Points fuel your XP, which builds your level and never resets. Log 5 days in a week to bank a streak freeze.</div>
       <div style="margin-bottom:12px"><strong style="color:var(--text)">🔥 Streaks</strong> — Your streak grows every day you log all habits. Soft mode gives you one grace day before it breaks. Rest days don't break streaks.</div>
       <div style="margin-bottom:12px"><strong style="color:var(--text)">😴 Rest Days</strong> — Each challenge allows up to 3 rest days. They're planned recovery — not failures.</div>
       <div style="margin-bottom:12px"><strong style="color:var(--text)">⚡ XP &amp; Levels</strong> — XP accumulates from points across all challenges and never resets. Climb from Base Camp all the way to Everest.</div>
       <div style="margin-bottom:12px"><strong style="color:var(--text)">🏔 Phases</strong> — Longer challenges are split into phases so the finish line always feels reachable. Each phase completion is celebrated.</div>
-      <div><strong style="color:var(--text)">🏅 Badges</strong> — Earn badges for streaks, weekly goals, and challenge completions. Proof of everything you've built.</div>
+      <div><strong style="color:var(--text)">🏅 Badges</strong> — Earn badges for streaks, consistency, and challenge completions. Proof of everything you've built.</div>
     </div>
     ${renderProSection()}
     ${renderReminderSettings()}
@@ -6147,7 +6094,6 @@ function startChallenge() {
   const nameEl       = document.getElementById("bf-name");
   const startEl      = document.getElementById("bf-start");
   const endEl        = document.getElementById("bf-end");
-  const goalEl       = document.getElementById("bf-goal");
   const ongoingEl    = document.getElementById("bf-ongoing");
   const goalWeightEl = document.getElementById("bf-goalweight");
   if (nameEl)       builderForm.name      = nameEl.value.trim();
@@ -6155,7 +6101,6 @@ function startChallenge() {
   if (ongoingEl)    builderForm.noEndDate = ongoingEl.checked;
   if (endEl && !builderForm.noEndDate) builderForm.endDate = endEl.value;
   if (builderForm.noEndDate) builderForm.endDate = "9999-12-31";
-  if (goalEl)       builderForm.weeklyGoal = Number(goalEl.value) || 100;
   if (goalWeightEl?.value) builderForm.goalWeight = parseFloat(goalWeightEl.value) || null;
   if (!builderForm.startDate) { showToast("Set a start date."); return; }
   if (!builderForm.noEndDate && !builderForm.endDate) { showToast("Set an end date or enable Ongoing."); return; }
@@ -6208,14 +6153,12 @@ function saveEditChallenge() {
   const emoji = document.getElementById("ec-emoji")?.value.trim();
   const start = document.getElementById("ec-start")?.value;
   const end   = document.getElementById("ec-end")?.value;
-  const goal  = Number(document.getElementById("ec-goal")?.value);
   if (!start || !end || start > end) { showToast("Check your dates."); return; }
   if (name)  c.name       = name;
   if (emoji) c.emoji      = emoji;
   c.startDate  = start;
   c.endDate    = end;
   c.mode       = editForm?.mode || c.mode;
-  if (goal > 0) c.weeklyGoal = goal;
 
   // ── Apply habit changes ──────────────────────────────────────────────────
   if (editForm?.habits) {
