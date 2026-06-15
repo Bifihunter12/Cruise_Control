@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.21";
+const APP_VERSION = "2026.06.14.22";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -8,31 +8,31 @@ const UPDATE_CHECK_MS = 30 * 60 * 1000;
 
 // ── XP Level System ──────────────────────────────────────────────────────────
 const XP_LEVELS = [
-  { level: 1,  name: "Rookie",               xp: 0      },
-  { level: 2,  name: "Wanderer",             xp: 100    },
-  { level: 3,  name: "Trailblazer",          xp: 250    },
-  { level: 4,  name: "Scout",                xp: 500    },
-  { level: 5,  name: "Ranger",               xp: 900    },
-  { level: 6,  name: "Climber",              xp: 1500   },
-  { level: 7,  name: "Adventurer",           xp: 2300   },
-  { level: 8,  name: "Ice Breaker",          xp: 3400   },
-  { level: 9,  name: "Mountaineer",          xp: 6000   },
-  { level: 10, name: "Storm Rider",          xp: 8000   },
-  { level: 11, name: "Blizzard Born",        xp: 10500  },
-  { level: 12, name: "Crevasse Jumper",      xp: 13500  },
-  { level: 13, name: "Altitude Master",      xp: 17000  },
-  { level: 14, name: "Peak Hunter",          xp: 21000  },
-  { level: 15, name: "Snow Titan",           xp: 26000  },
-  { level: 16, name: "Elite Climber",        xp: 32000  },
-  { level: 17, name: "Summit Seeker",        xp: 39000  },
-  { level: 18, name: "Mountain Legend",      xp: 47000  },
-  { level: 19, name: "The Immortal",         xp: 56000  },
-  { level: 20, name: "The Untouchable",      xp: 66000  },
-  { level: 21, name: "Summit Overlord",      xp: 78000  },
-  { level: 22, name: "Mountain Champion",    xp: 92000  },
-  { level: 23, name: "Everest Bound",        xp: 108000 },
-  { level: 24, name: "Everest Champion",     xp: 126000 },
-  { level: 25, name: "Conqueror of Everest", xp: 147000 },
+  { level: 1,  name: "Rookie",               xp: 0     },
+  { level: 2,  name: "Wanderer",             xp: 10    },
+  { level: 3,  name: "Trailblazer",          xp: 30    },
+  { level: 4,  name: "Scout",                xp: 60    },
+  { level: 5,  name: "Ranger",               xp: 100   },
+  { level: 6,  name: "Climber",              xp: 150   },
+  { level: 7,  name: "Adventurer",           xp: 210   },
+  { level: 8,  name: "Ice Breaker",          xp: 280   },
+  { level: 9,  name: "Mountaineer",          xp: 360   },
+  { level: 10, name: "Storm Rider",          xp: 450   },
+  { level: 11, name: "Blizzard Born",        xp: 550   },
+  { level: 12, name: "Crevasse Jumper",      xp: 660   },
+  { level: 13, name: "Altitude Master",      xp: 780   },
+  { level: 14, name: "Peak Hunter",          xp: 910   },
+  { level: 15, name: "Snow Titan",           xp: 1050  },
+  { level: 16, name: "Elite Climber",        xp: 1200  },
+  { level: 17, name: "Summit Seeker",        xp: 1360  },
+  { level: 18, name: "Mountain Legend",      xp: 1530  },
+  { level: 19, name: "The Immortal",         xp: 1710  },
+  { level: 20, name: "The Untouchable",      xp: 1900  },
+  { level: 21, name: "Summit Overlord",      xp: 2100  },
+  { level: 22, name: "Mountain Champion",    xp: 2310  },
+  { level: 23, name: "Everest Bound",        xp: 2530  },
+  { level: 24, name: "Everest Champion",     xp: 2760  },
+  { level: 25, name: "Conqueror of Everest", xp: 3000  },
 ];
 
 // ── Journey Themes ─────────────────────────────────────────────────────────
