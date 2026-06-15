@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.15";
+const APP_VERSION = "2026.06.14.16";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -5073,21 +5073,21 @@ function doObTransition(html) {
   _obTransitioning = true;
   old.style.pointerEvents = "none";
 
-  // Start new screen off-screen right
-  next.style.cssText = "position:fixed;inset:0;z-index:401;transform:translateX(100%);will-change:transform;pointer-events:none;";
+  // New screen starts just 12px to the right, nearly invisible
+  next.style.cssText = "position:fixed;inset:0;z-index:401;transform:translateX(12px);opacity:0;will-change:transform,opacity;pointer-events:none;";
   app.appendChild(next);
 
-  const dur = 400;
-  const ease = "cubic-bezier(0.22, 1, 0.36, 1)";
+  const dur = 260;
+  const ease = "ease-out";
 
   // Double rAF ensures initial position is painted before transition starts
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    old.style.transition  = `transform ${dur}ms ${ease}, opacity ${dur}ms ${ease}`;
-    old.style.transform   = "translateX(-28%)";
+    old.style.transition  = `opacity ${dur}ms ${ease}`;
     old.style.opacity     = "0";
 
-    next.style.transition = `transform ${dur}ms ${ease}`;
+    next.style.transition = `transform ${dur}ms ${ease}, opacity ${dur}ms ${ease}`;
     next.style.transform  = "translateX(0)";
+    next.style.opacity    = "1";
 
     setTimeout(() => {
       old.remove();
