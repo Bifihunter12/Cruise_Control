@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 
 const APP_VERSION = "2026.06.14.11";
 const STORAGE_KEY = "conqur_v1";
