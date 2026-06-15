@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.15.4";
+const APP_VERSION = "2026.06.15.5";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -305,7 +305,7 @@ const TEMPLATES = [
     duration: 75, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"workout",  title:"Workout 45 min",                  emoji:"🏃", quip:"Move your body.",               type:"binary", points:3 },
-      { id:"diet75s",  title:"Eat well (1 social meal/wk ok)",  emoji:"🥗", quip:"Balanced, not perfect.",        type:"binary", points:2 },
+      { id:"diet75s",  title:"Whole-food meals (1 social meal/wk ok)", emoji:"🥗", quip:"Balanced and real. Not perfect.", type:"binary", points:2 },
       { id:"read10s",  title:"Read 10 pages",                   emoji:"📖", quip:"10 pages a day.",              type:"binary", points:2 },
     ]
   },
@@ -372,6 +372,17 @@ const TEMPLATES = [
     ]
   },
   {
+    id: "steps-10k", name: "10,000 Steps", emoji: "👟", category: "movement",
+    description: "30 days of hitting 10,000 steps every day. The most evidence-backed daily movement habit there is.",
+    duration: 30, weeklyGoal: 70, defaultMode: "soft",
+    habits: [
+      { id:"ts-steps",   title:"Hit step target",           emoji:"👟", quip:"10k is the goal. Beat it when you can.", type:"tiered", points:4,
+        tiers:[{label:"5,000–7,999",pts:2},{label:"8,000–9,999",pts:3},{label:"10,000+",pts:5}] },
+      { id:"ts-morning", title:"Morning walk before work",  emoji:"🌅", quip:"30 min before your desk knocks out 3k steps before 9am.", type:"binary", points:2 },
+      { id:"ts-outside", title:"30 min outside",            emoji:"🌳", quip:"Fresh air and daylight are non-negotiable.",              type:"binary", points:1 },
+    ]
+  },
+  {
     id: "running", name: "Running Challenge", emoji: "🏃", category: "movement",
     description: "30 days of running. Build the habit, find the pace, feel the difference.",
     duration: 30, weeklyGoal: 100, defaultMode: "strict",
@@ -388,7 +399,7 @@ const TEMPLATES = [
     habits: [
       { id:"cr-create",  title:"Create something today",    emoji:"✨", quip:"It doesn't have to be good. It has to exist.", type:"binary", points:4 },
       { id:"cr-idea",    title:"Brainstorm 10 ideas",       emoji:"💡", quip:"Most will be bad. That's the point.", type:"binary", points:2 },
-      { id:"cr-study",   title:"Study your craft",          emoji:"📚", quip:"The greats never stop learning.",    type:"binary", points:2 },
+      { id:"cr-study",   title:"Study your craft (20+ min)", emoji:"📚", quip:"The greats never stop learning.",    type:"binary", points:2 },
       { id:"cr-noscroll",title:"No mindless scrolling",     emoji:"📵", quip:"Consumption kills creation.",        type:"binary", points:2 },
     ]
   },
@@ -450,7 +461,7 @@ const TEMPLATES = [
     duration: 30, weeklyGoal: 80, defaultMode: "soft",
     habits: [
       { id:"mr-wake",     title:"Wake up on time — no snooze",emoji:"⏰", quip:"First decision of the day. Make it right.", type:"binary", points:3 },
-      { id:"mr-move",     title:"Move your body (10 min)",    emoji:"🏃", quip:"Anything counts. Don't overthink it.",  type:"binary", points:3 },
+      { id:"mr-move",     title:"Move for 10 min",            emoji:"🏃", quip:"Walk, stretch, yoga, or workout — anything counts.", type:"binary", points:3 },
       { id:"mr-nophone",  title:"No phone for first 30 min",  emoji:"📵", quip:"Protect your mind before the world gets in.", type:"binary", points:2 },
       { id:"mr-hydrate",  title:"Drink water before coffee",  emoji:"💧", quip:"You wake up dehydrated every time.",   type:"binary", points:1 },
       { id:"mr-journal",  title:"Write 3 priorities for today",emoji:"📓",quip:"Clear mind. Clear direction.",          type:"binary", points:2 },
@@ -519,12 +530,23 @@ const TEMPLATES = [
       { id:"mm-focus",   title:"Deep work — 2 hours",    emoji:"💻", quip:"Two hours. Zero distractions. Phone off.",        type:"binary", points:5 },
       { id:"mm-nosocial",title:"No social media",        emoji:"📵", quip:"Your attention is your most valuable asset.",      type:"binary", points:3 },
       { id:"mm-learn",   title:"Deliberate learning — 1h",emoji:"📚",quip:"One hour of intentional study every day.",        type:"binary", points:3 },
-      { id:"mm-move",    title:"Move your body",         emoji:"🏃", quip:"The mind needs a body that moves.",               type:"binary", points:2 },
+      { id:"mm-move",    title:"Move for 30 min",        emoji:"🏃", quip:"The mind needs a body that moves.",               type:"binary", points:2 },
       { id:"mm-reflect", title:"Evening reflection",     emoji:"✍️", quip:"What did you build today?",                       type:"binary", points:2 },
     ]
   },
 
   // ── Endurance Sport Training ─────────────────────────────────────────────
+  {
+    id: "zone2", name: "Zone 2 Base Builder", emoji: "💚", category: "endurance",
+    description: "30 days of low-intensity cardio at conversational pace. The aerobic foundation that makes every other fitness goal easier.",
+    duration: 30, weeklyGoal: 65, defaultMode: "soft",
+    habits: [
+      { id:"z2-session",  title:"Zone 2 session",            emoji:"💚", quip:"Conversational pace. Nasal breathing. 30–60 min.", type:"tiered", points:5,
+        tiers:[{label:"20–30 min",pts:5},{label:"30–45 min",pts:7},{label:"45–60 min",pts:9}] },
+      { id:"z2-check",    title:"Could hold a conversation?", emoji:"🗣️", quip:"If you couldn't, you went too hard. Slow down next time.", type:"binary", points:1 },
+      { id:"z2-mobility", title:"Mobility (5 min)",           emoji:"🧘", quip:"Keep the body feeling good as volume builds.",            type:"binary", points:2 },
+    ]
+  },
   {
     id: "half-marathon-prep", name: "Half Marathon Prep", emoji: "🏃", category: "endurance",
     description: "12 weeks to race day. Build your base, sharpen your speed, and cross that finish line.",
@@ -533,7 +555,7 @@ const TEMPLATES = [
       { id:"hm-run",    title:"Run session",          emoji:"🏃", quip:"Every km counts.",                         type:"binary", points:5 },
       { id:"hm-xt",     title:"Cross-train",          emoji:"🚴", quip:"Swim, bike, yoga — anything non-run.",      type:"binary", points:3 },
       { id:"hm-stretch",title:"Stretch & recover",    emoji:"🦵", quip:"Tight hips = slower times.",               type:"binary", points:2 },
-      { id:"hm-fuel",   title:"Eat & hydrate clean",  emoji:"🥗", quip:"Fuel the engine right.",                   type:"binary", points:3 },
+      { id:"hm-fuel",   title:"Protein + water targets hit", emoji:"🥗", quip:"Hit protein goal. 2L+ water. Carbs before long runs.", type:"binary", points:3 },
     ]
   },
   {
@@ -544,7 +566,7 @@ const TEMPLATES = [
       { id:"mt-run",    title:"Run session",           emoji:"🏃", quip:"Miles in the bank.",                       type:"binary", points:5 },
       { id:"mt-xt",     title:"Cross-train",           emoji:"🏊", quip:"Active recovery is still recovery.",       type:"binary", points:3 },
       { id:"mt-stretch",title:"Stretch & foam roll",   emoji:"🦵", quip:"15 min saves your IT bands.",              type:"binary", points:2 },
-      { id:"mt-fuel",   title:"Fuel & hydrate",        emoji:"🍌", quip:"Carbs are your friend on long-run days.",  type:"binary", points:3 },
+      { id:"mt-fuel",   title:"Fuel & hydrate",        emoji:"🍌", quip:"Hit protein + carbs. Hydrate all day. Practise race nutrition on long runs.", type:"binary", points:3 },
     ]
   },
   {
@@ -567,7 +589,7 @@ const TEMPLATES = [
       { id:"im-bike",    title:"Bike session",         emoji:"🚴", quip:"Ride smart — you still have to run.",      type:"binary", points:5 },
       { id:"im-run",     title:"Run session",          emoji:"🏃", quip:"Brick runs build race-day legs.",          type:"binary", points:5 },
       { id:"im-strength",title:"Strength training",    emoji:"🏋️", quip:"Injury prevention starts in the gym.",    type:"binary", points:3 },
-      { id:"im-recover", title:"Recovery protocol",    emoji:"🛁", quip:"Ice bath, compression, elevation.",        type:"binary", points:2 },
+      { id:"im-recover", title:"Active recovery (20 min)", emoji:"🛁", quip:"Ice, compression, elevation, or soft-tissue work.", type:"binary", points:2 },
     ]
   },
   {
@@ -579,7 +601,7 @@ const TEMPLATES = [
       { id:"tm-strength",title:"Strength & lift",      emoji:"🏋️", quip:"Carry your teammates over walls.",        type:"binary", points:5 },
       { id:"tm-grip",    title:"Grip & obstacle drills",emoji:"🧗", quip:"Monkey bars are harder than they look.",  type:"binary", points:4 },
       { id:"tm-cold",    title:"Cold exposure",        emoji:"🧊", quip:"Ice water is just part of the course.",    type:"binary", points:3 },
-      { id:"tm-mental",  title:"No excuses today",     emoji:"🧠", quip:"Mindset separates finishers from quitters.",type:"binary",points:3 },
+      { id:"tm-mental",  title:"Minimum session logged",emoji:"🧠", quip:"Even a short session counts. Show up every day.", type:"binary", points:3 },
     ]
   },
   {
@@ -591,7 +613,7 @@ const TEMPLATES = [
       { id:"sr-obstacle",title:"Obstacle conditioning", emoji:"🧗", quip:"Spear throw, rope climb, sandbag carry.", type:"binary", points:4 },
       { id:"sr-run",     title:"Trail or road run",    emoji:"🏃", quip:"Spartans run on rough terrain.",           type:"binary", points:5 },
       { id:"sr-strength",title:"Strength circuit",     emoji:"🏋️", quip:"Burpees count. Weakness does not.",       type:"binary", points:3 },
-      { id:"sr-fuel",    title:"Fuel clean",           emoji:"🥩", quip:"Real food only. Spartan diet.",            type:"binary", points:3 },
+      { id:"sr-fuel",    title:"Protein + whole-food meals", emoji:"🥩", quip:"Real food only. Spartan diet.",      type:"binary", points:3 },
     ]
   },
 
@@ -627,7 +649,7 @@ const TEMPLATES = [
       { id:"bp-dia",     title:"Log diastolic (bottom #)",emoji:"💙", quip:"Normal: below 80 mmHg.",                        type:"measurement", unit:"mmHg",    decimals:0 },
       { id:"bp-walk",    title:"30-min walk",            emoji:"🚶", quip:"Regular walks lower BP more than most meds.",    type:"binary",      points:5 },
       { id:"bp-sodium",  title:"Low sodium today",       emoji:"🧂", quip:"Under 1,500 mg Na/day for high-BP.",             type:"binary",      points:5 },
-      { id:"bp-stress",  title:"Stress management",      emoji:"🧘", quip:"Meditation, breathing, or just a quiet 10 min.", type:"binary",      points:3 },
+      { id:"bp-stress",  title:"Stress downshift (10 min)", emoji:"🧘", quip:"Meditation, breathing, gentle walk, or quiet time.", type:"binary", points:3 },
     ]
   },
   {
@@ -655,6 +677,18 @@ const TEMPLATES = [
   },
 
   // ── Movement: beginner / body-weight progressions ───────────────────────
+  {
+    id: "recovery-reset", name: "Recovery Reset", emoji: "🌿", category: "health",
+    description: "21 days of deliberate recovery. Sleep, mobility, easy movement, and stress reduction — the habits that let the hard work pay off.",
+    duration: 21, weeklyGoal: 65, defaultMode: "soft",
+    habits: [
+      { id:"rr-sleep",    title:"7+ hours sleep opportunity", emoji:"🌙", quip:"You can't out-train poor sleep.",              type:"binary",      points:4 },
+      { id:"rr-walk",     title:"Easy walk (20–30 min)",      emoji:"🚶", quip:"Low intensity keeps the blood moving.",        type:"binary",      points:3 },
+      { id:"rr-mobility", title:"Mobility work (10 min)",     emoji:"🧘", quip:"Hips, thoracic spine, shoulders. Pick two.",   type:"binary",      points:3 },
+      { id:"rr-stress",   title:"Stress downshift (5 min)",   emoji:"💨", quip:"Breathing, journaling, or just quiet time.",  type:"binary",      points:2 },
+      { id:"rr-soreness", title:"Rate soreness 1–10",         emoji:"📊", quip:"Tracking how you feel is data too.",           type:"measurement", unit:"/10", decimals:0 },
+    ]
+  },
   {
     id: "c25k", name: "Couch to 5K", emoji: "🏃", category: "movement",
     description: "9 weeks of run/walk intervals that take beginners from the sofa to a 5K finish line. 3 sessions per week — rest days count too.",
@@ -821,6 +855,18 @@ const TEMPLATES = [
     ]
   },
   {
+    id: "fiber-challenge", name: "Fiber Challenge", emoji: "🥦", category: "health",
+    description: "30 days of hitting your daily fiber target. Better gut health, lower blood sugar, steadier energy, and fewer cravings.",
+    duration: 30, weeklyGoal: 60, defaultMode: "soft",
+    habits: [
+      { id:"fb-fiber",    title:"Hit fiber target",            emoji:"🥦", quip:"Most people eat 10–15g/day. Aim for 25–35g.", type:"tiered", points:4,
+        tiers:[{label:"15–20g",pts:2},{label:"20–25g",pts:4},{label:"25g+",pts:6}] },
+      { id:"fb-veg",      title:"3+ vegetable servings",       emoji:"🥗", quip:"A fist-sized serving at every main meal.",    type:"binary", points:3 },
+      { id:"fb-whole",    title:"Whole-grain or legume meal",  emoji:"🫘", quip:"Oats, lentils, beans, quinoa, brown rice.",    type:"binary", points:2 },
+      { id:"fb-label",    title:"Check fiber on one label",    emoji:"🔍", quip:"Most packaged food hides the fiber count.",   type:"binary", points:1 },
+    ]
+  },
+  {
     id: "meal-prep", name: "Meal Prep Challenge", emoji: "🥡", category: "lifestyle",
     description: "30 days of cooking and eating real food you prepared yourself. Less takeout. Less guessing. More control.",
     duration: 30, weeklyGoal: 55, defaultMode: "soft",
@@ -851,7 +897,7 @@ const TEMPLATES = [
       { id:"p50-move",   title:"Exercise 30 min",         emoji:"🏋️", quip:"Any movement counts. Showing up is the whole job.", type:"binary", points:4 },
       { id:"p50-read",   title:"Read 10 pages",           emoji:"📖", quip:"10 pages a day is a book a month.",                 type:"binary", points:2 },
       { id:"p50-noalc",  title:"No alcohol",              emoji:"🚫", quip:"50 days sober changes your baseline.",               type:"binary", points:3 },
-      { id:"p50-morning",title:"Morning routine complete", emoji:"🌅", quip:"Start before the world gets loud.",                type:"binary", points:3 },
+      { id:"p50-morning",title:"Morning routine: no snooze + phone-free 30 min", emoji:"🌅", quip:"Start before the world gets loud.", type:"binary", points:3 },
     ]
   },
   {
@@ -862,6 +908,17 @@ const TEMPLATES = [
       { id:"ns-nospend", title:"No non-essential purchases",emoji:"💰",quip:"Need vs want. Today it's want. Skip it.",          type:"binary", points:5 },
       { id:"ns-cook",    title:"Cook at home",             emoji:"🍳", quip:"The restaurant markup is your savings.",            type:"binary", points:2 },
       { id:"ns-log",     title:"Log spending",             emoji:"📊", quip:"Where does the money actually go? Find out.",      type:"binary", points:2 },
+    ]
+  },
+
+  {
+    id: "declutter", name: "Declutter Challenge", emoji: "📦", category: "lifestyle",
+    description: "30 days of clearing the clutter. One area at a time, one day at a time. Less stuff, more clarity.",
+    duration: 30, weeklyGoal: 55, defaultMode: "soft",
+    habits: [
+      { id:"dc-clear",   title:"Clear one area today",              emoji:"📦", quip:"Drawer, shelf, bag, inbox — pick one. Do it.", type:"binary", points:4 },
+      { id:"dc-out",     title:"Remove 3+ items (donate or trash)", emoji:"🗑️", quip:"If you haven't used it in a year, let it go.", type:"binary", points:3 },
+      { id:"dc-digital", title:"Clear 10+ digital files or emails", emoji:"💻", quip:"Digital clutter is still clutter.",           type:"binary", points:2 },
     ]
   },
 
