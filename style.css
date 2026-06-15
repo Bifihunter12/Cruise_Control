@@ -3656,21 +3656,20 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .pchart-blur-overlay {
   position: absolute;
   inset: 0;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  background: rgba(0,0,0,0.35);
+  background: linear-gradient(to top, var(--panel, #13121e) 45%, transparent 100%);
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
+  padding-bottom: 14px;
   border-radius: var(--radius);
 }
 .pchart-pro-content {
   text-align: center;
-  padding: 0 20px;
+  padding: 0 16px;
 }
-.pchart-pro-icon  { font-size: 28px; margin-bottom: 4px; }
-.pchart-pro-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
-.pchart-pro-sub   { font-size: 12px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.4; }
+.pchart-pro-lock  { font-size: 20px; margin-bottom: 2px; }
+.pchart-pro-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.pchart-pro-sub   { font-size: 11px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.5; }
 .pchart-pro-btn {
   display: inline-block;
   background: var(--gradient);
@@ -4576,6 +4575,17 @@ details[open] .badge-locked-summary::before {
   font-size: 13px;
   color: var(--text-dim);
 }
+.bqs-mode-note {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: center;
+  margin-top: 12px;
+  padding: 8px 14px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  line-height: 1.5;
+}
+.bqs-mode-note strong { color: var(--text); }
 
 /* ── XP bar explainer ── */
 .xp-bar-explainer {

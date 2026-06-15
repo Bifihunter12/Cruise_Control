@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.09";
+const APP_VERSION = "2026.06.14.10";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -2751,7 +2751,7 @@ function renderToday() {
       <span class="xmb-badge">${xpTheme.emoji} Lv.${xpInfo.level}</span>
       <span class="xmb-name">${xpInfo.name}</span>
       <span class="xmb-track"><span class="xmb-fill" style="width:${xpInfo.pct}%"></span></span>
-      <span class="xmb-hint">${xpToNext ? xpToNext + " XP to next" : "Max Level 🏆"}</span>
+      <span class="xmb-hint">${xpToNext ? xpToNext + " XP to next · XP never resets" : "Max Level 🏆"}</span>
     </div>
     ${active.length > 1 ? renderChallengePills(active) : ""}
     ${renderWeeklyRecap(challenge)}
@@ -2791,7 +2791,7 @@ function renderToday() {
       ${isToday ? renderModeSelector(day, challenge) : ""}
     </section>
     ${phaseInfo && isToday && dayNumber === phaseInfo.phase.end && dayNumber > 1 ? `
-    <div class="boss-day-callout">⚡ Boss day — the final challenge of the <strong>${phaseInfo.phase.name}</strong> phase. Finish strong.</div>` : ""}
+    <div class="boss-day-callout">⚡ Phase finale — last day of <strong>${phaseInfo.phase.name}</strong>. Finish strong.</div>` : ""}
 
     <section>
       <div class="section-head">
@@ -3764,7 +3764,7 @@ function renderChallenges() {
     <div class="email-cap-card">
       <button class="email-cap-x" data-dismiss-email-capture aria-label="Dismiss">×</button>
       <div class="email-cap-title">🚀 Conqur Pro is coming</div>
-      <div class="email-cap-sub">Cloud sync, analytics & more. Be first to know — no spam.</div>
+      <div class="email-cap-sub">📊 Weekly charts · 🏆 Leaderboards · 📤 Export · 🔔 Per-habit reminders<br><span style="color:var(--text-faint);font-size:11px">Be first to know — no spam.</span></div>
       <div class="email-cap-row">
         <input type="email" id="email-cap-input" class="email-cap-input" placeholder="your@email.com" autocomplete="email">
         <button class="email-cap-btn" data-email-capture-submit>Notify me</button>
@@ -4778,10 +4778,10 @@ function renderConsistencyChart(allChallenges) {
       </div>
       <div class="pchart-blur-overlay">
         <div class="pchart-pro-content">
-          <div class="pchart-pro-icon">📊</div>
+          <div class="pchart-pro-lock">🔒</div>
           <div class="pchart-pro-title">Weekly consistency chart</div>
-          <div class="pchart-pro-sub">Track habit completion week over week — coming with Conqur Pro.</div>
-          <button class="pchart-pro-btn" data-tab="challenges">Join early access →</button>
+          <div class="pchart-pro-sub">📊 Charts · 🏆 Leaderboards · 📤 Export · 🔔 Per-habit reminders</div>
+          <button class="pchart-pro-btn" data-tab="challenges">Join Conqur Pro early access →</button>
         </div>
       </div>
     </div>
@@ -6092,6 +6092,11 @@ function renderBuilderQuickstart() {
     ${TEMPLATE_SAFETY[template.id] ? `<div class="bqs-safety-warning"><span class="bqs-safety-icon">⚠️</span><span>${TEMPLATE_SAFETY[template.id]}</span></div>` : ""}
     <div class="bqs-xp-row">
       ${xpTheme.emoji} Earn ~<strong>${weeklyXP.toLocaleString()} XP</strong> per week logging every habit
+    </div>
+    <div class="bqs-mode-note">
+      ${template.defaultMode === "soft"
+        ? "💡 <strong>Soft mode</strong> — one grace day per week if life gets in the way."
+        : "⚡ <strong>Strict mode</strong> — no missed days. Zero compromise."}
     </div>
     <div class="builder-cta-footer">
       <button class="primary-button" data-start-challenge>Start ${dur}-Day Challenge 🚀</button>
