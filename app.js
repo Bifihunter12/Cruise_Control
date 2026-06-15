@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.18";
+const APP_VERSION = "2026.06.14.19";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -122,8 +122,8 @@ function recalcXP() {
 
 // ── WoW-style Rarity Tiers ────────────────────────────────────────────────
 const TIERS = {
-  common:    { label:"Common",    color:"#86efac", border:"#86efac" }, // soft green
-  uncommon:  { label:"Uncommon",  color:"#1eff00", border:"#1eff00" }, // WoW classic green
+  common:    { label:"Starter",   color:"#86efac", border:"#86efac" }, // soft green
+  uncommon:  { label:"Common",    color:"#1eff00", border:"#1eff00" }, // WoW classic green
   rare:      { label:"Rare",      color:"#4da6ff", border:"#4da6ff" }, // WoW blue
   epic:      { label:"Epic",      color:"#c070ff", border:"#c070ff" }, // WoW purple
   legendary: { label:"Legendary", color:"#ff8c00", border:"#ff8c00" }, // WoW orange/gold
@@ -132,7 +132,7 @@ const TIERS = {
 // Plain-English descriptions of each tier for the builder
 const TIER_DESC = {
   common:    "Beginner-friendly",
-  uncommon:  "Requires consistency",
+  uncommon:  "Everyday challenge",
   rare:      "Demanding",
   epic:      "Elite-level",
   legendary: "Extreme athletes only",
