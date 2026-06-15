@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.15.2";
+const APP_VERSION = "2026.06.15.3";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -282,7 +282,6 @@ const TEMPLATES = [
         tiers:[{value:8,label:"8k",points:2},{value:10,label:"10k",points:3},{value:15,label:"15k",points:4}] },
       { id:"protein",   title:"Protein at every meal",     emoji:"🥩", quip:"Protein keeps the muscle, drops the fat.", type:"binary", points:2 },
       { id:"noalcohol", title:"No alcohol or liquid cals", emoji:"🚫", quip:"Empty calories in every form. Skip them.", type:"binary", points:2 },
-      { id:"sleep",     title:"7+ hours sleep",            emoji:"🌙", quip:"Sleep is the real supplement.",            type:"binary", points:2 },
       { id:"read",      title:"Read 10 pages",             emoji:"📖", quip:"10 pages a day is a book a month.",       type:"binary", points:2 },
       { id:"run",       title:"Run session",               emoji:"🏃", quip:"Push your pace. Every km counts.",        type:"tiered",  points:2,
         tiers:[{value:1,label:"1 km",points:2},{value:3,label:"3 km",points:3},{value:5,label:"5 km",points:5},{value:"5+",label:"5 km+",points:7}] },
@@ -316,7 +315,6 @@ const TEMPLATES = [
     duration: 30, weeklyGoal: 70, defaultMode: "strict",
     habits: [
       { id:"pushups",  title:"Daily push-ups",              emoji:"💪", quip:"Do your push-ups.",                 type:"binary", points:5 },
-      { id:"sleep30",  title:"8+ hours sleep",              emoji:"🌙", quip:"Muscles grow at night.",            type:"binary", points:2 },
       { id:"prot30",   title:"Protein at every meal",       emoji:"🥩", quip:"Feed the muscle.",                 type:"binary", points:2 },
     ]
   },
@@ -326,7 +324,6 @@ const TEMPLATES = [
     duration: 30, weeklyGoal: 80, defaultMode: "strict",
     habits: [
       { id:"noalc",    title:"No alcohol",                  emoji:"🚫", quip:"Not today.",                        type:"binary", points:4 },
-      { id:"sleep30d", title:"7+ hours sleep",              emoji:"🌙", quip:"Sleep is better sober anyway.",    type:"binary", points:2 },
       { id:"journal",  title:"Journal 5 min",               emoji:"✍️", quip:"Write it out.",                   type:"binary", points:2 },
     ]
   },
@@ -382,7 +379,6 @@ const TEMPLATES = [
       { id:"rn-run",     title:"Run session",               emoji:"👟", quip:"Shoes on. Door open. Go.",           type:"tiered", points:3,
         tiers:[{value:1,label:"1 km",points:3},{value:3,label:"3 km",points:4},{value:5,label:"5 km",points:6},{value:10,label:"10 km+",points:9}] },
       { id:"rn-stretch", title:"Post-run stretch",          emoji:"🧘", quip:"Skipping this is how injuries happen.", type:"binary", points:2 },
-      { id:"rn-sleep",   title:"Sleep 7+ hours",            emoji:"🌙", quip:"You grow between the runs.",         type:"binary", points:2 },
     ]
   },
   {
@@ -403,7 +399,6 @@ const TEMPLATES = [
     habits: [
       { id:"st-lift",    title:"Lift session",              emoji:"🏋️", quip:"Show up. Lift. Repeat.",               type:"binary", points:5 },
       { id:"st-protein", title:"Protein at every meal",     emoji:"🥩", quip:"Muscle is built in the kitchen too.",  type:"binary", points:2 },
-      { id:"st-sleep",   title:"8+ hours sleep",            emoji:"🌙", quip:"Muscle grows when you sleep.",         type:"binary", points:2 },
       { id:"st-stretch", title:"Post-lift stretch",         emoji:"🦵", quip:"Skipping this is how injuries happen.",type:"binary", points:1 },
     ]
   },
@@ -433,7 +428,7 @@ const TEMPLATES = [
     description: "21 days to fix your sleep. Consistent schedule, no screens, real rest.",
     duration: 21, weeklyGoal: 80, defaultMode: "strict",
     habits: [
-      { id:"sl-hours",   title:"8+ hours sleep",            emoji:"🌙", quip:"Non-negotiable.",                      type:"binary", points:4 },
+      { id:"sl-hours",   title:"7+ hours sleep",            emoji:"🌙", quip:"The minimum for real recovery.",       type:"binary", points:4 },
       { id:"sl-screen",  title:"No screens after 9pm",      emoji:"📵", quip:"Blue light kills melatonin.",          type:"binary", points:3 },
       { id:"sl-caffeine",title:"No caffeine after 2pm",     emoji:"☕", quip:"It stays in your system 6+ hours.",    type:"binary", points:2 },
       { id:"sl-routine", title:"Same wake-up time",         emoji:"⏰", quip:"Consistency locks the rhythm.",        type:"binary", points:2 },
@@ -538,7 +533,6 @@ const TEMPLATES = [
       { id:"hm-run",    title:"Run session",          emoji:"🏃", quip:"Every km counts.",                         type:"binary", points:5 },
       { id:"hm-xt",     title:"Cross-train",          emoji:"🚴", quip:"Swim, bike, yoga — anything non-run.",      type:"binary", points:3 },
       { id:"hm-stretch",title:"Stretch & recover",    emoji:"🦵", quip:"Tight hips = slower times.",               type:"binary", points:2 },
-      { id:"hm-sleep",  title:"Sleep 8+ hours",       emoji:"🌙", quip:"Sleep is the best performance drug.",       type:"binary", points:2 },
       { id:"hm-fuel",   title:"Eat & hydrate clean",  emoji:"🥗", quip:"Fuel the engine right.",                   type:"binary", points:3 },
     ]
   },
@@ -550,7 +544,6 @@ const TEMPLATES = [
       { id:"mt-run",    title:"Run session",           emoji:"🏃", quip:"Miles in the bank.",                       type:"binary", points:5 },
       { id:"mt-xt",     title:"Cross-train",           emoji:"🏊", quip:"Active recovery is still recovery.",       type:"binary", points:3 },
       { id:"mt-stretch",title:"Stretch & foam roll",   emoji:"🦵", quip:"15 min saves your IT bands.",              type:"binary", points:2 },
-      { id:"mt-sleep",  title:"Sleep 8+ hours",        emoji:"🌙", quip:"Legs rebuild at night.",                   type:"binary", points:2 },
       { id:"mt-fuel",   title:"Fuel & hydrate",        emoji:"🍌", quip:"Carbs are your friend on long-run days.",  type:"binary", points:3 },
     ]
   },
@@ -563,7 +556,6 @@ const TEMPLATES = [
       { id:"703-bike",   title:"Bike session",         emoji:"🚴", quip:"The bike is where races are won.",         type:"binary", points:5 },
       { id:"703-run",    title:"Run session",          emoji:"🏃", quip:"Hold form when it hurts.",                 type:"binary", points:5 },
       { id:"703-recover",title:"Recovery & stretch",   emoji:"🦵", quip:"Three sports means three ways to injure.", type:"binary", points:2 },
-      { id:"703-sleep",  title:"Sleep 8+ hours",       emoji:"🌙", quip:"Training stress + sleep = adaptation.",    type:"binary", points:2 },
     ]
   },
   {
@@ -576,7 +568,6 @@ const TEMPLATES = [
       { id:"im-run",     title:"Run session",          emoji:"🏃", quip:"Brick runs build race-day legs.",          type:"binary", points:5 },
       { id:"im-strength",title:"Strength training",    emoji:"🏋️", quip:"Injury prevention starts in the gym.",    type:"binary", points:3 },
       { id:"im-recover", title:"Recovery protocol",    emoji:"🛁", quip:"Ice bath, compression, elevation.",        type:"binary", points:2 },
-      { id:"im-sleep",   title:"Sleep 8+ hours",       emoji:"🌙", quip:"Ironman is built in the hours you sleep.", type:"binary", points:2 },
     ]
   },
   {
@@ -613,7 +604,6 @@ const TEMPLATES = [
       { id:"wl-weight",  title:"Log weight",         emoji:"⚖️", quip:"Same time each morning. Consistency beats precision.", type:"measurement", unit:"weight", decimals:1 },
       { id:"wl-deficit", title:"Calorie deficit day", emoji:"🥗", quip:"Eat less than you burn. Simple, not easy.",           type:"binary",      points:5 },
       { id:"wl-exercise",title:"Exercise 30 min",    emoji:"🏃", quip:"Cardio, weights, walk — it all counts.",              type:"binary",      points:5 },
-      { id:"wl-sleep",   title:"Sleep 8+ hours",     emoji:"🌙", quip:"Sleep deprivation kills fat loss.",                   type:"binary",      points:2 },
     ]
   },
   {
@@ -649,7 +639,6 @@ const TEMPLATES = [
       { id:"gc-lowcarb",title:"Low-carb meals",         emoji:"🥦", quip:"Aim for under 50g net carbs.",                      type:"binary",      points:5 },
       { id:"gc-exercise",title:"Exercise 30 min",       emoji:"🏃", quip:"Muscle is the biggest glucose sink in the body.",    type:"binary",      points:5 },
       { id:"gc-sugar",   title:"No added sugar",        emoji:"🚫", quip:"Check labels. Sugar hides everywhere.",             type:"binary",      points:5 },
-      { id:"gc-sleep",   title:"Sleep 8+ hours",        emoji:"🌙", quip:"One bad night raises fasting glucose the next day.",type:"binary",      points:3 },
     ]
   },
   {
@@ -673,7 +662,6 @@ const TEMPLATES = [
     habits: [
       { id:"c25k-run",     title:"Run/walk session",          emoji:"👟", quip:"3 sessions a week. Each one builds the next.",     type:"binary", points:5 },
       { id:"c25k-stretch", title:"Post-session stretch",      emoji:"🦵", quip:"5 minutes now saves weeks of injury later.",       type:"binary", points:2 },
-      { id:"c25k-sleep",   title:"Sleep 7+ hours",            emoji:"🌙", quip:"Legs rebuild at night.",                           type:"binary", points:2 },
     ]
   },
   {
@@ -685,7 +673,6 @@ const TEMPLATES = [
         tiers:[{label:"Easy 20 min",pts:3},{label:"Tempo 30 min",pts:5},{label:"Interval session",pts:7}] },
       { id:"5k-strides", title:"Strides after easy runs", emoji:"⚡", quip:"6 × 20-second pick-ups. More speed than you think.", type:"binary", points:2 },
       { id:"5k-stretch", title:"Post-run stretch",        emoji:"🦵", quip:"Tight calves slow you down. Fix them.",             type:"binary", points:2 },
-      { id:"5k-sleep",   title:"Sleep 7+ hours",          emoji:"🌙", quip:"Speed adaptations happen in deep sleep.",            type:"binary", points:2 },
     ]
   },
   {
@@ -697,7 +684,6 @@ const TEMPLATES = [
         tiers:[{label:"Easy 30 min",pts:3},{label:"Tempo 40 min",pts:5},{label:"Long run 60+ min",pts:7}] },
       { id:"10k-xt",     title:"Cross-train",            emoji:"🚴", quip:"Bike, swim, or yoga — protect the legs.",             type:"binary", points:2 },
       { id:"10k-stretch",title:"Stretch & foam-roll",    emoji:"🦵", quip:"15 minutes now = fewer physio bills later.",          type:"binary", points:2 },
-      { id:"10k-sleep",  title:"Sleep 8+ hours",         emoji:"🌙", quip:"Volume training demands good recovery.",              type:"binary", points:2 },
     ]
   },
   {
@@ -709,7 +695,6 @@ const TEMPLATES = [
         tiers:[{label:"1 mile",pts:4},{label:"3 miles",pts:6},{label:"5+ miles",pts:8}] },
       { id:"rs-log",     title:"Log your mileage",       emoji:"📊", quip:"What gets measured gets improved.",                   type:"binary", points:1 },
       { id:"rs-stretch", title:"Post-run stretch",       emoji:"🦵", quip:"Daily running without stretching is how streaks end.", type:"binary", points:2 },
-      { id:"rs-sleep",   title:"Sleep 7+ hours",         emoji:"🌙", quip:"Recovery is part of the streak.",                    type:"binary", points:2 },
     ]
   },
   {
@@ -721,7 +706,6 @@ const TEMPLATES = [
         tiers:[{label:"20–50 reps",pts:4},{label:"51–100 reps",pts:6},{label:"100+ reps",pts:8}] },
       { id:"sq-stretch", title:"Hip flexor stretch",     emoji:"🧘", quip:"Squats tighten hips. Undo it daily.",                type:"binary", points:2 },
       { id:"sq-protein", title:"Protein at every meal",  emoji:"🥩", quip:"Quads don't grow on air.",                           type:"binary", points:2 },
-      { id:"sq-sleep",   title:"8+ hours sleep",         emoji:"🌙", quip:"Strength is built while you sleep.",                 type:"binary", points:2 },
     ]
   },
   {
