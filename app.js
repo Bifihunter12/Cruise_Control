@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.15.3";
+const APP_VERSION = "2026.06.15.4";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -747,6 +747,64 @@ const TEMPLATES = [
         tiers:[{label:"20 min recovery",pts:3},{label:"45 min class",pts:5},{label:"60 min hard ride",pts:7}] },
       { id:"sp-stretch", title:"Stretch hips & quads",    emoji:"🦵", quip:"Indoor cycling locks up the hips. Undo it.",       type:"binary", points:2 },
       { id:"sp-fuel",    title:"Carb-up before long ride", emoji:"🍌", quip:"Empty fuel tanks kill performance.",               type:"binary", points:1 },
+    ]
+  },
+
+  // ── Strength: single-movement progressions ──────────────────────────────
+  {
+    id: "pull-up-challenge", name: "Pull-Up Challenge", emoji: "💪", category: "movement",
+    description: "30 days of daily pull-ups. Start with negatives, end doing sets of 10+. The ultimate upper-body test.",
+    duration: 30, weeklyGoal: 60, defaultMode: "strict",
+    habits: [
+      { id:"pu-reps",    title:"Pull-ups",                emoji:"💪", quip:"Chin over bar. Dead stop. Repeat.",           type:"tiered", points:5,
+        tiers:[{label:"1–3 reps",pts:5},{label:"4–7 reps",pts:7},{label:"8–12 reps",pts:9},{label:"12+ reps",pts:12}] },
+      { id:"pu-hang",    title:"Dead hang (30 sec)",       emoji:"🤲", quip:"Builds grip, decompresses the spine.",        type:"binary", points:2 },
+      { id:"pu-stretch", title:"Shoulder & lat stretch",   emoji:"🦵", quip:"Pull-ups compress the shoulder. Undo it.",   type:"binary", points:1 },
+    ]
+  },
+  {
+    id: "burpee-challenge", name: "Burpee Challenge", emoji: "🔥", category: "movement",
+    description: "30 days of daily burpees. Start at 10, build to 100. No equipment needed.",
+    duration: 30, weeklyGoal: 55, defaultMode: "strict",
+    habits: [
+      { id:"br-reps",    title:"Daily burpees",            emoji:"🔥", quip:"Drop. Push. Jump. Repeat.",                  type:"tiered", points:5,
+        tiers:[{label:"10–20 reps",pts:5},{label:"21–40 reps",pts:7},{label:"41–60 reps",pts:9},{label:"60+ reps",pts:12}] },
+      { id:"br-stretch", title:"Hip flexor stretch",       emoji:"🦵", quip:"Burpees wreck the hips. Undo it.",           type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "dip-challenge", name: "Dip Challenge", emoji: "🏋️", category: "movement",
+    description: "30 days of daily dips. Build tricep and chest pressing strength from zero to sets of 30.",
+    duration: 30, weeklyGoal: 55, defaultMode: "strict",
+    habits: [
+      { id:"dp-reps",    title:"Dips",                    emoji:"💪", quip:"Full range. Locked out. No half reps.",       type:"tiered", points:5,
+        tiers:[{label:"5–10 reps",pts:5},{label:"11–20 reps",pts:7},{label:"21–30 reps",pts:9},{label:"30+ reps",pts:12}] },
+      { id:"dp-stretch", title:"Chest & shoulder stretch", emoji:"🦵", quip:"Dips compress the front shoulder. Fix it.",  type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "kettlebell", name: "Kettlebell Challenge", emoji: "🔔", category: "movement",
+    description: "30 days of kettlebell training. Swings, presses, carries — full-body strength built the old way.",
+    duration: 30, weeklyGoal: 60, defaultMode: "soft",
+    habits: [
+      { id:"kb-swing",   title:"KB swings",               emoji:"🔔", quip:"Hips drive the bell. Not the arms.",          type:"tiered", points:5,
+        tiers:[{label:"50 reps",pts:5},{label:"100 reps",pts:7},{label:"200 reps",pts:9}] },
+      { id:"kb-press",   title:"KB press or clean & press",emoji:"💪", quip:"3 sets each side. Controlled descent.",       type:"binary", points:3 },
+      { id:"kb-mobility",title:"Hip & thoracic mobility",  emoji:"🧘", quip:"KB training locks the hips. Undo it daily.", type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "calisthenics", name: "Calisthenics", emoji: "🤸", category: "movement",
+    description: "60 days of bodyweight mastery. Pull-ups, dips, handstands, L-sits — strength you carry everywhere.",
+    duration: 60, weeklyGoal: 65, defaultMode: "soft",
+    habits: [
+      { id:"cal-pull",   title:"Pull-ups",                emoji:"💪", quip:"Chin over bar. Every rep earned.",             type:"tiered", points:4,
+        tiers:[{label:"3–5 reps",pts:4},{label:"6–10 reps",pts:6},{label:"10+ reps",pts:8}] },
+      { id:"cal-dip",    title:"Dips",                    emoji:"🏋️", quip:"Full range. Chest dips count too.",            type:"tiered", points:3,
+        tiers:[{label:"5–10 reps",pts:3},{label:"11–20 reps",pts:5},{label:"20+ reps",pts:7}] },
+      { id:"cal-hand",   title:"Handstand practice",      emoji:"🤸", quip:"Wall assist is fine. Get inverted.",           type:"binary", points:3 },
+      { id:"cal-lsit",   title:"L-sit hold",              emoji:"⏱️", quip:"5 seconds to start. Keep the legs straight.", type:"tiered", points:3,
+        tiers:[{label:"5–10 sec",pts:3},{label:"15–20 sec",pts:5},{label:"30+ sec",pts:7}] },
     ]
   },
 
