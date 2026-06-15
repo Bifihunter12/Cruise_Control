@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.15.5";
+const APP_VERSION = "2026.06.15.6";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -187,6 +187,12 @@ const TEMPLATE_DIFFICULTY = {
   "utmb":"extreme","run-5-marathons":"extreme","run-jogle":"extreme",
   "run-trans-america":"extreme","trans-am-bike":"extreme","pct":"extreme",
   "amazon-river":"extreme",
+  // New challenges
+  "steps-10k":"beginner","zone2":"intermediate","recovery-reset":"beginner",
+  "fiber-challenge":"beginner","declutter":"beginner",
+  // Strength single-movement progressions
+  "pull-up-challenge":"intermediate","burpee-challenge":"intermediate","dip-challenge":"intermediate",
+  "kettlebell":"intermediate","calisthenics":"advanced",
 };
 const DIFF_LABEL = { beginner:"Beginner", intermediate:"Intermediate", advanced:"Advanced", extreme:"Extreme" };
 const DIFF_COLOR = { beginner:"#4caf50", intermediate:"#ff9800", advanced:"#f44336", extreme:"#9c27b0" };
@@ -249,6 +255,12 @@ const TEMPLATE_TIERS = {
   "ironman-703":"epic","ironman-full":"legendary",
   // ── Epic expedition
   "utmb":"epic",
+  // New challenges
+  "steps-10k":"common","zone2":"uncommon","recovery-reset":"common",
+  "fiber-challenge":"common","declutter":"common",
+  // Strength single-movement progressions
+  "pull-up-challenge":"uncommon","burpee-challenge":"uncommon","dip-challenge":"uncommon",
+  "kettlebell":"uncommon","calisthenics":"rare",
 };
 
 // Universal / Lifetime badge → tier (template badges inherit their template's tier)
@@ -549,24 +561,46 @@ const TEMPLATES = [
   },
   {
     id: "half-marathon-prep", name: "Half Marathon Prep", emoji: "🏃", category: "endurance",
-    description: "12 weeks to race day. Build your base, sharpen your speed, and cross that finish line.",
+    description: "12 weeks to race day. Built-in weekly schedule: easy runs, tempo, long run, cross-train, and 2 rest days.",
     duration: 84, weeklyGoal: 75, defaultMode: "soft",
+    weekSchedule: [
+      { day:1, type:"easy",  label:"Easy Run",    emoji:"🟢", desc:"30–40 min at conversational pace. RPE 3–4." },
+      { day:2, type:"rest",  label:"Rest Day",    emoji:"⚪", desc:"Full rest or easy walk. Recovery is training." },
+      { day:3, type:"tempo", label:"Tempo Run",   emoji:"🟡", desc:"20–30 min at comfortably hard pace. RPE 6–7." },
+      { day:4, type:"easy",  label:"Easy Run",    emoji:"🟢", desc:"30–40 min easy. Keep it conversational." },
+      { day:5, type:"rest",  label:"Rest Day",    emoji:"⚪", desc:"Rest day. Prep mentally for tomorrow's long run." },
+      { day:6, type:"long",  label:"Long Run",    emoji:"🔴", desc:"The week's key session. Slow and steady. Add 1–2 km each week." },
+      { day:7, type:"cross", label:"Cross-Train", emoji:"🔵", desc:"Swim, bike, yoga, or strength. Easy effort only." },
+    ],
     habits: [
-      { id:"hm-run",    title:"Run session",          emoji:"🏃", quip:"Every km counts.",                         type:"binary", points:5 },
-      { id:"hm-xt",     title:"Cross-train",          emoji:"🚴", quip:"Swim, bike, yoga — anything non-run.",      type:"binary", points:3 },
-      { id:"hm-stretch",title:"Stretch & recover",    emoji:"🦵", quip:"Tight hips = slower times.",               type:"binary", points:2 },
-      { id:"hm-fuel",   title:"Protein + water targets hit", emoji:"🥗", quip:"Hit protein goal. 2L+ water. Carbs before long runs.", type:"binary", points:3 },
+      { id:"hm-run",    title:"Run session",                emoji:"🏃", quip:"Log the type of run you completed.", type:"tiered", points:5,
+        tiers:[{label:"Easy 20–30 min",pts:5},{label:"Tempo 30–40 min",pts:7},{label:"Long run 60+ min",pts:9},{label:"Interval session",pts:7}] },
+      { id:"hm-xt",     title:"Cross-train session",        emoji:"🚴", quip:"Swim, bike, yoga, or strength — anything non-run.", type:"binary", points:3 },
+      { id:"hm-stretch",title:"Post-session mobility",      emoji:"🦵", quip:"Tight hips = slower times.",        type:"binary", points:2 },
+      { id:"hm-fuel",   title:"Protein + water targets hit",emoji:"🥗", quip:"Hit protein + 2L+ water. Carbs before long runs.", type:"binary", points:2 },
+      { id:"hm-pain",   title:"No pain or injury concern",  emoji:"💚", quip:"Yellow or red: drop the pace today.", type:"binary", points:1 },
     ]
   },
   {
     id: "marathon-training", name: "Marathon Training", emoji: "🏅", category: "endurance",
-    description: "16 weeks of structured training to get you to the 42.2 km finish line.",
+    description: "16 weeks to 42.2 km. Built-in schedule: easy runs, quality session, long run, cross-train, and 2 rest days.",
     duration: 112, weeklyGoal: 70, defaultMode: "soft",
+    weekSchedule: [
+      { day:1, type:"easy",     label:"Easy Run",      emoji:"🟢", desc:"45–60 min easy pace. Conversational. RPE 3–4." },
+      { day:2, type:"rest",     label:"Rest Day",      emoji:"⚪", desc:"Full rest or foam rolling. Recovery is where you improve." },
+      { day:3, type:"interval", label:"Quality Run",   emoji:"🟠", desc:"Intervals, tempo, or strides. RPE 7–8." },
+      { day:4, type:"easy",     label:"Easy Run",      emoji:"🟢", desc:"30–45 min easy. Keep it easy — no heroics." },
+      { day:5, type:"cross",    label:"Cross-Train",   emoji:"🔵", desc:"Swim, bike, strength, or yoga. 30–60 min easy effort." },
+      { day:6, type:"long",     label:"Long Run",      emoji:"🔴", desc:"The week's anchor session. Slow, steady, and fuelled." },
+      { day:7, type:"rest",     label:"Rest Day",      emoji:"⚪", desc:"Full rest. Eat well. Sleep. You've earned it." },
+    ],
     habits: [
-      { id:"mt-run",    title:"Run session",           emoji:"🏃", quip:"Miles in the bank.",                       type:"binary", points:5 },
-      { id:"mt-xt",     title:"Cross-train",           emoji:"🏊", quip:"Active recovery is still recovery.",       type:"binary", points:3 },
-      { id:"mt-stretch",title:"Stretch & foam roll",   emoji:"🦵", quip:"15 min saves your IT bands.",              type:"binary", points:2 },
-      { id:"mt-fuel",   title:"Fuel & hydrate",        emoji:"🍌", quip:"Hit protein + carbs. Hydrate all day. Practise race nutrition on long runs.", type:"binary", points:3 },
+      { id:"mt-run",    title:"Run session",           emoji:"🏃", quip:"Log the type of run you completed.", type:"tiered", points:5,
+        tiers:[{label:"Easy 30–45 min",pts:5},{label:"Quality 40+ min",pts:7},{label:"Long run 90+ min",pts:9}] },
+      { id:"mt-xt",     title:"Cross-train session",   emoji:"🏊", quip:"Active recovery is still recovery.",  type:"binary", points:3 },
+      { id:"mt-stretch",title:"Stretch & foam roll",   emoji:"🦵", quip:"15 min saves your IT bands.",         type:"binary", points:2 },
+      { id:"mt-fuel",   title:"Fuel & hydrate",        emoji:"🍌", quip:"Hit protein + carbs. Race-nutrition practice on long runs.", type:"binary", points:2 },
+      { id:"mt-pain",   title:"No pain or injury",     emoji:"💚", quip:"Pain is information. Dial back if needed.", type:"binary", points:1 },
     ]
   },
   {
@@ -1621,6 +1655,7 @@ let builderQuizAnswers   = { goal: null, time: null, level: null };
 let _badgeSheetQueue     = [];       // { label, desc, tier } — queued badge celebrations
 let _notifPromptVisible  = false;   // post-challenge-start notification prompt
 let _templateFilter      = "all";   // "all" | "short" | "medium" | "long"
+let _difficultyFilter    = "all";   // "all" | "beginner" | "intermediate" | "advanced" | "extreme"
 let _statsCollapsed      = null;    // null = auto (collapse Day 1-2), true/false = user override
 let _savedFlash          = false;   // brief "Saved ✓" indicator after habit tap
 let _obAuthError      = "";    // error message for onboarding account screen
@@ -1636,6 +1671,28 @@ let _levelUpOverlay = null;   // { level, name, emoji, total } — full-screen l
 let _resetConfirm = false;    // shows inline confirm step before wiping all data
 let _obTransitioning = false; // true while slide animation is in flight
 let _prevObStep = undefined;  // last rendered onboardingStep — transition only when this changes
+
+// Inject CSS for features added at runtime
+(function injectFeatureCSS() {
+  if (document.getElementById("conqur-feature-css")) return;
+  const s = document.createElement("style");
+  s.id = "conqur-feature-css";
+  s.textContent = `
+.day-plan-banner{border-radius:12px;padding:12px 14px;margin:0 0 12px;display:flex;align-items:center;gap:12px;border-left:3px solid transparent}
+.day-plan-banner.plan-easy{background:rgba(76,175,80,.12);border-color:#4caf50}
+.day-plan-banner.plan-tempo{background:rgba(255,152,0,.12);border-color:#ff9800}
+.day-plan-banner.plan-long{background:rgba(244,67,54,.12);border-color:#f44336}
+.day-plan-banner.plan-interval{background:rgba(255,152,0,.12);border-color:#ff9800}
+.day-plan-banner.plan-cross{background:rgba(33,150,243,.12);border-color:#2196f3}
+.day-plan-banner.plan-rest{background:rgba(120,120,120,.08);border-color:rgba(120,120,120,.3)}
+.dpb-emoji{font-size:22px;flex-shrink:0}
+.dpb-type{font-size:14px;font-weight:700;color:var(--text)}
+.dpb-desc{font-size:12px;color:var(--text-dim);margin-top:2px}
+.mode-chip--scheduled-rest{border-color:rgba(76,175,80,.5)!important;color:#4caf50!important}
+.template-filter-bar--diff{margin-top:6px}
+`;
+  document.head.appendChild(s);
+})();
 
 // ── Analytics helper (Plausible — graceful no-op if script not loaded) ───────
 function trackEvent(name, props) {
@@ -1802,14 +1859,15 @@ function saveBuilderFormFromDOM() {
 function normalizeDay(raw) {
   if (!raw || typeof raw !== "object") raw = {};
   return {
-    mode:       raw.mode === "rest" ? "rest" : "standard", // minimum/boss → standard
-    done:       Array.isArray(raw.done) ? raw.done : [],
-    recovered:  raw.recovered  === true,
-    pts:        typeof raw.pts === "number" ? raw.pts : 0,
-    tiers:      (raw.tiers && typeof raw.tiers === "object") ? raw.tiers : {},
-    distances:  (raw.distances && typeof raw.distances === "object") ? raw.distances : {},
-    note:       typeof raw.note === "string" ? raw.note : "",
-    freezeUsed: raw.freezeUsed === true,
+    mode:         raw.mode === "rest" ? "rest" : "standard", // minimum/boss → standard
+    done:         Array.isArray(raw.done) ? raw.done : [],
+    recovered:    raw.recovered    === true,
+    pts:          typeof raw.pts === "number" ? raw.pts : 0,
+    tiers:        (raw.tiers && typeof raw.tiers === "object") ? raw.tiers : {},
+    distances:    (raw.distances && typeof raw.distances === "object") ? raw.distances : {},
+    note:         typeof raw.note === "string" ? raw.note : "",
+    freezeUsed:   raw.freezeUsed   === true,
+    scheduledRest: raw.scheduledRest === true,
   };
 }
 
@@ -1998,6 +2056,16 @@ function addDays(key, n) { const d=parseDate(key); d.setDate(d.getDate()+n); ret
 function diffDays(a, b) { return Math.round((parseDate(b)-parseDate(a))/86400000); }
 function clamp(n,lo,hi) { return Math.max(lo,Math.min(hi,n)); }
 function uid() { return Math.random().toString(36).slice(2,10); }
+// Returns the scheduled workout entry for a given day of a challenge
+// Returns null if the challenge template has no weekSchedule
+function getDaySchedule(challenge, dateKey) {
+  const tpl = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
+  if (!tpl?.weekSchedule) return null;
+  const dayNum = diffDays(challenge.startDate, dateKey) + 1; // 1-indexed
+  const dayOfWeek = ((dayNum - 1) % 7) + 1;                  // 1–7 repeating
+  return tpl.weekSchedule.find(s => s.day === dayOfWeek) || null;
+}
+
 // Returns the effective day number accounting for paused days
 function challengeDayNumber(c, dateKey) {
   const d = dateKey || todayKey();
@@ -2879,6 +2947,19 @@ function renderToday() {
     ${phaseInfo && isToday && dayNumber === phaseInfo.phase.end && dayNumber > 1 ? `
     <div class="boss-day-callout">⚡ Phase finale — last day of <strong>${phaseInfo.phase.name}</strong>. Finish strong.</div>` : ""}
 
+    ${(() => {
+      const sched = getDaySchedule(challenge, effDate);
+      if (!sched) return "";
+      const typeClass = { easy:"plan-easy", tempo:"plan-tempo", long:"plan-long", interval:"plan-interval", cross:"plan-cross", rest:"plan-rest" }[sched.type] || "plan-easy";
+      return `<div class="day-plan-banner ${typeClass}">
+        <span class="dpb-emoji">${sched.emoji}</span>
+        <div>
+          <div class="dpb-type">Today's Plan: ${sched.label}</div>
+          <div class="dpb-desc">${sched.desc}</div>
+        </div>
+      </div>`;
+    })()}
+
     <section>
       <div class="section-head">
         ${challenge.habits.some(h => h.type === "distance")
@@ -3146,15 +3227,26 @@ function renderStreakFreezeUI(challenge) {
 function renderModeSelector(day, challenge) {
   const template        = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
   const noRestDay       = !!(template?.noRestDay);
+  const schedule        = getDaySchedule(challenge, effectiveDate());
+  const isScheduledRest = schedule?.type === "rest";
   const jokerBudget     = challenge?.jokerBudget ?? 3;
   const todayIsRest     = day.mode === "rest";
-  const jokersUsed      = Object.values(challenge?.days || {}).filter(d => d.mode === "rest").length;
-  const budgetExhausted = !todayIsRest && jokersUsed >= jokerBudget;
+  // Only count user-chosen rest days (not scheduled ones) against the joker budget
+  const jokersUsed      = Object.values(challenge?.days || {}).filter(d => d.mode === "rest" && !d.scheduledRest).length;
+  const budgetExhausted = !todayIsRest && !isScheduledRest && jokersUsed >= jokerBudget;
   const jokersLeft      = Math.max(0, jokerBudget - jokersUsed);
 
   // Compact single-line chip row
   if (noRestDay) {
     return `<div class="mode-chip-row"><button class="mode-chip mode-chip--active" data-mode="rest" title="No rest days on this challenge">🎯 Standard Day <span class="mode-chip-no-rest">· no rest days</span></button></div>`;
+  }
+  if (isScheduledRest) {
+    const restLabel = todayIsRest ? "😴 Scheduled Rest — active" : "😴 Scheduled Rest (free)";
+    return `
+  <div class="mode-chip-row">
+    <button class="mode-chip ${!todayIsRest ? "mode-chip--active" : ""}" data-mode="standard">🏃 Work out anyway</button>
+    <button class="mode-chip mode-chip--rest ${todayIsRest ? "mode-chip--rest-active" : "mode-chip--scheduled-rest"}" data-mode="rest">${restLabel}</button>
+  </div>`;
   }
   const restLabel = todayIsRest
     ? "😴 Rest Day — active"
@@ -4381,11 +4473,24 @@ function renderBuilderTemplates() {
     { id:"medium",   label:"31–60 days" },
     { id:"long",     label:"61+ days" },
   ];
+  const diffTabs = [
+    { id:"all",          label:"All levels" },
+    { id:"beginner",     label:"🟢 Beginner" },
+    { id:"intermediate", label:"🟡 Intermediate" },
+    { id:"advanced",     label:"🔴 Advanced" },
+    { id:"extreme",      label:"🟣 Extreme" },
+  ];
   const passesFilter = t => {
-    if (_templateFilter === "popular") return POPULAR_IDS.includes(t.id);
-    if (_templateFilter === "short")   return t.duration <= 30;
-    if (_templateFilter === "medium")  return t.duration > 30 && t.duration <= 60;
-    if (_templateFilter === "long")    return t.duration > 60;
+    const dur = _templateFilter;
+    const diff = _difficultyFilter;
+    if (dur === "popular" && !POPULAR_IDS.includes(t.id)) return false;
+    if (dur === "short"   && t.duration > 30)             return false;
+    if (dur === "medium"  && (t.duration <= 30 || t.duration > 60)) return false;
+    if (dur === "long"    && t.duration <= 60)            return false;
+    if (diff !== "all") {
+      const d = TEMPLATE_DIFFICULTY[t.id] || "intermediate";
+      if (d !== diff) return false;
+    }
     return true;
   };
   const templateCard = t => {
@@ -4412,8 +4517,12 @@ function renderBuilderTemplates() {
       <div class="tc-desc">${t.description}</div>
     </button>`;
   };
-  const filterBar = `<div class="template-filter-bar">${
+  const filterBar = `
+  <div class="template-filter-bar">${
     filterTabs.map(f => `<button class="template-filter-tab${_templateFilter===f.id?" active":""}" data-template-filter="${f.id}">${f.label}</button>`).join("")
+  }</div>
+  <div class="template-filter-bar template-filter-bar--diff">${
+    diffTabs.map(f => `<button class="template-filter-tab${_difficultyFilter===f.id?" active":""}" data-difficulty-filter="${f.id}">${f.label}</button>`).join("")
   }</div>`;
   const catSections = orderedCats.map(cat => {
     const group = TEMPLATES.filter(t => t.category === cat.id && passesFilter(t));
@@ -5427,6 +5536,7 @@ function bindEvents() {
   });
   on("[data-quickstart-customise]", () => { builderStep = "customize"; render(); });
   on("[data-template-filter]", el => { _templateFilter = el.dataset.templateFilter; render(); });
+  on("[data-difficulty-filter]", el => { _difficultyFilter = el.dataset.difficultyFilter; render(); });
   on("[data-quiz-goal]",  el => { builderQuizAnswers.goal  = el.dataset.quizGoal;  render(); });
   on("[data-quiz-time]",  el => { builderQuizAnswers.time  = el.dataset.quizTime;  render(); });
   on("[data-quiz-level]", el => { builderQuizAnswers.level = el.dataset.quizLevel; render(); });
@@ -5912,14 +6022,14 @@ function currentChallenge() {
 
 function setMode(mode) {
   const c = currentChallenge(); if (!c) return;
-  // Block rest day if template forbids it, or if joker budget is exhausted
+  const dayKey = effectiveDate();
+  const isScheduledRest = getDaySchedule(c, dayKey)?.type === "rest";
   if (mode === "rest") {
     const tpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
     if (tpl?.noRestDay) { showToast("No rest days on this challenge — that's the point. 💪"); return; }
-    const dayKey = effectiveDate();
     const alreadyRest = c.days[dayKey]?.mode === "rest";
-    if (!alreadyRest) {
-      const used = Object.values(c.days).filter(d => d.mode === "rest").length;
+    if (!alreadyRest && !isScheduledRest) {
+      const used = Object.values(c.days).filter(d => d.mode === "rest" && !d.scheduledRest).length;
       const budget = c.jokerBudget ?? 3;
       if (used >= budget) {
         showToast(`No rest days left — you used all ${budget}. Keep going. 💪`);
@@ -5927,7 +6037,9 @@ function setMode(mode) {
       }
     }
   }
-  const day = getChallengeDay(c, effectiveDate());
+  const day = getChallengeDay(c, dayKey);
+  if (mode === "rest" && isScheduledRest) day.scheduledRest = true;
+  else if (mode === "standard") day.scheduledRest = false;
   applyMode(c, day, mode);
 }
 
