@@ -2156,19 +2156,6 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   justify-content: center;
   padding: 48px 28px 40px;
   overflow-y: auto;
-  animation: ob-enter-fwd 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.ob-screen--back {
-  animation-name: ob-enter-back;
-}
-
-@keyframes ob-enter-fwd {
-  from { opacity: 0; transform: translateX(40px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes ob-enter-back {
-  from { opacity: 0; transform: translateX(-40px); }
-  to   { opacity: 1; transform: translateX(0); }
 }
 
 /* ── Hero screen ── */

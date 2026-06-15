@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.14";
+const APP_VERSION = "2026.06.14.15";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -1550,6 +1550,7 @@ let _showInstallBanner = false; // show the PWA install nudge
 let _newWeekBanner = null;     // { pts } — Monday new-week ceremony, null when dismissed
 let _levelUpOverlay = null;   // { level, name, emoji, total } — full-screen level-up celebration
 let _resetConfirm = false;    // shows inline confirm step before wiping all data
+let _obTransitioning = false; // true while slide animation is in flight
 
 // ── Analytics helper (Plausible — graceful no-op if script not loaded) ───────
 function trackEvent(name, props) {
@@ -2577,7 +2578,7 @@ function render() {
   const app = document.getElementById("app");
   // Full-screen onboarding — render only the onboarding screen
   if (onboardingStep !== null) {
-    app.innerHTML = renderOnboarding();
+    doObTransition(renderOnboarding());
     if (!_eventsBound) { bindEvents(); _eventsBound = true; }
     return;
   }
@@ -5052,6 +5053,48 @@ function renderObJourney() {
     </div>
     <button class="primary-button ob-cta" data-ob-next>Continue →</button>
   </div>`;
+}
+
+function doObTransition(html) {
+  const app = document.getElementById("app");
+  const old = app.querySelector(".ob-screen");
+
+  if (!old || _obTransitioning) {
+    app.innerHTML = html;
+    _obTransitioning = false;
+    return;
+  }
+
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html.trim();
+  const next = tmp.firstElementChild;
+  if (!next) { app.innerHTML = html; return; }
+
+  _obTransitioning = true;
+  old.style.pointerEvents = "none";
+
+  // Start new screen off-screen right
+  next.style.cssText = "position:fixed;inset:0;z-index:401;transform:translateX(100%);will-change:transform;pointer-events:none;";
+  app.appendChild(next);
+
+  const dur = 400;
+  const ease = "cubic-bezier(0.22, 1, 0.36, 1)";
+
+  // Double rAF ensures initial position is painted before transition starts
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    old.style.transition  = `transform ${dur}ms ${ease}, opacity ${dur}ms ${ease}`;
+    old.style.transform   = "translateX(-28%)";
+    old.style.opacity     = "0";
+
+    next.style.transition = `transform ${dur}ms ${ease}`;
+    next.style.transform  = "translateX(0)";
+
+    setTimeout(() => {
+      old.remove();
+      next.style.cssText = "";   // drop inline overrides, CSS class takes over
+      _obTransitioning = false;
+    }, dur + 40);
+  }));
 }
 
 function renderOnboarding() {
