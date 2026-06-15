@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.20";
+const APP_VERSION = "2026.06.14.21";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -1582,6 +1582,11 @@ const CloudSync = {
   async init() {
     const { data: { session } } = await _sb().auth.getSession();
     this._user = session?.user || null;
+    if (this._user) {
+      onboardingStep = null;  // already has an account — skip onboarding
+      await this.pull();       // restore cloud data before first paint
+      render();
+    }
     _sb().auth.onAuthStateChange((_, session) => {
       this._user = session?.user || null;
       render();
