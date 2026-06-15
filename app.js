@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.14.12";
+const APP_VERSION = "2026.06.14.13";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -5656,7 +5656,8 @@ function bindEvents() {
   on("[data-reset-confirm]",   () => {
     const keys = Object.keys(localStorage).filter(k => k.startsWith("conqur_") || k === STORAGE_KEY || k === OLD_KEY);
     keys.forEach(k => localStorage.removeItem(k));
-    CloudSync.signOut().catch(() => {}).finally(() => window.location.reload());
+    try { CloudSync.signOut(); } catch(e) {}
+    window.location.reload();
   });
   // Import file — delegated so it works when settings panel opens after first render
   document.addEventListener("change", e => {
