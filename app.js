@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.15.9";
+const APP_VERSION = "2026.06.15.10";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -770,11 +770,21 @@ const TEMPLATES = [
   },
   {
     id: "c25k", name: "Couch to 5K", emoji: "🏃", category: "movement",
-    description: "9 weeks of run/walk intervals that take beginners from the sofa to a 5K finish line. 3 sessions per week — rest days count too.",
+    description: "9 weeks of run/walk intervals that take beginners from the sofa to a 5K finish line. 3 sessions per week — rest days are part of the plan.",
     duration: 63, weeklyGoal: 50, defaultMode: "soft",
+    weekSchedule: [
+      { day:1, type:"interval", label:"Run Day",     emoji:"👟", desc:"Wk 1–2: 60–90 sec run / 90 sec–2 min walk × 8. Wk 3–5: intervals build to 5 then 20 min continuous. Wk 6–9: run 25–30 min straight. Just show up." },
+      { day:2, type:"rest",     label:"Rest Day",    emoji:"⚪", desc:"Full rest or easy 20–30 min walk. Adaptation happens between sessions, not during them." },
+      { day:3, type:"interval", label:"Run Day",     emoji:"👟", desc:"Same session as Day 1. Focus on form: short stride, upright posture, relaxed shoulders." },
+      { day:4, type:"rest",     label:"Rest Day",    emoji:"⚪", desc:"Rest. Light stretching if calves are tight. No running today." },
+      { day:5, type:"interval", label:"Run Day",     emoji:"👟", desc:"Third run of the week. It should feel slightly easier than Day 1 — that's your body adapting." },
+      { day:6, type:"cross",    label:"Active Rest", emoji:"🚶", desc:"Optional easy walk (20–30 min) or gentle yoga. Very light — this is bonus recovery, not training." },
+      { day:7, type:"rest",     label:"Full Rest",   emoji:"⚪", desc:"Full rest. Sleep well, eat well. You've done the work — let your body rebuild." },
+    ],
     habits: [
-      { id:"c25k-run",     title:"Run/walk session",          emoji:"👟", quip:"3 sessions a week. Each one builds the next.",     type:"binary", points:5 },
-      { id:"c25k-stretch", title:"Post-session stretch",      emoji:"🦵", quip:"5 minutes now saves weeks of injury later.",       type:"binary", points:2 },
+      { id:"c25k-run",     title:"Run/walk session",   emoji:"👟", quip:"Follow today's plan. Slow is fine — consistent is everything.",
+        type:"tiered", points:5, tiers:[{label:"Partial (stopped early)",pts:3},{label:"Full session completed",pts:5},{label:"Exceeded the plan",pts:7}] },
+      { id:"c25k-stretch", title:"Post-run stretch",   emoji:"🦵", quip:"5 minutes now saves weeks of injury later.", type:"binary", points:2 },
     ]
   },
   {
@@ -1714,6 +1724,7 @@ let _showInstallBanner = false; // show the PWA install nudge
 let _newWeekBanner = null;     // { pts } — Monday new-week ceremony, null when dismissed
 let _levelUpOverlay = null;   // { level, name, emoji, total } — full-screen level-up celebration
 let _resetConfirm = false;    // shows inline confirm step before wiping all data
+let _safetyPendingTemplateId = null; // templateId awaiting health disclaimer acknowledgement
 let _obTransitioning = false; // true while slide animation is in flight
 let _prevObStep = undefined;  // last rendered onboardingStep — transition only when this changes
 
@@ -2816,6 +2827,7 @@ function render() {
   if (_levelUpOverlay) html += renderLevelUpOverlay();
   if (_notifPromptVisible) html += renderNotifPrompt();
   html += renderConfirmModal();
+  if (_safetyPendingTemplateId) html += renderSafetyModal();
   if (_showInstallBanner && _pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
     html += `
     <div class="install-banner">
@@ -5288,6 +5300,23 @@ function renderOnboarding() {
   return renderObAccount();
 }
 
+function renderSafetyModal() {
+  const t = _safetyPendingTemplateId ? TEMPLATES.find(t2 => t2.id === _safetyPendingTemplateId) : null;
+  if (!t) return "";
+  const warning = TEMPLATE_SAFETY[t.id];
+  return `
+  <div class="sheet-backdrop" data-safety-backdrop>
+    <section class="sheet" role="dialog" style="max-width:400px" onclick="event.stopPropagation()">
+      <div style="font-size:40px;text-align:center;margin-bottom:10px">⚠️</div>
+      <div style="font-size:18px;font-weight:700;text-align:center;margin-bottom:14px">Health Notice</div>
+      <div style="font-size:14px;color:var(--text);line-height:1.65;margin-bottom:16px">${warning}</div>
+      <div style="font-size:12px;color:var(--text-dim);line-height:1.55;margin-bottom:22px;padding:10px 12px;background:var(--surface-2,var(--surface));border-radius:8px">By starting this challenge you confirm you have read this notice. Seek medical advice before starting if you have any relevant health conditions.</div>
+      <button class="primary-button" data-safety-confirm>I understand — Start ${esc(t.name)} 🚀</button>
+      <button class="secondary-button" data-safety-dismiss style="margin-top:8px">Go back</button>
+    </section>
+  </div>`;
+}
+
 function renderDataSettings() {
   return `
   <div class="section-label" style="margin-top:20px">Data</div>
@@ -5638,6 +5667,9 @@ function bindEvents() {
   on("[data-notif-prompt-enable]",  async () => { _notifPromptVisible = false; await requestNotificationPermission(); render(); });
   on("[data-notif-prompt-skip]",    () => { _notifPromptVisible = false; render(); });
   on("[data-start-challenge]",() => startChallenge());
+  on("[data-safety-confirm]",  () => startChallenge(true));
+  on("[data-safety-dismiss]",  () => { _safetyPendingTemplateId = null; render(); });
+  on("[data-safety-backdrop]", (el, e) => { if (e.target === el) { _safetyPendingTemplateId = null; render(); } });
   on("[data-add-habit]",    () => { saveBuilderFormFromDOM(); addCustomHabit(); });
   on("[data-remove-habit]", el => { saveBuilderFormFromDOM(); removeCustomHabit(Number(el.dataset.removeHabit)); });
   on("[data-close-completion]",       (el,e) => { if(e.target.closest("[data-close-completion]")){ justCompletedId = justCompletedIds.length ? justCompletedIds.shift() : null; render(); }});
@@ -6368,7 +6400,7 @@ function renderBuilderQuickstart() {
   </div>`;
 }
 
-function startChallenge() {
+function startChallenge(safetyConfirmed = false) {
   const nameEl       = document.getElementById("bf-name");
   const startEl      = document.getElementById("bf-start");
   const endEl        = document.getElementById("bf-end");
@@ -6385,6 +6417,12 @@ function startChallenge() {
   const template = builderForm.templateId ? TEMPLATES.find(t=>t.id===builderForm.templateId) : null;
   const habitCount = template ? template.habits.length : builderForm.habits.length;
   if (habitCount === 0) { showToast("Add at least one habit first."); return; }
+  if (!safetyConfirmed && template && TEMPLATE_SAFETY[template.id]) {
+    _safetyPendingTemplateId = template.id;
+    render();
+    return;
+  }
+  _safetyPendingTemplateId = null;
   const c = createChallenge(builderForm);
   todayChallengeId = c.id;
   builderOpen = false;
