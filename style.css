@@ -3296,8 +3296,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .route-pace { font-size: 12px; color: var(--text-dim); line-height: 1.4; }
 .route-milestone-banner {
   display: flex; align-items: center; gap: 12px;
-  background: linear-gradient(135deg, #1a3a2a, #0a2a1a);
-  border: 1.5px solid #2a6a4a; border-radius: 12px;
+  background: var(--primary-haze);
+  border: 1.5px solid var(--primary-glow); border-radius: 12px;
   padding: 12px 16px; margin-top: 12px;
 }
 .rmb-emoji { font-size: 28px; flex-shrink: 0; }
