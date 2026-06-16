@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.15.7";
+const APP_VERSION = "2026.06.15.8";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -2154,8 +2154,10 @@ function activeHabits(challenge, day) {
 
 function tierPoints(habit, tierValue) {
   if (!habit.tiers || tierValue == null) return 0;
-  const tier = habit.tiers.find(t => String(t.value) === String(tierValue));
-  return tier ? tier.points : 0;
+  // Support both {value, points} (old format) and {label, pts} (new format)
+  // Fall back to index-based lookup when t.value is undefined
+  const tier = habit.tiers.find((t, i) => String(t.value ?? i) === String(tierValue));
+  return tier ? (tier.points ?? tier.pts ?? 0) : 0;
 }
 
 function completionInfo(challenge, day) {
@@ -3367,7 +3369,7 @@ function renderTieredHabit(habit, day, challenge) {
     <div class="run-body">
       <span class="habit-title">${esc(habit.title)}</span>
       <div class="run-distances">
-        ${habit.tiers.map(t => `<button class="run-dist ${String(selVal)===String(t.value)?"active":""}" data-tier="${habit.id}" data-tier-val="${t.value}">${t.label}</button>`).join("")}
+        ${habit.tiers.map((t, i) => { const tv = t.value ?? i; return `<button class="run-dist ${String(selVal)===String(tv)?"active":""}" data-tier="${habit.id}" data-tier-val="${tv}">${t.label}</button>`; }).join("")}
       </div>
       ${!checked ? `<span class="tier-hint">Tap to log</span>` : ""}
     </div>
@@ -4254,7 +4256,7 @@ function renderEditChallenge(c) {
           <div class="custom-habit-row">
             <span class="custom-habit-emoji">${esc(h.emoji)}</span>
             <span class="custom-habit-name">${esc(h.title)}</span>
-            <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points}–${h.tiers[h.tiers.length-1].points}pt` : h.points+"pt"}</span>
+            <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points??h.tiers[0].pts??0}–${(t=>t.points??t.pts??0)(h.tiers[h.tiers.length-1])}pt` : h.points+"pt"}</span>
             <button class="icon-btn" data-ec-edit-habit="${i}" title="Edit">✏️</button>
             <button class="icon-btn" data-ec-delete-habit="${i}" title="Delete" style="color:var(--secondary)">✕</button>
           </div>`;
@@ -4689,7 +4691,7 @@ function renderBuilderCustomize() {
           <div class="custom-habit-row">
             <span class="custom-habit-emoji">${esc(h.emoji)}</span>
             <span class="custom-habit-name">${esc(h.title)}</span>
-            <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points}–${h.tiers[h.tiers.length-1].points}pt` : h.points+"pt"}</span>
+            <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points??h.tiers[0].pts??0}–${(t=>t.points??t.pts??0)(h.tiers[h.tiers.length-1])}pt` : h.points+"pt"}</span>
             <button class="icon-btn" data-remove-habit="${i}">✕</button>
           </div>`).join("")}
         <div class="add-habit-form">
