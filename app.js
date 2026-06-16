@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.16.1";
+const APP_VERSION = "2026.06.16.2";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -1767,6 +1767,7 @@ let _skipCloudPush    = false; // prevent redundant push after pull
 let reminderTimeout = null;
 let _pwaInstallPrompt = null;  // beforeinstallprompt event (PWA install)
 let _showInstallBanner = false; // show the PWA install nudge
+let _cloudSyncing     = false; // true while CloudSync.pull / .push is in flight
 let _newWeekBanner = null;     // { pts } — Monday new-week ceremony, null when dismissed
 let _levelUpOverlay = null;   // { level, name, emoji, total } — full-screen level-up celebration
 let _resetConfirm = false;    // shows inline confirm step before wiping all data
@@ -1863,6 +1864,7 @@ const CloudSync = {
 
   async push() {
     if (!this.isSignedIn) return;
+    _cloudSyncing = true; render();
     try {
       const stateObj = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
       await _sb().from("user_data").upsert({
@@ -1871,17 +1873,19 @@ const CloudSync = {
         updated_at: new Date().toISOString(),
       });
     } catch(e) { console.warn("Cloud push failed:", e); }
+    finally { _cloudSyncing = false; render(); }
   },
 
   async pull() {
     if (!this.isSignedIn) return;
+    _cloudSyncing = true; render();
     try {
       const { data, error } = await _sb()
         .from("user_data")
         .select("state_json")
         .eq("user_id", this.uid)
         .single();
-      if (error || !data?.state_json) return;
+      if (error || !data?.state_json) { return; }
       const remote = data.state_json;
       if (!remote || typeof remote !== "object" || !("challenges" in remote)) return;
       const merged = normalizeState(remote);
@@ -1893,14 +1897,15 @@ const CloudSync = {
       state = merged;
       saveState();
       _skipCloudPush = false;
-      render();
       showToast("☁️ Data restored from cloud.");
     } catch(e) { console.warn("Cloud pull failed:", e); }
+    finally { _cloudSyncing = false; render(); }
   },
 };
 let onboardingStep = null;   // null = done, 0-3 = active step
 let bodyHistoryLimit = 5;    // how many history rows to show in Body tab
-let _lastViewKey = "";       // for scroll-to-top on navigation changes
+let _lastViewKey   = "";       // for scroll-to-top on navigation changes
+let _viewChanged   = false;    // true on the render immediately after a tab/view switch
 let _animHabitId = null;     // habit that just got checked (for pop animation)
 let _eventsBound = false;        // event listeners are added once — not re-added on every render
 let viewingDate       = null;     // null = today; set to a past dateKey to backfill habits
@@ -2357,6 +2362,7 @@ function updateChallengeStatuses() {
       // Queue — show first one immediately, rest after user dismisses
       if (!justCompletedId) justCompletedId = c.id;
       else justCompletedIds.push(c.id);
+      launchConfetti();
       changed = true;
     }
   }
@@ -2491,6 +2497,7 @@ function checkBadges(challenge) {
         if (!justCompletedId) justCompletedId = challenge.id;
         else justCompletedIds.push(challenge.id);
         trackEvent("Challenge Completed", { challenge: challenge.name, days: challenge.duration });
+        launchConfetti();
       }
     }
   });
@@ -2845,7 +2852,8 @@ function render() {
   }
   // Scroll to top when the primary view changes (not for modals/sheet)
   const viewKey = `${activeTab}|${builderOpen}|${settingsOpen}|${viewChallengeId}|${editChallengeId}`;
-  if (viewKey !== _lastViewKey && !justCompletedId) {
+  _viewChanged = (viewKey !== _lastViewKey && !justCompletedId);
+  if (_viewChanged) {
     window.scrollTo(0, 0);
     _lastViewKey = viewKey;
   }
@@ -2919,6 +2927,7 @@ function render() {
 
 function renderTopbar() {
   return `
+  ${_cloudSyncing ? `<div class="cloud-sync-bar" role="progressbar" aria-label="Syncing…"></div>` : ""}
   <header class="topbar">
     <div class="brand">
       <span class="brand-mark" aria-hidden="true">
@@ -3010,7 +3019,7 @@ function renderToday() {
   const xpToNext = xpInfo.next ? (xpInfo.next.xp - state.xp).toLocaleString() : null;
 
   return `
-  <main>
+  <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     <div class="xp-mini-bar">
       <span class="xmb-badge">${xpTheme.emoji} Lv.${xpInfo.level}</span>
       <span class="xmb-name">${xpInfo.name}</span>
@@ -3136,7 +3145,7 @@ function renderTodayAll(active) {
   }
   const allPct = totalHabits ? Math.round((totalDone / totalHabits) * 100) : 0;
   return `
-  <main>
+  <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     ${renderChallengePills(active)}
     ${isToday ? renderXPBar() : ""}
     <div class="all-today-banner">
@@ -3266,8 +3275,9 @@ function renderRing(info, day, streak, challenge) {
   const ringFactor    = ringDUnit === "mi" ? 0.621371 : 1;
   const todayKmD      = todayKmRaw !== null ? Math.round(todayKmRaw * ringFactor * 100) / 100 : null;
   const totalKmD      = totalKmNative !== null ? Math.round(totalKmNative * ringFactor * 10) / 10 : null;
+  const isPerfect = !isExpedition && day.mode !== "rest" && info.percent >= 100;
   return `
-  <div class="ring-wrap ${day.mode==="rest"?"rest":""}">
+  <div class="ring-wrap ${day.mode==="rest"?"rest":""}${isPerfect?" perfect":""}">
     <svg class="progress-ring" viewBox="0 0 220 220" aria-hidden="true">
       <defs>
         <linearGradient id="ring-gradient" x1="0" y1="0" x2="1" y2="1">
@@ -3316,7 +3326,8 @@ function renderRing(info, day, streak, challenge) {
       <div class="ring-stat-value${streak>=7?' streak-hero':''}">${streak}${gracePip?`<span style="font-size:10px;color:#ffcc44;margin-left:2px" title="Grace day used yesterday — don't miss today!">🛟</span>`:""}${streak>=7?"🔥":""}</div>
       <div class="ring-stat-label">day streak${gracePip?`<span style="display:block;font-size:9px;color:#ffcc44">grace used</span>`:""}</div>
     </div>
-  </div>`;
+  </div>
+  ${isPerfect ? `<div class="perfect-day-chip">✅ PERFECT DAY</div>` : ""}`;
 }
 
 function renderStreakFreezeUI(challenge) {
@@ -3500,6 +3511,11 @@ function renderDistanceHabit(habit, day, challenge) {
              <option value="mi" ${displayUnit==="mi"?"selected":""}>mi</option>
            </select>`}
     </div>
+    ${isFloors ? `<div class="floor-steppers">
+      <button class="floor-step-btn" data-floor-step="${habit.id}" data-step="1">+1</button>
+      <button class="floor-step-btn" data-floor-step="${habit.id}" data-step="5">+5</button>
+      <button class="floor-step-btn" data-floor-step="${habit.id}" data-step="10">+10</button>
+    </div>` : ""}
   </div>`;
 }
 
@@ -4019,7 +4035,7 @@ function renderChallenges() {
   const emailCapState = localStorage.getItem("conqur_email_capture");
   const showEmailCapture = challengeSubTab === "habits" && emailCapState !== "dismissed";
   return `
-  <main>
+  <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     <div class="challenge-sub-tabs">
       <button class="csub-btn${challengeSubTab==="habits"?" active":""}" data-challenge-sub="habits">🎯 Habits</button>
       <button class="csub-btn${challengeSubTab==="expeditions"?" active":""}" data-challenge-sub="expeditions">🗺️ Expeditions</button>
@@ -4141,7 +4157,7 @@ function renderChallengeDetail(c) {
   const factorDet     = dUnitDet === "mi" ? MI_PER_KM_D : 1;
   const totalKmDisplay = isExpedition ? Math.round(totalNativeKm * factorDet * 10) / 10 : null;
   return `
-  <main>
+  <main class="slide-in-right">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
       <button class="icon-btn" data-close-detail>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -4261,7 +4277,7 @@ function renderChallengeDetail(c) {
 function renderEditChallenge(c) {
   if (!c) return `<main><div class="empty-state">Challenge not found.</div></main>`;
   return `
-  <main>
+  <main class="slide-in-right">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
       <button class="icon-btn" data-close-edit>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -4542,7 +4558,7 @@ function renderBuilderQuiz() {
 
 function renderBuilder() {
   return `
-  <main class="builder-shell">
+  <main class="builder-shell slide-in-right">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
       <button class="icon-btn" data-close-builder>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -4981,7 +4997,7 @@ function renderBadges() {
 
   const pct = total > 0 ? Math.round((earned/total)*100) : 0;
   return `
-  <main>
+  <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     ${renderLevelProfile()}
     <div class="section-label">Badges</div>
     <div class="more-card">
@@ -5101,6 +5117,30 @@ function renderNotifPrompt() {
 }
 
 function renderBadgeSheet(badge) {
+  const queue = _badgeSheetQueue;
+  if (queue.length > 1) {
+    return `
+  <div class="badge-sheet-overlay" data-close-badge-sheet>
+    <div class="badge-sheet" role="dialog" aria-modal="true" aria-label="Badges earned">
+      <div class="badge-sheet-icon">🏅</div>
+      <div class="badge-sheet-tier" style="color:var(--success)">${queue.length} Badges Unlocked</div>
+      <div class="badge-sheet-title">Achievement haul!</div>
+      <div class="multi-badge-list">
+        ${queue.map(b => {
+          const p = b.label.match(/^(\S+)\s*(.*)/);
+          return `<div class="mbl-row">
+            <div class="mbl-icon">${p ? p[1] : esc(b.label)}</div>
+            <div class="mbl-body">
+              <div class="mbl-label">${esc(p ? p[2] : b.label)}</div>
+              ${b.desc ? `<div class="mbl-desc">${esc(b.desc)}</div>` : ""}
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+      <button class="primary-button badge-sheet-cta" data-close-badge-sheet>Awesome!</button>
+    </div>
+  </div>`;
+  }
   const td = TIERS[badge.tier] || TIERS.common;
   const parts = badge.label.match(/^(\S+)\s*(.*)/);
   const icon  = parts ? parts[1] : badge.label;
@@ -5140,7 +5180,15 @@ function renderBackupNudge(challenge) {
 
 function renderAlmostThereBadge(challenge, streak) {
   const milestones = [7, 14, 21, 30, 50, 75];
-  const next = milestones.find(m => m > streak && (m - streak) <= 2);
+  const allBadges = [...(challenge.badges || []), ...(state.globalBadges || [])];
+  const next = milestones.find(m => {
+    if (m > streak && (m - streak) <= 2) {
+      // Skip if the streak badge for this milestone is already earned
+      const badgeId = `streak-${m}`;
+      return !allBadges.includes(badgeId);
+    }
+    return false;
+  });
   if (!next) return "";
   const diff = next - streak;
   return `<div class="almost-badge-chip">🏅 ${diff === 1 ? "One more day" : "2 days"} to unlock your ${next}-day badge!</div>`;
@@ -5489,7 +5537,7 @@ function renderCloudSync() { return ""; }
 function renderSettings() {
   const u = state.settings.units;
   return `
-  <main>
+  <main class="slide-in-right">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
       <button class="icon-btn" data-close-settings>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -5665,7 +5713,7 @@ function bindEvents() {
   on("[data-quiz-find]",  () => { selectTemplate(getQuizRecommendation(builderQuizAnswers)); });
   on("[data-quiz-skip]",  () => { builderStep="template"; render(); });
   on("[data-request-notif-from-builder]", () => requestNotificationPermission());
-  on("[data-close-badge-sheet]",    () => { _badgeSheetQueue.shift(); render(); });
+  on("[data-close-badge-sheet]",    () => { _badgeSheetQueue = []; render(); });
   on("[data-dismiss-backup-nudge]", () => { localStorage.setItem("conqur_backup_nudge_dismissed","1"); render(); });
   on("[data-dismiss-email-capture]", () => { localStorage.setItem("conqur_email_capture","dismissed"); render(); });
   document.addEventListener("keydown", e => {
@@ -5938,6 +5986,10 @@ function bindEvents() {
   on("[data-reset-confirm]",   async () => {
     try { await _sb().auth.signOut(); } catch(e) {}
     localStorage.clear();
+    try {
+      const dbs = await indexedDB.databases?.() || [];
+      for (const db of dbs) { if (db.name) indexedDB.deleteDatabase(db.name); }
+    } catch(e) {}
     window.location.reload();
   });
   // Import file — delegated so it works when settings panel opens after first render
@@ -6110,6 +6162,20 @@ function bindEvents() {
     const inputVal = Math.min(Math.max(0, raw), 9999);
     if (inputVal !== raw) e.target.value = inputVal;
     logMeasurement(habitId, inputVal);
+  });
+  // Floor stepper buttons (+1/+5/+10)
+  document.addEventListener("click", e => {
+    const btn = e.target.closest("[data-floor-step]");
+    if (!btn) return;
+    const habitId = btn.dataset.floorStep;
+    const step    = parseInt(btn.dataset.step, 10) || 1;
+    const input   = document.querySelector(`[data-distance-habit="${habitId}"]`);
+    if (!input) return;
+    const newVal = Math.min(9999, (parseFloat(input.value) || 0) + step);
+    input.value = newVal;
+    const c = currentChallenge();
+    const habit = c?.habits.find(h => h.id === habitId);
+    if (habit) logDistance(habitId, newVal);
   });
   // Distance habit input — delegated change event (persists across re-renders)
   document.addEventListener("change", e => {
@@ -6685,6 +6751,27 @@ function graceUsedYesterday(challenge) {
   if (twoDaysAgo < challenge.startDate) return true; // day 2: yesterday missed from first day
   const twoDay = challenge.days[twoDaysAgo];
   return dayLogged(twoDay);
+}
+
+// ── Confetti ──────────────────────────────────────────────────────────────
+
+function launchConfetti() {
+  const colors = ["var(--primary)","var(--secondary)","var(--success)","#ffcc44","#f43f5e","#38bdf8"];
+  const count = 48;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement("div");
+    el.className = "confetti-piece";
+    el.style.cssText = [
+      `left:${Math.random() * 100}vw`,
+      `width:${6 + Math.random() * 6}px`,
+      `height:${8 + Math.random() * 8}px`,
+      `background:${colors[Math.floor(Math.random() * colors.length)]}`,
+      `animation-duration:${0.9 + Math.random() * 1.1}s`,
+      `animation-delay:${Math.random() * 0.5}s`,
+    ].join(";");
+    document.body.appendChild(el);
+    el.addEventListener("animationend", () => el.remove());
+  }
 }
 
 // ── Utilities ─────────────────────────────────────────────────────────────
