@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.15.12";
+const APP_VERSION = "2026.06.16.1";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -3055,7 +3055,7 @@ function renderToday() {
       ${isToday ? renderModeSelector(day, challenge) : ""}
     </section>
     ${phaseInfo && isToday && dayNumber === phaseInfo.phase.end && dayNumber > 1 ? `
-    <div class="boss-day-callout">⚡ Phase finale — last day of <strong>${phaseInfo.phase.name}</strong>. Finish strong.</div>` : ""}
+    <div class="boss-day-callout"><div class="boss-day-callout-icon">⚡</div><div class="boss-day-callout-body"><div class="boss-day-callout-title">Phase Finale</div><div class="boss-day-callout-sub">Last day of <strong>${phaseInfo.phase.name}</strong> — finish strong.</div></div></div>` : ""}
 
     ${(() => {
       const sched = getDaySchedule(challenge, effDate);
@@ -3313,7 +3313,7 @@ function renderRing(info, day, streak, challenge) {
     </div>`}
     <div class="ring-stat-sep"></div>
     <div class="ring-stat">
-      <div class="ring-stat-value">${streak}${gracePip?`<span style="font-size:10px;color:#ffcc44;margin-left:2px" title="Grace day used yesterday — don't miss today!">🛟</span>`:""}</div>
+      <div class="ring-stat-value${streak>=7?' streak-hero':''}">${streak}${gracePip?`<span style="font-size:10px;color:#ffcc44;margin-left:2px" title="Grace day used yesterday — don't miss today!">🛟</span>`:""}${streak>=7?"🔥":""}</div>
       <div class="ring-stat-label">day streak${gracePip?`<span style="display:block;font-size:9px;color:#ffcc44">grace used</span>`:""}</div>
     </div>
   </div>`;
@@ -4014,8 +4014,8 @@ function renderChallenges() {
   const paused = view.filter(c => c.status==="paused");
   const past   = view.filter(c => c.status!=="active" && c.status!=="paused");
   const emptyMsg = challengeSubTab === "expeditions"
-    ? `No expedition running. <button class="link-btn" data-open-builder>Pick a route?</button>`
-    : `No challenge running. <button class="link-btn" data-open-builder>Ready to start something?</button>`;
+    ? `<div class="empty-state-icon">🗺️</div><div class="empty-state-title">No expedition running</div><div class="empty-state-sub">Pick a route and start climbing.</div><div><button class="link-btn" data-open-builder>Choose an expedition →</button></div>`
+    : `<div class="empty-state-icon">🏆</div><div class="empty-state-title">No active challenge</div><div class="empty-state-sub">Build a habit. Pick a goal. Show up daily.</div><div><button class="link-btn" data-open-builder>Start something →</button></div>`;
   const emailCapState = localStorage.getItem("conqur_email_capture");
   const showEmailCapture = challengeSubTab === "habits" && emailCapState !== "dismissed";
   return `
