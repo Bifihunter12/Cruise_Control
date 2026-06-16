@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.15.8";
+const APP_VERSION = "2026.06.15.9";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -230,6 +230,7 @@ const TEMPLATE_SAFETY = {
   "tough-mudder": "Includes cold water obstacles and contact elements. Consult a doctor if you have cardiovascular, joint, or cold-sensitivity conditions.",
   "spartan-race": "High-intensity obstacle training. Consult a doctor if you have cardiovascular or joint conditions.",
   "cruise-control": "Intense multi-habit daily protocol. Not suitable if you have joint issues, cardiovascular conditions, or are new to exercise.",
+  "hyrox": "High-intensity functional fitness with heavy sleds, carries, and running. Consult a doctor before starting if you have cardiovascular, joint, or lower-back conditions. Progress loads gradually — do not start at race weight.",
 };
 
 // Challenge template → tier
@@ -800,8 +801,8 @@ const TEMPLATES = [
   },
   {
     id: "run-streak", name: "Run Streak", emoji: "🔥", category: "movement",
-    description: "Run at least 1 mile every day for 30 days. No exceptions. Simple rule, brutal consistency.",
-    duration: 30, weeklyGoal: 60, defaultMode: "strict",
+    description: "Run at least 1 mile every day for 30 days. One grace day allowed per week — because life happens. Simple rule, relentless consistency.",
+    duration: 30, weeklyGoal: 60, defaultMode: "soft",
     habits: [
       { id:"rs-run",     title:"Run minimum 1 mile",     emoji:"👟", quip:"One mile. Every day. No skipping.",                  type:"tiered", points:4,
         tiers:[{label:"1 mile",pts:4},{label:"3 miles",pts:6},{label:"5+ miles",pts:8}] },
@@ -2210,7 +2211,9 @@ function calcChallengeStreak(challenge) {
   const todayDay = challenge.days[today];
   // If today not logged yet, start counting from yesterday
   if (!dayLogged(todayDay)) d.setDate(d.getDate()-1);
-  const totalDays = diffDays(challenge.startDate, challenge.endDate) + 1;
+  const totalDays = challenge.noEndDate
+    ? diffDays(challenge.startDate, todayKey()) + 1
+    : diffDays(challenge.startDate, challenge.endDate) + 1;
   const softMode  = challenge.mode === "soft";
   let graceUsed   = false;
   for (let i = 0; i < totalDays; i++) {
@@ -3925,7 +3928,16 @@ function renderCompletionModal(c) {
         <span class="chain-cta-main">${nextT.emoji} ${nextT.name} →</span>
         <span class="chain-cta-sub">${nextT.duration} days · Level up 🚀</span>
       </button>` : ""}
-      <button class="${nextT?"secondary-button":"primary-button"}" data-close-completion style="margin-top:${nextT?"8":"20"}px">Hell yeah! 🎉</button>
+      ${(() => {
+        const restDays = totalDays >= 75 ? 5 : totalDays >= 30 ? 3 : 2;
+        const nextStart = addDays(todayKey(), restDays);
+        const nextStartLabel = formatDate(parseDate(nextStart), {month:"short", day:"numeric"});
+        return `<div style="background:rgba(var(--accent-rgb,99,102,241),0.08);border:1px solid rgba(var(--accent-rgb,99,102,241),0.2);border-radius:10px;padding:12px 14px;margin-top:16px;text-align:left">
+          <div style="font-size:12px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">What's next</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.55">Take <strong>${restDays} days to recover</strong> — sleep, eat well, reflect on what you built. Your next challenge can start <strong>${nextStartLabel}</strong>.</div>
+        </div>`;
+      })()}
+      <button class="${nextT?"secondary-button":"primary-button"}" data-close-completion style="margin-top:${nextT?"8":"16"}px">Hell yeah! 🎉</button>
       ${canShare ? `<button class="secondary-button" data-share-completion style="margin-top:8px">🔗 Share your achievement</button>` : ""}
       <button class="secondary-button" data-completion-new-challenge style="margin-top:8px">Browse all challenges →</button>
       ${renderCompletionSuggestions(c)}
@@ -5279,6 +5291,14 @@ function renderOnboarding() {
 function renderDataSettings() {
   return `
   <div class="section-label" style="margin-top:20px">Data</div>
+  ${!CloudSync.isSignedIn ? `
+  <div style="background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.35);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start">
+    <span style="font-size:18px;flex-shrink:0">⚠️</span>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px">Your data is local only</div>
+      <div style="font-size:12px;color:var(--text-dim);line-height:1.5">Progress is stored on this device. If you clear your browser or switch devices, it will be lost. <button class="link-btn" data-preview-onboarding style="font-size:12px">Sign in to back up →</button></div>
+    </div>
+  </div>` : ""}
   <div class="more-card">
     <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px">Export a full backup of your challenges, body tracking, and badges as a JSON file.</div>
     <button class="secondary-button" data-export-data>Export backup ↓</button>
@@ -6039,14 +6059,18 @@ function bindEvents() {
   document.addEventListener("change", e => {
     if (!e.target.matches("[data-measurement-habit]")) return;
     const habitId  = e.target.dataset.measurementHabit;
-    const inputVal = Math.max(0, parseFloat(e.target.value) || 0);
+    const raw = parseFloat(e.target.value) || 0;
+    const inputVal = Math.min(Math.max(0, raw), 9999);
+    if (inputVal !== raw) e.target.value = inputVal;
     logMeasurement(habitId, inputVal);
   });
   // Distance habit input — delegated change event (persists across re-renders)
   document.addEventListener("change", e => {
     if (!e.target.matches("[data-distance-habit]")) return;
     const habitId  = e.target.dataset.distanceHabit;
-    const inputVal = Math.max(0, parseFloat(e.target.value) || 0);
+    const raw = parseFloat(e.target.value) || 0;
+    const inputVal = Math.min(Math.max(0, raw), 9999);
+    if (inputVal !== raw) e.target.value = inputVal;
     // Read the unit selector if present; defaults to global setting
     const unitSel   = document.querySelector(`[data-dist-unit-sel="${habitId}"]`);
     const inputUnit = unitSel?.value || (state.settings.units.distance === "miles" ? "mi" : "km");
