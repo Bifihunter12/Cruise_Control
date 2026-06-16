@@ -3932,7 +3932,7 @@ function renderCompletionModal(c) {
         const restDays = totalDays >= 75 ? 5 : totalDays >= 30 ? 3 : 2;
         const nextStart = addDays(todayKey(), restDays);
         const nextStartLabel = formatDate(parseDate(nextStart), {month:"short", day:"numeric"});
-        return `<div style="background:rgba(var(--accent-rgb,99,102,241),0.08);border:1px solid rgba(var(--accent-rgb,99,102,241),0.2);border-radius:10px;padding:12px 14px;margin-top:16px;text-align:left">
+        return `<div style="background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);border-radius:10px;padding:12px 14px;margin-top:16px;text-align:left">
           <div style="font-size:12px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">What's next</div>
           <div style="font-size:13px;color:var(--text);line-height:1.55">Take <strong>${restDays} days to recover</strong> — sleep, eat well, reflect on what you built. Your next challenge can start <strong>${nextStartLabel}</strong>.</div>
         </div>`;
