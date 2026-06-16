@@ -4024,20 +4024,6 @@ function renderChallenges() {
       <button class="csub-btn${challengeSubTab==="habits"?" active":""}" data-challenge-sub="habits">🎯 Habits</button>
       <button class="csub-btn${challengeSubTab==="expeditions"?" active":""}" data-challenge-sub="expeditions">🗺️ Expeditions</button>
     </div>
-    ${showEmailCapture ? (emailCapState === "submitted" ? `
-    <div class="email-cap-card email-cap-done">
-      <span>✅ You're on the list — we'll let you know when Pro launches!</span>
-      <button class="email-cap-x" data-dismiss-email-capture aria-label="Dismiss">×</button>
-    </div>` : `
-    <div class="email-cap-card">
-      <button class="email-cap-x" data-dismiss-email-capture aria-label="Dismiss">×</button>
-      <div class="email-cap-title">🚀 Conqur Pro is coming</div>
-      <div class="email-cap-sub">📊 Weekly charts · 🏆 Leaderboards · 📤 Export · 🔔 Per-habit reminders<br><span style="color:var(--text-faint);font-size:11px">Be first to know — no spam.</span></div>
-      <div class="email-cap-row">
-        <input type="email" id="email-cap-input" class="email-cap-input" placeholder="your@email.com" autocomplete="email">
-        <button class="email-cap-btn" data-email-capture-submit>Notify me</button>
-      </div>
-    </div>`) : ""}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
       <div class="section-label" style="margin:0">${challengeSubTab==="expeditions"?"Active Routes":"Active Challenges"}</div>
       <button class="pill-btn" data-open-builder>${challengeSubTab==="expeditions"?"+ Route":"+ New"}</button>
@@ -5058,14 +5044,6 @@ function renderConsistencyChart(allChallenges) {
           <div class="pchart-week-label">${w.label}</div>
         </div>`).join("")}
       </div>
-      <div class="pchart-blur-overlay">
-        <div class="pchart-pro-content">
-          <div class="pchart-pro-lock">🔒</div>
-          <div class="pchart-pro-title">Weekly consistency chart</div>
-          <div class="pchart-pro-sub">📊 Charts · 🏆 Leaderboards · 📤 Export · 🔔 Per-habit reminders</div>
-          <button class="pchart-pro-btn" data-tab="challenges">Join Conqur Pro early access →</button>
-        </div>
-      </div>
     </div>
   </div>`;
 }
@@ -5486,17 +5464,9 @@ function renderProSection() {
     </div>`;
   }
   return `
-  <div class="section-label">⭐ Conqur Pro</div>
-  <div class="more-card" style="margin-bottom:14px;background:linear-gradient(135deg,var(--primary-haze),var(--secondary-soft));border:1px solid var(--primary-glow)">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div style="font-size:16px;font-weight:900;color:var(--text)">Free forever — plus backup</div>
-      <div style="font-size:11px;font-weight:700;color:var(--primary);background:var(--primary-haze);border-radius:99px;padding:3px 10px">$4.99/mo</div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">
-      <div style="font-size:13px;color:var(--text-dim);display:flex;gap:8px;align-items:flex-start"><span>☁️</span><span><strong style="color:var(--text)">Cloud backup</strong> — your streaks and badges survive a phone wipe or device switch</span></div>
-      <div style="font-size:13px;color:var(--text-dim);display:flex;gap:8px;align-items:flex-start"><span>🔄</span><span><strong style="color:var(--text)">Sync across devices</strong> — log on your phone, review on your tablet</span></div>
-      <div style="font-size:13px;color:var(--text-dim);display:flex;gap:8px;align-items:flex-start"><span>🚀</span><span><strong style="color:var(--text)">Support development</strong> — early access to new challenges and features</span></div>
-    </div>
+  <div class="section-label">☁️ Cloud Backup</div>
+  <div class="more-card" style="margin-bottom:14px">
+    <div style="font-size:13px;color:var(--text-dim);margin-bottom:14px">Back up your progress and sync across devices. Your streaks, badges, and challenges stay safe even if you clear your browser.</div>
     ${_cloudAuthError ? `<div class="cloud-auth-error">${esc(_cloudAuthError)}</div>` : ""}
     ${_cloudAuthLoading ? `<div style="text-align:center;padding:12px;color:var(--text-dim);font-size:14px">Loading…</div>` : `
     <label class="field" style="margin-bottom:10px">
@@ -5965,10 +5935,9 @@ function bindEvents() {
   on("[data-export-data]",     () => exportData());
   on("[data-reset-app]",       () => { _resetConfirm = true;  render(); });
   on("[data-reset-cancel]",    () => { _resetConfirm = false; render(); });
-  on("[data-reset-confirm]",   () => {
-    const keys = Object.keys(localStorage).filter(k => k.startsWith("conqur_") || k === STORAGE_KEY || k === OLD_KEY);
-    keys.forEach(k => localStorage.removeItem(k));
-    try { CloudSync.signOut(); } catch(e) {}
+  on("[data-reset-confirm]",   async () => {
+    try { await _sb().auth.signOut(); } catch(e) {}
+    localStorage.clear();
     window.location.reload();
   });
   // Import file — delegated so it works when settings panel opens after first render
