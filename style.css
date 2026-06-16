@@ -31,6 +31,7 @@
   --radius: 16px;
   --radius-lg: 22px;
   --font: "Lato", ui-sans-serif, system-ui, sans-serif;
+  --accent: var(--primary);
 }
 
 /* ── Journey Themes ──────────────────────────────────────────────────────── */
@@ -2783,16 +2784,16 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 /* ── Rest day ── */
 .complete-banner.rest-complete {
-  background: linear-gradient(135deg, #1a1a2e, #16213e);
-  border-color: #3a3a6a;
+  background: var(--surface-2);
+  border-color: var(--border-active);
 }
 .ring-wrap.rest .ring-value.rest-mode {
-  stroke: #555590;
+  stroke: var(--text-faint);
 }
 .mode-button.rest-mode-btn.active {
-  background: #2a2a5a;
-  color: #9090d0;
-  border-color: #4a4a8a;
+  background: var(--white-06);
+  color: var(--text-dim);
+  border-color: var(--white-18);
 }
 
 /* ── Date navigation strip (Today tab) ── */
@@ -2891,8 +2892,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  background: linear-gradient(135deg, rgba(100, 200, 255, 0.10), rgba(80, 160, 255, 0.06));
-  border: 1px solid rgba(100, 200, 255, 0.25);
+  background: var(--primary-haze);
+  border: 1px solid var(--primary-glow);
   border-radius: var(--radius-sm);
   padding: 8px 14px;
   margin-bottom: 10px;
@@ -2901,7 +2902,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .freeze-bar-label {
   font-size: 13px;
   font-weight: 600;
-  color: #88ccff;
+  color: var(--primary);
 }
 
 .freeze-bar-hint {
@@ -3875,9 +3876,9 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .mode-chip--rest-active {
-  background: rgba(90,90,160,0.25);
-  border-color: #5a5a9a;
-  color: #9090d0;
+  background: var(--white-06);
+  border-color: var(--white-18);
+  color: var(--text-dim);
 }
 
 .mode-chip--disabled {
@@ -4219,9 +4220,9 @@ details[open] .badge-locked-summary::before {
 .xp-freeze-badge {
   font-size: 12px;
   font-weight: 700;
-  color: #7dd3fc;
-  background: rgba(125, 211, 252, 0.12);
-  border: 1px solid rgba(125, 211, 252, 0.25);
+  color: var(--primary);
+  background: var(--primary-haze);
+  border: 1px solid var(--primary-glow);
   border-radius: 20px;
   padding: 2px 8px;
 }
