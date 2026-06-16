@@ -1481,6 +1481,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   from { opacity: 0; transform: translateY(-10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+.new-week-banner--anim { animation: slide-in-top 280ms ease; }
+.comeback-banner--anim  { animation: slide-in-top 280ms ease; }
 
 /* ── Perfect day ring burst ── */
 @keyframes ring-burst {

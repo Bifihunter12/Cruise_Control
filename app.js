@@ -3029,16 +3029,16 @@ function renderToday() {
     ${active.length > 1 ? renderChallengePills(active) : ""}
     ${renderWeeklyRecap(challenge)}
     ${_newWeekBanner ? `
-    <div class="new-week-banner">
+    <div class="new-week-banner${_viewChanged ? " new-week-banner--anim" : ""}">
       <h3>🗓 New week. Clean slate.</h3>
       <p>Last week: <strong>${_newWeekBanner.pts} pts</strong>. Come back stronger.</p>
       <button class="new-week-dismiss" data-dismiss-newweek aria-label="Dismiss">×</button>
     </div>` : ""}
     ${missedStreak >= 2 ? `
-    <div class="comeback-banner">
+    <div class="comeback-banner${_viewChanged ? " comeback-banner--anim" : ""}">
       <strong>Welcome back.</strong> ${missedStreak} days missed — that's okay. <span class="cb-alive">Your challenge is still running.</span> Today still counts.
     </div>` : missedStreak === 1 ? `
-    <div class="comeback-banner comeback-banner--soft">
+    <div class="comeback-banner comeback-banner--soft${_viewChanged ? " comeback-banner--anim" : ""}">
       Streak paused at ${streak} days. Come back today to restart. <span class="cb-alive">Your challenge is still running.</span>
     </div>` : ""}
     <div class="date-nav">
@@ -4157,7 +4157,7 @@ function renderChallengeDetail(c) {
   const factorDet     = dUnitDet === "mi" ? MI_PER_KM_D : 1;
   const totalKmDisplay = isExpedition ? Math.round(totalNativeKm * factorDet * 10) / 10 : null;
   return `
-  <main class="slide-in-right">
+  <main${_viewChanged ? ` class="slide-in-right"` : ""}>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
       <button class="icon-btn" data-close-detail>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -4277,7 +4277,7 @@ function renderChallengeDetail(c) {
 function renderEditChallenge(c) {
   if (!c) return `<main><div class="empty-state">Challenge not found.</div></main>`;
   return `
-  <main class="slide-in-right">
+  <main${_viewChanged ? ` class="slide-in-right"` : ""}>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
       <button class="icon-btn" data-close-edit>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -4558,7 +4558,7 @@ function renderBuilderQuiz() {
 
 function renderBuilder() {
   return `
-  <main class="builder-shell slide-in-right">
+  <main class="builder-shell${_viewChanged ? " slide-in-right" : ""}">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
       <button class="icon-btn" data-close-builder>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -5537,7 +5537,7 @@ function renderCloudSync() { return ""; }
 function renderSettings() {
   const u = state.settings.units;
   return `
-  <main class="slide-in-right">
+  <main${_viewChanged ? ` class="slide-in-right"` : ""}>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
       <button class="icon-btn" data-close-settings>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
