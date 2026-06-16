@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.15.6";
+const APP_VERSION = "2026.06.15.7";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -120,6 +120,23 @@ function recalcXP() {
   return total;
 }
 
+function avgDailyXP() {
+  const today = todayKey();
+  let total = 0, active = 0;
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(parseDate(today)); d.setDate(d.getDate() - i);
+    const dk = toKey(d);
+    let dayXP = 0;
+    for (const ch of Object.values(state.challenges)) {
+      const day = ch.days[dk];
+      if (day) dayXP += completionInfo(ch, day).points || 0;
+    }
+    if (dayXP > 0) active++;
+    total += dayXP;
+  }
+  return active >= 3 ? total / 14 : null;
+}
+
 // ── WoW-style Rarity Tiers ────────────────────────────────────────────────
 const TIERS = {
   common:    { label:"Starter",   color:"#86efac", border:"#86efac" }, // soft green
@@ -182,6 +199,8 @@ const TEMPLATE_DIFFICULTY = {
   "tour-de-france":"advanced",
   // Extreme — elite output, multi-month commitment, or medical risk
   "75-hard":"extreme","marathon-training":"extreme",
+  // HYROX — advanced functional racing
+  "hyrox":"advanced",
   "ironman-703":"extreme","ironman-full":"extreme",
   "tough-mudder":"extreme","spartan-race":"extreme",
   "utmb":"extreme","run-5-marathons":"extreme","run-jogle":"extreme",
@@ -252,7 +271,7 @@ const TEMPLATE_TIERS = {
   // ── Endurance sport training
   "half-marathon-prep":"uncommon","marathon-training":"rare",
   "tough-mudder":"rare","spartan-race":"epic",
-  "ironman-703":"epic","ironman-full":"legendary",
+  "ironman-703":"epic","ironman-full":"legendary","hyrox":"epic",
   // ── Epic expedition
   "utmb":"epic",
   // New challenges
@@ -308,6 +327,8 @@ const TEMPLATES = [
       { id:"w2",       title:"Workout 2 — 45 min outdoors", emoji:"🌤️", quip:"Outdoor. No exceptions.",            type:"binary", points:3 },
       { id:"diet",     title:"Follow diet. No cheat meals.",emoji:"🥗", quip:"No alcohol. No cheat meals.",        type:"binary", points:2 },
       { id:"read10",   title:"Read 10 pages (non-fiction)", emoji:"📖", quip:"10 pages of growth.",               type:"binary", points:2 },
+      { id:"water75",  title:"Drink 1 gallon (3.8L) water", emoji:"💧", quip:"One gallon. Every day. No exceptions. This is the 5th pillar.", type:"tiered", points:2,
+        tiers:[{label:"2–3L",pts:1},{label:"3–3.5L",pts:2},{label:"3.8L+ (1 gallon)",pts:3}] },
       { id:"photo",    title:"Progress photo",              emoji:"📸", quip:"Document the change.",               type:"binary", points:1 },
     ]
   },
@@ -326,7 +347,8 @@ const TEMPLATES = [
     description: "Build upper body strength. Start at 10, end at 100.",
     duration: 30, weeklyGoal: 70, defaultMode: "strict",
     habits: [
-      { id:"pushups",  title:"Daily push-ups",              emoji:"💪", quip:"Do your push-ups.",                 type:"binary", points:5 },
+      { id:"pushups",  title:"Push-ups",                     emoji:"💪", quip:"Today's number is on the schedule. Hit it.",
+        type:"tiered", points:5, tiers:[{label:"1–20 reps",pts:5},{label:"21–50 reps",pts:7},{label:"51–100 reps",pts:9},{label:"100+ reps",pts:12}] },
       { id:"prot30",   title:"Protein at every meal",       emoji:"🥩", quip:"Feed the muscle.",                 type:"binary", points:2 },
     ]
   },
@@ -557,6 +579,28 @@ const TEMPLATES = [
         tiers:[{label:"20–30 min",pts:5},{label:"30–45 min",pts:7},{label:"45–60 min",pts:9}] },
       { id:"z2-check",    title:"Could hold a conversation?", emoji:"🗣️", quip:"If you couldn't, you went too hard. Slow down next time.", type:"binary", points:1 },
       { id:"z2-mobility", title:"Mobility (5 min)",           emoji:"🧘", quip:"Keep the body feeling good as volume builds.",            type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "hyrox", name: "HYROX Training", emoji: "⚡", category: "endurance",
+    description: "12 weeks of race-ready functional fitness. 4 training days per week: strength, running, WOD circuits, and full race simulations.",
+    duration: 84, weeklyGoal: 80, defaultMode: "strict",
+    weekSchedule: [
+      { day:1, type:"strength",  label:"Strength",          emoji:"🏋️", desc:"Squats, deadlifts, overhead press. Build the base that powers every HYROX station." },
+      { day:2, type:"easy",      label:"Easy Run",           emoji:"🟢", desc:"6–8 km at conversational pace. RPE 3–4. HYROX is 8 km of running — build it now." },
+      { day:3, type:"wod",       label:"HYROX WOD",          emoji:"⚡", desc:"Station circuit: SkiErg, sled push/pull, burpee broad jumps, row, farmers carry, sandbag lunges, wall balls." },
+      { day:4, type:"rest",      label:"Rest Day",           emoji:"⚪", desc:"Full rest or easy walk. Recovery is where adaptation happens." },
+      { day:5, type:"interval",  label:"Run Intervals",      emoji:"🟠", desc:"8×400m at race pace + 60 sec rest, or 4×1km tempo. RPE 7–8." },
+      { day:6, type:"simulate",  label:"Race Simulation",    emoji:"🏆", desc:"Full HYROX: 8×1km run interleaved with all 8 stations at race pace. This is what it's all for." },
+      { day:7, type:"rest",      label:"Rest Day",           emoji:"⚪", desc:"Full rest. Eat well. Sleep 8 hours. You've earned it." },
+    ],
+    habits: [
+      { id:"hx-session",  title:"Training session",          emoji:"⚡", quip:"Strength, WOD, run, or race sim — log what you did.",
+        type:"tiered", points:5, tiers:[{label:"Easy 30 min",pts:5},{label:"WOD or run 45+ min",pts:7},{label:"Race simulation 60+ min",pts:10}] },
+      { id:"hx-run",      title:"Run distance",              emoji:"🏃", quip:"HYROX is 8 km of running. Build the base every week.",
+        type:"tiered", points:4, tiers:[{label:"3 km",pts:4},{label:"5 km",pts:6},{label:"8 km+",pts:8}] },
+      { id:"hx-stations", title:"Station drills",            emoji:"🔔", quip:"SkiErg, sled, row, burpees, carries, lunges, wall balls.", type:"binary", points:4 },
+      { id:"hx-recover",  title:"Post-session recovery",     emoji:"🦵", quip:"Foam roll, stretch, and eat. Recovery builds the athlete.", type:"binary", points:2 },
     ]
   },
   {
@@ -1685,6 +1729,9 @@ let _prevObStep = undefined;  // last rendered onboardingStep — transition onl
 .day-plan-banner.plan-interval{background:rgba(255,152,0,.12);border-color:#ff9800}
 .day-plan-banner.plan-cross{background:rgba(33,150,243,.12);border-color:#2196f3}
 .day-plan-banner.plan-rest{background:rgba(120,120,120,.08);border-color:rgba(120,120,120,.3)}
+.day-plan-banner.plan-strength{background:rgba(255,152,0,.1);border-color:#e65100}
+.day-plan-banner.plan-wod{background:rgba(244,67,54,.1);border-color:#b71c1c}
+.day-plan-banner.plan-simulate{background:rgba(255,215,0,.12);border-color:#f9a825}
 .dpb-emoji{font-size:22px;flex-shrink:0}
 .dpb-type{font-size:14px;font-weight:700;color:var(--text)}
 .dpb-desc{font-size:12px;color:var(--text-dim);margin-top:2px}
@@ -2950,7 +2997,7 @@ function renderToday() {
     ${(() => {
       const sched = getDaySchedule(challenge, effDate);
       if (!sched) return "";
-      const typeClass = { easy:"plan-easy", tempo:"plan-tempo", long:"plan-long", interval:"plan-interval", cross:"plan-cross", rest:"plan-rest" }[sched.type] || "plan-easy";
+      const typeClass = { easy:"plan-easy", tempo:"plan-tempo", long:"plan-long", interval:"plan-interval", cross:"plan-cross", rest:"plan-rest", strength:"plan-strength", wod:"plan-wod", simulate:"plan-simulate", combo:"plan-interval" }[sched.type] || "plan-easy";
       return `<div class="day-plan-banner ${typeClass}">
         <span class="dpb-emoji">${sched.emoji}</span>
         <div>
@@ -3577,7 +3624,7 @@ function renderXPBar() {
       <span class="xp-level-badge">⚡ Lv.${info.level} <span class="xp-level-name">${info.name}</span></span>
       <div style="display:flex;align-items:center;gap:8px">
         ${freezes > 0 ? `<span class="xp-freeze-badge" title="Streak freezes — use one to protect a missed day">❄️ ${freezes}</span>` : ""}
-        <span class="xp-bar-to-next">${isMax ? "Max Level" : `${toNext.toLocaleString()} XP to Lv.${info.next.level}`}</span>
+        <span class="xp-bar-to-next">${isMax ? "Max Level" : (() => { const avg = avgDailyXP(); const d = avg ? `~${Math.ceil(toNext/avg)}d` : null; return `${toNext.toLocaleString()} XP to Lv.${info.next.level}${d?` · ${d}`:""}` })()}</span>
       </div>
     </div>
     <div class="xp-bar-track" role="progressbar" aria-valuenow="${info.pct}" aria-valuemin="0" aria-valuemax="100">
@@ -4465,7 +4512,8 @@ function renderBuilderTemplates() {
   const orderedCats = challengeSubTab === "expeditions"
     ? [cats.find(c => c.id === "expedition"), ...cats.filter(c => c.id !== "expedition")]
     : cats;
-  const POPULAR_IDS = ["75-hard", "75-soft", "mental-toughness", "cold-shower", "morning-routine", "no-alcohol", "meditation-21", "journaling", "walking", "no-sugar"];
+  const POPULAR_IDS = ["cruise-control","75-hard","75-soft","cold-exposure","morning-routine","meditation","journaling","walking","no-sugar","intermittent-fasting","monk-mode","half-marathon-prep"];
+  const START_HERE_IDS = ["morning-routine","walking","sleep-reset","meditation","reading","c25k","dry-month","30-pushups","zone2","75-soft","half-marathon-prep","project-50"];
   const filterTabs = [
     { id:"all",      label:"All" },
     { id:"popular",  label:"🔥 Popular" },
@@ -4524,6 +4572,13 @@ function renderBuilderTemplates() {
   <div class="template-filter-bar template-filter-bar--diff">${
     diffTabs.map(f => `<button class="template-filter-tab${_difficultyFilter===f.id?" active":""}" data-difficulty-filter="${f.id}">${f.label}</button>`).join("")
   }</div>`;
+  const showStartHere = _templateFilter === "all" && _difficultyFilter === "all";
+  const startHereSection = showStartHere ? (() => {
+    const picks = START_HERE_IDS.map(id => TEMPLATES.find(t => t.id === id)).filter(Boolean);
+    return `<div class="template-cat-label">⭐ Start Here <span style="font-weight:400;opacity:.6;font-size:12px">— 12 picks across all levels</span></div>
+    <div class="template-grid">${picks.map(templateCard).join("")}</div>
+    <div class="template-cat-label" style="margin-top:20px">📚 Full Library</div>`;
+  })() : "";
   const catSections = orderedCats.map(cat => {
     const group = TEMPLATES.filter(t => t.category === cat.id && passesFilter(t));
     if (!group.length) return "";
@@ -4541,7 +4596,7 @@ function renderBuilderTemplates() {
       <div class="tc-desc">Build your own challenge from scratch.</div>
     </button>
   </div>` : "";
-  return filterBar + catSections + customSection;
+  return filterBar + startHereSection + catSections + customSection;
 }
 
 function renderBuilderCustomize() {
