@@ -5984,7 +5984,15 @@ function bindEvents() {
   on("[data-reset-app]",       () => { _resetConfirm = true;  render(); });
   on("[data-reset-cancel]",    () => { _resetConfirm = false; render(); });
   on("[data-reset-confirm]",   async () => {
-    // 1. Overwrite cloud row with empty state so pull() finds nothing on re-login
+    // 1. Kill pending push timer so it can't overwrite the cloud wipe
+    clearTimeout(_cloudPushTimer);
+    _cloudPushTimer = null;
+    _skipCloudPush = true;
+    // 2. Clear local stores first — push() reads localStorage, so clearing
+    //    it now means any stray timer that fires will push {} not real data
+    localStorage.clear();
+    sessionStorage.clear();
+    // 3. Overwrite cloud row with empty state so pull() finds nothing on re-login
     if (CloudSync.isSignedIn) {
       try {
         await _sb().from("user_data").upsert({
@@ -5994,16 +6002,14 @@ function bindEvents() {
         });
       } catch(e) {}
     }
-    // 2. Sign out (invalidates session token)
+    // 4. Sign out
     try { await _sb().auth.signOut(); } catch(e) {}
-    // 3. Clear every client-side store
-    localStorage.clear();
-    sessionStorage.clear();
+    // 5. Clear IndexedDB
     try {
       const dbs = await indexedDB.databases?.() || [];
       for (const db of dbs) { if (db.name) indexedDB.deleteDatabase(db.name); }
     } catch(e) {}
-    // 4. Hard reload (bypasses SW cache for the page itself)
+    // 6. Hard reload
     window.location.replace(window.location.pathname + "?reset=" + Date.now());
   });
   // Import file — delegated so it works when settings panel opens after first render
