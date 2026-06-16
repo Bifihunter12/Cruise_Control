@@ -188,7 +188,7 @@ const TEMPLATE_DIFFICULTY = {
   "12-3-30":"intermediate","5k-prep":"intermediate","protein-challenge":"intermediate",
   "weight-loss-30":"intermediate","body-composition":"intermediate",
   "glucose-control":"intermediate",
-  "everest-bc":"intermediate","everest-stairmaster":"intermediate","thames-row":"intermediate",
+  "everest-bc":"intermediate","everest-stairmaster":"intermediate","kilimanjaro-stairmaster":"intermediate","montblanc-stairmaster":"intermediate","thames-row":"intermediate",
   // Advanced — high consistency demands or health-sensitive protocols
   "75-soft":"advanced","10k-prep":"advanced","run-streak":"advanced",
   "cold-exposure":"advanced","half-marathon-prep":"advanced",
@@ -245,9 +245,9 @@ const TEMPLATE_TIERS = {
   "morning-routine":"uncommon","core-abs":"uncommon",
   // ── Rare: mentally demanding, 75-day, or short expedition
   "cold-exposure":"rare","intermittent-fasting":"rare",
-  "75-soft":"rare","everest-bc":"rare","monk-mode":"rare",
+  "75-soft":"rare","everest-bc":"rare","monk-mode":"rare","montblanc-stairmaster":"rare",
   // ── Epic: strict 75-day, 86-day transformation, long expeditions
-  "75-hard":"epic","cruise-control":"epic","camino":"epic","tour-de-france":"epic",
+  "75-hard":"epic","cruise-control":"epic","camino":"epic","tour-de-france":"epic","kilimanjaro-stairmaster":"epic",
   // ── Legendary: year-long or extreme challenges
   "appalachian":"legendary","route66":"legendary",
   "amazon-river":"legendary","everest-stairmaster":"legendary","pct":"legendary",
@@ -1136,6 +1136,37 @@ const TEMPLATES = [
       { id:"floors", title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 2,903 to go.", type:"distance", points:1, unit:"floors" },
     ],
   },
+  {
+    id: "kilimanjaro-stairmaster", name: "Kilimanjaro StairMaster", emoji: "🌋", category: "expedition",
+    description: "Climb 1,934 floors — the StairMaster equivalent of Africa's highest peak, Uhuru at 5,895 m. Less oxygen, less mercy than Everest, but still Africa's crown.",
+    duration: 240, weeklyGoal: 5, defaultMode: "strict", routeKm: 1934,
+    milestones: [
+      { km: 100,  name: "Foothills",               emoji: "🌿" },
+      { km: 600,  name: "Marangu Gate",             emoji: "🌲" },
+      { km: 900,  name: "Mandara Hut (2,720 m)",   emoji: "🏕️" },
+      { km: 1200, name: "Horombo Hut (3,720 m)",   emoji: "⛺" },
+      { km: 1548, name: "Kibo Hut (4,720 m)",      emoji: "❄️" },
+      { km: 1934, name: "Uhuru Peak — 5,895 m",    emoji: "🌋" },
+    ],
+    habits: [
+      { id:"floors", title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 1,934 to go.", type:"distance", points:1, unit:"floors" },
+    ],
+  },
+  {
+    id: "montblanc-stairmaster", name: "Mont Blanc StairMaster", emoji: "⛰️", category: "expedition",
+    description: "Climb 1,577 floors — the StairMaster equivalent of Mont Blanc, the highest peak in the Alps at 4,808 m. A serious mountain, but friendlier than the giants above.",
+    duration: 180, weeklyGoal: 5, defaultMode: "strict", routeKm: 1577,
+    milestones: [
+      { km: 100,  name: "Chamonix Valley",           emoji: "🏘️" },
+      { km: 400,  name: "Les Houches (1,220 m)",     emoji: "🌲" },
+      { km: 780,  name: "Nid d'Aigle (2,380 m)",     emoji: "🦅" },
+      { km: 1252, name: "Refuge du Goûter (3,817 m)",emoji: "🏔️" },
+      { km: 1577, name: "Summit — 4,808 m",          emoji: "⛰️" },
+    ],
+    habits: [
+      { id:"floors", title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 1,577 to go.", type:"distance", points:1, unit:"floors" },
+    ],
+  },
 
   // ── Running Expeditions ──────────────────────────────────────────────────
   {
@@ -1521,6 +1552,21 @@ const TEMPLATE_BADGES = {
     { id:"esm-1000",    label:"🏕️ Camp II",             desc:"1,000 floors deep. Basecamp II altitude.",           test: c => c.totalKm >= 1000  },
     { id:"esm-2000",    label:"☠️ Death Zone",           desc:"2,000 floors. The air is dangerously thin.",         test: c => c.totalKm >= 2000  },
     { id:"esm-summit",  label:"🏔️ Everest Summit!",     desc:"2,903 floors. You climbed an entire mountain.",      test: c => c.totalKm >= 2903.2},
+  ],
+  "kilimanjaro-stairmaster": [
+    { id:"ksm-start",   label:"🏢 First Floor",          desc:"Log your first floor. Africa calls.",                test: c => c.totalKm >= 1     },
+    { id:"ksm-600",     label:"🌲 Marangu Gate",          desc:"600 floors — through the tropical forest zone.",    test: c => c.totalKm >= 600   },
+    { id:"ksm-900",     label:"🏕️ Mandara Hut",          desc:"900 floors. First mountain camp at 2,720 m.",       test: c => c.totalKm >= 900   },
+    { id:"ksm-1200",    label:"⛺ Horombo Hut",           desc:"1,200 floors. High camp at 3,720 m.",               test: c => c.totalKm >= 1200  },
+    { id:"ksm-1548",    label:"❄️ Kibo Hut",              desc:"1,548 floors. The final camp before the summit.",   test: c => c.totalKm >= 1548  },
+    { id:"ksm-summit",  label:"🌋 Uhuru Peak!",           desc:"1,934 floors. Africa's highest point — 5,895 m.",  test: c => c.totalKm >= 1934  },
+  ],
+  "montblanc-stairmaster": [
+    { id:"mb-start",    label:"🏢 First Floor",           desc:"Log your first floor. The Alps await.",             test: c => c.totalKm >= 1     },
+    { id:"mb-400",      label:"🌲 Les Houches",            desc:"400 floors — into the Alpine foothills.",           test: c => c.totalKm >= 400   },
+    { id:"mb-780",      label:"🦅 Nid d'Aigle",            desc:"780 floors. Eagle's Nest at 2,380 m.",              test: c => c.totalKm >= 780   },
+    { id:"mb-1252",     label:"🏔️ Refuge du Goûter",      desc:"1,252 floors. The classic summit hut at 3,817 m.", test: c => c.totalKm >= 1252  },
+    { id:"mb-summit",   label:"⛰️ Mont Blanc Summit!",    desc:"1,577 floors. Highest peak in the Alps — 4,808 m.",test: c => c.totalKm >= 1577  },
   ],
   "journaling": [
     { id:"jn-d1",    label:"✍️ First Entry",       desc:"Write your first journal entry.",                          test: c => c.dayNumber >= 1 && c.complete },
