@@ -5984,10 +5984,14 @@ function bindEvents() {
   on("[data-reset-app]",       () => { _resetConfirm = true;  render(); });
   on("[data-reset-cancel]",    () => { _resetConfirm = false; render(); });
   on("[data-reset-confirm]",   async () => {
-    // 1. Wipe cloud data first so pull() can't restore it on reload
+    // 1. Overwrite cloud row with empty state so pull() finds nothing on re-login
     if (CloudSync.isSignedIn) {
       try {
-        await _sb().from("user_data").delete().eq("user_id", CloudSync.uid);
+        await _sb().from("user_data").upsert({
+          user_id: CloudSync.uid,
+          state_json: {},
+          updated_at: new Date().toISOString(),
+        });
       } catch(e) {}
     }
     // 2. Sign out (invalidates session token)
