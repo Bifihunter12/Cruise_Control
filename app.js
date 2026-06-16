@@ -2002,6 +2002,16 @@ function normalizeChallenge(raw) {
   const rawDays = (raw.days && typeof raw.days === "object") ? raw.days : {};
   const days = {};
   for (const [k, v] of Object.entries(rawDays)) days[k] = normalizeDay(v);
+  // Back-fill habit fields (e.g. unit) that may be missing in older saved data
+  const tpl = raw.templateId ? TEMPLATES.find(t => t.id === raw.templateId) : null;
+  const habits = (Array.isArray(raw.habits) ? raw.habits.map(normalizeHabit).filter(Boolean) : [])
+    .map(h => {
+      if (!h.unit && tpl) {
+        const tplH = tpl.habits?.find(th => th.id === h.id);
+        if (tplH?.unit) h.unit = tplH.unit;
+      }
+      return h;
+    });
   return {
     id:         raw.id || uid(),
     name:       raw.name || "My Challenge",
@@ -2013,7 +2023,7 @@ function normalizeChallenge(raw) {
     mode:       ["strict","soft"].includes(raw.mode) ? raw.mode : "soft",
     status:     ["active","completed","failed","paused"].includes(raw.status) ? raw.status : "active",
     weeklyGoal: typeof raw.weeklyGoal === "number" ? raw.weeklyGoal : 100,
-    habits:     Array.isArray(raw.habits) ? raw.habits.map(normalizeHabit).filter(Boolean) : [],
+    habits,
     days,
     badges:      Array.isArray(raw.badges) ? raw.badges : [],
     createdAt:   raw.createdAt || todayKey(),
