@@ -3075,7 +3075,7 @@ function renderToday() {
         ${challenge.habits.some(h => h.type === "distance")
           ? `<div class="section-label" style="margin:0">Distance</div>`
           : `<div class="section-label" style="margin:0">Habits</div>
-             <div style="font-size:12px;font-weight:300;color:var(--text-dim)">${_savedFlash ? `<span class="saved-flash">Saved ✓</span>` : dayNumber === 1 && info.done === 0 ? "Tap to log your first day →" : `${info.done} / ${info.total}`}</div>`}
+             <div style="font-size:12px;font-weight:500;color:var(--text-dim)">${_savedFlash ? `<span class="saved-flash">Saved ✓</span>` : dayNumber === 1 && info.done === 0 ? "Tap to log your first day →" : `${info.done} / ${info.total}`}</div>`}
       </div>
       <div class="habit-list">
         ${challenge.habits.map(h => renderHabit(h, day, challenge)).join("")}
@@ -3573,7 +3573,7 @@ function renderRouteProgress(challenge, template) {
   <section class="route-progress-section panel">
     <div class="route-progress-header">
       <span class="route-progress-name">${template.emoji} ${template.name}</span>
-      <span class="route-progress-km">${totalDisplay.toFixed(1)} <span style="font-weight:300;color:var(--text-dim)">/ ${routeDisplay.toLocaleString()} ${displayUnit}</span></span>
+      <span class="route-progress-km">${totalDisplay.toFixed(1)} <span style="font-weight:500;color:var(--text-dim)">/ ${routeDisplay.toLocaleString()} ${displayUnit}</span></span>
     </div>
     <div class="route-progress-track">
       <div class="route-progress-fill" style="width:${pct}%"></div>
@@ -4359,8 +4359,8 @@ function renderEditChallenge(c) {
 
 function statCard(label, value, unit) {
   return `<div class="stat-card">
-    <div class="label" style="font-size:11px;font-weight:300;color:var(--text-dim);margin-bottom:6px">${label}</div>
-    <div class="stat-value">${value}<span style="font-size:13px;font-weight:300;color:var(--text-dim);margin-left:3px">${unit}</span></div>
+    <div class="label" style="font-size:11px;font-weight:500;color:var(--text-dim);margin-bottom:6px">${label}</div>
+    <div class="stat-value">${value}<span style="font-size:13px;font-weight:500;color:var(--text-dim);margin-left:3px">${unit}</span></div>
   </div>`;
 }
 
@@ -4633,7 +4633,7 @@ function renderBuilderTemplates() {
   const showStartHere = _templateFilter === "all" && _difficultyFilter === "all";
   const startHereSection = showStartHere ? (() => {
     const picks = START_HERE_IDS.map(id => TEMPLATES.find(t => t.id === id)).filter(Boolean);
-    return `<div class="template-cat-label">⭐ Start Here <span style="font-weight:400;opacity:.6;font-size:12px">— 12 picks across all levels</span></div>
+    return `<div class="template-cat-label">⭐ Start Here <span style="font-weight:500;opacity:.6;font-size:12px">— 12 picks across all levels</span></div>
     <div class="template-grid">${picks.map(templateCard).join("")}</div>
     <div class="template-cat-label" style="margin-top:20px">📚 Full Library</div>`;
   })() : "";
@@ -5474,7 +5474,7 @@ function renderProSection() {
       <input id="cloud-email" type="email" placeholder="your@email.com" autocomplete="email" inputmode="email">
     </label>
     <label class="field" style="margin-bottom:14px">
-      Password <span style="font-size:11px;font-weight:400;color:var(--text-dim)">(min 8 characters)</span>
+      Password <span style="font-size:11px;font-weight:500;color:var(--text-dim)">(min 8 characters)</span>
       <input id="cloud-password" type="password" placeholder="Choose a password" autocomplete="new-password">
     </label>
     <div style="display:flex;gap:8px">
