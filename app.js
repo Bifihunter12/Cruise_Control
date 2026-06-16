@@ -3470,7 +3470,7 @@ function renderDistanceHabit(habit, day, challenge) {
   const globalDist = state.settings.units.distance || "km";
   const displayUnit = isFloors ? "floors" : (globalDist === "miles" ? "mi" : "km");
   // Convert stored km → display unit for input value
-  const displayVal = isFloors ? storedVal :
+  const displayVal = isFloors ? Math.round(storedVal) :
     (displayUnit === "mi" ? Math.round(storedVal * MI_PER_KM * 100) / 100 : storedVal);
 
   const tpl       = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
@@ -5994,15 +5994,12 @@ function bindEvents() {
   on("[data-reset-app]",       () => { _resetConfirm = true;  render(); });
   on("[data-reset-cancel]",    () => { _resetConfirm = false; render(); });
   on("[data-reset-confirm]",   async () => {
-    // 1. Kill pending push timer so it can't overwrite the cloud wipe
+    // 1. Kill pending push timer immediately
     clearTimeout(_cloudPushTimer);
     _cloudPushTimer = null;
     _skipCloudPush = true;
-    // 2. Clear local stores first — push() reads localStorage, so clearing
-    //    it now means any stray timer that fires will push {} not real data
-    localStorage.clear();
-    sessionStorage.clear();
-    // 3. Overwrite cloud row with empty state so pull() finds nothing on re-login
+    // 2. Overwrite cloud row BEFORE clearing localStorage — auth token must
+    //    still be in localStorage for Supabase to authenticate the upsert
     if (CloudSync.isSignedIn) {
       try {
         await _sb().from("user_data").upsert({
@@ -6012,8 +6009,11 @@ function bindEvents() {
         });
       } catch(e) {}
     }
-    // 4. Sign out
+    // 3. Sign out (invalidates session server-side)
     try { await _sb().auth.signOut(); } catch(e) {}
+    // 4. Now clear all client-side stores (auth token gone after signOut anyway)
+    localStorage.clear();
+    sessionStorage.clear();
     // 5. Clear IndexedDB
     try {
       const dbs = await indexedDB.databases?.() || [];
@@ -6333,7 +6333,7 @@ function logDistance(habitId, km) {
   const day = getChallengeDay(c, effectiveDate());
   if (day.mode === "rest") return;
   if (!day.distances) day.distances = {};
-  day.distances[habitId] = km;
+  day.distances[habitId] = habit.unit === "floors" ? Math.round(km) : km;
   if (km > 0) {
     if (!day.done.includes(habitId)) { day.done.push(habitId); _animHabitId = habitId; }
   } else {
