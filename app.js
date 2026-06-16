@@ -5422,19 +5422,20 @@ function renderDataSettings() {
       <div style="font-size:12px;color:var(--text-dim);margin-top:8px">⚠️ Restoring will overwrite all current data.</div>
     </div>
   </div>
+  ${CloudSync.isSignedIn ? `
   <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
     ${_resetConfirm ? `
       <div style="background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.3);border-radius:10px;padding:14px">
-        <div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:6px">Reset everything?</div>
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">All challenges, XP, badges, streaks, and settings will be permanently deleted. This cannot be undone.</div>
+        <div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:6px">Delete account?</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">All challenges, XP, badges, streaks, and settings will be permanently deleted and your account removed. This cannot be undone.</div>
         <div style="display:flex;gap:8px">
           <button class="secondary-button" data-reset-cancel style="flex:1">Cancel</button>
-          <button class="primary-button" data-reset-confirm style="flex:1;background:#dc2626;border-color:#dc2626">Yes, reset everything</button>
+          <button class="primary-button" data-reset-confirm style="flex:1;background:#dc2626;border-color:#dc2626">Yes, delete account</button>
         </div>
       </div>` : `
-      <div style="font-size:13px;color:var(--text-dim);margin-bottom:8px">Erase all data and start fresh.</div>
-      <button class="secondary-button" data-reset-app style="color:#f87171;border-color:rgba(220,38,38,0.4)">Reset everything</button>`}
-  </div>
+      <div style="font-size:13px;color:var(--text-dim);margin-bottom:8px">Permanently delete your account and all data.</div>
+      <button class="secondary-button" data-reset-app style="color:#f87171;border-color:rgba(220,38,38,0.4)">Delete account</button>`}
+  </div>` : ""}
   <div style="margin-top:20px;text-align:center">
     <a href="/privacy.html" target="_blank" style="font-size:12px;color:var(--text-dim);text-decoration:none">Privacy Policy</a>
     <span style="font-size:12px;color:var(--text-faint);margin:0 8px">·</span>
