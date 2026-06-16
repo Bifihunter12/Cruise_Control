@@ -5984,13 +5984,23 @@ function bindEvents() {
   on("[data-reset-app]",       () => { _resetConfirm = true;  render(); });
   on("[data-reset-cancel]",    () => { _resetConfirm = false; render(); });
   on("[data-reset-confirm]",   async () => {
+    // 1. Wipe cloud data first so pull() can't restore it on reload
+    if (CloudSync.isSignedIn) {
+      try {
+        await _sb().from("user_data").delete().eq("user_id", CloudSync.uid);
+      } catch(e) {}
+    }
+    // 2. Sign out (invalidates session token)
     try { await _sb().auth.signOut(); } catch(e) {}
+    // 3. Clear every client-side store
     localStorage.clear();
+    sessionStorage.clear();
     try {
       const dbs = await indexedDB.databases?.() || [];
       for (const db of dbs) { if (db.name) indexedDB.deleteDatabase(db.name); }
     } catch(e) {}
-    window.location.reload();
+    // 4. Hard reload (bypasses SW cache for the page itself)
+    window.location.replace(window.location.pathname + "?reset=" + Date.now());
   });
   // Import file — delegated so it works when settings panel opens after first render
   document.addEventListener("change", e => {
