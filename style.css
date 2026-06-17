@@ -122,7 +122,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   width: min(100%, 480px);
   min-height: 100vh;
   margin: 0 auto;
-  padding: max(20px, env(safe-area-inset-top)) 18px calc(88px + env(safe-area-inset-bottom));
+  padding: max(20px, env(safe-area-inset-top)) 14px calc(88px + env(safe-area-inset-bottom));
 }
 
 /* ── Topbar ─────────────────────────────────── */
@@ -454,6 +454,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   grid-template-columns: 4px 40px 1fr 32px;
   align-items: center;
   gap: 10px;
+  padding-right: 8px;
   min-height: 60px;
   overflow: hidden;
   border-radius: var(--radius-sm);
@@ -467,7 +468,6 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .habit-card.checked {
   background: linear-gradient(135deg, rgba(180,79,255,0.18), rgba(255,79,163,0.12));
   border-color: rgba(180, 79, 255, 0.35);
-  animation: habit-pop 260ms ease;
 }
 
 .habit-card.locked { opacity: 0.38; }
@@ -517,14 +517,14 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .check-circle {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  margin-right: 10px;
+  width: 28px;
+  height: 28px;
   border: 1.5px solid var(--border-active);
   border-radius: 50%;
   color: transparent;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
+  flex-shrink: 0;
   transition: all 220ms ease;
 }
 
@@ -532,7 +532,6 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   border-color: var(--primary);
   background: rgba(180, 79, 255, 0.22);
   color: var(--text);
-  animation: check-pop 280ms ease;
 }
 
 /* ── Run habit ───────────────────────────────────── */
