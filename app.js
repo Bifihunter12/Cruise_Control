@@ -5388,7 +5388,7 @@ function renderSafetyModal() {
   const warning = TEMPLATE_SAFETY[t.id];
   return `
   <div class="sheet-backdrop" data-safety-backdrop>
-    <section class="sheet" role="dialog" style="max-width:400px" onclick="event.stopPropagation()">
+    <section class="sheet" role="dialog" style="max-width:400px">
       <div style="font-size:40px;text-align:center;margin-bottom:10px">⚠️</div>
       <div style="font-size:18px;font-weight:700;text-align:center;margin-bottom:14px">Health Notice</div>
       <div style="font-size:14px;color:var(--text);line-height:1.65;margin-bottom:16px">${warning}</div>
