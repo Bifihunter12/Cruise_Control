@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.17.5";
+const APP_VERSION = "2026.06.17.6";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -1688,6 +1688,10 @@ let _resetConfirm = false;    // shows inline confirm step before wiping all dat
 let _safetyPendingTemplateId = null; // templateId awaiting health disclaimer acknowledgement
 let _obTransitioning = false; // true while slide animation is in flight
 let _prevObStep = undefined;  // last rendered onboardingStep — transition only when this changes
+let _lastSyncError = false;        // true when last cloud push failed
+let _isOffline = false;            // true when navigator is offline
+let _skipAccountAfterStart = false; // goal picker bypassed account creation step
+let _forgotPwMode = false;         // forgot-password form is showing
 
 // Inject CSS for features added at runtime
 (function injectFeatureCSS() {
@@ -1710,6 +1714,12 @@ let _prevObStep = undefined;  // last rendered onboardingStep — transition onl
 .dpb-desc{font-size:12px;color:var(--text-dim);margin-top:2px}
 .mode-chip--scheduled-rest{border-color:rgba(76,175,80,.5)!important;color:#4caf50!important}
 .template-filter-bar--diff{margin-top:6px}
+.cloud-sync-bar--warn{background:rgba(234,179,8,.18);color:#92400e;animation:none;height:auto;padding:5px 14px;font-size:12px;text-align:center}
+.cloud-sync-bar--err{background:rgba(220,38,38,.12);color:#dc2626;animation:none;height:auto;padding:5px 14px;font-size:12px;text-align:center}
+.cloud-sync-bar--err button.link-btn{color:#dc2626;font-size:12px;text-decoration:underline}
+.backfill-limit-hint{font-size:11px;color:var(--text-dim);text-align:center;padding:2px 0 6px;opacity:.8}
+.badge-hint{font-size:11px;color:var(--text-dim);margin-top:3px;font-weight:400}
+.ob-forgot-sent{background:rgba(76,175,80,.12);border:1px solid rgba(76,175,80,.35);border-radius:8px;padding:10px 12px;font-size:13px;color:#166534;margin-bottom:12px;text-align:center}
 `;
   document.head.appendChild(s);
 })();
@@ -1758,8 +1768,12 @@ const CloudSync = {
     const { data, error } = await _sb().auth.signUp({ email, password });
     if (error) return { error: error.message };
     this._user = data.user;
-    if (data.session) await this.push();
-    return {};
+    if (data.session) {
+      await this.push();
+      return {};
+    }
+    // Email confirmation required — session is null until confirmed
+    return { emailPending: true };
   },
 
   async signIn(email, password) {
@@ -1786,7 +1800,8 @@ const CloudSync = {
         state_json: stateObj,
         updated_at: new Date().toISOString(),
       });
-    } catch(e) { console.warn("Cloud push failed:", e); }
+      _lastSyncError = false;
+    } catch(e) { console.warn("Cloud push failed:", e); _lastSyncError = true; }
     finally { _cloudSyncing = false; render(); }
   },
 
@@ -1812,7 +1827,7 @@ const CloudSync = {
       saveState();
       _skipCloudPush = false;
       showToast("☁️ Data restored from cloud.");
-    } catch(e) { console.warn("Cloud pull failed:", e); }
+    } catch(e) { console.warn("Cloud pull failed:", e); _lastSyncError = true; }
     finally { _cloudSyncing = false; render(); }
   },
 };
@@ -2793,6 +2808,7 @@ function render() {
   } else {
     html += activeTab === "today"      ? renderToday()      : "";
     html += activeTab === "challenges" ? renderChallenges() : "";
+    html += activeTab === "body"       ? renderBody()       : "";
     html += activeTab === "badges"     ? renderBadges()     : "";
   }
   html += renderNav();
@@ -2851,6 +2867,8 @@ function render() {
 
 function renderTopbar() {
   return `
+  ${_isOffline ? `<div class="cloud-sync-bar cloud-sync-bar--warn" role="status" aria-live="polite">Offline — will sync when reconnected</div>` : ""}
+  ${_lastSyncError && !_isOffline ? `<div class="cloud-sync-bar cloud-sync-bar--err" role="alert">⚠ Sync failed — <button class="link-btn" data-retry-sync>retry</button></div>` : ""}
   ${_cloudSyncing ? `<div class="cloud-sync-bar" role="progressbar" aria-label="Syncing…"></div>` : ""}
   <header class="topbar">
     <div class="brand">
@@ -2891,7 +2909,7 @@ const NAV_ICONS = {
 };
 
 function renderNav() {
-  const tabs = [["today","Today"],["challenges","Challenges"],["badges","Badges"]];
+  const tabs = [["today","Today"],["challenges","Challenges"],["body","Body"],["badges","Badges"]];
   return `
   <nav class="bottom-nav" aria-label="Conqur sections">
     ${tabs.map(([id,label]) => `
@@ -2966,7 +2984,7 @@ function renderToday() {
       Streak paused at ${streak} days. Come back today to restart. <span class="cb-alive">Your challenge is still running.</span>
     </div>` : ""}
     <div class="date-nav">
-      <button class="date-nav-arrow ${canGoBack?"":"disabled"}" data-date-back ${canGoBack?"":"disabled"} aria-label="Previous day">‹</button>
+      <button class="date-nav-arrow ${canGoBack?"":"disabled"}" data-date-back ${canGoBack?"":"disabled"} aria-label="Previous day" ${!canGoBack ? 'title="Only the last 3 days can be logged"' : ""}>‹</button>
       <div class="date-nav-center">
         <span class="date-nav-label ${!isToday?"date-nav-past":""}">
           ${isToday ? "Today" : formatDate(parseDate(effDate), {weekday:"short", month:"short", day:"numeric"})}
@@ -2975,6 +2993,7 @@ function renderToday() {
       </div>
       <button class="date-nav-arrow ${canGoFwd?"":"disabled"}" data-date-fwd ${canGoFwd?"":"disabled"} aria-label="Next day">›</button>
     </div>
+    ${!canGoBack && minDate === addDays(today, -3) && challenge.startDate < minDate ? `<div class="backfill-limit-hint">Logging is limited to the last 3 days</div>` : ""}
     ${!isToday ? `<div class="backfill-banner">✏️ Editing ${formatDate(parseDate(effDate),{weekday:"long"})} — changes save immediately.</div>` : ""}
     <section class="hero">
       <div class="hero-title-row">
@@ -4620,6 +4639,7 @@ function renderBuilderCustomize() {
       <label class="field">Start date<input id="bf-start" type="date" value="${builderForm.startDate}"></label>
       ${builderForm.noEndDate ? `<label class="field" style="opacity:.4">End date<input type="date" disabled value="—"></label>` : `<label class="field">End date<input id="bf-end" type="date" value="${builderForm.endDate}"></label>`}
     </div>
+    ${builderForm.startDate < todayKey() ? `<p class="mode-desc" style="margin:-2px 0 10px">Starting in the past — days before today will show as unlogged. That's OK.</p>` : ""}
     <div class="ongoing-toggle" style="margin-bottom:14px">
       <label class="ongoing-toggle-label">
         <input type="checkbox" id="bf-ongoing" ${builderForm.noEndDate?"checked":""} style="width:16px;height:16px;accent-color:var(--accent)">
@@ -4935,12 +4955,12 @@ function renderBadges() {
         <div class="badge-overview-label">badges earned</div>
       </div>
       <div class="badge-overall-track"><div class="badge-overall-fill" style="width:${pct}%"></div></div>
-      ${renderBadgeCat("🌍 Universal", UNIVERSAL_BADGES, state.globalBadges, null)}
-      ${renderBadgeCat("💎 Lifetime Achievements", LIFETIME_BADGES, state.globalBadges, null)}
+      ${renderBadgeCat("🌍 Universal", UNIVERSAL_BADGES, state.globalBadges, null, { xp: state.xp, maxStreak: Math.max(0, ...getAllChallenges().map(c => calcChallengeStreak(c))) })}
+      ${renderBadgeCat("💎 Lifetime Achievements", LIFETIME_BADGES, state.globalBadges, null, null)}
       ${startedChallenges.map(c => {
         const tBadges = TEMPLATE_BADGES[c.templateId];
         if (!tBadges) return "";
-        return renderBadgeCat(`${esc(c.emoji)} ${esc(c.name)}`, tBadges, c.badges, c.templateId);
+        return renderBadgeCat(`${esc(c.emoji)} ${esc(c.name)}`, tBadges, c.badges, c.templateId, null);
       }).join("")}
     </div>
     ${renderPersonalBests()}
@@ -4993,10 +5013,28 @@ function renderConsistencyChart(allChallenges) {
   </div>`;
 }
 
-function renderBadgeCat(label, defs, earned, templateId) {
+function renderBadgeCat(label, defs, earned, templateId, progressCtx) {
   const earnedSet = new Set(earned);
   const count = defs.filter(b=>earnedSet.has(b.id)).length;
   const catTier = templateId ? (TEMPLATE_TIERS[templateId] || "common") : null;
+
+  // Progress hints for universal streak/xp badges
+  const STREAK_BADGES = { "u-3d":3,"u-7d":7,"u-14d":14,"u-21d":21,"u-30d":30,"u-60d":60,"u-75d":75 };
+  const XP_BADGES     = { "u-p10":10,"u-p100":100,"u-p500":500,"u-p1k":1000 };
+  function badgeProgressHint(b) {
+    if (!progressCtx || earnedSet.has(b.id)) return "";
+    if (STREAK_BADGES[b.id] !== undefined) {
+      const need = STREAK_BADGES[b.id];
+      const have = Math.min(progressCtx.maxStreak, need);
+      return `<div class="badge-hint">${have} / ${need} days</div>`;
+    }
+    if (XP_BADGES[b.id] !== undefined) {
+      const need = XP_BADGES[b.id];
+      const have = Math.min(progressCtx.xp, need);
+      return `<div class="badge-hint">${have} / ${need} XP</div>`;
+    }
+    return "";
+  }
 
   const renderBadgeTile = (b) => {
     const isEarned = earnedSet.has(b.id);
@@ -5009,6 +5047,7 @@ function renderBadgeCat(label, defs, earned, templateId) {
       ${isEarned && td ? `<span class="badge-tier-dot" style="background:${td.color}" title="${td.label}"></span>` : ""}
       <div class="badge-label">${b.label}</div>
       ${b.desc?`<div class="badge-desc">${b.desc}</div>`:""}
+      ${!isEarned ? badgeProgressHint(b) : ""}
     </div>`;
   };
 
@@ -5132,7 +5171,7 @@ const ONBOARDING_STEPS = [
   { emoji:"⭐", title:"Earn points daily",  body:"Every habit you check earns points and XP. XP builds your level — it never resets. Log 5 days in a week and you'll bank a streak freeze." },
   { emoji:"🔥", title:"Come back tomorrow", body:"Your streak grows every day you log. Miss a day? Soft mode gives you grace. Rest days are built in. One day at a time." },
 ];
-// onboardingStep: 0 = hero, 1-3 = info slides, 4 = account screen
+// onboardingStep: 0=hero, 1=journey, 2=goal, 3–(2+N)=info slides (N=ONBOARDING_STEPS.length), +3=name, +4=account
 
 function renderObHero() {
   const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
@@ -5234,6 +5273,27 @@ function renderObName() {
 
 function renderObAccount() {
   const isSignin = _obAuthMode === "signin";
+  // Forgot password sub-screen
+  if (_forgotPwMode) {
+    return `
+  <div class="ob-screen ob-screen--account" role="main">
+    <div class="ob-slide-inner">
+      <div class="ob-emoji" aria-hidden="true">🔑</div>
+      <div class="ob-title">Reset your password</div>
+      <div class="ob-body">Enter your email and we'll send you a reset link.</div>
+    </div>
+    ${_obAuthError ? `<div class="ob-auth-error">${esc(_obAuthError)}</div>` : ""}
+    ${_obAuthLoading ? `<div class="ob-loading">Sending…</div>` : `
+    <div class="ob-form">
+      <label class="field ob-field">
+        Email
+        <input id="ob-reset-email" type="email" placeholder="your@email.com" autocomplete="email" inputmode="email">
+      </label>
+      <button class="primary-button ob-cta" data-ob-forgot-submit>Send reset link</button>
+    </div>`}
+    <button class="link-btn ob-link" data-ob-forgot-cancel>← Back to sign in</button>
+  </div>`;
+  }
   return `
   <div class="ob-screen ob-screen--account" role="main">
     <div class="ob-slide-inner">
@@ -5256,6 +5316,7 @@ function renderObAccount() {
             <input id="ob-password" type="password" placeholder="••••••••" autocomplete="${isSignin ? "current-password" : "new-password"}">
           </label>
           <button class="primary-button ob-cta" data-ob-auth>${isSignin ? "Sign In" : "Create Account"}</button>
+          ${isSignin ? `<button class="link-btn ob-link ob-link--faint" style="margin-top:4px" data-ob-forgot>Forgot password?</button>` : ""}
         </div>`}
     <button class="link-btn ob-link" data-ob-toggle-auth>
       ${isSignin ? "No account yet? Create one" : "Already have an account? Sign in"}
@@ -5458,7 +5519,8 @@ function renderProSection() {
     <div style="display:flex;gap:8px">
       <button class="secondary-button" style="flex:1" data-cloud-signin>Sign In</button>
       <button class="primary-button" style="flex:1" data-cloud-signup>Create Account →</button>
-    </div>`}
+    </div>
+    <button class="link-btn" style="font-size:12px;color:var(--text-dim);margin-top:10px" data-cloud-forgot>Forgot password?</button>`}
   </div>`;
 }
 
@@ -5739,7 +5801,11 @@ function bindEvents() {
     const res = await CloudSync.signUp(email, password);
     _cloudAuthLoading = false;
     if (res.error) { _cloudAuthError = res.error; render(); return; }
-    showToast("✅ Account created! Data syncing to cloud.");
+    if (res.emailPending) {
+      showToast("✅ Account created! Check your inbox to confirm your email.");
+    } else {
+      showToast("✅ Account created! Data syncing to cloud.");
+    }
     render();
   });
   on("[data-cloud-signout]",   () => { CloudSync.signOut(); _cloudAuthError = ""; render(); });
@@ -6003,6 +6069,7 @@ function bindEvents() {
     const templateId = el.dataset.obGoal;
     const tpl = TEMPLATES.find(t => t.id === templateId);
     onboardingStep = null;
+    _skipAccountAfterStart = true;
     activeTab = "challenges";
     builderOpen = true;
     builderStep = "customize";
@@ -6046,6 +6113,17 @@ function bindEvents() {
       : await CloudSync.signIn(email, password);
     _obAuthLoading = false;
     if (res.error) { _obAuthError = res.error; render(); return; }
+    if (res.emailPending) {
+      // Email confirmation required — show message and let user continue offline
+      _obAuthError = "";
+      showToast("✅ Account created! Check your inbox to confirm your email.");
+      trackEvent("Account Created");
+      onboardingStep = null;
+      activeTab = "challenges";
+      builderOpen = true; builderStep = "template";
+      builderForm = defaultBuilderForm();
+      render(); return;
+    }
     trackEvent(_obAuthMode === "signup" ? "Account Created" : "Sign In");
     // Success — go to challenge picker (signup) or today tab (signin with existing data)
     onboardingStep = null;
@@ -6068,6 +6146,29 @@ function bindEvents() {
     builderForm = defaultBuilderForm();
     render();
   });
+  // ── Forgot password ──────────────────────────────────────────────────────
+  on("[data-ob-forgot]",         () => { _forgotPwMode = true; _obAuthError = ""; render(); });
+  on("[data-ob-forgot-cancel]",  () => { _forgotPwMode = false; _obAuthError = ""; render(); });
+  on("[data-ob-forgot-submit]",  async () => {
+    const email = (document.getElementById("ob-reset-email")?.value || "").trim();
+    if (!email) { _obAuthError = "Enter your email address."; render(); return; }
+    _obAuthLoading = true; _obAuthError = ""; render();
+    try { await _sb().auth.resetPasswordForEmail(email); } catch(e) { /* silent — Supabase always returns 200 */ }
+    _obAuthLoading = false;
+    _forgotPwMode = false;
+    showToast("📧 Reset link sent — check your inbox.");
+    render();
+  });
+  on("[data-cloud-forgot]",      async () => {
+    const email = (document.getElementById("cloud-email")?.value || "").trim();
+    if (!email) { _cloudAuthError = "Enter your email above, then tap Forgot password."; render(); return; }
+    _cloudAuthLoading = true; _cloudAuthError = ""; render();
+    try { await _sb().auth.resetPasswordForEmail(email); } catch(e) { /* silent */ }
+    _cloudAuthLoading = false;
+    showToast("📧 Reset link sent — check your inbox.");
+    render();
+  });
+  on("[data-retry-sync]", () => { _lastSyncError = false; CloudSync.push(); });
   on("[data-confirm-ok]",      () => { const fn = _confirmDialog?.onConfirm; _confirmDialog = null; render(); if (fn) fn(); });
   on("[data-confirm-cancel]",  () => { _confirmDialog = null; render(); });
   on("[data-delete-photo]",    el => {
@@ -6461,6 +6562,14 @@ function startChallenge(safetyConfirmed = false) {
   activeTab = "today";
   showToast(`${c.emoji} ${c.name} started!`);
   trackEvent("Challenge Started", { challenge: c.name, template: builderForm.templateId || "custom" });
+  if (_skipAccountAfterStart && !CloudSync.isSignedIn) {
+    _skipAccountAfterStart = false;
+    _obAuthMode = "signup";
+    _obAuthError = "";
+    onboardingStep = ONBOARDING_STEPS.length + 4;
+    render(); return;
+  }
+  _skipAccountAfterStart = false;
   render();
 }
 
@@ -6943,6 +7052,15 @@ saveState();
 scheduleReminder();
 setDynamicIcon();
 CloudSync.init();
+
+// ── Network status — offline banner + auto-retry on reconnect ─────────────
+window.addEventListener("offline", () => { _isOffline = true; render(); });
+window.addEventListener("online",  () => {
+  _isOffline = false;
+  _lastSyncError = false;
+  if (CloudSync.isSignedIn) CloudSync.push();
+  else render();
+});
 
 // ── History API: Android swipe-back stays inside the app ──────────────────
 // Push a dummy history entry so the first "back" gesture pops state instead
