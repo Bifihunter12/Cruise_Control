@@ -2893,7 +2893,7 @@ function render() {
       <div style="font-size:40px;margin-bottom:12px">⚠️</div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px">Something went wrong</div>
       <div style="font-size:13px;color:var(--text-dim);margin-bottom:20px">A display error occurred. Your data is safe.</div>
-      <button class="btn-primary" onclick="window.location.reload()">Reload app</button>
+      <button class="primary-button" onclick="window.location.reload()" style="margin:0 auto;max-width:200px">Reload app</button>
     </div>`;
   }
 }
