@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.18.1";
+const APP_VERSION = "2026.06.18.2";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -85,6 +85,26 @@ const JOURNEY_THEMES = {
       "Reef Master","Coral Guardian","Pelagic Diver","Abyss Seeker","Twilight Zone",
       "Midnight Zone","Deep Sea Pioneer","Hadal Explorer","Pressure Tested","Trench Walker",
       "Abyss Master","Shadow of the Deep","Mariana Bound","Mariana Champion","Mariana Legend",
+    ],
+  },
+  rose: {
+    label: "Rose Journey", emoji: "🌹", tagline: "Bloom Into Your Best Self",
+    levels: [
+      "Seedling","First Leaf","Tender Bud","Opening Bloom","Garden Starter",
+      "Soft Power","Quiet Strength","Inner Glow","Rising Bloom","Wild Flower",
+      "Flourishing","Thorns & All","Full Bloom","Garden Keeper","Heart of Gold",
+      "Climbing Rose","Grace & Grit","Bloom Queen","Wild Rose","Prize Bloom",
+      "Perennial","Garden Legend","Petal Champion","Peak Bloom","The Full Rose",
+    ],
+  },
+  forest: {
+    label: "Forest", emoji: "🌿", tagline: "Root Deep, Rise High",
+    levels: [
+      "Seed","Sapling","First Branch","Young Oak","Root Setter",
+      "Deep Roots","Forest Floor","Understory","Light Seeker","Mid Canopy",
+      "Storm Tested","Old Growth","Trail Blazer","Forest Elder","Sky Seeker",
+      "Wildwood","Ancient Grove","Canopy Champion","Sequoia Spirit","Timberline",
+      "Forest Guardian","Cloud Toucher","Ancient Oak","Peak Canopy","Ancient Giant",
     ],
   },
 };
@@ -1797,6 +1817,18 @@ let _forgotPwMode = false;         // forgot-password form is showing
 .ob-forgot-sent{background:rgba(76,175,80,.12);border:1px solid rgba(76,175,80,.35);border-radius:8px;padding:10px 12px;font-size:13px;color:#166534;margin-bottom:12px;text-align:center}
 .badges-new-hint{font-size:13px;color:var(--text-dim);text-align:center;padding:10px 14px 6px;line-height:1.5}
 .xp-mult-badge{font-size:11px;font-weight:600;color:#ef9f27;margin-left:4px}
+.mood-note-card{background:var(--surface-2);border-radius:12px;padding:12px 14px;margin:0 0 12px}
+.mood-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.mood-label{font-size:13px;color:var(--text-dim);font-weight:600}
+.mood-emojis{display:flex;gap:4px}
+.mood-btn{background:none;border:2px solid transparent;border-radius:8px;font-size:20px;padding:3px 5px;cursor:pointer;transition:border-color .15s,transform .1s;line-height:1}
+.mood-btn:hover{border-color:var(--primary);transform:scale(1.15)}
+.mood-selected{border-color:var(--primary)!important;background:var(--primary-haze);transform:scale(1.1)}
+.day-note-input{width:100%;background:var(--surface-3);border:1px solid var(--track);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text);resize:none;outline:none;min-height:52px;font-family:inherit;line-height:1.4}
+.day-note-input:focus{border-color:var(--primary)}
+.day-note-input::placeholder{color:var(--text-faint)}
+.tf-surprise{background:var(--surface-2);border:1px dashed var(--primary);color:var(--primary);font-size:13px}
+.tf-surprise:hover{background:var(--primary-haze)}
 `;
   document.head.appendChild(s);
 })();
@@ -2852,6 +2884,20 @@ function applyTheme() {
 }
 
 function render() {
+  try {
+    _renderInner();
+  } catch (err) {
+    console.error("Render error:", err);
+    const app = document.getElementById("app");
+    if (app) app.innerHTML = `<div style="padding:32px 20px;text-align:center;color:var(--text)">
+      <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px">Something went wrong</div>
+      <div style="font-size:13px;color:var(--text-dim);margin-bottom:20px">A display error occurred. Your data is safe.</div>
+      <button class="btn-primary" onclick="window.location.reload()">Reload app</button>
+    </div>`;
+  }
+}
+function _renderInner() {
   applyTheme();
   const app = document.getElementById("app");
   // Full-screen onboarding — render only the onboarding screen
@@ -3110,6 +3156,7 @@ function renderToday() {
         ${challenge.habits.map(h => renderHabit(h, day, challenge)).join("")}
       </div>
     </section>
+    ${isToday ? renderMoodNote(day) : ""}
     ${isToday ? renderAlmostThereBadge(challenge, streak) : ""}
     ${(() => {
       // Only one nudge at a time: backup (Day 7+, no account) beats notif nudge
@@ -4670,7 +4717,7 @@ function renderBuilderTemplates() {
   const filterBar = `
   <div class="template-filter-bar">${
     filterTabs.map(f => `<button class="template-filter-tab${_templateFilter===f.id?" active":""}" data-template-filter="${f.id}">${f.label}</button>`).join("")
-  }</div>
+  }<button class="template-filter-tab tf-surprise" data-surprise-me title="Pick a random challenge for me">🎲 Surprise me</button></div>
   <div class="template-filter-bar template-filter-bar--diff">${
     diffTabs.map(f => `<button class="template-filter-tab${_difficultyFilter===f.id?" active":""}" data-difficulty-filter="${f.id}">${f.label}</button>`).join("")
   }</div>`;
@@ -5227,6 +5274,28 @@ function renderBackupNudge(challenge) {
   </div>`;
 }
 
+function renderMoodNote(day) {
+  const MOODS = [
+    { key:"great", emoji:"😄", label:"Great" },
+    { key:"good",  emoji:"🙂", label:"Good"  },
+    { key:"okay",  emoji:"😐", label:"Okay"  },
+    { key:"rough", emoji:"😕", label:"Rough"  },
+    { key:"bad",   emoji:"😩", label:"Bad"   },
+  ];
+  const cur = day.mood || null;
+  const note = day.note || "";
+  return `
+  <div class="mood-note-card">
+    <div class="mood-row">
+      <span class="mood-label">How's today going?</span>
+      <div class="mood-emojis">
+        ${MOODS.map(m => `<button class="mood-btn${cur===m.key?" mood-selected":""}" data-mood="${m.key}" title="${m.label}" aria-label="${m.label}" aria-pressed="${cur===m.key}">${m.emoji}</button>`).join("")}
+      </div>
+    </div>
+    <textarea class="day-note-input" placeholder="Add a note (optional)…" maxlength="280" data-day-note>${esc(note)}</textarea>
+  </div>`;
+}
+
 function renderAlmostThereBadge(challenge, streak) {
   const milestones = [7, 14, 21, 30, 50, 75];
   const allBadges = [...(challenge.badges || []), ...(state.globalBadges || [])];
@@ -5780,6 +5849,14 @@ function bindEvents() {
   on("[data-quickstart-customise]", () => { builderStep = "customize"; render(); });
   on("[data-template-filter]", el => { _templateFilter = el.dataset.templateFilter; render(); });
   on("[data-difficulty-filter]", el => { _difficultyFilter = el.dataset.difficultyFilter; render(); });
+  on("[data-surprise-me]", () => {
+    const pool = TEMPLATES.filter(t => {
+      const d = TEMPLATE_DIFFICULTY[t.id] || "intermediate";
+      return d === "beginner" || d === "intermediate";
+    });
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    if (pick) { _safetyPendingTemplateId = null; selectTemplate(pick.id); }
+  });
   on("[data-quiz-goal]",  el => { builderQuizAnswers.goal  = el.dataset.quizGoal;  render(); });
   on("[data-quiz-time]",  el => { builderQuizAnswers.time  = el.dataset.quizTime;  render(); });
   on("[data-quiz-level]", el => { builderQuizAnswers.level = el.dataset.quizLevel; render(); });
@@ -6250,6 +6327,20 @@ function bindEvents() {
     render();
   });
   on("[data-retry-sync]", () => { _lastSyncError = false; CloudSync.push(); });
+  on("[data-mood]", el => {
+    const c = currentChallenge(); if (!c) return;
+    const day = getChallengeDay(c, todayKey());
+    day.mood = day.mood === el.dataset.mood ? null : el.dataset.mood;
+    saveState(); render();
+  });
+  document.addEventListener("change", e => {
+    const ta = e.target.closest("[data-day-note]");
+    if (!ta) return;
+    const c = currentChallenge(); if (!c) return;
+    const day = getChallengeDay(c, todayKey());
+    day.note = ta.value.trim().slice(0, 280);
+    saveState();
+  });
   on("[data-confirm-ok]",      () => { const fn = _confirmDialog?.onConfirm; _confirmDialog = null; render(); if (fn) fn(); });
   on("[data-confirm-cancel]",  () => { _confirmDialog = null; render(); });
   on("[data-delete-photo]",    el => {
@@ -6397,6 +6488,10 @@ function toggleHabit(id) {
   state.xp = recalcXP();
   const xpGain  = state.xp - xpBefore;
   const lvlInfo = getLevelInfo(state.xp);
+  const newInfo = completionInfo(c, day);
+  if (checking && newInfo.percent === 100 && effectiveDate() === todayKey()) {
+    setTimeout(launchConfetti, 250);
+  }
   if (lvlInfo.level > levelBefore) {
     const _luT = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
     setTimeout(() => { _levelUpOverlay = { level: lvlInfo.level, name: lvlInfo.name, emoji: _luT.emoji, total: state.xp }; render(); }, 600);
@@ -6482,8 +6577,12 @@ function selectTier(habitId, rawVal) {
   const xpBefore2    = state.xp;
   const levelBefore2 = getLevelInfo(state.xp).level;
   state.xp = recalcXP();
-  const xpGain2  = state.xp - xpBefore2;
-  const lvlInfo2 = getLevelInfo(state.xp);
+  const xpGain2   = state.xp - xpBefore2;
+  const lvlInfo2  = getLevelInfo(state.xp);
+  const newInfo2  = completionInfo(c, day);
+  if (selecting && newInfo2.percent === 100 && effectiveDate() === todayKey()) {
+    setTimeout(launchConfetti, 250);
+  }
   if (lvlInfo2.level > levelBefore2) {
     const _luT2 = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
     setTimeout(() => { _levelUpOverlay = { level: lvlInfo2.level, name: lvlInfo2.name, emoji: _luT2.emoji, total: state.xp }; render(); }, 600);
