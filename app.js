@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.17.6";
+const APP_VERSION = "2026.06.18.1";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -110,6 +110,20 @@ function getLevelInfo(xp) {
   return { ...current, name, next: next ? { ...next, name: nextName } : null, xpInLevel, xpNeeded, pct };
 }
 
+function getStreakMultiplier(challenge) {
+  const yesterday = addDays(todayKey(), -1);
+  let count = 0;
+  let cursor = yesterday;
+  while (cursor >= challenge.startDate) {
+    const d = challenge.days[cursor];
+    if (d?.mode === "rest") { cursor = addDays(cursor, -1); continue; }
+    if (!d || !dayLogged(d)) break;
+    count++;
+    cursor = addDays(cursor, -1);
+  }
+  return count >= 30 ? 1.25 : count >= 7 ? 1.10 : 1.0;
+}
+
 function recalcXP() {
   let total = 0;
   for (const challenge of Object.values(state.challenges)) {
@@ -212,6 +226,9 @@ const TEMPLATE_DIFFICULTY = {
   // Strength single-movement progressions
   "pull-up-challenge":"intermediate","burpee-challenge":"intermediate","dip-challenge":"intermediate",
   "kettlebell":"intermediate","calisthenics":"advanced",
+  // New challenges
+  "self-care-30":"beginner","gratitude-reset":"beginner","mental-health-30":"beginner",
+  "morning-power-hour":"intermediate","posture-fix":"beginner",
 };
 const DIFF_LABEL = { beginner:"Beginner", intermediate:"Intermediate", advanced:"Advanced", extreme:"Extreme" };
 const DIFF_COLOR = { beginner:"#4caf50", intermediate:"#ff9800", advanced:"#f44336", extreme:"#9c27b0" };
@@ -281,6 +298,9 @@ const TEMPLATE_TIERS = {
   // Strength single-movement progressions
   "pull-up-challenge":"uncommon","burpee-challenge":"uncommon","dip-challenge":"uncommon",
   "kettlebell":"uncommon","calisthenics":"rare",
+  // New challenges
+  "self-care-30":"common","gratitude-reset":"common","mental-health-30":"common",
+  "morning-power-hour":"uncommon","posture-fix":"common",
 };
 
 // Universal / Lifetime badge → tier (template badges inherit their template's tier)
@@ -1223,6 +1243,61 @@ const TEMPLATES = [
       { id:"dist", title:"Log distance", emoji:"🚣", quip:"Downstream. Europe unrolling behind you.", type:"distance", points:1, unit:"km" },
     ],
   },
+  {
+    id: "self-care-30", name: "Self-Care 30", emoji: "🌸", category: "lifestyle",
+    description: "30 days of putting yourself first. Small rituals that add up to big change.",
+    duration: 30, weeklyGoal: 65, defaultMode: "soft",
+    habits: [
+      { id:"sc-skin",  title:"Skincare routine",            emoji:"✨", quip:"Morning or night — just show up for yourself.",   type:"binary", points:2 },
+      { id:"sc-metime",title:"20 min of 'me time'",         emoji:"🛁", quip:"Read, bathe, sit still. No phone. No guilt.",     type:"binary", points:3 },
+      { id:"sc-move",  title:"Move your body (any way)",    emoji:"🚶", quip:"Walk, stretch, dance — anything that feels good.", type:"binary", points:2 },
+      { id:"sc-joy",   title:"One thing that brought joy",  emoji:"😊", quip:"Name it out loud or write it down.",              type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "gratitude-reset", name: "Gratitude Reset", emoji: "🙏", category: "lifestyle",
+    description: "21 days of daily gratitude practice. Simple, consistent, and quietly transformative.",
+    duration: 21, weeklyGoal: 70, defaultMode: "soft",
+    habits: [
+      { id:"gr-morning", title:"3 gratitudes at breakfast",    emoji:"☀️", quip:"Name them before the day buries them.",    type:"binary", points:3 },
+      { id:"gr-person",  title:"Thank someone today",          emoji:"💌", quip:"Text, call, say it in person. Do it.",       type:"binary", points:3 },
+      { id:"gr-nocomplain",title:"No complaining",             emoji:"🤐", quip:"Catch the complaint. Replace it.",           type:"binary", points:2 },
+      { id:"gr-evening", title:"Evening reflection (2 min)",   emoji:"🌙", quip:"One good thing from today. Always one.",     type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "mental-health-30", name: "Mental Health Reset", emoji: "🧠", category: "lifestyle",
+    description: "30 days of daily habits that protect your mind. No apps, no hacks — just consistency.",
+    duration: 30, weeklyGoal: 65, defaultMode: "soft",
+    habits: [
+      { id:"mh-mind",   title:"10 min mindfulness or breathwork", emoji:"🧘", quip:"Sit. Breathe. Nothing else.",              type:"binary", points:3 },
+      { id:"mh-connect",title:"Connect with someone",             emoji:"👋", quip:"Message, call, or sit with another human.", type:"binary", points:2 },
+      { id:"mh-move",   title:"Physical activity (any)",          emoji:"🏃", quip:"Even a 10-min walk changes brain chemistry.",type:"binary", points:2 },
+      { id:"mh-screen", title:"Limit doom-scrolling",             emoji:"📵", quip:"No news or social media after 9 PM.",       type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "morning-power-hour", name: "Morning Power Hour", emoji: "⚡", category: "transformation",
+    description: "30 days of owning your mornings before anyone else can. The first hour sets everything.",
+    duration: 30, weeklyGoal: 80, defaultMode: "soft",
+    habits: [
+      { id:"mph-wake",   title:"Wake before 6 AM (or target time)", emoji:"⏰", quip:"The alarm rings. You get up. That's it.",    type:"binary", points:3 },
+      { id:"mph-nosnooze",title:"No snooze",                       emoji:"🚫", quip:"Snooze is a lie. You know this.",            type:"binary", points:2 },
+      { id:"mph-nophone",title:"No phone first 30 min",            emoji:"📵", quip:"Own your morning before the internet does.", type:"binary", points:2 },
+      { id:"mph-move",   title:"Exercise or movement",             emoji:"💪", quip:"Even 15 min of movement changes everything.", type:"binary", points:3 },
+    ]
+  },
+  {
+    id: "posture-fix", name: "Posture Fix", emoji: "🦴", category: "health",
+    description: "30 days of posture and mobility habits. Undo the damage from screens and sitting.",
+    duration: 30, weeklyGoal: 65, defaultMode: "soft",
+    habits: [
+      { id:"pf-check",   title:"Posture check every hour",    emoji:"📐", quip:"Shoulders back. Screen at eye level. Repeat.", type:"binary", points:2 },
+      { id:"pf-stretch", title:"10 min mobility / stretching",emoji:"🧘", quip:"Hip flexors, chest, and thoracic spine first.", type:"binary", points:3 },
+      { id:"pf-walk",    title:"15 min walk",                 emoji:"🚶", quip:"Walking resets posture better than anything.",  type:"binary", points:2 },
+      { id:"pf-desk",    title:"Desk or workstation check",   emoji:"💻", quip:"Monitor height, chair height, elbow angle.",    type:"binary", points:1 },
+    ]
+  },
 ];
 
 // ── Badge Definitions ──────────────────────────────────────────────────────
@@ -1720,6 +1795,8 @@ let _forgotPwMode = false;         // forgot-password form is showing
 .backfill-limit-hint{font-size:11px;color:var(--text-dim);text-align:center;padding:2px 0 6px;opacity:.8}
 .badge-hint{font-size:11px;color:var(--text-dim);margin-top:3px;font-weight:400}
 .ob-forgot-sent{background:rgba(76,175,80,.12);border:1px solid rgba(76,175,80,.35);border-radius:8px;padding:10px 12px;font-size:13px;color:#166534;margin-bottom:12px;text-align:center}
+.badges-new-hint{font-size:13px;color:var(--text-dim);text-align:center;padding:10px 14px 6px;line-height:1.5}
+.xp-mult-badge{font-size:11px;font-weight:600;color:#ef9f27;margin-left:4px}
 `;
   document.head.appendChild(s);
 })();
@@ -2168,7 +2245,7 @@ function completionInfo(challenge, day) {
   const active = activeHabits(challenge, day);
   const done = day.done.filter(id => active.some(h => h.id === id)).length;
   const total = active.length;
-  const multiplier = 1;
+  const multiplier = day.streakMult ?? 1;
   // Completion bonus only applies for challenges with 3+ habits to avoid doubling small challenges
   const bonusAmt = total >= 3 ? 3 : 0;
   const completionBonus = (done === total && total > 0) ? bonusAmt : 0;
@@ -3640,6 +3717,9 @@ function renderXPBar() {
   const toNext  = isMax ? 0 : info.next.xp - state.xp;
   const c       = currentChallenge();
   const freezes = c ? (c.streakFreezes || 0) : 0;
+  const todayDay = c?.days[todayKey()];
+  const mult     = todayDay?.streakMult ?? (c ? getStreakMultiplier(c) : 1);
+  const multLabel = mult >= 1.25 ? `🔥 +25% streak bonus active` : mult >= 1.10 ? `🔥 +10% streak bonus active` : null;
   return `
   <div class="xp-bar-wrap">
     <div class="xp-bar-header">
@@ -3652,7 +3732,7 @@ function renderXPBar() {
     <div class="xp-bar-track" role="progressbar" aria-valuenow="${info.pct}" aria-valuemin="0" aria-valuemax="100">
       <div class="xp-bar-fill" style="width:${info.pct}%"></div>
     </div>
-    <div class="xp-bar-explainer">XP builds your level forever</div>
+    <div class="xp-bar-explainer">${multLabel || "XP builds your level forever"}</div>
   </div>`;
 }
 
@@ -4535,7 +4615,7 @@ function renderBuilderTemplates() {
     ? [cats.find(c => c.id === "expedition")]
     : cats.filter(c => c.id !== "expedition");
   const POPULAR_IDS = ["cruise-control","75-hard","75-soft","cold-exposure","morning-routine","meditation","journaling","walking","no-sugar","intermittent-fasting","monk-mode","half-marathon-prep"];
-  const START_HERE_IDS = ["morning-routine","walking","sleep-reset","meditation","reading","c25k","dry-month","30-pushups","zone2","75-soft","half-marathon-prep","project-50"];
+  const START_HERE_IDS = ["morning-routine","walking","sleep-reset","meditation","reading","c25k","dry-month","30-pushups","zone2","self-care-30","gratitude-reset","posture-fix"];
   const filterTabs = [
     { id:"all",      label:"All" },
     { id:"popular",  label:"🔥 Popular" },
@@ -4955,6 +5035,7 @@ function renderBadges() {
         <div class="badge-overview-label">badges earned</div>
       </div>
       <div class="badge-overall-track"><div class="badge-overall-fill" style="width:${pct}%"></div></div>
+      ${earned === 0 ? `<div class="badges-new-hint">Log your first habit to unlock your first badge — most people earn 3–5 in their first week.</div>` : ""}
       ${renderBadgeCat("🌍 Universal", UNIVERSAL_BADGES, state.globalBadges, null, { xp: state.xp, maxStreak: Math.max(0, ...getAllChallenges().map(c => calcChallengeStreak(c))) })}
       ${renderBadgeCat("💎 Lifetime Achievements", LIFETIME_BADGES, state.globalBadges, null, null)}
       ${startedChallenges.map(c => {
@@ -6307,6 +6388,9 @@ function toggleHabit(id) {
   const xpBefore    = state.xp;
   const levelBefore = getLevelInfo(state.xp).level;
   const checking    = !day.done.includes(id);
+  if (checking && effectiveDate() === todayKey() && day.streakMult === undefined) {
+    day.streakMult = getStreakMultiplier(c);
+  }
   if (checking) { day.done.push(id); _animHabitId = id; }
   else          { day.done = day.done.filter(x=>x!==id); _animHabitId = null; }
   updateDayPoints(c, day);
@@ -6317,7 +6401,9 @@ function toggleHabit(id) {
     const _luT = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
     setTimeout(() => { _levelUpOverlay = { level: lvlInfo.level, name: lvlInfo.name, emoji: _luT.emoji, total: state.xp }; render(); }, 600);
   } else if (xpGain > 0) {
-    showToast(`⚡ +${xpGain} XP`);
+    const mult = day.streakMult || 1;
+    const multStr = mult > 1 ? ` 🔥×${mult.toFixed(2)}` : "";
+    showToast(`⚡ +${xpGain} XP${multStr}`);
   }
   saveState(); navigator.vibrate?.(10);
   _savedFlash = true;
@@ -6336,6 +6422,7 @@ function logMeasurement(habitId, value) {
   if (!day.distances) day.distances = {};
   day.distances[habitId] = value;
   if (value > 0) {
+    if (effectiveDate() === todayKey() && day.streakMult === undefined) day.streakMult = getStreakMultiplier(c);
     if (!day.done.includes(habitId)) { day.done.push(habitId); _animHabitId = habitId; }
   } else {
     day.done = day.done.filter(id => id !== habitId);
@@ -6357,6 +6444,7 @@ function logDistance(habitId, km) {
   if (!day.distances) day.distances = {};
   day.distances[habitId] = habit.unit === "floors" ? Math.round(km) : km;
   if (km > 0) {
+    if (effectiveDate() === todayKey() && day.streakMult === undefined) day.streakMult = getStreakMultiplier(c);
     if (!day.done.includes(habitId)) { day.done.push(habitId); _animHabitId = habitId; }
   } else {
     day.done = day.done.filter(id => id !== habitId);
@@ -6377,7 +6465,11 @@ function selectTier(habitId, rawVal) {
   if (day.mode==="rest") return;
   const val = isNaN(Number(rawVal)) ? rawVal : Number(rawVal);
   if (!day.tiers) day.tiers = {};
-  if (String(day.tiers[habitId])===String(val)) {
+  const selecting = String(day.tiers[habitId]) !== String(val);
+  if (selecting && effectiveDate() === todayKey() && day.streakMult === undefined) {
+    day.streakMult = getStreakMultiplier(c);
+  }
+  if (!selecting) {
     day.tiers[habitId] = null;
     day.done = day.done.filter(id=>id!==habitId);
     _animHabitId = null;
@@ -6396,7 +6488,9 @@ function selectTier(habitId, rawVal) {
     const _luT2 = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
     setTimeout(() => { _levelUpOverlay = { level: lvlInfo2.level, name: lvlInfo2.name, emoji: _luT2.emoji, total: state.xp }; render(); }, 600);
   } else if (xpGain2 > 0) {
-    showToast(`⚡ +${xpGain2} XP`);
+    const mult2 = day.streakMult || 1;
+    const multStr2 = mult2 > 1 ? ` 🔥×${mult2.toFixed(2)}` : "";
+    showToast(`⚡ +${xpGain2} XP${multStr2}`);
   }
   saveState(); navigator.vibrate?.(10);
   checkBadges(c); checkMilestones(c); render();
