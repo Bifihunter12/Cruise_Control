@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.18.2";
+const APP_VERSION = "2026.06.18.3";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -2931,7 +2931,7 @@ function _renderInner() {
   } else {
     html += activeTab === "today"      ? renderToday()      : "";
     html += activeTab === "challenges" ? renderChallenges() : "";
-    html += activeTab === "body"       ? renderBody()       : "";
+
     html += activeTab === "badges"     ? renderBadges()     : "";
   }
   html += renderNav();
@@ -3032,7 +3032,7 @@ const NAV_ICONS = {
 };
 
 function renderNav() {
-  const tabs = [["today","Today"],["challenges","Challenges"],["body","Body"],["badges","Badges"]];
+  const tabs = [["today","Today"],["challenges","Challenges"],["badges","Badges"]];
   return `
   <nav class="bottom-nav" aria-label="Conqur sections">
     ${tabs.map(([id,label]) => `
@@ -3723,7 +3723,7 @@ function renderWeightChip() {
   const bt = state.bodyTracking;
   if (!bt.startWeight && !bt.entries.length) return ""; // weight tracking not set up
   if (bt.entries.some(e => e.date === todayKey())) return ""; // already logged today
-  return `<button class="weight-chip" data-tab="body">⚖️ Log weight</button>`;
+  return "";
 }
 
 function renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToday) {
