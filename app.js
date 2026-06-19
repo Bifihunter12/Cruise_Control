@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.18.3";
+const APP_VERSION = "2026.06.18.4";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -105,6 +105,16 @@ const JOURNEY_THEMES = {
       "Storm Tested","Old Growth","Trail Blazer","Forest Elder","Sky Seeker",
       "Wildwood","Ancient Grove","Canopy Champion","Sequoia Spirit","Timberline",
       "Forest Guardian","Cloud Toucher","Ancient Oak","Peak Canopy","Ancient Giant",
+    ],
+  },
+  phoenix: {
+    label: "Phoenix", emoji: "🔥", tagline: "Rise From the Ashes",
+    levels: [
+      "Broken","Still Breathing","First Ember","Choosing to Rise","One Step",
+      "Finding Footing","Healing Starts","Inner Spark","Rebuilding","Unbroken",
+      "Wings Forming","First Flight","Rising Fast","Storm Rider","Reborn",
+      "Scarlet Flame","Blazing Trail","Wildfire","Crown of Ash","Living Proof",
+      "The Comeback","Eternal Flame","Legend of the Ash","The Undying","The Phoenix",
     ],
   },
 };
