@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.18.4";
+const APP_VERSION = "2026.06.18.5";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -105,6 +105,16 @@ const JOURNEY_THEMES = {
       "Storm Tested","Old Growth","Trail Blazer","Forest Elder","Sky Seeker",
       "Wildwood","Ancient Grove","Canopy Champion","Sequoia Spirit","Timberline",
       "Forest Guardian","Cloud Toucher","Ancient Oak","Peak Canopy","Ancient Giant",
+    ],
+  },
+  treasure: {
+    label: "Treasure Quest", emoji: "💎", tagline: "Complete Habits. Unlock Treasure.",
+    levels: [
+      "Empty Pockets","Coin Finder","Bronze Key","Map Holder","Cave Scout",
+      "Dungeon Crawler","Relic Seeker","Chest Hunter","Vault Raider","Gold Rush",
+      "Loot Master","Dragon's Guard","Lost Temple","Ancient Relic","Epic Haul",
+      "Crown Chaser","Legendary Find","Enchanted Vault","Gem Lord","Mythic Collector",
+      "Treasure Titan","Hoard Master","The Grand Vault","Legendary Collector","Master of Treasure",
     ],
   },
   phoenix: {

@@ -122,6 +122,16 @@
   --secondary-soft: rgba(232,121,249,0.15);
   --gradient: linear-gradient(135deg, #a855f7, #e879f9);
 }
+[data-theme="treasure"] {
+  --nebula: rgba(245,158,11,0.12);
+  --bg: #090600; --surface: #150e00; --surface-2: #1e1500; --surface-3: #281c00;
+  --primary: #f59e0b; --secondary: #34d399;
+  --text-dim: #b08030; --text-faint: #5a4010; --track: #150e00;
+  --primary-glow: rgba(245,158,11,0.30); --primary-haze: rgba(245,158,11,0.10);
+  --primary-pulse: rgba(245,158,11,0.42); --primary-clear: rgba(245,158,11,0);
+  --secondary-soft: rgba(52,211,153,0.15);
+  --gradient: linear-gradient(135deg, #f59e0b, #34d399);
+}
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
