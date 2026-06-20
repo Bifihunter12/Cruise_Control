@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.18.7";
+const APP_VERSION = "2026.06.20.2";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -458,7 +458,7 @@ const TEMPLATES = [
   {
     id: "walking", name: "Walking Challenge", emoji: "🚶", category: "movement",
     description: "30 days of daily walking. The simplest habit with the biggest returns.",
-    duration: 30, weeklyGoal: 70, defaultMode: "soft",
+    duration: 30, weeklyGoal: 50, defaultMode: "soft",
     habits: [
       { id:"wk-dist",    title:"Daily walk",                emoji:"👟", quip:"Every step counts.",                 type:"tiered", points:2,
         tiers:[{value:2,label:"2 km",points:2},{value:5,label:"5 km",points:3},{value:8,label:"8 km",points:4},{value:10,label:"10 km+",points:6}] },
@@ -473,7 +473,7 @@ const TEMPLATES = [
     habits: [
       { id:"ts-steps",   title:"Hit step target",           emoji:"👟", quip:"10k is the goal. Beat it when you can.", type:"tiered", points:4,
         tiers:[{label:"5,000–7,999",pts:2},{label:"8,000–9,999",pts:3},{label:"10,000+",pts:5}] },
-      { id:"ts-outside", title:"30 min outside",            emoji:"🌳", quip:"Fresh air and daylight are non-negotiable.",              type:"binary", points:1 },
+      { id:"ts-outside", title:"30 min outside",            emoji:"🌳", quip:"Fresh air and daylight improve focus and mood.",              type:"binary", points:1 },
     ]
   },
   {
@@ -564,7 +564,7 @@ const TEMPLATES = [
   {
     id: "yoga-flexibility", name: "Yoga & Mobility", emoji: "🧘‍♀️", category: "movement",
     description: "30 days of yoga, stretching, and mobility work. Move better, recover faster, feel lighter.",
-    duration: 30, weeklyGoal: 65, defaultMode: "soft",
+    duration: 30, weeklyGoal: 42, defaultMode: "soft",
     habits: [
       { id:"yf-yoga",     title:"Yoga or mobility (10 min+)", emoji:"🧘", quip:"Mat out. 10 minutes is enough. Just start.", type:"binary", points:4 },
       { id:"yf-stretch",  title:"Full-body stretch",          emoji:"🦵", quip:"Tight muscles are slow muscles.",           type:"binary", points:2 },
@@ -763,7 +763,7 @@ const TEMPLATES = [
       { id:"wl-deficit",  title:"Nutrition target hit", emoji:"🥗", quip:"Track calories + 0.8 g protein per lb. Log before you eat.", type:"binary", points:5 },
       { id:"wl-steps",    title:"8,000 steps",          emoji:"👟", quip:"Walking burns fat and helps your daily deficit.", type:"binary", points:3 },
       { id:"wl-exercise", title:"Exercise 30 min",      emoji:"🏃", quip:"Cardio, weights, walk — it all counts.",          type:"binary", points:5 },
-      { id:"wl-hydration",title:"Drink 2L water",       emoji:"💧", quip:"Hydration may help support metabolism and reduces false hunger signals.", type:"binary", points:2 },
+      { id:"wl-hydration",title:"Drink 2L water",       emoji:"💧", quip:"Staying hydrated reduces false hunger signals and supports overall health.", type:"binary", points:2 },
     ]
   },
   {
@@ -774,7 +774,7 @@ const TEMPLATES = [
       { id:"bc-weight",   title:"Log weight",          emoji:"⚖️", quip:"Weekly is fine — daily is better.",                  type:"measurement", unit:"weight", decimals:1 },
       { id:"bc-fat",      title:"Log body fat %",      emoji:"📉", quip:"DEXA, calipers, smart scale — pick one, stick to it.", type:"measurement", unit:"%",    decimals:1 },
       { id:"bc-lean",     title:"Log lean mass",       emoji:"💪", quip:"Weight × (1 − fat% ÷ 100).",                        type:"measurement", unit:"weight", decimals:1 },
-      { id:"bc-protein",  title:"Hit protein goal",    emoji:"🥩", quip:"1g per lb of bodyweight. Non-negotiable.",           type:"binary", points:5 },
+      { id:"bc-protein",  title:"Hit protein goal",    emoji:"🥩", quip:"1g per lb of bodyweight — the evidence-based target for muscle building.",           type:"binary", points:5 },
       { id:"bc-lift",     title:"Lift session",        emoji:"🏋️", quip:"Muscle doesn't build itself.",                       type:"binary", points:5 },
       { id:"bc-steps",    title:"8,000 steps",         emoji:"👟", quip:"Daily movement shifts body comp even without gym sessions.", type:"binary", points:3 },
       { id:"bc-hydration",title:"Drink enough water",  emoji:"💧", quip:"Muscle is 75% water. Stay hydrated.",               type:"binary", points:2 },
@@ -2468,7 +2468,7 @@ function completionInfo(challenge, day) {
     return s + h.points;
   }, 0);
   const baseMax = active.reduce((s, h) => {
-    if (h.type === "tiered" && h.tiers?.length) return s + Math.max(...h.tiers.map(t => t.points));
+    if (h.type === "tiered" && h.tiers?.length) return s + Math.max(...h.tiers.map(t => t.points ?? t.pts ?? 0));
     return s + h.points;
   }, 0);
   const points    = Math.round((basePoints + completionBonus) * multiplier);
@@ -3999,6 +3999,9 @@ function renderWeeklyRecap(challenge) {
   }, 0) : null;
   const weekDistLabel = isFloorsR ? Math.round(weekKm) : weekKm?.toFixed(1);
   const weekDistUnit  = isFloorsR ? "floors" : "km";
+  const lastWeekGoal = isExpedition ? null : goalForWeek(challenge, curWeekIdx - 1);
+  const goalMetLast  = lastWeekGoal != null && pts >= lastWeekGoal;
+  const thisWeekGoal = isExpedition ? null : goalForWeek(challenge, curWeekIdx);
   const msgs = ["Progress compounds. Keep stacking.", "New week, fresh start. Let's go.", "Every logged day is a win.", "Last week was strong. Build on it.", "Momentum is real — keep it going."];
   const msg = msgs[new Date().getDate() % msgs.length];
   return `
@@ -4010,12 +4013,13 @@ function renderWeeklyRecap(challenge) {
     <div class="wrc-stats">
       ${isExpedition
         ? `<div class="wrc-stat"><span class="wrc-val">${weekDistLabel}</span><span class="wrc-lbl">${weekDistUnit}</span></div>`
-        : `<div class="wrc-stat"><span class="wrc-val">${pts}</span><span class="wrc-lbl">pts</span></div>`}
+        : `<div class="wrc-stat"><span class="wrc-val">${pts}${lastWeekGoal ? `<span class="wrc-goal-sub">/${lastWeekGoal}</span>` : ""}</span><span class="wrc-lbl">pts</span></div>`}
       <div class="wrc-sep"></div>
       <div class="wrc-stat"><span class="wrc-val">${logged}/${lastWeek.allDays.length}</span><span class="wrc-lbl">days</span></div>
       <div class="wrc-sep"></div>
       <div class="wrc-stat"><span class="wrc-val">${streak}</span><span class="wrc-lbl">streak</span></div>
     </div>
+    ${lastWeekGoal ? `<div class="wrc-goal-row${goalMetLast ? " wrc-goal-met" : ""}">${goalMetLast ? "🎯 Weekly goal hit!" : `🎯 ${pts}/${lastWeekGoal} pts — ${Math.round(pts/lastWeekGoal*100)}% of goal`}${thisWeekGoal && thisWeekGoal !== lastWeekGoal ? ` · Week ${curWeekIdx + 1} target: ${thisWeekGoal} pts` : ""}</div>` : ""}
     ${deltaStr ? `<div class="wrc-delta-row">${deltaStr}</div>` : ""}
     <div class="wrc-msg">${msg}</div>
   </div>`;
@@ -4634,6 +4638,14 @@ function statCard(label, value, unit) {
   </div>`;
 }
 
+function goalForWeek(challenge, weekIdx) {
+  const g = challenge.weeklyGoal;
+  if (weekIdx <= 0) return Math.round(g * 0.5);
+  if (weekIdx === 1) return Math.round(g * 0.7);
+  if (weekIdx === 2) return Math.round(g * 0.85);
+  return g;
+}
+
 function renderWeekCard(c, week, isCurrent) {
   const today = todayKey();
   const pts = week.days.reduce((s,k)=>s+(c.days[k]?completionInfo(c,c.days[k]).points:0),0);
@@ -4647,6 +4659,9 @@ function renderWeekCard(c, week, isCurrent) {
     if (!d?.distances) return s;
     return s + Object.values(d.distances).reduce((ss,km) => ss + (Number(km)||0), 0);
   }, 0) : null;
+  const weekGoal = isExpedition ? null : goalForWeek(c, week.num - 1);
+  const goalMet  = weekGoal != null && pts >= weekGoal;
+  const fillPct  = weekGoal ? Math.min(100, Math.round(pts / weekGoal * 100)) : 0;
   return `
   <div class="${isCurrent?"week-card week-card-current":"week-card"}">
     <div class="wc-top">
@@ -4663,9 +4678,12 @@ function renderWeekCard(c, week, isCurrent) {
       return `<span class="wdot partial"></span>`;
     }).join("")}</div>
     <div class="wc-goal-row">
-      <span class="wc-pts">${pts} <span class="wc-goal-of">pts</span></span>
-      ${weekKm !== null ? `<span class="wc-km-badge">${isFloorsW ? Math.round(weekKm) : weekKm.toFixed(1)} ${isFloorsW ? "fl" : "km"}</span>` : ""}
+      <span class="wc-pts">${pts}${weekGoal ? `<span class="wc-goal-of">/${weekGoal} pts</span>` : `<span class="wc-goal-of"> pts</span>`}</span>
+      ${weekKm !== null
+        ? `<span class="wc-km-badge">${isFloorsW ? Math.round(weekKm) : weekKm.toFixed(1)} ${isFloorsW ? "fl" : "km"}</span>`
+        : goalMet ? `<span class="wc-goal-hit">✓ Goal</span>` : ""}
     </div>
+    ${weekGoal ? `<div class="wc-goal-track"><div class="wc-goal-fill${goalMet ? " wc-goal-done" : ""}" style="width:${fillPct}%"></div></div>` : ""}
   </div>`;
 }
 
@@ -4989,7 +5007,7 @@ function renderBuilderCustomize() {
         ? (TEMPLATES.find(t=>t.id===builderForm.templateId)?.habits || [])
         : builderForm.habits;
       const maxPtsPerDay = habits.reduce((s,h) => {
-        if (h.type === "tiered" && h.tiers?.length) return s + Math.max(...h.tiers.map(t=>t.points||0));
+        if (h.type === "tiered" && h.tiers?.length) return s + Math.max(...h.tiers.map(t => t.points ?? t.pts ?? 0));
         return s + (h.points||0);
       }, 0);
       const bonus = habits.length >= 3 ? 3 : 0;

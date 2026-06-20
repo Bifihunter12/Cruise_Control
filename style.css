@@ -2973,6 +2973,9 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .wrc-delta.up   { color: var(--success); background: color-mix(in srgb, var(--success) 12%, transparent); }
 .wrc-delta.down { color: var(--secondary); background: color-mix(in srgb, var(--secondary) 12%, transparent); }
 .wrc-delta.flat { color: var(--text-dim); background: var(--surface); }
+.wrc-goal-row   { font-size: 12px; font-weight: 600; text-align: center; margin: 4px 0 2px; color: var(--text-dim); }
+.wrc-goal-row.wrc-goal-met { color: var(--success); }
+.wrc-goal-sub   { font-size: 0.75em; font-weight: 500; opacity: 0.6; }
 
 /* ── Complete banner note nudge ── */
 .cb-note-nudge {
