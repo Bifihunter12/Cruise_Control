@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.18.6";
+const APP_VERSION = "2026.06.18.7";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -270,6 +270,10 @@ const TEMPLATE_DIFFICULTY = {
   // New challenges
   "self-care-30":"beginner","gratitude-reset":"beginner","mental-health-30":"beginner",
   "morning-power-hour":"intermediate","posture-fix":"beginner",
+  // New challenge templates
+  "beginner-strength":"beginner","pushup-challenge":"beginner","pullup-progression":"intermediate",
+  "language-learning":"intermediate","budget-reset":"beginner","mindful-eating":"beginner",
+  "nature-reset":"beginner",
 };
 const DIFF_LABEL = { beginner:"Beginner", intermediate:"Intermediate", advanced:"Advanced", extreme:"Extreme" };
 const DIFF_COLOR = { beginner:"#4caf50", intermediate:"#ff9800", advanced:"#f44336", extreme:"#9c27b0" };
@@ -277,7 +281,7 @@ const DIFF_COLOR = { beginner:"#4caf50", intermediate:"#ff9800", advanced:"#f443
 // Safety warnings for high-risk or health-sensitive challenges
 const TEMPLATE_SAFETY = {
   "intermittent-fasting": "Not suitable if you are pregnant, have a history of eating disorders, take diabetes medication, or have any chronic illness. Consult your doctor before starting.",
-  "cold-exposure": "Never combine breathwork with cold water immersion — risk of fainting or drowning. Breathe normally during cold showers or plunges.",
+  "cold-exposure": "Never combine breathwork with cold water immersion — risk of fainting or drowning. Breathe normally during cold showers or plunges. Start gradually (end showers cold for 30 seconds, building over time). Consult your doctor before starting if you have cardiovascular, respiratory, or circulatory conditions.",
   "75-hard": "Two 45-min workouts daily plus strict dieting. High injury and burnout risk if untrained. Get medical clearance if you have any pre-existing health conditions.",
   "blood-pressure": "Tracking only — does not replace medical care. If readings are high or you have symptoms (chest pain, headache, dizziness), see a doctor immediately.",
   "glucose-control": "Tracking only. Never adjust medication or insulin based on app readings. Always consult your healthcare provider.",
@@ -342,6 +346,10 @@ const TEMPLATE_TIERS = {
   // New challenges
   "self-care-30":"common","gratitude-reset":"common","mental-health-30":"common",
   "morning-power-hour":"uncommon","posture-fix":"common",
+  // New challenge templates
+  "beginner-strength":"common","pushup-challenge":"common","pullup-progression":"uncommon",
+  "language-learning":"uncommon","budget-reset":"common","mindful-eating":"common",
+  "nature-reset":"common",
 };
 
 // Universal / Lifetime badge → tier (template badges inherit their template's tier)
@@ -408,7 +416,7 @@ const TEMPLATES = [
   {
     id: "dry-month", name: "Dry Month", emoji: "🥃", category: "lifestyle",
     description: "30 days, zero alcohol. Feel the difference.",
-    duration: 30, weeklyGoal: 80, defaultMode: "strict",
+    duration: 30, weeklyGoal: 40, defaultMode: "strict",
     habits: [
       { id:"noalc",    title:"No alcohol",                  emoji:"🚫", quip:"Not today.",                        type:"binary", points:4 },
       { id:"journal",  title:"Journal 5 min",               emoji:"✍️", quip:"Write it out.",                   type:"binary", points:2 },
@@ -461,7 +469,7 @@ const TEMPLATES = [
   {
     id: "steps-10k", name: "10,000 Steps", emoji: "👟", category: "movement",
     description: "30 days of hitting 10,000 steps every day. The most evidence-backed daily movement habit there is.",
-    duration: 30, weeklyGoal: 65, defaultMode: "soft",
+    duration: 30, weeklyGoal: 28, defaultMode: "soft",
     habits: [
       { id:"ts-steps",   title:"Hit step target",           emoji:"👟", quip:"10k is the goal. Beat it when you can.", type:"tiered", points:4,
         tiers:[{label:"5,000–7,999",pts:2},{label:"8,000–9,999",pts:3},{label:"10,000+",pts:5}] },
@@ -470,7 +478,7 @@ const TEMPLATES = [
   },
   {
     id: "running", name: "Running Challenge", emoji: "🏃", category: "movement",
-    description: "30 days of running. Build the habit, find the pace, feel the difference.",
+    description: "30 days of running. Build the habit, find the pace, feel the difference. Rest days are encouraged — 4–5 sessions per week is plenty and helps prevent injury.",
     duration: 30, weeklyGoal: 80, defaultMode: "soft",
     habits: [
       { id:"rn-run",     title:"Run session",               emoji:"👟", quip:"Shoes on. Door open. Go.",           type:"tiered", points:3,
@@ -492,8 +500,8 @@ const TEMPLATES = [
   },
   {
     id: "strength", name: "Strength Training", emoji: "🏋️", category: "movement",
-    description: "30 days of consistent lifting. Build the habit, then build the muscle.",
-    duration: 30, weeklyGoal: 75, defaultMode: "soft",
+    description: "30 days of consistent lifting. Build the habit, then build the muscle. Rest and recovery days are part of the process — 3–4 training days per week is realistic and sustainable.",
+    duration: 30, weeklyGoal: 55, defaultMode: "soft",
     habits: [
       { id:"st-lift",    title:"Lift session",              emoji:"🏋️", quip:"Show up. Lift. Repeat.",               type:"binary", points:5 },
       { id:"st-overload",title:"Progressive overload logged",emoji:"📊", quip:"Did you do more than last time? Log it.",type:"binary", points:2 },
@@ -533,8 +541,8 @@ const TEMPLATES = [
   },
   {
     id: "no-sugar", name: "No Added Sugar", emoji: "🚫🍬", category: "lifestyle",
-    description: "30 days without added sugar. Clearer skin, better energy, no crashes.",
-    duration: 30, weeklyGoal: 70, defaultMode: "strict",
+    description: "30 days without added sugar. Clearer skin, steadier energy, fewer crashes.",
+    duration: 30, weeklyGoal: 35, defaultMode: "strict",
     habits: [
       { id:"ns-nosugar",  title:"No added sugar today",      emoji:"🚫", quip:"Read the label. It's in everything.",   type:"binary", points:5 },
       { id:"ns-fruit",    title:"Eat whole fruit (no juice)",emoji:"🍎", quip:"Fibre intact. Spike avoided.",          type:"binary", points:1 },
@@ -587,8 +595,8 @@ const TEMPLATES = [
   },
   {
     id: "core-abs", name: "Core & Abs", emoji: "🔥", category: "movement",
-    description: "30 days of daily core work. Planks, crunches, leg raises — build real strength.",
-    duration: 30, weeklyGoal: 70, defaultMode: "strict",
+    description: "30 days of core work. Planks, crunches, leg raises — build real strength. Rest days are welcome; muscles grow during recovery, not just during training.",
+    duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"ca-core",     title:"Core workout (15 min)",      emoji:"💪", quip:"15 minutes. No excuses.",                type:"binary", points:5 },
       { id:"ca-plank",    title:"Plank hold",                 emoji:"⏱️", quip:"The plank is honest.",                   type:"tiered", points:2,
@@ -755,7 +763,7 @@ const TEMPLATES = [
       { id:"wl-deficit",  title:"Nutrition target hit", emoji:"🥗", quip:"Track calories + 0.8 g protein per lb. Log before you eat.", type:"binary", points:5 },
       { id:"wl-steps",    title:"8,000 steps",          emoji:"👟", quip:"Walking burns fat and helps your daily deficit.", type:"binary", points:3 },
       { id:"wl-exercise", title:"Exercise 30 min",      emoji:"🏃", quip:"Cardio, weights, walk — it all counts.",          type:"binary", points:5 },
-      { id:"wl-hydration",title:"Drink 2L water",       emoji:"💧", quip:"Hydration boosts metabolism and cuts fake hunger.", type:"binary", points:2 },
+      { id:"wl-hydration",title:"Drink 2L water",       emoji:"💧", quip:"Hydration may help support metabolism and reduces false hunger signals.", type:"binary", points:2 },
     ]
   },
   {
@@ -824,17 +832,8 @@ const TEMPLATES = [
   },
   {
     id: "c25k", name: "Couch to 5K", emoji: "🏃", category: "movement",
-    description: "9 weeks of run/walk intervals that take beginners from the sofa to a 5K finish line. 3 sessions per week — rest days are part of the plan.",
+    description: "9 weeks of run/walk intervals that take beginners from the sofa to a 5K finish line. 3 sessions per week — rest days are part of the plan. Week 1–2: 60–90 sec run / 90 sec–2 min walk × 8. Week 3–5: intervals build to 5 then 20 min continuous. Week 6–9: run 25–30 min straight.",
     duration: 63, weeklyGoal: 50, defaultMode: "soft",
-    weekSchedule: [
-      { day:1, type:"interval", label:"Run Day",     emoji:"👟", desc:"Wk 1–2: 60–90 sec run / 90 sec–2 min walk × 8. Wk 3–5: intervals build to 5 then 20 min continuous. Wk 6–9: run 25–30 min straight. Just show up." },
-      { day:2, type:"rest",     label:"Rest Day",    emoji:"⚪", desc:"Full rest or easy 20–30 min walk. Adaptation happens between sessions, not during them." },
-      { day:3, type:"interval", label:"Run Day",     emoji:"👟", desc:"Same session as Day 1. Focus on form: short stride, upright posture, relaxed shoulders." },
-      { day:4, type:"rest",     label:"Rest Day",    emoji:"⚪", desc:"Rest. Light stretching if calves are tight. No running today." },
-      { day:5, type:"interval", label:"Run Day",     emoji:"👟", desc:"Third run of the week. It should feel slightly easier than Day 1 — that's your body adapting." },
-      { day:6, type:"cross",    label:"Active Rest", emoji:"🚶", desc:"Optional easy walk (20–30 min) or gentle yoga. Very light — this is bonus recovery, not training." },
-      { day:7, type:"rest",     label:"Full Rest",   emoji:"⚪", desc:"Full rest. Sleep well, eat well. You've done the work — let your body rebuild." },
-    ],
     habits: [
       { id:"c25k-run",     title:"Run/walk session",   emoji:"👟", quip:"Follow today's plan. Slow is fine — consistent is everything.",
         type:"tiered", points:5, tiers:[{label:"Partial (stopped early)",pts:3},{label:"Full session completed",pts:5},{label:"Exceeded the plan",pts:7}] },
@@ -875,8 +874,8 @@ const TEMPLATES = [
   },
   {
     id: "12-3-30", name: "12-3-30 Challenge", emoji: "🏔️", category: "movement",
-    description: "Treadmill at 12% incline, 3 mph, for 30 minutes. The treadmill niche that actually works.",
-    duration: 30, weeklyGoal: 55, defaultMode: "soft",
+    description: "Treadmill at 12% incline, 3 mph, for 30 minutes. The treadmill niche that actually works. Daily sessions are aspirational — rest days are fine and recommended to avoid overuse injuries.",
+    duration: 30, weeklyGoal: 45, defaultMode: "soft",
     habits: [
       { id:"1230-walk",   title:"12-3-30 session",        emoji:"🏔️", quip:"12% incline. 3 mph. 30 minutes. No shortcuts.",    type:"binary", points:6 },
       { id:"1230-stretch",title:"Stretch calves & hamstrings",emoji:"🦵",quip:"High incline walks are brutal on calves.",       type:"binary", points:2 },
@@ -1205,7 +1204,7 @@ const TEMPLATES = [
       { km: 89,  name: "Durban!",      emoji: "🌊" },
     ],
     habits: [
-      { id:"cu-run", title:"Log running distance", emoji:"🏃", quip:"Every step toward Durban.", type:"distance", unit:"km" },
+      { id:"cu-run", title:"Log running distance", emoji:"🏃", quip:"Every step toward Durban.", type:"distance", points:1, unit:"km" },
     ]
   },
   {
@@ -1221,7 +1220,7 @@ const TEMPLATES = [
       { km: 171, name: "Chamonix!",    emoji: "🎉" },
     ],
     habits: [
-      { id:"utmb-run", title:"Log running distance", emoji:"🏃", quip:"The mountains are waiting.", type:"distance", unit:"km" },
+      { id:"utmb-run", title:"Log running distance", emoji:"🏃", quip:"The mountains are waiting.", type:"distance", points:1, unit:"km" },
     ]
   },
   {
@@ -1386,6 +1385,81 @@ const TEMPLATES = [
       { id:"pf-stretch", title:"10 min mobility / stretching",emoji:"🧘", quip:"Hip flexors, chest, and thoracic spine first.", type:"binary", points:3 },
       { id:"pf-walk",    title:"15 min walk",                 emoji:"🚶", quip:"Walking resets posture better than anything.",  type:"binary", points:2 },
       { id:"pf-desk",    title:"Desk or workstation check",   emoji:"💻", quip:"Monitor height, chair height, elbow angle.",    type:"binary", points:1 },
+    ]
+  },
+
+  // ── New Challenges ────────────────────────────────────────────────────────
+  {
+    id: "beginner-strength", name: "Beginner Strength 3×/Week", emoji: "🏋️", category: "movement",
+    description: "6 weeks of structured lifting for beginners. Three sessions a week — upper, lower, and full body — plus mobility and protein to support recovery.",
+    duration: 42, weeklyGoal: 45, defaultMode: "soft",
+    habits: [
+      { id:"bs-lift",    title:"Lift session",                emoji:"🏋️", quip:"Upper, lower, or full body — show up and lift.",
+        type:"tiered", points:5, tiers:[{label:"Upper body",pts:5},{label:"Lower body",pts:5},{label:"Full body",pts:5}] },
+      { id:"bs-mobility",title:"Mobility (10 min)",           emoji:"🧘", quip:"Warm up and cool down. Your joints will thank you.", type:"binary", points:2 },
+      { id:"bs-protein", title:"Hit protein target",          emoji:"🥩", quip:"Muscle can't build without protein. Hit the target.", type:"binary", points:3 },
+    ]
+  },
+  {
+    id: "pushup-challenge", name: "Push-Up Challenge", emoji: "💪", category: "movement",
+    description: "30 days of daily push-ups with progressive overload. Start where you are, build from there.",
+    duration: 30, weeklyGoal: 40, defaultMode: "soft",
+    habits: [
+      { id:"pu-pushups",  title:"Push-ups",                   emoji:"💪", quip:"Chest to floor. Lock out at the top. Count every rep.",
+        type:"tiered", points:2, tiers:[{label:"10 reps",pts:2},{label:"25 reps",pts:3},{label:"50 reps",pts:5},{label:"100+ reps",pts:7}] },
+      { id:"pu-stretch",  title:"Chest & shoulder stretch",   emoji:"🧘", quip:"Open up what you just worked. Keep the shoulders healthy.", type:"binary", points:1 },
+    ]
+  },
+  {
+    id: "pullup-progression", name: "Pull-Up & Row Progression", emoji: "🏋️", category: "movement",
+    description: "6 weeks of progressive pulling strength — from rows to full pull-ups. Includes scapular health work to keep shoulders robust.",
+    duration: 42, weeklyGoal: 38, defaultMode: "soft",
+    habits: [
+      { id:"pp-pull",     title:"Pull / row session",         emoji:"🏋️", quip:"Rows build to pull-ups. Both count. Track your reps.",
+        type:"tiered", points:2, tiers:[{label:"5 reps",pts:2},{label:"10 reps",pts:4},{label:"15 reps",pts:6},{label:"20+ reps",pts:8}] },
+      { id:"pp-scapular", title:"Scapular health (band work)", emoji:"🦴", quip:"Scapular retractions, Y-T-W raises, or band pull-aparts. Do them.", type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "language-learning", name: "Language Learning", emoji: "🌐", category: "lifestyle",
+    description: "60 days of daily language practice. Consistency beats intensity — small daily sessions compound into real fluency.",
+    duration: 60, weeklyGoal: 55, defaultMode: "soft",
+    habits: [
+      { id:"ll-practice",  title:"Daily practice (20+ min)",  emoji:"🌐", quip:"App, textbook, tutor, or conversation. 20 minutes every day.", type:"binary", points:4 },
+      { id:"ll-vocab",     title:"Learn 10 new words",        emoji:"📖", quip:"Vocabulary is the building block of everything else.",           type:"binary", points:2 },
+      { id:"ll-listen",    title:"Listen or watch native content", emoji:"🎧", quip:"Podcasts, shows, or music in the target language.",         type:"binary", points:2 },
+      { id:"ll-streak",    title:"No-skip streak",            emoji:"🔥", quip:"The streak is the discipline. Don't break it.",                  type:"binary", points:1 },
+    ]
+  },
+  {
+    id: "budget-reset", name: "Budget Reset", emoji: "💰", category: "lifestyle",
+    description: "30 days of intentional spending. Track every purchase, cut impulse buys, and build the foundation for financial control.",
+    duration: 30, weeklyGoal: 40, defaultMode: "soft",
+    habits: [
+      { id:"br-log",       title:"Log every expense",          emoji:"📊", quip:"You can't manage what you don't measure. Log it all.", type:"binary", points:4 },
+      { id:"br-noimpulse", title:"No impulse purchase",        emoji:"🚫", quip:"Pause 24 hours before any unplanned buy.",               type:"binary", points:3 },
+      { id:"br-cook",      title:"Pack lunch or cook at home", emoji:"🍳", quip:"Restaurant meals are the fastest money drain. Cook instead.", type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "mindful-eating", name: "Mindful Eating", emoji: "🍽️", category: "lifestyle",
+    description: "21 days of eating with intention. No distractions, no rushing, no eating past the point of comfort. Simple rules that change your relationship with food.",
+    duration: 21, weeklyGoal: 35, defaultMode: "soft",
+    habits: [
+      { id:"me-noscreen",  title:"No eating in front of screens", emoji:"📵", quip:"Screens double your portion size without you noticing.", type:"binary", points:3 },
+      { id:"me-chew",      title:"Chew slowly, no rushing",       emoji:"🍽️", quip:"It takes 20 minutes for fullness to register. Slow down.", type:"binary", points:2 },
+      { id:"me-80pct",     title:"Stop at 80% full",              emoji:"🛑", quip:"Hara hachi bu — the Okinawan rule. Stop before full.", type:"binary", points:3 },
+      { id:"me-nolate",    title:"No eating after 8 PM",          emoji:"🌙", quip:"Late-night eating disrupts sleep and digestion. Cut it.", type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "nature-reset", name: "Nature Reset", emoji: "🌿", category: "lifestyle",
+    description: "21 days of daily outdoor time and morning sunlight. Grounding, resetting, and starting each day on nature's terms.",
+    duration: 21, weeklyGoal: 30, defaultMode: "soft",
+    habits: [
+      { id:"nr-outside",   title:"20+ min outside",                emoji:"🌳", quip:"Rain or shine. Outside is the goal.",                     type:"binary", points:3 },
+      { id:"nr-sunlight",  title:"Morning sunlight within 1 hr of waking", emoji:"☀️", quip:"Sets your circadian clock for the next 24 hours.", type:"binary", points:3 },
+      { id:"nr-noscreen",  title:"No screens first 30 min",        emoji:"📵", quip:"Start the day before the internet does.",                 type:"binary", points:2 },
     ]
   },
 ];
@@ -4769,7 +4843,7 @@ function renderBuilderTemplates() {
     ? [cats.find(c => c.id === "expedition")]
     : cats.filter(c => c.id !== "expedition");
   const POPULAR_IDS = ["cruise-control","75-hard","75-soft","cold-exposure","morning-routine","meditation","journaling","walking","no-sugar","intermittent-fasting","monk-mode","half-marathon-prep"];
-  const START_HERE_IDS = ["morning-routine","walking","sleep-reset","meditation","reading","c25k","dry-month","30-pushups","zone2","self-care-30","gratitude-reset","posture-fix"];
+  const START_HERE_IDS = ["morning-routine","walking","sleep-reset","meditation","reading","c25k","dry-month","30-pushups","zone2","self-care-30","gratitude-reset","posture-fix","pushup-challenge","budget-reset","nature-reset"];
   const filterTabs = [
     { id:"all",      label:"All" },
     { id:"popular",  label:"🔥 Popular" },
