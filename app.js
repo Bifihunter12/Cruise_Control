@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.18.5";
+const APP_VERSION = "2026.06.18.6";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -242,13 +242,14 @@ const TEMPLATE_DIFFICULTY = {
   "12-3-30":"intermediate","5k-prep":"intermediate","protein-challenge":"intermediate",
   "weight-loss-30":"intermediate","body-composition":"intermediate",
   "glucose-control":"intermediate",
-  "everest-bc":"intermediate","everest-stairmaster":"intermediate","kilimanjaro-stairmaster":"intermediate","montblanc-stairmaster":"intermediate","thames-row":"intermediate",
+  "everest-bc":"intermediate","west-highland-way":"intermediate","everest-stairmaster":"intermediate","kilimanjaro-stairmaster":"intermediate","montblanc-stairmaster":"intermediate","thames-row":"intermediate",
   // Advanced — high consistency demands or health-sensitive protocols
   "75-soft":"advanced","10k-prep":"advanced","run-streak":"advanced",
   "cold-exposure":"advanced","half-marathon-prep":"advanced",
   "cruise-control":"advanced","intermittent-fasting":"advanced",
   "monk-mode":"advanced","project-50":"advanced",
-  "camino":"advanced","route66":"advanced","raid-pyrenees":"advanced",
+  "camino":"advanced","tour-du-mont-blanc":"advanced","john-muir-trail":"advanced",
+  "route66":"advanced","raid-pyrenees":"advanced",
   "danube-row":"advanced","comrades-ultra":"advanced","appalachian":"advanced",
   "tour-de-france":"advanced",
   // Extreme — elite output, multi-month commitment, or medical risk
@@ -304,7 +305,7 @@ const TEMPLATE_TIERS = {
   "cold-exposure":"rare","intermittent-fasting":"rare",
   "75-soft":"rare","everest-bc":"rare","monk-mode":"rare","montblanc-stairmaster":"rare",
   // ── Epic: strict 75-day, 86-day transformation, long expeditions
-  "75-hard":"epic","cruise-control":"epic","camino":"epic","tour-de-france":"epic","kilimanjaro-stairmaster":"epic",
+  "75-hard":"epic","cruise-control":"epic","camino":"epic","tour-de-france":"epic","tour-du-mont-blanc":"epic","john-muir-trail":"epic","kilimanjaro-stairmaster":"epic",
   // ── Legendary: year-long or extreme challenges
   "appalachian":"legendary","route66":"legendary",
   "amazon-river":"legendary","everest-stairmaster":"legendary","pct":"legendary",
@@ -312,7 +313,7 @@ const TEMPLATE_TIERS = {
   // ── Epic: demanding multi-month expeditions
   "run-jogle":"epic","danube-row":"epic",
   // ── Rare: shorter expedition routes
-  "run-5-marathons":"rare","raid-pyrenees":"rare","thames-row":"rare",
+  "west-highland-way":"rare","run-5-marathons":"rare","raid-pyrenees":"rare","thames-row":"rare",
   "comrades-ultra":"rare",
   // ── New movement challenges
   "c25k":"uncommon","5k-prep":"uncommon","10k-prep":"rare",
@@ -750,9 +751,11 @@ const TEMPLATES = [
     description: "30 days of daily weigh-ins and healthy habits. Track your weight, build the routine.",
     duration: 30, weeklyGoal: 80, defaultMode: "soft",
     habits: [
-      { id:"wl-weight",  title:"Log weight",         emoji:"⚖️", quip:"Same time each morning. Consistency beats precision.", type:"measurement", unit:"weight", decimals:1 },
-      { id:"wl-deficit", title:"Nutrition target hit", emoji:"🥗", quip:"Hit your calorie and protein targets. Simple, not easy.", type:"binary",      points:5 },
-      { id:"wl-exercise",title:"Exercise 30 min",    emoji:"🏃", quip:"Cardio, weights, walk — it all counts.",              type:"binary",      points:5 },
+      { id:"wl-weight",   title:"Log weight",          emoji:"⚖️", quip:"Same time each morning.", type:"measurement", unit:"weight", decimals:1 },
+      { id:"wl-deficit",  title:"Nutrition target hit", emoji:"🥗", quip:"Track calories + 0.8 g protein per lb. Log before you eat.", type:"binary", points:5 },
+      { id:"wl-steps",    title:"8,000 steps",          emoji:"👟", quip:"Walking burns fat and helps your daily deficit.", type:"binary", points:3 },
+      { id:"wl-exercise", title:"Exercise 30 min",      emoji:"🏃", quip:"Cardio, weights, walk — it all counts.",          type:"binary", points:5 },
+      { id:"wl-hydration",title:"Drink 2L water",       emoji:"💧", quip:"Hydration boosts metabolism and cuts fake hunger.", type:"binary", points:2 },
     ]
   },
   {
@@ -760,11 +763,13 @@ const TEMPLATES = [
     description: "90 days tracking weight, body fat %, and lean muscle mass. Know your numbers.",
     duration: 90, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"bc-weight",  title:"Log weight",         emoji:"⚖️", quip:"Weekly is fine — daily is better.",                  type:"measurement", unit:"weight",  decimals:1 },
-      { id:"bc-fat",     title:"Log body fat %",     emoji:"📉", quip:"DEXA, calipers, smart scale — pick one and stick to it.", type:"measurement", unit:"%",      decimals:1 },
-      { id:"bc-lean",    title:"Log lean mass",      emoji:"💪", quip:"Lean mass = weight × (1 − fat% / 100).",             type:"measurement", unit:"weight",  decimals:1 },
-      { id:"bc-protein", title:"Hit protein goal",   emoji:"🥩", quip:"1g per lb of bodyweight. Non-negotiable.",           type:"binary",      points:5 },
-      { id:"bc-lift",    title:"Lift session",       emoji:"🏋️", quip:"Muscle doesn't build itself.",                       type:"binary",      points:5 },
+      { id:"bc-weight",   title:"Log weight",          emoji:"⚖️", quip:"Weekly is fine — daily is better.",                  type:"measurement", unit:"weight", decimals:1 },
+      { id:"bc-fat",      title:"Log body fat %",      emoji:"📉", quip:"DEXA, calipers, smart scale — pick one, stick to it.", type:"measurement", unit:"%",    decimals:1 },
+      { id:"bc-lean",     title:"Log lean mass",       emoji:"💪", quip:"Weight × (1 − fat% ÷ 100).",                        type:"measurement", unit:"weight", decimals:1 },
+      { id:"bc-protein",  title:"Hit protein goal",    emoji:"🥩", quip:"1g per lb of bodyweight. Non-negotiable.",           type:"binary", points:5 },
+      { id:"bc-lift",     title:"Lift session",        emoji:"🏋️", quip:"Muscle doesn't build itself.",                       type:"binary", points:5 },
+      { id:"bc-steps",    title:"8,000 steps",         emoji:"👟", quip:"Daily movement shifts body comp even without gym sessions.", type:"binary", points:3 },
+      { id:"bc-hydration",title:"Drink enough water",  emoji:"💧", quip:"Muscle is 75% water. Stay hydrated.",               type:"binary", points:2 },
     ]
   },
   {
@@ -999,6 +1004,51 @@ const TEMPLATES = [
     ],
     habits: [
       { id:"dist", title:"Log distance", emoji:"🏃", quip:"Walk, run, cycle, swim or row — it all counts.", type:"distance", points:1, unit:"km" },
+    ],
+  },
+  {
+    id: "west-highland-way", name: "West Highland Way", emoji: "🌄", category: "expedition",
+    description: "Walk 154 km through the Scottish Highlands from Milngavie to Fort William — lochs, glens, and mountain passes.",
+    duration: 30, weeklyGoal: 5, defaultMode: "soft", routeKm: 154,
+    milestones: [
+      { km: 20,  name: "Balmaha",        emoji: "🌊" },
+      { km: 50,  name: "Inverarnan",     emoji: "🏞️" },
+      { km: 80,  name: "Tyndrum",        emoji: "🏘️" },
+      { km: 120, name: "Kinlochleven",   emoji: "⛰️" },
+      { km: 154, name: "Fort William",   emoji: "🎉" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🥾", quip:"Every loch and glen earned one step at a time.", type:"distance", points:1, unit:"km" },
+    ],
+  },
+  {
+    id: "tour-du-mont-blanc", name: "Tour du Mont Blanc", emoji: "🗻", category: "expedition",
+    description: "Circle the Mont Blanc massif across France, Italy and Switzerland — 170 km of alpine trail through 3 countries.",
+    duration: 60, weeklyGoal: 5, defaultMode: "soft", routeKm: 170,
+    milestones: [
+      { km: 30,  name: "Les Contamines",  emoji: "🌲" },
+      { km: 60,  name: "Courmayeur",      emoji: "🇮🇹" },
+      { km: 90,  name: "La Fouly",        emoji: "🇨🇭" },
+      { km: 130, name: "Champex-Lac",     emoji: "🏞️" },
+      { km: 170, name: "Chamonix",        emoji: "🏔️" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🥾", quip:"Three countries. One mountain. Endless views.", type:"distance", points:1, unit:"km" },
+    ],
+  },
+  {
+    id: "john-muir-trail", name: "John Muir Trail", emoji: "🦅", category: "expedition",
+    description: "Hike 340 km through California's Sierra Nevada — from Yosemite Valley to the summit of Mount Whitney.",
+    duration: 90, weeklyGoal: 5, defaultMode: "soft", routeKm: 340,
+    milestones: [
+      { km: 50,  name: "Tuolumne Meadows",  emoji: "🌿" },
+      { km: 120, name: "Evolution Valley",  emoji: "🏔️" },
+      { km: 180, name: "Muir Trail Ranch",  emoji: "🏕️" },
+      { km: 250, name: "Pinchot Pass",      emoji: "❄️" },
+      { km: 340, name: "Mount Whitney",     emoji: "🦅" },
+    ],
+    habits: [
+      { id:"dist", title:"Log distance", emoji:"🥾", quip:"The Range of Light. Worth every step.", type:"distance", points:1, unit:"km" },
     ],
   },
   {
@@ -1540,6 +1590,30 @@ const TEMPLATE_BADGES = {
     { id:"ebc-gorak",     label:"⛺ Gorak Shep",           desc:"Reach the highest camp (100 km).",                 test: c => c.totalKm >= 100 },
     { id:"ebc-done",      label:"🏔️ Base Camp!",           desc:"Conquer Everest Base Camp — all 130 km.",          test: c => c.totalKm >= 130 },
   ],
+  "west-highland-way": [
+    { id:"whw-start",   label:"🥾 First Steps",     desc:"Log your first km on the Way.",                       test: c => c.totalKm >= 1   },
+    { id:"whw-balmaha", label:"🌊 Balmaha",          desc:"Reach the shores of Loch Lomond (20 km).",           test: c => c.totalKm >= 20  },
+    { id:"whw-inv",     label:"🏞️ Inverarnan",       desc:"Pass the north end of Loch Lomond (50 km).",         test: c => c.totalKm >= 50  },
+    { id:"whw-tyn",     label:"🏘️ Tyndrum",          desc:"Into the open Highlands (80 km).",                   test: c => c.totalKm >= 80  },
+    { id:"whw-kin",     label:"⛰️ Kinlochleven",     desc:"The final mountain crossing (120 km).",              test: c => c.totalKm >= 120 },
+    { id:"whw-done",    label:"🎉 Fort William!",    desc:"Complete the full West Highland Way — 154 km.",      test: c => c.totalKm >= 154 },
+  ],
+  "tour-du-mont-blanc": [
+    { id:"tmb-start",  label:"🥾 Chamonix Start",  desc:"Log your first km around the massif.",                test: c => c.totalKm >= 1   },
+    { id:"tmb-cont",   label:"🌲 Les Contamines",  desc:"Into France's southern valleys (30 km).",             test: c => c.totalKm >= 30  },
+    { id:"tmb-cour",   label:"🇮🇹 Courmayeur",     desc:"Cross into Italy (60 km).",                           test: c => c.totalKm >= 60  },
+    { id:"tmb-fouly",  label:"🇨🇭 La Fouly",       desc:"Cross into Switzerland (90 km).",                     test: c => c.totalKm >= 90  },
+    { id:"tmb-champ",  label:"🏞️ Champex-Lac",     desc:"The final Alpine section (130 km).",                  test: c => c.totalKm >= 130 },
+    { id:"tmb-done",   label:"🏔️ Full Circle!",    desc:"Complete the Tour du Mont Blanc — 170 km.",           test: c => c.totalKm >= 170 },
+  ],
+  "john-muir-trail": [
+    { id:"jmt-start",   label:"🥾 Happy Isles",       desc:"Step off from Yosemite. The Sierra awaits.",          test: c => c.totalKm >= 1   },
+    { id:"jmt-tuol",    label:"🌿 Tuolumne",           desc:"Reach the High Sierra plateau (50 km).",             test: c => c.totalKm >= 50  },
+    { id:"jmt-evol",    label:"🏔️ Evolution Valley",  desc:"Deep wilderness (120 km).",                          test: c => c.totalKm >= 120 },
+    { id:"jmt-ranch",   label:"🏕️ Muir Trail Ranch",  desc:"Halfway through the Sierra (180 km).",               test: c => c.totalKm >= 180 },
+    { id:"jmt-pinchot", label:"❄️ Pinchot Pass",      desc:"Over the high passes (250 km).",                     test: c => c.totalKm >= 250 },
+    { id:"jmt-done",    label:"🦅 Whitney Summit!",   desc:"Highest peak in the lower 48 — all 340 km.",         test: c => c.totalKm >= 340 },
+  ],
   "camino": [
     { id:"cam-start",     label:"🎒 Buen Camino",          desc:"Log your first km on the Way.",                    test: c => c.totalKm >= 1 },
     { id:"cam-pamplona",  label:"🏟️ Pamplona",             desc:"Reach Pamplona (75 km).",                          test: c => c.totalKm >= 75 },
@@ -1787,6 +1861,7 @@ let _notifPromptVisible  = false;   // post-challenge-start notification prompt
 let _templateFilter      = "all";   // "all" | "short" | "medium" | "long"
 let _difficultyFilter    = "all";   // "all" | "beginner" | "intermediate" | "advanced" | "extreme"
 let _statsCollapsed      = null;    // null = auto (collapse Day 1-2), true/false = user override
+let _measChartTab        = null;    // active tab in the inline measurement chart
 let _savedFlash          = false;   // brief "Saved ✓" indicator after habit tap
 let _obAuthError      = "";    // error message for onboarding account screen
 let _obAuthLoading    = false; // loading spinner for onboarding account screen
@@ -1849,6 +1924,18 @@ let _forgotPwMode = false;         // forgot-password form is showing
 .day-note-input::placeholder{color:var(--text-faint)}
 .tf-surprise{background:var(--surface-2);border:1px dashed var(--primary);color:var(--primary);font-size:13px}
 .tf-surprise:hover{background:var(--primary-haze)}
+.measurement-habit-card{flex-wrap:wrap;gap:8px 10px;padding:12px 14px}
+.measurement-habit-card .habit-info{flex:1;min-width:0}
+.measurement-habit-card .measurement-input-wrap{flex:0 0 100%;margin-left:0;justify-content:center}
+.meas-chart-card{background:var(--surface-2);border-radius:12px;padding:12px 10px 10px;margin:0 0 12px}
+.meas-chart-label{font-size:12px;font-weight:600;color:var(--text-dim);margin-bottom:8px}
+.meas-chart-tabs{display:flex;gap:4px;margin-bottom:8px}
+.meas-chart-tab{flex:1;background:var(--surface-3);border:none;color:var(--text-dim);font-size:12px;font-weight:600;padding:5px 0;border-radius:6px;cursor:pointer}
+.meas-chart-tab.active{background:var(--primary);color:#fff}
+.meas-chart-svg{width:100%;height:110px;display:block}
+.meas-chart-delta{font-size:13px;font-weight:700;text-align:center;padding:4px 0 2px}
+.meas-chart-delta.good{color:#4ade80}.meas-chart-delta.bad{color:#f87171}
+.meas-chart-hint{font-size:11px;color:var(--text-faint);text-align:center}
 `;
   document.head.appendChild(s);
 })();
@@ -3176,7 +3263,7 @@ function renderToday() {
         ${challenge.habits.map(h => renderHabit(h, day, challenge)).join("")}
       </div>
     </section>
-    ${isToday ? renderMoodNote(day) : ""}
+    ${renderChallengeMetricChart(challenge)}
     ${isToday ? renderAlmostThereBadge(challenge, streak) : ""}
     ${(() => {
       // Only one nudge at a time: backup (Day 7+, no account) beats notif nudge
@@ -5316,6 +5403,60 @@ function renderMoodNote(day) {
   </div>`;
 }
 
+function renderChallengeMetricChart(challenge) {
+  const measHabits = challenge.habits.filter(h => h.type === "measurement");
+  if (!measHabits.length) return "";
+  const dayEntries = Object.entries(challenge.days)
+    .filter(([, d]) => d.distances && measHabits.some(h => (d.distances[h.id] || 0) > 0))
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-30);
+  const activeId = (_measChartTab && measHabits.find(h => h.id === _measChartTab))
+    ? _measChartTab : measHabits[0].id;
+  const habit = measHabits.find(h => h.id === activeId);
+  const unit = habit.unit === "weight" ? (state.settings.units.weight || "kg") : habit.unit;
+  const points = dayEntries.map(([, d]) => d.distances?.[activeId] || 0).filter(v => v > 0);
+  return `
+  <div class="meas-chart-card">
+    ${measHabits.length > 1 ? `<div class="meas-chart-tabs">${measHabits.map(h =>
+      `<button class="meas-chart-tab${h.id === activeId ? " active" : ""}" data-meas-tab="${h.id}">${esc(h.title.replace(/^Log /, ""))}</button>`
+    ).join("")}</div>` : `<div class="meas-chart-label">📈 ${esc(habit.title)}</div>`}
+    ${renderMeasurementChartSVG(points, unit, habit.unit === "weight" || habit.unit === "%")}
+    ${dayEntries.length >= 2 ? `<div class="meas-chart-hint">Last 30 logged days · earlier ← → recent</div>` : ""}
+  </div>`;
+}
+
+function renderMeasurementChartSVG(points, unit, lowerIsBetter) {
+  if (points.length < 2) return `<div class="chart-empty" style="padding:20px 0;font-size:12px">Log 2 check-ins with this metric to see your trend.</div>`;
+  const mn = Math.min(...points), mx = Math.max(...points);
+  const rng = Math.max(0.5, mx - mn);
+  const W = 300, H = 110, P = 18;
+  const coords = points.map((v, i) => {
+    const x = P + (i / (points.length - 1)) * (W - P * 2);
+    const y = (H - P) - ((v - mn) / rng) * (H - P * 2 - 14);
+    return [x.toFixed(1), y.toFixed(1)];
+  });
+  const line = coords.map(([x, y], i) => `${i ? "L" : "M"} ${x} ${y}`).join(" ");
+  const area = `${line} L ${coords[coords.length-1][0]} ${H} L ${coords[0][0]} ${H} Z`;
+  const delta = points[points.length-1] - points[0];
+  const isGood = lowerIsBetter ? delta <= 0 : delta >= 0;
+  const arrow = delta < 0 ? "↓" : delta > 0 ? "↑" : "→";
+  const deltaStr = `${arrow} ${Math.abs(delta).toFixed(1)} ${unit}`;
+  return `
+  <svg class="meas-chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="mcg${W}" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" style="stop-color:var(--primary)"/><stop offset="100%" style="stop-color:var(--secondary)"/></linearGradient>
+      <linearGradient id="mcga${W}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:var(--primary);stop-opacity:0.18"/><stop offset="100%" style="stop-color:var(--primary);stop-opacity:0"/></linearGradient>
+    </defs>
+    <path d="${area}" fill="url(#mcga${W})"/>
+    <path d="${line}" fill="none" stroke="url(#mcg${W})" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${coords[0][0]}" cy="${coords[0][1]}" r="3" fill="url(#mcg${W})"/>
+    <circle cx="${coords[coords.length-1][0]}" cy="${coords[coords.length-1][1]}" r="3.5" fill="url(#mcg${W})"/>
+    <text x="${coords[0][0]}" y="${H - 2}" fill="var(--text-dim)" font-size="9" text-anchor="middle">${points[0].toFixed(1)}</text>
+    <text x="${coords[coords.length-1][0]}" y="${H - 2}" fill="var(--text-dim)" font-size="9" text-anchor="middle">${points[points.length-1].toFixed(1)}</text>
+  </svg>
+  <div class="meas-chart-delta ${delta === 0 ? "" : isGood ? "good" : "bad"}">${deltaStr}</div>`;
+}
+
 function renderAlmostThereBadge(challenge, streak) {
   const milestones = [7, 14, 21, 30, 50, 75];
   const allBadges = [...(challenge.badges || []), ...(state.globalBadges || [])];
@@ -5869,6 +6010,7 @@ function bindEvents() {
   on("[data-quickstart-customise]", () => { builderStep = "customize"; render(); });
   on("[data-template-filter]", el => { _templateFilter = el.dataset.templateFilter; render(); });
   on("[data-difficulty-filter]", el => { _difficultyFilter = el.dataset.difficultyFilter; render(); });
+  on("[data-meas-tab]", el => { _measChartTab = el.dataset.measTab; render(); });
   on("[data-surprise-me]", () => {
     const pool = TEMPLATES.filter(t => {
       const d = TEMPLATE_DIFFICULTY[t.id] || "intermediate";
