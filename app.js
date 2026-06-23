@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.20.2";
+const APP_VERSION = "2026.06.22.1";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -524,7 +524,7 @@ const TEMPLATES = [
     duration: 30, weeklyGoal: 65, defaultMode: "soft",
     habits: [
       { id:"ce-cold",    title:"Cold shower",               emoji:"🧊", quip:"Get in. Don't think about it.",        type:"binary", points:5 },
-      { id:"ce-breath",  title:"Calm breathwork",           emoji:"💨", quip:"Breathe deep before you go cold.",     type:"binary", points:2 },
+      { id:"ce-breath",  title:"Pre-cold breathing",         emoji:"💨", quip:"Do this before stepping in — never during cold water.", type:"binary", points:2 },
       { id:"ce-reflect", title:"Post-session reflection",   emoji:"🧠", quip:"Hardship processed becomes growth.",   type:"binary", points:2 },
     ]
   },
@@ -1472,7 +1472,7 @@ const UNIVERSAL_BADGES = [
   { id:"u-3d",     label:"✨ Getting Started",   desc:"Reach a 3-day streak in any challenge.",              test: u => u.longestStreak >= 3 },
   { id:"u-7d",     label:"🔥 On Fire",            desc:"7-day streak.",                                       test: u => u.longestStreak >= 7 },
   { id:"u-14d",    label:"🦾 Iron Week",          desc:"14-day streak.",                                      test: u => u.longestStreak >= 14 },
-  { id:"u-21d",    label:"🧠 Habit Locked",       desc:"21-day streak. Neurologically, it's a habit now.",   test: u => u.longestStreak >= 21 },
+  { id:"u-21d",    label:"🧠 Habit Locked",       desc:"21-day streak. You've built a powerful routine.",    test: u => u.longestStreak >= 21 },
   { id:"u-30d",    label:"💪 Locked In",          desc:"30-day streak.",                                      test: u => u.longestStreak >= 30 },
   { id:"u-60d",    label:"📆 Two Months",         desc:"60-day streak.",                                      test: u => u.longestStreak >= 60 },
   { id:"u-75d",    label:"🏆 75 Streak",          desc:"75 consecutive days. Legendary.",                     test: u => u.longestStreak >= 75 },
@@ -1513,7 +1513,7 @@ const TEMPLATE_BADGES = {
     { id:"cc-month",    label:"📅 One Month",            desc:"Complete 4 full weeks.",                           test: c => c.completedWeeks >= 4 },
     { id:"cc-halfway",  label:"⚡ Halfway",              desc:"Reach the 43-day mark.",                           test: c => c.pctDone >= 50 },
     { id:"cc-week8",    label:"📆 Two Months",           desc:"Complete 8 full weeks.",                           test: c => c.completedWeeks >= 8 },
-    { id:"cc-done",     label:"🔱 86 Days",              desc:"Complete the full 86-day transformation.",         test: c => c.pctDone >= 99 && c.complete },
+    { id:"cc-done",     label:"🔱 Cruise Control",        desc:"Complete the full 30-day Cruise Control challenge.", test: c => c.pctDone >= 99 && c.complete },
   ],
   "75-hard": [
     { id:"hard-start",   label:"💪 Day 1",               desc:"Complete 100% on Day 1 of 75 Hard.",               test: c => c.dayNumber >= 1 && c.complete },
@@ -1923,6 +1923,7 @@ let settingsOpen = false;
 let justCompletedId  = null;   // challenge shown in completion modal right now
 let justCompletedIds = [];     // queue of IDs waiting to be shown after the current one
 let _confirmDialog   = null;   // { msg, onConfirm } — replaces window.confirm()
+let _promptDialog    = null;   // { msg, defaultVal, onConfirm } — replaces window.prompt()
 let _cloudAuthError   = "";    // error message for cloud auth form (settings)
 let _cloudAuthLoading = false; // loading spinner for cloud auth (settings)
 let _shareModalChallenge = null;    // challenge shown in share card modal
@@ -2857,6 +2858,11 @@ function showConfirm(msg, onConfirm) {
   render();
 }
 
+function showPrompt(msg, defaultVal, onConfirm) {
+  _promptDialog = { msg, defaultVal: defaultVal ?? "", onConfirm };
+  render();
+}
+
 function renderConfirmModal() {
   if (!_confirmDialog) return "";
   return `
@@ -2866,6 +2872,22 @@ function renderConfirmModal() {
       <div class="confirm-btns">
         <button class="secondary-button" data-confirm-cancel>Cancel</button>
         <button class="pill-btn confirm-danger-btn" data-confirm-ok>Confirm</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderPromptModal() {
+  if (!_promptDialog) return "";
+  return `
+  <div class="confirm-overlay" data-prompt-overlay>
+    <div class="confirm-modal panel">
+      <p class="confirm-msg">${esc(_promptDialog.msg)}</p>
+      <input class="prompt-input" id="prompt-input-field" type="number" min="1" max="365"
+             value="${esc(String(_promptDialog.defaultVal))}" placeholder="days">
+      <div class="confirm-btns">
+        <button class="secondary-button" data-prompt-cancel>Skip</button>
+        <button class="pill-btn" data-prompt-ok>Set reminder</button>
       </div>
     </div>
   </div>`;
@@ -3125,6 +3147,7 @@ function _renderInner() {
   if (_levelUpOverlay) html += renderLevelUpOverlay();
   if (_notifPromptVisible) html += renderNotifPrompt();
   html += renderConfirmModal();
+  html += renderPromptModal();
   if (_safetyPendingTemplateId) html += renderSafetyModal();
   if (_showInstallBanner && _pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
     html += `
@@ -3476,7 +3499,7 @@ function renderNoChallenge() {
     ${isFirstTime ? `
     <p class="welcome-desc">Build any habit in 21–86 days. Log daily, earn streaks and badges, and watch yourself change.</p>
     <div class="welcome-features">
-      <div class="wf-item"><span class="wf-icon">🏆</span><span class="wf-text">50+ challenges — 75 Hard, Cold Exposure, Morning Routine, Pacific Crest Trail and more</span></div>
+      <div class="wf-item"><span class="wf-icon">🏆</span><span class="wf-text">90+ challenges — 75 Hard, Cold Exposure, Morning Routine, Pacific Crest Trail and more</span></div>
       <div class="wf-item"><span class="wf-icon">😴</span><span class="wf-text">Rest days built in — use your jokers wisely, streak stays safe</span></div>
       <div class="wf-item"><span class="wf-icon">🔥</span><span class="wf-text">Streaks, badges, streak freezes, and weekly recaps that keep you honest</span></div>
       <div class="wf-item"><span class="wf-icon">📵</span><span class="wf-text">Works offline. No ads. Your data stays on your device.</span></div>
@@ -3899,13 +3922,6 @@ function renderTodayWeightLog() {
   </div>`;
 }
 
-// Minimal weight chip — only shown in Today if body tracking is active but today not yet logged
-function renderWeightChip() {
-  const bt = state.bodyTracking;
-  if (!bt.startWeight && !bt.entries.length) return ""; // weight tracking not set up
-  if (bt.entries.some(e => e.date === todayKey())) return ""; // already logged today
-  return "";
-}
 
 function renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToday) {
   if (info.done!==info.total || info.total===0) return "";
@@ -5406,6 +5422,7 @@ function renderNotifPrompt() {
         <input type="time" id="notif-time-input" class="notif-time-input" value="${curTime}">
       </div>
       <button class="primary-button" style="margin-top:16px" data-notif-prompt-enable>Enable Reminders</button>
+      <p class="notif-caveat">Works while the app is open in your browser. Cannot deliver when your phone is locked or browser is closed.</p>
       <button class="link-btn notif-prompt-skip-btn" data-notif-prompt-skip>I'll risk forgetting →</button>
     </div>
   </div>`;
@@ -5570,7 +5587,7 @@ function renderAlmostThereBadge(challenge, streak) {
 // ── Onboarding ────────────────────────────────────────────────────────────
 
 const ONBOARDING_STEPS = [
-  { emoji:"🎯", title:"Pick a challenge",  body:"Choose from 50+ challenges — from Daily Journaling to the Pacific Crest Trail. Each one comes with daily habits to check off." },
+  { emoji:"🎯", title:"Pick a challenge",  body:"Choose from 90+ challenges — from Daily Journaling to the Pacific Crest Trail. Each one comes with daily habits to check off." },
   { emoji:"⭐", title:"Earn points daily",  body:"Every habit you check earns points and XP. XP builds your level — it never resets. Log 5 days in a week and you'll bank a streak freeze." },
   { emoji:"🔥", title:"Come back tomorrow", body:"Your streak grows every day you log. Miss a day? Soft mode gives you grace. Rest days are built in. One day at a time." },
 ];
@@ -5586,7 +5603,7 @@ function renderObHero() {
       <div class="ob-hero-tagline">Build the habits.<br>${theme.tagline}.</div>
     </div>
     <ul class="ob-features" aria-label="App features">
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">🎯</span><span>50+ challenges — from journaling to epic trails</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">🎯</span><span>90+ challenges — from journaling to epic trails</span></li>
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">⭐</span><span>Daily points, streaks &amp; badges</span></li>
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">😴</span><span>Rest days &amp; streak protection built in</span></li>
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">📴</span><span>Works offline — no account required</span></li>
@@ -5631,7 +5648,7 @@ function renderObSlide() {
   const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
   const slides = [
     { emoji:"🎯", title:"Pick your challenge",
-      body:`Choose from 50+ challenges — from daily journaling to epic trails. Each one comes with daily habits to check off and XP to earn on your <strong>${theme.label}</strong> journey.` },
+      body:`Choose from 90+ challenges — from daily journaling to epic trails. Each one comes with daily habits to check off and XP to earn on your <strong>${theme.label}</strong> journey.` },
     { emoji:theme.emoji, title:"Earn XP. Level up.",
       body:`Every habit you log earns XP. You start as a <strong>${theme.levels[0]}</strong> and climb all the way to Level 25 — <strong>${theme.levels[24]}</strong>. A real badge of persistence.` },
     { emoji:"🔥", title:"Show up every day.",
@@ -5981,7 +5998,7 @@ function renderSettings() {
     </div>
     <div class="section-label" style="margin-top:20px">How Conqur Works</div>
     <div class="more-card" style="font-size:13px;line-height:1.65;color:var(--text-dim)">
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">🎯 Challenges</strong> — Pick one of 50+ challenges. Each has daily habits to check off. Complete all habits for the day to earn full points.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">🎯 Challenges</strong> — Pick one of 90+ challenges. Each has daily habits to check off. Complete all habits for the day to earn full points.</div>
       <div style="margin-bottom:12px"><strong style="color:var(--text)">⭐ Points &amp; XP</strong> — Each habit is worth points. Points fuel your XP, which builds your level and never resets. Log 5 days in a week to bank a streak freeze.</div>
       <div style="margin-bottom:12px"><strong style="color:var(--text)">🔥 Streaks</strong> — Your streak grows every day you log all habits. Soft mode gives you one grace day before it breaks. Rest days don't break streaks.</div>
       <div style="margin-bottom:12px"><strong style="color:var(--text)">😴 Rest Days</strong> — Each challenge allows up to 3 rest days. They're planned recovery — not failures.</div>
@@ -6597,6 +6614,8 @@ function bindEvents() {
   });
   on("[data-confirm-ok]",      () => { const fn = _confirmDialog?.onConfirm; _confirmDialog = null; render(); if (fn) fn(); });
   on("[data-confirm-cancel]",  () => { _confirmDialog = null; render(); });
+  on("[data-prompt-ok]",       () => { const val = document.getElementById("prompt-input-field")?.value; const fn = _promptDialog?.onConfirm; _promptDialog = null; render(); if (fn) fn(val); });
+  on("[data-prompt-cancel]",   () => { _promptDialog = null; render(); });
   on("[data-delete-photo]",    el => {
     const key = el.dataset.deletePhoto;
     showConfirm("Delete this progress photo? This can't be undone.", async () => {
@@ -7104,24 +7123,28 @@ function pauseChallenge(id) {
     const pausedOn = c.pausedOn || todayKey();
     const daysPaused = Math.max(0, diffDays(pausedOn, todayKey()));
     if (daysPaused > 0) c.endDate = addDays(c.endDate, daysPaused);
-    c.pausedDays = (c.pausedDays || 0) + daysPaused;   // keep day counter accurate
+    c.pausedDays = (c.pausedDays || 0) + daysPaused;
     c.status = "active";
     delete c.pausedOn;
     showToast(`Challenge resumed. End date moved to ${c.endDate}.`);
+    saveState(); render();
   } else {
     c.status = "paused";
     c.pausedOn = todayKey();
-    // Prompt for resume reminder (non-blocking)
-    const days = parseInt(window.prompt("Remind you to resume in how many days? (leave blank to skip)", "7") || "0", 10);
-    if (days > 0) {
-      c.resumeReminderDate = addDays(todayKey(), days);
-      showToast(`Challenge paused. Reminder set for ${c.resumeReminderDate}.`);
-    } else {
-      c.resumeReminderDate = null;
-      showToast("Challenge paused. End date will adjust when you resume.");
-    }
+    c.resumeReminderDate = null;
+    saveState(); render();
+    showPrompt("Set a resume reminder? (days from now)", "7", (val) => {
+      const days = parseInt(val || "0", 10);
+      const ch = getChallenge(id); if (!ch) return;
+      if (days > 0) {
+        ch.resumeReminderDate = addDays(todayKey(), days);
+        showToast(`Paused. Reminder set for ${ch.resumeReminderDate}.`);
+      } else {
+        showToast("Challenge paused. End date adjusts when you resume.");
+      }
+      saveState();
+    });
   }
-  saveState(); render();
 }
 
 function abandonChallenge(id) {
@@ -7532,15 +7555,6 @@ window.addEventListener("popstate", () => {
     render();
   }
   _pushAppState();
-});
-
-// On resume (tab becomes visible again) → snap to Today / All
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden && activeTab !== "today") {
-    activeTab = "today";
-    todayChallengeId = "__all__";
-    render();
-  }
 });
 
 render();
