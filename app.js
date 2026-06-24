@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.24.2";
+const APP_VERSION = "2026.06.24.3";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -8,31 +8,31 @@ const UPDATE_CHECK_MS = 30 * 60 * 1000;
 
 // ── XP Level System ──────────────────────────────────────────────────────────
 const XP_LEVELS = [
-  { level: 1,  name: "Rookie",               xp: 0     },
-  { level: 2,  name: "Wanderer",             xp: 10    },
-  { level: 3,  name: "Trailblazer",          xp: 30    },
-  { level: 4,  name: "Scout",                xp: 60    },
-  { level: 5,  name: "Ranger",               xp: 100   },
-  { level: 6,  name: "Climber",              xp: 150   },
-  { level: 7,  name: "Adventurer",           xp: 210   },
-  { level: 8,  name: "Ice Breaker",          xp: 280   },
-  { level: 9,  name: "Mountaineer",          xp: 360   },
-  { level: 10, name: "Storm Rider",          xp: 450   },
-  { level: 11, name: "Blizzard Born",        xp: 550   },
-  { level: 12, name: "Crevasse Jumper",      xp: 660   },
-  { level: 13, name: "Altitude Master",      xp: 780   },
-  { level: 14, name: "Peak Hunter",          xp: 910   },
-  { level: 15, name: "Snow Titan",           xp: 1050  },
-  { level: 16, name: "Elite Climber",        xp: 1200  },
-  { level: 17, name: "Summit Seeker",        xp: 1360  },
-  { level: 18, name: "Mountain Legend",      xp: 1530  },
-  { level: 19, name: "The Immortal",         xp: 1710  },
-  { level: 20, name: "The Untouchable",      xp: 1900  },
-  { level: 21, name: "Summit Overlord",      xp: 2100  },
-  { level: 22, name: "Mountain Champion",    xp: 2310  },
-  { level: 23, name: "Everest Bound",        xp: 2530  },
-  { level: 24, name: "Everest Champion",     xp: 2760  },
-  { level: 25, name: "Conqueror of Everest", xp: 3000  },
+  { level: 1,  xp: 0     },
+  { level: 2,  xp: 10    },
+  { level: 3,  xp: 30    },
+  { level: 4,  xp: 60    },
+  { level: 5,  xp: 100   },
+  { level: 6,  xp: 150   },
+  { level: 7,  xp: 210   },
+  { level: 8,  xp: 280   },
+  { level: 9,  xp: 360   },
+  { level: 10, xp: 450   },
+  { level: 11, xp: 550   },
+  { level: 12, xp: 660   },
+  { level: 13, xp: 780   },
+  { level: 14, xp: 910   },
+  { level: 15, xp: 1050  },
+  { level: 16, xp: 1200  },
+  { level: 17, xp: 1360  },
+  { level: 18, xp: 1530  },
+  { level: 19, xp: 1710  },
+  { level: 20, xp: 1900  },
+  { level: 21, xp: 2100  },
+  { level: 22, xp: 2310  },
+  { level: 23, xp: 2530  },
+  { level: 24, xp: 2760  },
+  { level: 25, xp: 3000  },
 ];
 
 // ── Journey Themes ─────────────────────────────────────────────────────────
@@ -138,7 +138,7 @@ const JOURNEY_THEMES = {
 
 function getThemedLevelName(levelNum) {
   const theme = JOURNEY_THEMES[state?.settings?.journeyTheme] || JOURNEY_THEMES.mountain;
-  return theme.levels[levelNum - 1] || XP_LEVELS[levelNum - 1]?.name || "";
+  return theme.levels[levelNum - 1] || "";
 }
 
 function getLevelInfo(xp) {
@@ -168,7 +168,7 @@ function getStreakMultiplier(challenge) {
     count++;
     cursor = addDays(cursor, -1);
   }
-  return count >= 30 ? 1.25 : count >= 7 ? 1.10 : 1.0;
+  return count >= 75 ? 1.40 : count >= 30 ? 1.25 : count >= 14 ? 1.15 : count >= 7 ? 1.10 : 1.0;
 }
 
 function recalcXP() {
@@ -2471,8 +2471,8 @@ function completionInfo(challenge, day) {
   const done = day.done.filter(id => active.some(h => h.id === id)).length;
   const total = active.length;
   const multiplier = day.streakMult ?? 1;
-  // Completion bonus only applies for challenges with 3+ habits to avoid doubling small challenges
-  const bonusAmt = total >= 3 ? 3 : 0;
+  // Completion bonus fires for any challenge with 2+ habits
+  const bonusAmt = total >= 2 ? 5 : 0;
   const completionBonus = (done === total && total > 0) ? bonusAmt : 0;
   const basePoints = active.reduce((s, h) => {
     if (!day.done.includes(h.id)) return s;
@@ -3965,7 +3965,7 @@ function renderXPBar() {
   const freezes = c ? (c.streakFreezes || 0) : 0;
   const todayDay = c?.days[todayKey()];
   const mult     = todayDay?.streakMult ?? (c ? getStreakMultiplier(c) : 1);
-  const multLabel = mult >= 1.25 ? `🔥 +25% streak bonus active` : mult >= 1.10 ? `🔥 +10% streak bonus active` : null;
+  const multLabel = mult >= 1.40 ? `🔥 +40% streak bonus active` : mult >= 1.25 ? `🔥 +25% streak bonus active` : mult >= 1.15 ? `🔥 +15% streak bonus active` : mult >= 1.10 ? `🔥 +10% streak bonus active` : null;
   return `
   <div class="xp-bar-wrap">
     <div class="xp-bar-header">
