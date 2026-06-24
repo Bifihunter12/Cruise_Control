@@ -3,9 +3,9 @@
   --surface: #111120;
   --surface-2: #18182c;
   --surface-3: #1f1f38;
-  --primary: #b44fff;
-  --secondary: #ff4fa3;
-  --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+  --primary: #0A84FF;
+  --secondary: #38BDF8;
+  --gradient: linear-gradient(135deg, #0A84FF, #38BDF8);
   --text: #f0eff8;
   --text-dim: #9896b8;
   --text-faint: #52507a;
@@ -17,11 +17,11 @@
   --border-active: rgba(255, 255, 255, 0.22);
   --shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.6);
-  --primary-glow: rgba(180, 79, 255, 0.28);
-  --primary-haze: rgba(180, 79, 255, 0.1);
-  --primary-pulse: rgba(180, 79, 255, 0.4);
-  --primary-clear: rgba(180, 79, 255, 0);
-  --secondary-soft: rgba(255, 79, 163, 0.15);
+  --primary-glow: rgba(10, 132, 255, 0.28);
+  --primary-haze: rgba(10, 132, 255, 0.10);
+  --primary-pulse: rgba(10, 132, 255, 0.40);
+  --primary-clear: rgba(10, 132, 255, 0);
+  --secondary-soft: rgba(56, 189, 248, 0.15);
   --black-28: rgba(0, 0, 0, 0.28);
   --black-55: rgba(0, 0, 0, 0.55);
   --white-06: rgba(255, 255, 255, 0.06);
@@ -414,7 +414,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 .ring-stat-label {
   margin-top: 4px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -447,7 +447,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .section-label {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -744,7 +744,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .cb-sub {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text-dim);
   margin-top: 2px;
@@ -2361,7 +2361,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px 28px 40px;
+  padding: max(20px, env(safe-area-inset-top) + 12px) 24px 32px;
   overflow-y: auto;
 }
 .ob-screen.ob-entering {
@@ -2438,7 +2438,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .ob-screen--slide {
   justify-content: center;
   gap: 28px;
-  padding-top: 56px;
+  padding-top: 24px;
   padding-bottom: 40px;
 }
 
@@ -4300,7 +4300,7 @@ details[open] .badge-locked-summary::before {
 /* ── Difficulty badge in builder templates ──────────────────────────────── */
 
 .tc-difficulty {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .06em;
@@ -4897,7 +4897,7 @@ details[open] .badge-locked-summary::before {
 }
 .xmb-hint {
   white-space: nowrap;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-faint);
 }
 
@@ -5017,5 +5017,37 @@ details[open] .badge-locked-summary::before {
 .ob-journey-check {
   font-size: 14px; font-weight: 900;
   color: var(--primary); flex-shrink: 0;
+}
+.ob-journey-swatch {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+/* ── Streak multiplier chip (ring stats) ── */
+.ring-mult-chip {
+  display: inline-block; margin-top: 3px; padding: 1px 6px;
+  font-size: 10px; font-weight: 700; border-radius: 999px;
+  background: rgba(249,199,79,0.2); color: #f9c74f; letter-spacing: 0.04em;
+}
+
+/* ── Onboarding ring demo (slide 2) ── */
+.ob-ring-demo {
+  position: relative; width: 72px; height: 72px; margin: 14px auto 0;
+  background: conic-gradient(var(--primary) 0% 68%, var(--track) 68% 100%);
+  border-radius: 50%;
+}
+.ob-ring-demo::before {
+  content: ""; position: absolute; inset: 9px; background: var(--bg); border-radius: 50%;
+}
+.ob-ring-demo-pct {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: var(--text);
+}
+
+/* ── Reduced-motion overrides ── */
+@media (prefers-reduced-motion: reduce) {
+  .complete-banner, .ring-wrap.perfect, .confetti-piece,
+  .tab-fade-in, .slide-in-right, .new-week-banner--anim, .comeback-banner--anim,
+  .perfect-day-chip, .cloud-sync-bar { animation: none !important; }
 }
 

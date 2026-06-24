@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.24.1";
+const APP_VERSION = "2026.06.24.2";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -36,6 +36,13 @@ const XP_LEVELS = [
 ];
 
 // ── Journey Themes ─────────────────────────────────────────────────────────
+const THEME_SWATCHES = {
+  mountain:  ["#52c8f0","#a8e8ff"], astronaut: ["#ff7235","#ff3b3b"],
+  martial:   ["#d97706","#fcd34d"], viking:    ["#dc2626","#be123c"],
+  ocean:     ["#00c8d4","#0070ff"], sunrise:   ["#f97316","#fbbf24"],
+  rose:      ["#f472b6","#c084fc"], forest:    ["#4ade80","#a3e635"],
+  phoenix:   ["#a855f7","#e879f9"], treasure:  ["#f59e0b","#34d399"],
+};
 const JOURNEY_THEMES = {
   mountain: {
     label: "Mountain", emoji: "🏔️", tagline: "Conquer the Summit",
@@ -3590,6 +3597,7 @@ function renderRing(info, day, streak, challenge) {
     <div class="ring-stat">
       <div class="ring-stat-value${streak>=7?' streak-hero':''}">${streak}${gracePip?`<span style="font-size:10px;color:#ffcc44;margin-left:2px" title="Grace day used yesterday — don't miss today!">🛟</span>`:""}${streak>=7?"🔥":""}</div>
       <div class="ring-stat-label">day streak${gracePip?`<span style="display:block;font-size:9px;color:#ffcc44">grace used</span>`:""}</div>
+      ${challenge && getStreakMultiplier(challenge) > 1.0 ? `<div class="ring-mult-chip">${getStreakMultiplier(challenge).toFixed(2).replace(/\.?0+$/,"")}× pts</div>` : ""}
     </div>
   </div>
   ${isPerfect ? `<div class="perfect-day-chip">✅ PERFECT DAY</div>` : ""}`;
@@ -3942,8 +3950,9 @@ function renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToda
   }
   const currentStreak = challenge ? calcChallengeStreak(challenge) : 0;
   const streakShare = currentStreak >= 2 ? `<button class="cb-share-btn" data-share-streak>📤 Share streak</button>` : "";
+  const firstHabit = challenge?.habits[0];
   const tomorrowHook = isToday && dayNumber && totalDays && dayNumber < totalDays
-    ? `<div class="cb-tomorrow">Day ${dayNumber + 1} tomorrow — 🔥 keep the streak alive</div>`
+    ? `<div class="cb-tomorrow">Tomorrow: ${firstHabit ? esc(firstHabit.emoji)+" "+esc(firstHabit.title) : "Day "+(dayNumber+1)} · ${currentStreak+1}-day streak 🔥</div>`
     : "";
   return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">Full Send</div><div class="cb-sub">All habits done · ${info.points} pts</div>${tomorrowHook}${streakShare}</div></div>`;
 }
@@ -5691,12 +5700,13 @@ function renderObGoal() {
 function renderObSlide() {
   const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
   const slides = [
-    { emoji:"🎯", title:"Pick your challenge",
-      body:`Choose from 90+ challenges — from daily journaling to epic trails. Each one comes with daily habits to check off and XP to earn on your <strong>${theme.label}</strong> journey.` },
-    { emoji:theme.emoji, title:"Earn XP. Level up.",
-      body:`Every habit you log earns XP. You start as a <strong>${theme.levels[0]}</strong> and climb all the way to Level 25 — <strong>${theme.levels[24]}</strong>. A real badge of persistence.` },
+    { emoji:"🎯", title:"Pick a challenge",
+      body:`90+ challenges — from Morning Routine to the Pacific Crest Trail. Each one comes with daily habits to check off.` },
+    { emoji:theme.emoji, title:"Log. Earn. Level up.",
+      body:`Every habit earns XP. You start as a <strong>${theme.levels[0]}</strong> and climb all the way to <strong>${theme.levels[24]}</strong>. Your progress never resets.`,
+      extra:`<div class="ob-ring-demo" aria-hidden="true"><div class="ob-ring-demo-pct">68%</div></div>` },
     { emoji:"🔥", title:"Show up every day.",
-      body:`Your streak grows every day you log. Weekly points reset Monday — but your XP and level never do. Every session brings you closer to the top.` },
+      body:`Your streak grows with every logged day. Rest days are built in. One day at a time.` },
   ];
   const step = slides[onboardingStep - 3];
   const dots = ONBOARDING_STEPS.map((_,i) =>
@@ -5708,6 +5718,7 @@ function renderObSlide() {
       <div class="ob-emoji" aria-hidden="true">${step.emoji}</div>
       <div class="ob-title">${step.title}</div>
       <div class="ob-body">${step.body}</div>
+      ${step.extra || ""}
     </div>
     <div class="ob-dots" aria-hidden="true">${dots}</div>
     <button class="primary-button ob-cta" data-ob-next>${isLast ? "Let's go →" : "Next →"}</button>
@@ -5802,7 +5813,7 @@ function renderObJourney() {
     <div class="ob-journey-grid">
       ${Object.entries(JOURNEY_THEMES).map(([id, t]) => `
       <button class="ob-journey-btn${cur === id ? " selected" : ""}" data-ob-journey="${id}">
-        <span class="ob-journey-emoji">${t.emoji}</span>
+        <div class="ob-journey-swatch" style="background:linear-gradient(135deg,${(THEME_SWATCHES[id]||["#52c8f0","#a8e8ff"])[0]},${(THEME_SWATCHES[id]||["#52c8f0","#a8e8ff"])[1]})"></div>
         <div class="ob-journey-info">
           <div class="ob-journey-label">${t.label}</div>
           <div class="ob-journey-sub">${t.tagline}</div>
@@ -7360,6 +7371,7 @@ function graceUsedYesterday(challenge) {
 // ── Confetti ──────────────────────────────────────────────────────────────
 
 function launchConfetti() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const colors = ["var(--primary)","var(--secondary)","var(--success)","#ffcc44","#f43f5e","#38bdf8"];
   const count = 48;
   for (let i = 0; i < count; i++) {
