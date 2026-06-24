@@ -3515,6 +3515,18 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 /* ── Expedition category chip ── */
 .tc-cat.expedition { background: rgba(180,120,255,0.15); color: #c090ff; }
+.tc-custom-exp { border: 1.5px dashed var(--accent) !important; }
+
+/* ── Custom expedition creation form ── */
+.exp-form { display: flex; flex-direction: column; gap: 8px; padding: 20px; max-width: 420px; margin: 16px auto 0; }
+.exp-unit-row { display: flex; gap: 8px; margin-bottom: 4px; }
+.exp-unit-btn { flex: 1; padding: 10px; border: 1.5px solid var(--border); border-radius: 10px;
+  background: var(--surface-2); color: var(--text-primary); font-weight: 600; font-size: 14px; cursor: pointer; }
+.exp-unit-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim, rgba(100,180,255,0.12)); }
+.exp-distance-row { display: flex; align-items: center; gap: 8px; }
+.exp-distance-row .text-input { flex: 1; }
+.exp-unit-label { font-size: 14px; font-weight: 600; color: var(--text-dim); min-width: 40px; }
+.exp-emoji-input { font-size: 22px; text-align: center; max-width: 80px; }
 
 /* ── Route info card in builder ── */
 .route-info-card {
