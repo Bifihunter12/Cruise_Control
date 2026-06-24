@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.22.2";
+const APP_VERSION = "2026.06.24.1";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -1935,7 +1935,7 @@ let _badgeSheetQueue     = [];       // { label, desc, tier } — queued badge c
 let _notifPromptVisible  = false;   // post-challenge-start notification prompt
 let _templateFilter      = "all";   // "all" | "short" | "medium" | "long"
 let _difficultyFilter    = "all";   // "all" | "beginner" | "intermediate" | "advanced" | "extreme"
-let _statsCollapsed      = null;    // null = auto (collapse Day 1-2), true/false = user override
+let _statsCollapsed      = null;    // kept for legacy reads — accordion removed
 let _measChartTab        = null;    // active tab in the inline measurement chart
 let _savedFlash          = false;   // brief "Saved ✓" indicator after habit tap
 let _obAuthError      = "";    // error message for onboarding account screen
@@ -3360,6 +3360,12 @@ function renderToday() {
       </div>`;
     })()}
 
+    <section class="today-stage panel">
+      ${renderRing(info, day, streak, challenge)}
+      ${isToday ? renderStreakFreezeUI(challenge) : ""}
+      ${renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToday)}
+    </section>
+
     <section>
       <div class="section-head">
         ${challenge.habits.some(h => h.type === "distance")
@@ -3389,27 +3395,6 @@ function renderToday() {
     ${(() => {
       const tpl = challenge.templateId ? TEMPLATES.find(t=>t.id===challenge.templateId) : null;
       return challengeRouteKm(challenge) ? renderRouteProgress(challenge, tpl) : "";
-    })()}
-
-    ${(() => {
-      const autoCollapse = dayNumber <= 2;
-      const collapsed = _statsCollapsed === null ? autoCollapse : _statsCollapsed;
-      const chevron = collapsed ? "›" : "‹";
-      return `
-    <div class="stats-collapsible">
-      <button class="stats-collapse-toggle" data-toggle-stats aria-expanded="${!collapsed}">
-        <span class="stats-collapse-label">📊 Stats</span>
-        <span class="stats-collapse-chevron" style="transform:rotate(${collapsed?"90deg":"270deg"})">${chevron}</span>
-      </button>
-      ${!collapsed ? `
-        ${isToday ? renderXPBar() : ""}
-        <section class="today-stage panel">
-          ${renderRing(info, day, streak, challenge)}
-          ${isToday ? renderStreakFreezeUI(challenge) : ""}
-          ${renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToday)}
-        </section>
-      ` : ""}
-    </div>`;
     })()}
   </main>`;
 }
@@ -3652,8 +3637,8 @@ function renderModeSelector(day, challenge) {
   const restLabel = todayIsRest
     ? "😴 Rest Day — active"
     : budgetExhausted
-      ? `😴 Rest (0 left)`
-      : `😴 Rest Day (${jokersLeft} left)`;
+      ? `😴 Rest Day · none left`
+      : `😴 Rest Day · ${jokersLeft} flex ${jokersLeft === 1 ? "day" : "days"} left`;
   const restDisabled = budgetExhausted ? "mode-chip--disabled" : "";
   const activeChip   = todayIsRest ? "mode-chip--rest-active" : "mode-chip--active";
   return `
@@ -4311,9 +4296,12 @@ function renderChallenges() {
   const active = view.filter(c => c.status==="active");
   const paused = view.filter(c => c.status==="paused");
   const past   = view.filter(c => c.status!=="active" && c.status!=="paused");
+  const activeExpeditions = challengeSubTab === "habits" ? all.filter(c => c.status === "active" && isExp(c)) : [];
   const emptyMsg = challengeSubTab === "expeditions"
     ? `<div class="empty-state-icon">🗺️</div><div class="empty-state-title">No expedition running</div><div class="empty-state-sub">Pick a route and start climbing.</div><div><button class="link-btn" data-open-builder>Choose an expedition →</button></div>`
-    : `<div class="empty-state-icon">🏆</div><div class="empty-state-title">No active challenge</div><div class="empty-state-sub">Build a habit. Pick a goal. Show up daily.</div><div><button class="link-btn" data-open-builder>Start something →</button></div>`;
+    : activeExpeditions.length
+      ? `<div class="empty-state-icon">🗺️</div><div class="empty-state-title">Your active challenges are expeditions</div><div class="empty-state-sub">Switch to the Expeditions tab to log today's distance.</div><div><button class="link-btn" data-challenge-sub="expeditions">Go to Expeditions →</button></div>`
+      : `<div class="empty-state-icon">🏆</div><div class="empty-state-title">No active challenge</div><div class="empty-state-sub">Build a habit. Pick a goal. Show up daily.</div><div><button class="link-btn" data-open-builder>Start something →</button></div>`;
   const emailCapState = localStorage.getItem("conqur_email_capture");
   const showEmailCapture = challengeSubTab === "habits" && emailCapState !== "dismissed";
   return `
@@ -6014,8 +6002,7 @@ function renderSettings() {
     </div>
     <div class="section-label">Your Name</div>
     <div class="log-card" style="margin-bottom:14px">
-      <label class="field">Name<input id="s-name" type="text" value="${esc(state.settings.name)}" placeholder="Optional"></label>
-      <button class="primary-button" data-save-settings style="margin-top:12px">Save</button>
+      <label class="field">Name<input id="s-name" type="text" value="${esc(state.settings.name)}" placeholder="Optional" data-autosave-name></label>
     </div>
     <div class="section-label">Journey &amp; Theme</div>
     <div class="more-card" style="margin-bottom:14px">
@@ -6128,6 +6115,11 @@ function bindEvents() {
   on("[data-capture-photo]",el => captureProgressPhoto(el.dataset.capturePhoto));
   on("[data-log-weight]",   () => logWeight());
   on("[data-save-settings]",() => saveSettings());
+  document.addEventListener("input", e => {
+    if (!e.target.matches("[data-autosave-name]")) return;
+    state.settings.name = e.target.value.trim();
+    saveState();
+  });
   on("[data-unit-weight]",        el => {
     state.settings.units.weight = el.dataset.unitWeight;
     saveState();
@@ -6322,15 +6314,6 @@ function bindEvents() {
   });
   on("[data-cloud-signout]",   () => { CloudSync.signOut(); _cloudAuthError = ""; render(); });
   on("[data-dismiss-newweek]", () => { _newWeekBanner = null; render(); });
-  on("[data-toggle-stats]", () => {
-    const autoCollapse = (() => {
-      const c = currentChallenge(); if (!c) return false;
-      return challengeDayNumber(c) <= 2;
-    })();
-    const currentlyCollapsed = _statsCollapsed === null ? autoCollapse : _statsCollapsed;
-    _statsCollapsed = !currentlyCollapsed;
-    render();
-  });
   on("[data-install-accept]",  async () => {
     _showInstallBanner = false; render();
     if (_pwaInstallPrompt) {
