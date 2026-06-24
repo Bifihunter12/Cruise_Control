@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.24.3";
+const APP_VERSION = "2026.06.25.1";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -34,6 +34,12 @@ const XP_LEVELS = [
   { level: 24, xp: 2760  },
   { level: 25, xp: 3000  },
 ];
+
+// One-time XP bonus when a challenge first completes (keyed by duration in days)
+const COMPLETION_BONUS = {
+  21: 50, 30: 75, 42: 100, 50: 100, 56: 100,
+  60: 125, 75: 200, 84: 150, 90: 150, 120: 250, 365: 1000,
+};
 
 // ── Journey Themes ─────────────────────────────────────────────────────────
 const THEME_SWATCHES = {
@@ -1009,7 +1015,9 @@ const TEMPLATES = [
       { km: 130, name: "Everest Base Camp",  emoji: "🏔️" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🏃", quip:"Walk, run, cycle, swim or row — it all counts.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🏃", quip:"Walk, run, cycle, swim or row — it all counts.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1024,7 +1032,9 @@ const TEMPLATES = [
       { km: 154, name: "Fort William",   emoji: "🎉" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🥾", quip:"Every loch and glen earned one step at a time.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🥾", quip:"Every loch and glen earned one step at a time.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1039,7 +1049,9 @@ const TEMPLATES = [
       { km: 170, name: "Chamonix",        emoji: "🏔️" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🥾", quip:"Three countries. One mountain. Endless views.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🥾", quip:"Three countries. One mountain. Endless views.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1054,7 +1066,9 @@ const TEMPLATES = [
       { km: 340, name: "Mount Whitney",     emoji: "🦅" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🥾", quip:"The Range of Light. Worth every step.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🥾", quip:"The Range of Light. Worth every step.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1069,7 +1083,9 @@ const TEMPLATES = [
       { km: 790, name: "Santiago de Compostela",  emoji: "⛪" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🚶", quip:"Every step brings you closer to Santiago.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🚶", quip:"Every step brings you closer to Santiago.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1084,7 +1100,9 @@ const TEMPLATES = [
       { km: 3540, name: "Mount Katahdin, Maine", emoji: "🏔️" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🥾", quip:"Miles in the legs. Wilderness in the soul.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🥾", quip:"Miles in the legs. Wilderness in the soul.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1099,7 +1117,9 @@ const TEMPLATES = [
       { km: 3490, name: "Paris — Champs-Élysées", emoji: "🗼" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🚴", quip:"Clip in. Every km is a stage.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🚴", quip:"Clip in. Every km is a stage.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1114,7 +1134,9 @@ const TEMPLATES = [
       { km: 3940, name: "Santa Monica Pier",  emoji: "🎡" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🚗", quip:"Get your kicks. Road is open.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🚗", quip:"Get your kicks. Road is open.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1129,7 +1151,9 @@ const TEMPLATES = [
       { km: 6437, name: "Atlantic Ocean",   emoji: "🌊" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🚣", quip:"The river never stops. Neither do you.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🚣", quip:"The river never stops. Neither do you.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1147,7 +1171,9 @@ const TEMPLATES = [
       { km: 4286, name: "Canadian Border",     emoji: "🍁" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🥾", quip:"Every step north is progress.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🥾", quip:"Every step north is progress.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1163,7 +1189,9 @@ const TEMPLATES = [
       { km: 2903, name: "Summit — 8,849 m",     emoji: "🏔️" },
     ],
     habits: [
-      { id:"floors", title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 2,903 to go.", type:"distance", points:1, unit:"floors" },
+      { id:"floors",    title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 2,903 to go.", type:"distance", points:1, unit:"floors" },
+      { id:"exp-sleep", title:"Sleep 7+ hours",       emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today",       emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1179,7 +1207,9 @@ const TEMPLATES = [
       { km: 1934, name: "Uhuru Peak — 5,895 m",    emoji: "🌋" },
     ],
     habits: [
-      { id:"floors", title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 1,934 to go.", type:"distance", points:1, unit:"floors" },
+      { id:"floors",    title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 1,934 to go.", type:"distance", points:1, unit:"floors" },
+      { id:"exp-sleep", title:"Sleep 7+ hours",       emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today",       emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1194,7 +1224,9 @@ const TEMPLATES = [
       { km: 1577, name: "Summit — 4,808 m",          emoji: "⛰️" },
     ],
     habits: [
-      { id:"floors", title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 1,577 to go.", type:"distance", points:1, unit:"floors" },
+      { id:"floors",    title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 1,577 to go.", type:"distance", points:1, unit:"floors" },
+      { id:"exp-sleep", title:"Sleep 7+ hours",       emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today",       emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
 
@@ -1211,7 +1243,9 @@ const TEMPLATES = [
       { km: 89,  name: "Durban!",      emoji: "🌊" },
     ],
     habits: [
-      { id:"cu-run", title:"Log running distance", emoji:"🏃", quip:"Every step toward Durban.", type:"distance", points:1, unit:"km" },
+      { id:"cu-run",    title:"Log running distance", emoji:"🏃", quip:"Every step toward Durban.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours",       emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today",       emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ]
   },
   {
@@ -1227,7 +1261,9 @@ const TEMPLATES = [
       { km: 171, name: "Chamonix!",    emoji: "🎉" },
     ],
     habits: [
-      { id:"utmb-run", title:"Log running distance", emoji:"🏃", quip:"The mountains are waiting.", type:"distance", points:1, unit:"km" },
+      { id:"utmb-run",  title:"Log running distance", emoji:"🏃", quip:"The mountains are waiting.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours",       emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today",       emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ]
   },
   {
@@ -1242,7 +1278,9 @@ const TEMPLATES = [
       { km: 211, name: "Marathon 5", emoji: "🎖️" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🏃", quip:"Every km counts. Log it.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🏃", quip:"Every km counts. Log it.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1257,7 +1295,9 @@ const TEMPLATES = [
       { km: 1407, name: "John o'Groats",    emoji: "🏔️" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🏃", quip:"North. Always north.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🏃", quip:"North. Always north.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1272,7 +1312,9 @@ const TEMPLATES = [
       { km: 4989, name: "New York City",     emoji: "🗽" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🏃", quip:"Coast to coast. One step at a time.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🏃", quip:"Coast to coast. One step at a time.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
 
@@ -1289,7 +1331,9 @@ const TEMPLATES = [
       { km: 726, name: "Cerbère — Mediterranean", emoji: "☀️" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🚴", quip:"Pedal. Climb. Breathe.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🚴", quip:"Pedal. Climb. Breathe.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1304,7 +1348,9 @@ const TEMPLATES = [
       { km: 6771, name: "Astoria, Oregon",     emoji: "🌊" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🚴", quip:"Every state. Every climb. No shortcuts.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🚴", quip:"Every state. Every climb. No shortcuts.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
 
@@ -1321,7 +1367,9 @@ const TEMPLATES = [
       { km: 346, name: "Thames Estuary",        emoji: "🌊" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🚣", quip:"Pull. The river knows the way.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🚣", quip:"Pull. The river knows the way.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1336,7 +1384,9 @@ const TEMPLATES = [
       { km: 2860, name: "Black Sea",               emoji: "🌊" },
     ],
     habits: [
-      { id:"dist", title:"Log distance", emoji:"🚣", quip:"Downstream. Europe unrolling behind you.", type:"distance", points:1, unit:"km" },
+      { id:"dist",      title:"Log distance",  emoji:"🚣", quip:"Downstream. Europe unrolling behind you.", type:"distance", points:1, unit:"km" },
+      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
+      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
     ],
   },
   {
@@ -1501,6 +1551,7 @@ const UNIVERSAL_BADGES = [
   { id:"u-done1",  label:"✅ Challenge Done",     desc:"Finish your first challenge.",                        test: u => u.completedChallenges >= 1 },
   { id:"u-done3",  label:"🏆 Triple Threat",      desc:"Complete 3 challenges.",                              test: u => u.completedChallenges >= 3 },
   { id:"u-multi",  label:"🔀 Multi-Tasker",       desc:"Run 2 challenges at the same time.",                 test: u => u.activeChallenges >= 2 },
+  { id:"u-perfwk", label:"⭐ Perfect Week",        desc:"Complete all habits every day for 7 consecutive days.", test: u => u.hasPerfectWeek },
 ];
 
 // Lifetime achievements — cross-challenge milestones earned once (tracked in state.globalBadges)
@@ -2471,9 +2522,13 @@ function completionInfo(challenge, day) {
   const done = day.done.filter(id => active.some(h => h.id === id)).length;
   const total = active.length;
   const multiplier = day.streakMult ?? 1;
+  // Comeback bonus: 1.5× on the first day back after 3+ missed days (flag set externally)
+  const effectiveMult = day.comebackBonus ? Math.max(multiplier, 1.5) : multiplier;
   // Completion bonus fires for any challenge with 2+ habits
   const bonusAmt = total >= 2 ? 5 : 0;
   const completionBonus = (done === total && total > 0) ? bonusAmt : 0;
+  // Perfect week bonus: +15 pts on day 7, 14, 21... of a consecutive perfect run (flag set externally)
+  const weekBonus = (day.weeklyBonus && done === total && total > 0) ? 15 : 0;
   const basePoints = active.reduce((s, h) => {
     if (!day.done.includes(h.id)) return s;
     if (h.type === "tiered") return s + tierPoints(h, day.tiers?.[h.id]);
@@ -2483,8 +2538,8 @@ function completionInfo(challenge, day) {
     if (h.type === "tiered" && h.tiers?.length) return s + Math.max(...h.tiers.map(t => t.points ?? t.pts ?? 0));
     return s + h.points;
   }, 0);
-  const points    = Math.round((basePoints + completionBonus) * multiplier);
-  const maxPoints = Math.round((baseMax + bonusAmt) * multiplier);
+  const points    = Math.round((basePoints + completionBonus + weekBonus) * effectiveMult);
+  const maxPoints = Math.round((baseMax + bonusAmt + (day.weeklyBonus ? 15 : 0)) * effectiveMult);
   return { done, total, percent: total ? Math.round((done/total)*100) : 0, points, maxPoints, multiplier };
 }
 
@@ -2607,6 +2662,15 @@ function updateChallengeStatuses() {
     if (c.status === "active" && !c.noEndDate && c.endDate < today) {
       c.finalStreak = calcChallengeStreak(c); // snapshot before status changes
       c.status = "completed";
+      if (!c.completedAt) c.completedAt = new Date().toISOString();
+      if (!c.flags) c.flags = {};
+      if (!c.flags.completionBonusPaid) {
+        const dur = Math.round((new Date(c.endDate) - new Date(c.startDate)) / 86400000);
+        const bonus = COMPLETION_BONUS[dur] ?? (dur >= 180 ? 300 : dur >= 90 ? 150 : 75);
+        state.xp = (state.xp || 0) + bonus;
+        c.flags.completionBonusPaid = true;
+        c.completionBonus = bonus;
+      }
       // Queue — show first one immediately, rest after user dismisses
       if (!justCompletedId) justCompletedId = c.id;
       else justCompletedIds.push(c.id);
@@ -2742,6 +2806,14 @@ function checkBadges(challenge) {
       if (b.id.endsWith("-done") && challenge.status !== "completed") {
         challenge.finalStreak = calcChallengeStreak(challenge);
         challenge.status = "completed";
+        if (!challenge.completedAt) challenge.completedAt = new Date().toISOString();
+        if (!challenge.flags.completionBonusPaid) {
+          const dur = Math.round((new Date(challenge.endDate) - new Date(challenge.startDate)) / 86400000);
+          const bonus = COMPLETION_BONUS[dur] ?? (dur >= 180 ? 300 : dur >= 90 ? 150 : 75);
+          state.xp = (state.xp || 0) + bonus;
+          challenge.flags.completionBonusPaid = true;
+          challenge.completionBonus = bonus;
+        }
         if (!justCompletedId) justCompletedId = challenge.id;
         else justCompletedIds.push(challenge.id);
         trackEvent("Challenge Completed", { challenge: challenge.name, days: challenge.duration });
@@ -2781,6 +2853,7 @@ function checkBadges(challenge) {
     }),
     completedChallenges: allChallenges.filter(c => c.status==="completed").length,
     activeChallenges:    getActiveChallenges().length,
+    hasPerfectWeek:      allChallenges.some(c => getPerfectRunLength(c, todayKey()) >= 7),
   };
 
   UNIVERSAL_BADGES.forEach(b => {
@@ -2984,6 +3057,20 @@ function getConsecutiveMisses(challenge) {
     cursor = addDays(cursor, -1);
   }
   return count;
+}
+
+// Count consecutive 100%-complete non-rest days ending at endKey
+function getPerfectRunLength(challenge, endKey) {
+  const dates = Object.keys(challenge.days).sort().filter(k => k <= endKey);
+  let run = 0;
+  for (let i = dates.length - 1; i >= 0; i--) {
+    const d = challenge.days[dates[i]];
+    if (!d || d.mode === "rest" || d.freezeUsed) continue;
+    const info = completionInfo(challenge, d);
+    if (info.percent < 100 || info.total === 0) break;
+    run++;
+  }
+  return run;
 }
 
 // Best week score across all weeks of a challenge
@@ -3600,7 +3687,8 @@ function renderRing(info, day, streak, challenge) {
       ${challenge && getStreakMultiplier(challenge) > 1.0 ? `<div class="ring-mult-chip">${getStreakMultiplier(challenge).toFixed(2).replace(/\.?0+$/,"")}× pts</div>` : ""}
     </div>
   </div>
-  ${isPerfect ? `<div class="perfect-day-chip">✅ PERFECT DAY</div>` : ""}`;
+  ${isPerfect ? `<div class="perfect-day-chip">✅ PERFECT DAY</div>` : ""}
+  ${day.comebackBonus ? `<div class="perfect-day-chip comeback-chip">🧡 COMEBACK DAY</div>` : ""}`;
 }
 
 function renderStreakFreezeUI(challenge) {
@@ -3954,6 +4042,9 @@ function renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToda
   const tomorrowHook = isToday && dayNumber && totalDays && dayNumber < totalDays
     ? `<div class="cb-tomorrow">Tomorrow: ${firstHabit ? esc(firstHabit.emoji)+" "+esc(firstHabit.title) : "Day "+(dayNumber+1)} · ${currentStreak+1}-day streak 🔥</div>`
     : "";
+  if (day.comebackBonus) {
+    return `<div class="complete-banner"><span class="cb-icon">🧡</span><div class="cb-body"><div class="cb-title">Comeback. Day ${dayNumber||""} is done.</div><div class="cb-sub">That's what resilience looks like · ${info.points} pts</div>${tomorrowHook}${streakShare}</div></div>`;
+  }
   return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">Full Send</div><div class="cb-sub">All habits done · ${info.points} pts</div>${tomorrowHook}${streakShare}</div></div>`;
 }
 
@@ -4265,6 +4356,7 @@ function renderCompletionModal(c) {
   const completionSub = isExpedition
     ? `${mTotalD.toFixed(mIsFloors?0:1)} ${mDUnit} covered · ${totalDays} days · ${finalStreak}-day streak.<br>${routeFinished ? "You finished the route. Legendary." : "You stayed the course. That's what commitment looks like."}`
     : `${totalDays} days · ${totalPts} pts · ${finalStreak}-day streak.<br>That's what commitment looks like.`;
+  const bonusXP = c.completionBonus || 0;
   return `
   <div class="sheet-backdrop" data-close-completion>
     <section class="sheet completion-modal" role="dialog">
@@ -4272,6 +4364,7 @@ function renderCompletionModal(c) {
       <div class="completion-title">${isExpedition && routeFinished ? "Route Complete!" : "Challenge Complete!"}</div>
       <div class="completion-name">${esc(c.name)}</div>
       <div class="completion-sub">${completionSub}</div>
+      ${bonusXP ? `<div class="completion-bonus-row">⚡ Challenge Complete Bonus: <strong>+${bonusXP} XP</strong></div>` : ""}
       ${nextT ? `
       <button class="chain-cta" data-start-suggested="${nextT.id}">
         <span class="chain-cta-pre">Continue your journey</span>
@@ -4313,8 +4406,20 @@ function renderChallenges() {
       : `<div class="empty-state-icon">🏆</div><div class="empty-state-title">No active challenge</div><div class="empty-state-sub">Build a habit. Pick a goal. Show up daily.</div><div><button class="link-btn" data-open-builder>Start something →</button></div>`;
   const emailCapState = localStorage.getItem("conqur_email_capture");
   const showEmailCapture = challengeSubTab === "habits" && emailCapState !== "dismissed";
+  // "What's Next" banner: shown when a challenge was recently completed and no active non-expedition challenges exist
+  const recentlyCompleted = challengeSubTab === "habits" && active.length === 0
+    ? getAllChallenges()
+        .filter(c => c.status === "completed" && c.completedAt)
+        .sort((a,b) => b.completedAt.localeCompare(a.completedAt))[0]
+    : null;
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
+    ${recentlyCompleted ? `
+    <div class="whats-next-banner">
+      <div class="wnb-title">What's next?</div>
+      <div class="wnb-sub">You finished <strong>${esc(recentlyCompleted.name)}</strong>. Keep the momentum going.</div>
+      ${renderCompletionSuggestions(recentlyCompleted)}
+    </div>` : ""}
     <div class="challenge-sub-tabs">
       <button class="csub-btn${challengeSubTab==="habits"?" active":""}" data-challenge-sub="habits">🎯 Habits</button>
       <button class="csub-btn${challengeSubTab==="expeditions"?" active":""}" data-challenge-sub="expeditions">🗺️ Expeditions</button>
@@ -6832,8 +6937,15 @@ function toggleHabit(id) {
   if (checking && effectiveDate() === todayKey() && day.streakMult === undefined) {
     day.streakMult = getStreakMultiplier(c);
   }
+  if (checking && effectiveDate() === todayKey() && day.comebackBonus === undefined) {
+    if (getConsecutiveMisses(c) >= 3) day.comebackBonus = true;
+  }
   if (checking) { day.done.push(id); _animHabitId = id; }
   else          { day.done = day.done.filter(x=>x!==id); _animHabitId = null; }
+  if (effectiveDate() === todayKey()) {
+    const _perfRun = getPerfectRunLength(c, todayKey());
+    day.weeklyBonus = (_perfRun > 0 && _perfRun % 7 === 0);
+  }
   updateDayPoints(c, day);
   state.xp = recalcXP();
   const xpGain  = state.xp - xpBefore;
@@ -6868,11 +6980,13 @@ function logMeasurement(habitId, value) {
   day.distances[habitId] = value;
   if (value > 0) {
     if (effectiveDate() === todayKey() && day.streakMult === undefined) day.streakMult = getStreakMultiplier(c);
+    if (effectiveDate() === todayKey() && day.comebackBonus === undefined && getConsecutiveMisses(c) >= 3) day.comebackBonus = true;
     if (!day.done.includes(habitId)) { day.done.push(habitId); _animHabitId = habitId; }
   } else {
     day.done = day.done.filter(id => id !== habitId);
     _animHabitId = null;
   }
+  if (effectiveDate() === todayKey()) { const _r = getPerfectRunLength(c, todayKey()); day.weeklyBonus = (_r > 0 && _r % 7 === 0); }
   updateDayPoints(c, day);
   state.xp = recalcXP();
   saveState();
@@ -6890,11 +7004,13 @@ function logDistance(habitId, km) {
   day.distances[habitId] = habit.unit === "floors" ? Math.round(km) : km;
   if (km > 0) {
     if (effectiveDate() === todayKey() && day.streakMult === undefined) day.streakMult = getStreakMultiplier(c);
+    if (effectiveDate() === todayKey() && day.comebackBonus === undefined && getConsecutiveMisses(c) >= 3) day.comebackBonus = true;
     if (!day.done.includes(habitId)) { day.done.push(habitId); _animHabitId = habitId; }
   } else {
     day.done = day.done.filter(id => id !== habitId);
     _animHabitId = null;
   }
+  if (effectiveDate() === todayKey()) { const _r = getPerfectRunLength(c, todayKey()); day.weeklyBonus = (_r > 0 && _r % 7 === 0); }
   updateDayPoints(c, day);
   state.xp = recalcXP();
   saveState();

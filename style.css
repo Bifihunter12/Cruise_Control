@@ -1541,6 +1541,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   padding: 6px 0 2px;
   animation: tab-fade-in 350ms ease both;
 }
+.comeback-chip { color: #ff9500; }
 
 /* ── Cloud sync bar ── */
 .cloud-sync-bar {
@@ -1800,6 +1801,29 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   font-size: 11px;
   font-weight: 700;
   color: var(--primary);
+}
+
+/* ── What's Next Banner ─────────────────────────────────────────────────── */
+
+.whats-next-banner {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 18px;
+}
+.wnb-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.wnb-sub {
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 12px;
 }
 
 /* ── Challenge Sub-tabs ─────────────────────────────────────────────────── */
@@ -2285,6 +2309,16 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   font-weight: 500;
   color: var(--text-dim);
   line-height: 1.5;
+}
+.completion-bonus-row {
+  margin: 14px 0 6px;
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
 }
 
 /* ── Reminder Settings ──────────────────────────────────────────────────── */
