@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.25.1";
+const APP_VERSION = "2026.06.25.2";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -39,6 +39,26 @@ const XP_LEVELS = [
 const COMPLETION_BONUS = {
   21: 50, 30: 75, 42: 100, 50: 100, 56: 100,
   60: 125, 75: 200, 84: 150, 90: 150, 120: 250, 365: 1000,
+};
+
+// Level chapter milestones shown once as an overlay
+const CHAPTER_LEVELS = {
+  5:  { title:"Building",  msg:"You're no longer a beginner." },
+  10: { title:"Proving",   msg:"You've shown up more than most people ever will." },
+  15: { title:"Elite",     msg:"You're in the top 10% of anyone who keeps going." },
+  20: { title:"Legend",    msg:"This is who you are now." },
+  25: { title:"Conqueror", msg:"You made it." },
+};
+
+// Per-category completion headline copy (deterministic pick via date seed)
+const COMPLETE_COPY = {
+  transformation: ["Locked in.",       "Built different.",    "Identity shift."],
+  movement:       ["Work done.",        "Body moved.",         "Showed up."],
+  endurance:      ["Miles banked.",     "Distance covered.",   "Body of evidence."],
+  lifestyle:      ["Day designed.",     "System held.",        "Deliberate."],
+  health:         ["Data logged.",      "Body tracked.",       "Consistent."],
+  expedition:     ["Terrain covered.",  "Moving.",             "Closer."],
+  mindset:        ["Clear.",            "Mind worked.",        "Presence: logged."],
 };
 
 // ── Journey Themes ─────────────────────────────────────────────────────────
@@ -480,7 +500,7 @@ const TEMPLATES = [
     ]
   },
   {
-    id: "steps-10k", name: "10,000 Steps", emoji: "👟", category: "movement",
+    id: "steps-10k", name: "10,000 Steps", emoji: "👟", category: "movement", deprecated: true,
     description: "30 days of hitting 10,000 steps every day. The most evidence-backed daily movement habit there is.",
     duration: 30, weeklyGoal: 28, defaultMode: "soft",
     habits: [
@@ -794,7 +814,7 @@ const TEMPLATES = [
     ]
   },
   {
-    id: "blood-pressure", name: "Blood Pressure Monitor", emoji: "🩺", category: "health",
+    id: "blood-pressure", name: "Blood Pressure Monitor", emoji: "🩺", category: "health", deprecated: true,
     description: "30 days of daily blood pressure logging plus heart-healthy habits. Share the data with your doctor.",
     duration: 30, weeklyGoal: 75, defaultMode: "soft",
     habits: [
@@ -1552,6 +1572,11 @@ const UNIVERSAL_BADGES = [
   { id:"u-done3",  label:"🏆 Triple Threat",      desc:"Complete 3 challenges.",                              test: u => u.completedChallenges >= 3 },
   { id:"u-multi",  label:"🔀 Multi-Tasker",       desc:"Run 2 challenges at the same time.",                 test: u => u.activeChallenges >= 2 },
   { id:"u-perfwk", label:"⭐ Perfect Week",        desc:"Complete all habits every day for 7 consecutive days.", test: u => u.hasPerfectWeek },
+  // Hidden badges — show as "🔒 ???" until earned
+  { id:"u-expedition",   label:"🗺️ The Expedition",  desc:"Complete any expedition challenge.",                          tier:"rare",      hidden:true, test: u => u.expeditionDone },
+  { id:"u-double-agent", label:"🔀 Double Agent",     desc:"Complete the same challenge twice.",                         tier:"rare",      hidden:true, test: u => u.doubleAgent },
+  { id:"u-dark-horse",   label:"🖤 Dark Horse",       desc:"Come back after a streak gap and still finish.",             tier:"epic",      hidden:true, test: u => u.darkHorse },
+  { id:"u-perfect-mt",   label:"💎 Perfect Month",    desc:"Complete 100% of habits every day for 30 consecutive days.", tier:"legendary", hidden:true, test: u => u.perfectMonth },
 ];
 
 // Lifetime achievements — cross-challenge milestones earned once (tracked in state.globalBadges)
@@ -2007,6 +2032,7 @@ let _showInstallBanner = false; // show the PWA install nudge
 let _cloudSyncing     = false; // true while CloudSync.pull / .push is in flight
 let _newWeekBanner = null;     // { pts } — Monday new-week ceremony, null when dismissed
 let _levelUpOverlay = null;   // { level, name, emoji, total } — full-screen level-up celebration
+let _chapterOverlay = null;   // level number (5/10/15/20/25) — shown once per chapter threshold
 let _resetConfirm = false;    // shows inline confirm step before wiping all data
 let _safetyPendingTemplateId = null; // templateId awaiting health disclaimer acknowledgement
 let _obTransitioning = false; // true while slide animation is in flight
@@ -2354,8 +2380,9 @@ function normalizeState(raw) {
     },
     globalBadges: Array.isArray(raw.globalBadges) ? raw.globalBadges : [],
     weeklyRecapDismissed: (raw.weeklyRecapDismissed && typeof raw.weeklyRecapDismissed === "object") ? raw.weeklyRecapDismissed : {},
-    migrations:   (raw.migrations && typeof raw.migrations === "object") ? raw.migrations : {},
-    xp:           typeof raw.xp === "number" ? raw.xp : 0,
+    migrations:      (raw.migrations && typeof raw.migrations === "object") ? raw.migrations : {},
+    xp:              typeof raw.xp === "number" ? raw.xp : 0,
+    lastChapterSeen: typeof raw.lastChapterSeen === "number" ? raw.lastChapterSeen : 0,
   };
 }
 
@@ -2671,6 +2698,16 @@ function updateChallengeStatuses() {
         c.flags.completionBonusPaid = true;
         c.completionBonus = bonus;
       }
+      if (!c.personalBest) {
+        c.personalBest = {
+          streak: c.finalStreak,
+          perfectDays: Object.values(c.days).filter(d => {
+            const i = completionInfo(c, d); return d.mode !== "rest" && i.percent >= 100 && i.total > 0;
+          }).length,
+          totalPts: c.totalPts,
+          completedAt: c.completedAt,
+        };
+      }
       // Queue — show first one immediately, rest after user dismisses
       if (!justCompletedId) justCompletedId = c.id;
       else justCompletedIds.push(c.id);
@@ -2814,6 +2851,16 @@ function checkBadges(challenge) {
           challenge.flags.completionBonusPaid = true;
           challenge.completionBonus = bonus;
         }
+        if (!challenge.personalBest) {
+          challenge.personalBest = {
+            streak: challenge.finalStreak,
+            perfectDays: Object.values(challenge.days).filter(d => {
+              const i = completionInfo(challenge, d); return d.mode !== "rest" && i.percent >= 100 && i.total > 0;
+            }).length,
+            totalPts: challenge.totalPts,
+            completedAt: challenge.completedAt,
+          };
+        }
         if (!justCompletedId) justCompletedId = challenge.id;
         else justCompletedIds.push(challenge.id);
         trackEvent("Challenge Completed", { challenge: challenge.name, days: challenge.duration });
@@ -2854,6 +2901,14 @@ function checkBadges(challenge) {
     completedChallenges: allChallenges.filter(c => c.status==="completed").length,
     activeChallenges:    getActiveChallenges().length,
     hasPerfectWeek:      allChallenges.some(c => getPerfectRunLength(c, todayKey()) >= 7),
+    expeditionDone:      allChallenges.some(c => c.status==="completed" && c.habits.some(h => h.type==="distance")),
+    doubleAgent: (() => {
+      const done = allChallenges.filter(c => c.status==="completed" && c.templateId);
+      const seen = new Set();
+      return done.some(c => { if (seen.has(c.templateId)) return true; seen.add(c.templateId); return false; });
+    })(),
+    darkHorse:    allChallenges.some(c => c.status==="completed" && Object.values(c.days).some(d => d.comebackBonus)),
+    perfectMonth: allChallenges.some(c => getPerfectRunLength(c, todayKey()) >= 30),
   };
 
   UNIVERSAL_BADGES.forEach(b => {
@@ -3250,6 +3305,13 @@ function _renderInner() {
   html += renderShareModal();
   if (_badgeSheetQueue.length > 0) html += renderBadgeSheet(_badgeSheetQueue[0]);
   if (_levelUpOverlay) html += renderLevelUpOverlay();
+  // Chapter milestone check (show once per threshold, guarded by state.lastChapterSeen)
+  if (!_chapterOverlay && !_levelUpOverlay) {
+    const _curLevel = getLevelInfo(state.xp).level;
+    const _chapterDue = [5, 10, 15, 20, 25].find(l => l <= _curLevel && l > (state.lastChapterSeen ?? 0));
+    if (_chapterDue) { _chapterOverlay = _chapterDue; state.lastChapterSeen = _chapterDue; saveState(); }
+  }
+  if (_chapterOverlay) html += renderChapterOverlay();
   if (_notifPromptVisible) html += renderNotifPrompt();
   html += renderConfirmModal();
   html += renderPromptModal();
@@ -4045,7 +4107,12 @@ function renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToda
   if (day.comebackBonus) {
     return `<div class="complete-banner"><span class="cb-icon">🧡</span><div class="cb-body"><div class="cb-title">Comeback. Day ${dayNumber||""} is done.</div><div class="cb-sub">That's what resilience looks like · ${info.points} pts</div>${tomorrowHook}${streakShare}</div></div>`;
   }
-  return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">Full Send</div><div class="cb-sub">All habits done · ${info.points} pts</div>${tomorrowHook}${streakShare}</div></div>`;
+  const tpl = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
+  const cat = tpl?.category || "transformation";
+  const copyLines = COMPLETE_COPY[cat] || COMPLETE_COPY.transformation;
+  const seed = parseInt((day.date || todayKey()).replace(/-/g,"")) || 0;
+  const copy = copyLines[seed % copyLines.length];
+  return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">${copy}${dayNumber ? ` Day ${dayNumber} done.` : ""}</div><div class="cb-sub">All habits done · ${info.points} pts</div>${tomorrowHook}${streakShare}</div></div>`;
 }
 
 function renderXPBar() {
@@ -4143,7 +4210,7 @@ function suggestNextChallenges(c) {
   const chainNextId = finishedId && CHALLENGE_CHAINS[finishedId];
   const chainNext   = chainNextId ? TEMPLATES.find(t => t.id === chainNextId) : null;
   const cat  = TEMPLATES.find(t => t.id === finishedId)?.category;
-  const pool = TEMPLATES.filter(t => t.id !== finishedId && t.id !== chainNextId);
+  const pool = TEMPLATES.filter(t => t.id !== finishedId && t.id !== chainNextId && !t.deprecated);
   const sameCat = pool.filter(t => t.category === cat);
   const extras  = pickRandom(sameCat.length ? sameCat : pool, chainNext ? 1 : 2);
   return chainNext ? [chainNext, ...extras] : extras;
@@ -5004,6 +5071,7 @@ function renderBuilderTemplates() {
     { id:"extreme",      label:"🟣 Extreme" },
   ];
   const passesFilter = t => {
+    if (t.deprecated) return false;
     const dur = _templateFilter;
     const diff = _difficultyFilter;
     if (dur === "popular" && !POPULAR_IDS.includes(t.id)) return false;
@@ -5430,6 +5498,57 @@ function renderLevelProfile() {
   </div>`;
 }
 
+function renderTrophyCase() {
+  const trophies = getAllChallenges()
+    .filter(c => c.status === "completed")
+    .sort((a,b) => (b.completedAt||"").localeCompare(a.completedAt||""));
+  if (!trophies.length) return "";
+  return `
+  <div class="section-label">🏆 Trophies</div>
+  <div class="more-card trophy-case">
+    ${trophies.map(c => {
+      const streak = c.personalBest?.streak ?? c.finalStreak ?? 0;
+      const perfectDays = c.personalBest?.perfectDays ?? 0;
+      const totalPts = c.totalPts || Object.values(c.days).reduce((s,d) => s+(d.pts||0), 0);
+      const dateStr = c.completedAt
+        ? new Date(c.completedAt).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})
+        : null;
+      const challengeBadges = (TEMPLATE_BADGES[c.templateId] || []).filter(b => c.badges.includes(b.id));
+      return `
+      <div class="trophy-card">
+        <div class="tc-top">
+          <span class="tc-emoji">${esc(c.emoji)}</span>
+          <div class="tc-info">
+            <div class="tc-name">${esc(c.name)}</div>
+            <div class="tc-meta">${streak}-day streak · ${totalPts} pts${dateStr ? ` · ${dateStr}` : ""}</div>
+          </div>
+        </div>
+        ${perfectDays > 0 ? `<div class="tc-sub">${perfectDays} perfect day${perfectDays!==1?"s":""}</div>` : ""}
+        ${challengeBadges.length ? `<div class="tc-badges">${challengeBadges.slice(0,5).map(b => `<span class="tc-badge-pill">${b.label}</span>`).join("")}</div>` : ""}
+      </div>`;
+    }).join("")}
+  </div>`;
+}
+
+function renderChapterOverlay() {
+  const level = _chapterOverlay;
+  const data  = level ? CHAPTER_LEVELS[level] : null;
+  if (!data) return "";
+  const emoji = level >= 25 ? "🏆" : level >= 20 ? "🌟" : level >= 15 ? "🔥" : level >= 10 ? "⚡" : "🌱";
+  const levelName = getThemedLevelName(level, state.settings.journeyTheme);
+  return `
+  <div class="luo-backdrop" data-close-chapter>
+    <div class="luo-card" role="dialog" aria-modal="true">
+      <div class="luo-burst">${emoji}</div>
+      <div class="luo-badge">CHAPTER ${data.title.toUpperCase()}</div>
+      <div class="luo-level">Level ${level}</div>
+      <div class="luo-name">${levelName}</div>
+      <div class="luo-total">${data.msg}</div>
+      <button class="primary-button luo-cta" data-close-chapter>Keep going →</button>
+    </div>
+  </div>`;
+}
+
 function renderBadges() {
   const allChallenges    = getAllChallenges();
   // Only show/count template badges for challenges that have been started
@@ -5465,6 +5584,7 @@ function renderBadges() {
       }).join("")}
     </div>
     ${renderPersonalBests()}
+    ${renderTrophyCase()}
     ${renderConsistencyChart(allChallenges)}
   </main>`;
 }
@@ -5539,7 +5659,14 @@ function renderBadgeCat(label, defs, earned, templateId, progressCtx) {
 
   const renderBadgeTile = (b) => {
     const isEarned = earnedSet.has(b.id);
-    const tier = catTier || BADGE_TIERS[b.id] || "common";
+    if (b.hidden && !isEarned) {
+      return `
+      <div class="badge badge-hidden">
+        <div class="badge-label">🔒 ???</div>
+        <div class="badge-desc">Hidden badge</div>
+      </div>`;
+    }
+    const tier = catTier || BADGE_TIERS[b.id] || b.tier || "common";
     const td   = TIERS[tier];
     const borderStyle = isEarned && td ? `border-color:${td.border};` : "";
     const glowStyle   = isEarned && tier === "legendary" ? `box-shadow:0 0 10px ${td.border};` : "";
@@ -6190,14 +6317,14 @@ function bindEvents() {
   on("[data-habit]",        el => {
     const habitId = el.dataset.habit;
     const rect = el.getBoundingClientRect();
+    const _c = currentChallenge();
+    const _day = _c && getChallengeDay(_c, effectiveDate());
+    const _ptsBefore = _day?.pts ?? 0;
     toggleHabit(habitId);
-    // Show +pts animation if habit was just checked on (not off)
-    const c = currentChallenge();
-    const day = c && getChallengeDay(c, effectiveDate());
-    if (day?.done.includes(habitId)) {
-      const habit = c.habits.find(h => h.id === habitId);
-      const pts   = habit?.points ?? 0;
-      if (pts > 0) showPtsAnim(pts, rect);
+    const _ptsAfter = _day?.pts ?? 0;
+    const _ptsDelta = _ptsAfter - _ptsBefore;
+    if (_day?.done.includes(habitId) && _ptsDelta > 0) {
+      showPtsAnim(_ptsDelta, rect);
     }
   });
   on("[data-tier]",         el => selectTier(el.dataset.tier, el.dataset.tierVal));
@@ -6340,6 +6467,7 @@ function bindEvents() {
     render();
   });
   on("[data-close-levelup]",        () => { _levelUpOverlay = null; render(); });
+  on("[data-close-chapter]",        () => { _chapterOverlay = null; render(); });
   on("[data-notif-prompt-enable]",  async () => { _notifPromptVisible = false; await requestNotificationPermission(); render(); });
   on("[data-notif-prompt-skip]",    () => { _notifPromptVisible = false; render(); });
   on("[data-start-challenge]",() => startChallenge());
