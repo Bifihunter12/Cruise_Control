@@ -547,7 +547,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .habit-quip {
   display: block;
   color: var(--text-dim);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   line-height: 1.3;
 }
@@ -614,7 +614,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .run-pts-hint { display: none; }
 
 .tier-hint {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-dim);
   margin-top: 4px;
   display: block;
@@ -695,7 +695,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .ww-lost.ww-bad  { color: var(--secondary); }
 
 .ww-track {
-  height: 4px;
+  height: 6px;
   border-radius: 999px;
   background: var(--track);
   overflow: hidden;
@@ -709,7 +709,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .ww-goal {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-dim);
 }
@@ -720,7 +720,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   display: flex;
   align-items: center;
   gap: 12px;
-  width: min(72vw, 270px);
+  width: 100%;
   padding: 14px 16px;
   border-radius: var(--radius-sm);
   background: linear-gradient(135deg, rgba(180,79,255,0.2), rgba(255,79,163,0.12));
@@ -773,7 +773,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .metric-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1086,7 +1086,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .wc-goal-track {
-  height: 5px;
+  height: 6px;
   border-radius: 999px;
   background: var(--track);
   overflow: hidden;
@@ -1141,7 +1141,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .mc-perfect {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--success);
 }
@@ -1157,21 +1157,21 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .mc-unit {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-dim);
   -webkit-text-fill-color: var(--text-dim);
 }
 
 .mc-sub {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-dim);
   margin-top: 5px;
 }
 
 .mc-track {
-  height: 4px;
+  height: 6px;
   border-radius: 999px;
   background: var(--track);
   overflow: hidden;
@@ -1251,7 +1251,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .badge-overall-track {
-  height: 4px;
+  height: 6px;
   border-radius: 999px;
   background: var(--track);
   overflow: hidden;
@@ -1306,31 +1306,31 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   position: relative;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  background: var(--surface-3);
-  border: 1px solid var(--border);
-  opacity: 0.42;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
   font-size: 12px;
   font-weight: 500;
-  filter: grayscale(0.75) brightness(0.8);
-  transition: opacity 300ms, box-shadow 300ms;
+  transition: box-shadow 300ms;
 }
 .badge::after {
   content: "🔒";
   position: absolute;
   top: 6px; right: 8px;
-  font-size: 10px;
-  opacity: 0.6;
+  font-size: 11px;
+  opacity: 0.4;
 }
+.badge .badge-label { color: var(--text-dim); display: block; }
+.badge .badge-desc  { color: var(--text-faint); font-size: 11px; margin-top: 2px; display: block; }
 
 .badge.earned::after { display: none; }
 .badge.earned {
-  opacity: 1;
-  filter: none;
   font-weight: 700;
   background: linear-gradient(135deg, rgba(180,79,255,0.18), rgba(255,79,163,0.1));
   border-color: rgba(180,79,255,0.4);
   box-shadow: 0 0 14px rgba(180,79,255,0.18), inset 0 0 24px rgba(180,79,255,0.05);
 }
+.badge.earned .badge-label { color: var(--text); }
+.badge.earned .badge-desc  { color: var(--text-dim); }
 
 .badge-hidden::after { display: none; }
 .badge-hidden .badge-label { letter-spacing: 0.04em; }
@@ -1435,8 +1435,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   gap: 4px;
   min-height: 56px;
   border-radius: var(--radius-sm);
-  color: var(--text-dim);
-  font-size: 10px;
+  color: #b8b6d8;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1918,10 +1918,10 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .cc-status { font-size: 11px; font-weight: 700; text-transform: capitalize; }
-.cc-streak { font-size: 11px; font-weight: 500; color: var(--text-dim); }
+.cc-streak { font-size: 16px; font-weight: 700; color: #ff9500; font-family: var(--font-num); line-height: 1; }
 
 .cc-track {
-  height: 5px;
+  height: 6px;
   border-radius: 999px;
   background: var(--track);
   overflow: hidden;
@@ -4991,7 +4991,7 @@ details[open] .badge-locked-summary::before {
 }
 .xmb-track {
   flex: 1;
-  height: 4px;
+  height: 6px;
   background: var(--track);
   border-radius: 2px;
   min-width: 30px;
@@ -5157,5 +5157,51 @@ details[open] .badge-locked-summary::before {
   .complete-banner, .ring-wrap.perfect, .confetti-piece,
   .tab-fade-in, .slide-in-right, .new-week-banner--anim, .comeback-banner--anim,
   .perfect-day-chip, .cloud-sync-bar { animation: none !important; }
+}
+
+/* ── Visual audit fixes ──────────────────────────────────────────────────── */
+
+/* CONQUR brand wordmark gradient */
+.brand > span {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Settings gear: brighter so it's clearly tappable */
+.topbar .icon-btn {
+  color: var(--text);
+}
+
+/* Challenge card progress fill: green when 100% done */
+.cc-fill--done {
+  background: var(--success) !important;
+}
+
+/* All-done today card: celebratory full-width banner */
+.all-done-today {
+  width: 100%;
+  padding: 20px 16px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(45,212,191,0.14), rgba(45,212,191,0.07));
+  border: 1px solid rgba(45,212,191,0.35);
+  text-align: center;
+  margin-top: 8px;
+}
+.all-done-today-icon { font-size: 36px; line-height: 1; margin-bottom: 8px; }
+.all-done-today-title {
+  font-size: 18px;
+  font-weight: 700;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.02em;
+}
+.all-done-today-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 4px;
 }
 

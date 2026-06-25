@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.25.2";
+const APP_VERSION = "2026.06.25.3";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -3595,9 +3595,15 @@ function renderTodayAll(active) {
             <div class="atc-cta">Log →</div>
           </div>
         </div>
-        <div class="cc-track"><div class="cc-fill" style="width:${info.percent}%"></div></div>
+        <div class="cc-track"><div class="cc-fill${info.percent===100?" cc-fill--done":""}" style="width:${info.percent}%"></div></div>
       </button>`;
     }).join("")}
+    ${allPct === 100 ? `
+    <div class="all-done-today">
+      <div class="all-done-today-icon">🏆</div>
+      <div class="all-done-today-title">All done today.</div>
+      <div class="all-done-today-sub">Every habit logged. Rest up — tomorrow we go again.</div>
+    </div>` : ""}
   </main>`;
 }
 
