@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.25.3";
+const APP_VERSION = "2026.06.25.6";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -67,11 +67,12 @@ const THEME_SWATCHES = {
   martial:   ["#d97706","#fcd34d"], viking:    ["#dc2626","#be123c"],
   ocean:     ["#00c8d4","#0070ff"], sunrise:   ["#f97316","#fbbf24"],
   rose:      ["#f472b6","#c084fc"], forest:    ["#4ade80","#a3e635"],
-  phoenix:   ["#a855f7","#e879f9"], treasure:  ["#f59e0b","#34d399"],
+  phoenix:   ["#a855f7","#e879f9"], treasure:  ["#f59e0b","#fcd34d"],
 };
 const JOURNEY_THEMES = {
   mountain: {
     label: "Mountain", emoji: "🏔️", tagline: "Conquer the Summit",
+    featureIcons: ["🏔️","🧭","❄️","🔒"],
     levels: [
       "Rookie","Wanderer","Trailblazer","Scout","Ranger","Climber","Adventurer",
       "Pathfinder","Mountaineer","Storm Rider","Iron Will","Blizzard Survivor",
@@ -82,6 +83,7 @@ const JOURNEY_THEMES = {
   },
   astronaut: {
     label: "Astronaut", emoji: "🚀", tagline: "Reach for the Stars",
+    featureIcons: ["🚀","🛰️","⭐","🔒"],
     levels: [
       "Space Dreamer","Mission Candidate","Cadet","Flight Trainee","Mission Specialist",
       "Launch Ready","Countdown","Orbit Reached","Spacewalker","Orbit Master",
@@ -92,6 +94,7 @@ const JOURNEY_THEMES = {
   },
   martial: {
     label: "Martial Arts", emoji: "🥋", tagline: "Master Your Mind",
+    featureIcons: ["🥋","👊","🐉","🔒"],
     levels: [
       "White Belt","Yellow Belt","Orange Belt","Green Belt","Blue Belt",
       "Purple Belt","Red Belt","Brown Belt","Black Belt","1st Dan",
@@ -102,6 +105,7 @@ const JOURNEY_THEMES = {
   },
   viking: {
     label: "Viking", emoji: "⚔️", tagline: "Legend of the Sagas",
+    featureIcons: ["⚔️","🛡️","🔥","🔒"],
     levels: [
       "Thrall","Freeman","Skald","Huscarl","Shield-Brother",
       "Berserker","Raider","Sea Wolf","Jarl's Guard","Bloodhawk",
@@ -112,6 +116,7 @@ const JOURNEY_THEMES = {
   },
   ocean: {
     label: "Ocean Diver", emoji: "🌊", tagline: "Descend to the Deep",
+    featureIcons: ["🌊","🐚","🤿","🔒"],
     levels: [
       "Beach Walker","Snorkeler","Surface Diver","Open Water Diver","Advanced Diver",
       "Rescue Diver","Night Diver","Deep Diver","Cave Explorer","Wreck Diver",
@@ -122,6 +127,7 @@ const JOURNEY_THEMES = {
   },
   rose: {
     label: "Rose Journey", emoji: "🌹", tagline: "Bloom Into Your Best Self",
+    featureIcons: ["🌹","🌸","🦋","🔒"],
     levels: [
       "Seedling","First Leaf","Tender Bud","Opening Bloom","Garden Starter",
       "Soft Power","Quiet Strength","Inner Glow","Rising Bloom","Wild Flower",
@@ -132,6 +138,7 @@ const JOURNEY_THEMES = {
   },
   forest: {
     label: "Forest", emoji: "🌿", tagline: "Root Deep, Rise High",
+    featureIcons: ["🌲","🍃","🦌","🔒"],
     levels: [
       "Seed","Sapling","First Branch","Young Oak","Root Setter",
       "Deep Roots","Forest Floor","Understory","Light Seeker","Mid Canopy",
@@ -142,6 +149,7 @@ const JOURNEY_THEMES = {
   },
   treasure: {
     label: "Treasure Quest", emoji: "💎", tagline: "Complete Habits. Unlock Treasure.",
+    featureIcons: ["💎","🪙","👑","🔒"],
     levels: [
       "Empty Pockets","Coin Finder","Bronze Key","Map Holder","Cave Scout",
       "Dungeon Crawler","Relic Seeker","Chest Hunter","Vault Raider","Gold Rush",
@@ -152,6 +160,7 @@ const JOURNEY_THEMES = {
   },
   phoenix: {
     label: "Phoenix", emoji: "🔥", tagline: "Rise From the Ashes",
+    featureIcons: ["🔥","🪶","✨","🔒"],
     levels: [
       "Broken","Still Breathing","First Ember","Choosing to Rise","One Step",
       "Finding Footing","Healing Starts","Inner Spark","Rebuilding","Unbroken",
@@ -1554,7 +1563,7 @@ const UNIVERSAL_BADGES = [
   { id:"u-60d",    label:"📆 Two Months",         desc:"60-day streak.",                                      test: u => u.longestStreak >= 60 },
   { id:"u-75d",    label:"🏆 75 Streak",          desc:"75 consecutive days. Legendary.",                     test: u => u.longestStreak >= 75 },
   // Points (all-time total across all challenges)
-  { id:"u-p10",    label:"⭐ First Points",       desc:"Earn your first 10 points.",                         test: u => u.totalPts >= 10 },
+  { id:"u-p10",    label:"⚡ First Points",       desc:"Earn your first 10 points.",                         test: u => u.totalPts >= 10 },
   { id:"u-p100",   label:"💯 Century",            desc:"100 points total.",                                   test: u => u.totalPts >= 100 },
   { id:"u-p500",   label:"🏅 Point Collector",    desc:"500 total points.",                                   test: u => u.totalPts >= 500 },
   { id:"u-p1k",    label:"💜 Elite",              desc:"1,000 total points. Rare.",                           test: u => u.totalPts >= 1000 },
@@ -2192,16 +2201,13 @@ const CloudSync = {
       if (error || !data?.state_json) { return; }
       const remote = data.state_json;
       if (!remote || typeof remote !== "object" || !("challenges" in remote)) return;
-      const merged = normalizeState(remote);
-      for (const [id, c] of Object.entries(state.challenges)) {
-        if (!merged.challenges[id]) merged.challenges[id] = c;
-        else if ((c.totalPts || 0) > (merged.challenges[id].totalPts || 0)) merged.challenges[id] = c;
-      }
+      // Day-level union merge — local logs are never overwritten by a staler cloud copy.
+      const merged = mergeStates(state, normalizeState(remote));
       _skipCloudPush = true;
       state = merged;
       saveState();
       _skipCloudPush = false;
-      showToast("☁️ Data restored from cloud.");
+      showToast("☁️ Data synced from cloud.");
     } catch(e) { console.warn("Cloud pull failed:", e); _lastSyncError = true; }
     finally { _cloudSyncing = false; render(); }
   },
@@ -2383,7 +2389,86 @@ function normalizeState(raw) {
     migrations:      (raw.migrations && typeof raw.migrations === "object") ? raw.migrations : {},
     xp:              typeof raw.xp === "number" ? raw.xp : 0,
     lastChapterSeen: typeof raw.lastChapterSeen === "number" ? raw.lastChapterSeen : 0,
+    lastModified:    typeof raw.lastModified === "number" ? raw.lastModified : 0,
   };
+}
+
+// ── Cloud merge ──────────────────────────────────────────────────────────────
+// Sync philosophy: never lose an additive fact. Logs, badges, XP and weigh-ins
+// only ever get added, so on conflict we union them. Only genuine preferences
+// (settings, goal weights) use newest-wins, decided by `lastModified`.
+function _union(a, b) {
+  return Array.from(new Set([...(Array.isArray(a) ? a : []), ...(Array.isArray(b) ? b : [])]));
+}
+// A day's "richness" — more habits logged dominates, points break ties. Used so a
+// real log can never be overwritten by a staler copy of the same day.
+function _dayRichness(d) {
+  const done = Array.isArray(d?.done) ? d.done.length : 0;
+  const pts  = typeof d?.pts === "number" ? d.pts : 0;
+  return done * 100000 + pts;
+}
+function mergeChallenge(localC, remoteC, localNewer) {
+  // Scalar fields (name, emoji, goal, etc.): the newer state wins.
+  const base = localNewer ? { ...remoteC, ...localC } : { ...localC, ...remoteC };
+  // Days: union by date; on conflict keep the richer day.
+  const days = {};
+  const dates = new Set([...Object.keys(localC.days || {}), ...Object.keys(remoteC.days || {})]);
+  for (const k of dates) {
+    const ld = localC.days?.[k], rd = remoteC.days?.[k];
+    if (ld && !rd)      days[k] = ld;
+    else if (rd && !ld) days[k] = rd;
+    else {
+      const lr = _dayRichness(ld), rr = _dayRichness(rd);
+      days[k] = lr > rr ? ld : rr > lr ? rd : (localNewer ? ld : rd);
+    }
+  }
+  base.days   = days;
+  base.badges = _union(localC.badges, remoteC.badges);
+  base.streakFreezeWeeksAwarded = _union(localC.streakFreezeWeeksAwarded, remoteC.streakFreezeWeeksAwarded);
+  // flags are set-once booleans — keep any that's true on either side.
+  base.flags = localNewer ? { ...(remoteC.flags || {}), ...(localC.flags || {}) }
+                          : { ...(localC.flags || {}), ...(remoteC.flags || {}) };
+  // Completion is sticky — a finished challenge never reverts to active.
+  if (localC.status === "completed" || remoteC.status === "completed") base.status = "completed";
+  base.finalStreak = Math.max(localC.finalStreak ?? 0, remoteC.finalStreak ?? 0) || (localC.finalStreak ?? remoteC.finalStreak ?? null);
+  let tp = 0; for (const d of Object.values(days)) tp += d.pts || 0;
+  base.totalPts = tp;
+  return base;
+}
+function mergeStates(local, remote) {
+  const localNewer = (local.lastModified || 0) >= (remote.lastModified || 0);
+  const prefer = localNewer ? local : remote;
+  const challenges = {};
+  const ids = new Set([...Object.keys(local.challenges || {}), ...Object.keys(remote.challenges || {})]);
+  for (const id of ids) {
+    const lc = local.challenges?.[id], rc = remote.challenges?.[id];
+    if (lc && !rc)      challenges[id] = lc;
+    else if (rc && !lc) challenges[id] = rc;
+    else                challenges[id] = mergeChallenge(lc, rc, localNewer);
+  }
+  // Body-tracking entries: union by date, newer state wins on a same-date conflict.
+  const btMap = {};
+  const olderBT = localNewer ? remote.bodyTracking : local.bodyTracking;
+  const newerBT = localNewer ? local.bodyTracking  : remote.bodyTracking;
+  for (const e of (olderBT?.entries || [])) if (e?.date) btMap[e.date] = e;
+  for (const e of (newerBT?.entries || [])) if (e?.date) btMap[e.date] = e;
+  const bodyTracking = {
+    entries:      Object.values(btMap).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)),
+    startWeight:  prefer.bodyTracking.startWeight,
+    goalWeight:   prefer.bodyTracking.goalWeight,
+    startBodyFat: prefer.bodyTracking.startBodyFat,
+  };
+  return normalizeState({
+    settings:             prefer.settings,
+    challenges,
+    bodyTracking,
+    globalBadges:         _union(local.globalBadges, remote.globalBadges),
+    weeklyRecapDismissed: { ...(remote.weeklyRecapDismissed || {}), ...(local.weeklyRecapDismissed || {}) },
+    migrations:           { ...(remote.migrations || {}), ...(local.migrations || {}) },
+    xp:                   Math.max(local.xp || 0, remote.xp || 0),
+    lastChapterSeen:      Math.max(local.lastChapterSeen || 0, remote.lastChapterSeen || 0),
+    lastModified:         Math.max(local.lastModified || 0, remote.lastModified || 0),
+  });
 }
 
 function loadState() {
@@ -2463,6 +2548,8 @@ function saveState() {
     for (const d of Object.values(c.days)) total += d.pts || 0;
     c.totalPts = total;
   }
+  // Stamp the edit time so cloud merge can tell which device's preferences are newer.
+  if (!_skipCloudPush) state.lastModified = Date.now();
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch(e) {
@@ -2474,6 +2561,13 @@ function saveState() {
     clearTimeout(_cloudPushTimer);
     _cloudPushTimer = setTimeout(() => CloudSync.push(), 5000);
   }
+}
+
+// Push any pending change immediately — called when the app is backgrounded or
+// closed, so a habit logged seconds before leaving still reaches the cloud.
+function flushCloudPush() {
+  if (_cloudPushTimer) { clearTimeout(_cloudPushTimer); _cloudPushTimer = null; }
+  if (!_skipCloudPush && CloudSync.isSignedIn) CloudSync.push();
 }
 
 // ── Date Helpers ───────────────────────────────────────────────────────────
@@ -3639,6 +3733,7 @@ function renderNoChallenge() {
   const hasPast = Object.values(state.challenges).some(c => c.status !== "active");
   const upcoming = Object.values(state.challenges).filter(c => c.status === "active" && c.startDate > today);
   const isFirstTime = !hasPast && !upcoming.length;
+  const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
   return `
   <main class="welcome-shell">
     <div class="welcome-logo">
@@ -3656,10 +3751,10 @@ function renderNoChallenge() {
     ${isFirstTime ? `
     <p class="welcome-desc">Build any habit in 21–86 days. Log daily, earn streaks and badges, and watch yourself change.</p>
     <div class="welcome-features">
-      <div class="wf-item"><span class="wf-icon">🏆</span><span class="wf-text">90+ challenges — 75 Hard, Cold Exposure, Morning Routine, Pacific Crest Trail and more</span></div>
-      <div class="wf-item"><span class="wf-icon">😴</span><span class="wf-text">Rest days built in — use your jokers wisely, streak stays safe</span></div>
-      <div class="wf-item"><span class="wf-icon">🔥</span><span class="wf-text">Streaks, badges, streak freezes, and weekly recaps that keep you honest</span></div>
-      <div class="wf-item"><span class="wf-icon">📵</span><span class="wf-text">Works offline. No ads. Your data stays on your device.</span></div>
+      <div class="wf-item"><span class="wf-icon">${theme.featureIcons[0]}</span><span class="wf-text">90+ challenges — 75 Hard, Cold Exposure, Morning Routine, Pacific Crest Trail and more</span></div>
+      <div class="wf-item"><span class="wf-icon">${theme.featureIcons[1]}</span><span class="wf-text">Rest days built in — use your jokers wisely, streak stays safe</span></div>
+      <div class="wf-item"><span class="wf-icon">${theme.featureIcons[2]}</span><span class="wf-text">Streaks, badges, streak freezes, and weekly recaps that keep you honest</span></div>
+      <div class="wf-item"><span class="wf-icon">${theme.featureIcons[3]}</span><span class="wf-text">Works offline. No ads. Your data stays on your device.</span></div>
     </div>` : ""}
 
     ${upcoming.length ? `
@@ -4272,7 +4367,7 @@ function renderPersonalBests() {
   <div class="section-label" style="margin-top:8px">Personal Bests</div>
   <div class="pb-grid">
     ${pbCard("🔥 Longest Streak", pb.longestStreak, "days")}
-    ${pbCard("⭐ Best Week",       pb.bestWeekPts,   "pts")}
+    ${pbCard("⚡ Best Week",       pb.bestWeekPts,   "pts")}
     ${pbCard("✅ Habits Logged",  pb.totalHabits,   "")}
     ${pbCard("📅 Days Shown Up",  pb.totalDays,     "")}
   </div>`;
@@ -4628,7 +4723,7 @@ function renderChallengeDetail(c) {
       ${statCard("🔥 Streak", streak, "days")}
       ${isExpedition
         ? statCard("🗺️ Distance", totalKmDisplay.toFixed(isFloorsDet?0:1), dUnitDet)
-        : statCard("⭐ Total pts", totalPts, "")}
+        : statCard("⚡ Total pts", totalPts, "")}
       ${statCard("✅ Active days", `${activeDaysDone}/${activeTotal}`, "")}
       ${statCard("🏅 Badges", c.badges.length, "")}
     </div>
@@ -5318,7 +5413,7 @@ function renderBuilderCustomize() {
       </div>`}
     `}
     <div class="pts-explainer">
-      <div class="pts-explainer-title">⭐ How points work</div>
+      <div class="pts-explainer-title">⚡ How points work</div>
       <div class="pts-explainer-body">Check off habits to earn points and XP. XP builds your level and never resets. Log 5 days in a week to earn a streak freeze.</div>
     </div>
     ${("Notification" in window) && Notification.permission === "default" ? `
@@ -5879,7 +5974,7 @@ function renderAlmostThereBadge(challenge, streak) {
 
 const ONBOARDING_STEPS = [
   { emoji:"🎯", title:"Pick a challenge",  body:"Choose from 90+ challenges — from Daily Journaling to the Pacific Crest Trail. Each one comes with daily habits to check off." },
-  { emoji:"⭐", title:"Earn points daily",  body:"Every habit you check earns points and XP. XP builds your level — it never resets. Log 5 days in a week and you'll bank a streak freeze." },
+  { emoji:"⚡", title:"Earn points daily",  body:"Every habit you check earns points and XP. XP builds your level — it never resets. Log 5 days in a week and you'll bank a streak freeze." },
   { emoji:"🔥", title:"Come back tomorrow", body:"Your streak grows every day you log. Miss a day? Soft mode gives you grace. Rest days are built in. One day at a time." },
 ];
 // onboardingStep: 0=hero, 1=journey, 2=goal, 3–(2+N)=info slides (N=ONBOARDING_STEPS.length), +3=name, +4=account
@@ -5894,10 +5989,10 @@ function renderObHero() {
       <div class="ob-hero-tagline">Build the habits.<br>${theme.tagline}.</div>
     </div>
     <ul class="ob-features" aria-label="App features">
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">🎯</span><span>90+ challenges — from journaling to epic trails</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">⭐</span><span>Daily points, streaks &amp; badges</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">😴</span><span>Rest days &amp; streak protection built in</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">📴</span><span>Works offline — no account required</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">${theme.featureIcons[0]}</span><span>90+ challenges — from journaling to epic trails</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">${theme.featureIcons[1]}</span><span>Daily points, streaks &amp; badges</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">${theme.featureIcons[2]}</span><span>Rest days &amp; streak protection built in</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">${theme.featureIcons[3]}</span><span>Works offline — no account required</span></li>
     </ul>
     <button class="primary-button ob-cta" data-ob-next>Let's go →</button>
     <button class="link-btn ob-link" data-ob-to-signin>Already have an account? Sign in</button>
@@ -6291,9 +6386,9 @@ function renderSettings() {
     <div class="section-label" style="margin-top:20px">How Conqur Works</div>
     <div class="more-card" style="font-size:13px;line-height:1.65;color:var(--text-dim)">
       <div style="margin-bottom:12px"><strong style="color:var(--text)">🎯 Challenges</strong> — Pick one of 90+ challenges. Each has daily habits to check off. Complete all habits for the day to earn full points.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">⭐ Points &amp; XP</strong> — Each habit is worth points. Points fuel your XP, which builds your level and never resets. Log 5 days in a week to bank a streak freeze.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">⚡ Points &amp; XP</strong> — Each habit is worth points. Points fuel your XP, which builds your level and never resets. Log 5 days in a week to bank a streak freeze.</div>
       <div style="margin-bottom:12px"><strong style="color:var(--text)">🔥 Streaks</strong> — Your streak grows every day you log all habits. Soft mode gives you one grace day before it breaks. Rest days don't break streaks.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">😴 Rest Days</strong> — Each challenge allows up to 3 rest days. They're planned recovery — not failures.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)">🛡️ Rest Days</strong> — Each challenge allows up to 3 rest days. They're planned recovery — not failures.</div>
       <div style="margin-bottom:12px"><strong style="color:var(--text)">⚡ XP &amp; Levels</strong> — XP accumulates from points across all challenges and never resets. Climb from Base Camp all the way to Everest.</div>
       <div style="margin-bottom:12px"><strong style="color:var(--text)">🏔 Phases</strong> — Longer challenges are split into phases so the finish line always feels reachable. Each phase completion is celebrated.</div>
       <div><strong style="color:var(--text)">🏅 Badges</strong> — Earn badges for streaks, consistency, and challenge completions. Proof of everything you've built.</div>
@@ -7781,8 +7876,11 @@ function startUpdateChecks() {
     if (!document.hidden) {
       if (Date.now() - _lastUpdateCheckTime > 5 * 60 * 1000) checkForAppUpdate();
       scheduleReminder();
+    } else {
+      flushCloudPush();  // app backgrounded — don't let a fresh log wait out the debounce
     }
   });
+  window.addEventListener("pagehide", flushCloudPush);
 }
 
 // ── Boot ──────────────────────────────────────────────────────────────────
