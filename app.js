@@ -1,6 +1,8 @@
 "use strict";
 
-const APP_VERSION = "2026.06.25.6";
+const APP_VERSION = "2026.06.25.7";
+// Public URL shown on shared cards/text. UPDATE to your real domain before launch.
+const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -3454,6 +3456,7 @@ function _renderInner() {
 }
 
 function renderTopbar() {
+  const showShare = activeTab === "today" && !builderOpen && !settingsOpen && !viewChallengeId && !editChallengeId && todayChallengeId !== "__all__" && getActiveChallenges().length > 0;
   return `
   ${_isOffline ? `<div class="cloud-sync-bar cloud-sync-bar--warn" role="status" aria-live="polite">Offline — will sync when reconnected</div>` : ""}
   ${_lastSyncError && !_isOffline ? `<div class="cloud-sync-bar cloud-sync-bar--err" role="alert">⚠ Sync failed — <button class="link-btn" data-retry-sync>retry</button></div>` : ""}
@@ -3480,6 +3483,9 @@ function renderTopbar() {
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <div class="date-chip">${formatDate(parseDate(todayKey()),{weekday:"short",month:"short",day:"numeric"})}</div>
+      ${showShare ? `<button class="icon-btn" data-share-progress aria-label="Share progress">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+      </button>` : ""}
       <button class="icon-btn" data-open-settings aria-label="Settings">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
           <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -4457,7 +4463,9 @@ function drawShareCard(challenge, isDone) {
   ctx.fillText(statLine, s / 2, pillY + pillH * 0.64);
 
   // Headline
-  const headline = isDone ? "Challenge complete. 🏆" : `${streak} days straight. 🔥`;
+  const headline = isDone ? "Challenge complete. 🏆"
+    : streak >= 2 ? `${streak} days straight. 🔥`
+    : `Day ${dayNum} — showing up. 💪`;
   ctx.fillStyle = grad;
   ctx.font      = `700 ${Math.round(s * 0.055)}px 'Arial', sans-serif`;
   ctx.fillText(headline, s / 2, s * 0.65);
@@ -4465,7 +4473,7 @@ function drawShareCard(challenge, isDone) {
   // Sub copy
   ctx.fillStyle = "#9896b8";
   ctx.font      = `400 ${Math.round(s * 0.033)}px 'Arial', sans-serif`;
-  ctx.fillText(isDone ? "Built the habit. Won the challenge." : "One day at a time. conqur.netlify.app", s / 2, s * 0.72);
+  ctx.fillText(isDone ? "Built the habit. Won the challenge." : "One day at a time. " + SHARE_URL, s / 2, s * 0.72);
 
   // Level + theme line
   const _scLevel = getLevelInfo(state.xp);
@@ -4489,8 +4497,8 @@ function renderShareModal() {
   const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate) + 1;
   const dayNum    = challengeDayNumber(_shareModalChallenge);
   const shareText = _shareModalDone
-    ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\nconqur.netlify.app`
-    : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\nconqur.netlify.app`;
+    ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\n${SHARE_URL}`
+    : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\n${SHARE_URL}`;
 
   return `
   <div class="share-modal-overlay" data-close-share-modal>
@@ -6587,6 +6595,10 @@ function bindEvents() {
     const c = currentChallenge(); if (!c) return;
     showShareModal(c, false);
   });
+  on("[data-share-progress]", () => {
+    const c = currentChallenge(); if (!c) return;
+    showShareModal(c, false);
+  });
   on("[data-close-share-modal]", () => { _shareModalChallenge = null; _shareCardDataUrl = null; render(); });
   on("[data-share-card-native]", () => {
     if (!_shareModalChallenge || !_shareCardDataUrl) return;
@@ -6595,8 +6607,8 @@ function bindEvents() {
     const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate)+1;
     const dayNum    = challengeDayNumber(_shareModalChallenge);
     const text = _shareModalDone
-      ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\nconqur.netlify.app`
-      : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\nconqur.netlify.app`;
+      ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\n${SHARE_URL}`
+      : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\n${SHARE_URL}`;
     if (navigator.share) {
       fetch(_shareCardDataUrl).then(r=>r.blob()).then(blob => {
         const file = new File([blob], "conqur-share.png", { type:"image/png" });
@@ -6622,8 +6634,8 @@ function bindEvents() {
     const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate)+1;
     const dayNum    = challengeDayNumber(_shareModalChallenge);
     const text = _shareModalDone
-      ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\nconqur.netlify.app`
-      : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\nconqur.netlify.app`;
+      ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\n${SHARE_URL}`
+      : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\n${SHARE_URL}`;
     navigator.clipboard?.writeText(text).then(() => showToast("Copied!")).catch(() => showToast(text));
   });
   on("[data-dismiss-notif-nudge]", () => { _notifNudgeDismissed = true; render(); });

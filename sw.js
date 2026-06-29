@@ -1,4 +1,4 @@
-const APP_VERSION = "2026.06.25.6";
+const APP_VERSION = "2026.06.25.7";
 const CACHE_NAME = `conqur-${APP_VERSION}`;
 const APP_FILES = [
   "/",
