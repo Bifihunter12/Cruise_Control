@@ -1,8 +1,32 @@
 "use strict";
 
-const APP_VERSION = "2026.06.25.7";
+const APP_VERSION = "2026.06.26.0";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
+
+// ── Field icons (Tabler outline) ─────────────────────────────────────────────
+const TIER_ICON = { common:"ti-award", uncommon:"ti-award", rare:"ti-medal", epic:"ti-medal-2", legendary:"ti-trophy" };
+const CATEGORY_ICON = { movement:"ti-run", endurance:"ti-stopwatch", health:"ti-heart-rate-monitor", expedition:"ti-map-2", transformation:"ti-flame", lifestyle:"ti-sun", mindset:"ti-brain" };
+const CHALLENGE_ICON = {
+  "dog-walk":"ti-dog","cycling":"ti-bike","walking":"ti-walk","running":"ti-run",
+  "strength":"ti-barbell","yoga-flexibility":"ti-yoga","core-abs":"ti-stretching",
+  "c25k":"ti-run","5k-prep":"ti-run","pilates":"ti-stretching","12-3-30":"ti-treadmill",
+  "kettlebell":"ti-barbell","calisthenics":"ti-barbell","beginner-strength":"ti-barbell",
+  "pushup-challenge":"ti-barbell","pullup-progression":"ti-barbell",
+  "zone2":"ti-heart-rate-monitor","hyrox":"ti-stopwatch","half-marathon-prep":"ti-run",
+  "marathon-training":"ti-run","10k-prep":"ti-run","swim-foundation":"ti-swimming","swim-1k":"ti-swimming","open-water-prep":"ti-lifebuoy",
+  "weight-loss-30":"ti-scale","body-composition":"ti-scale","glucose-control":"ti-droplet",
+  "sleep-tracker":"ti-moon","sleep-reset":"ti-moon","recovery-reset":"ti-bed","protein-challenge":"ti-meat",
+  "hydration":"ti-droplet","posture-fix":"ti-stretching","digital-detox":"ti-device-mobile-off",
+  "75-hard":"ti-flame","75-soft":"ti-flame","morning-routine":"ti-sun","morning-power-hour":"ti-sun",
+  "everest-bc":"ti-mountain","west-highland-way":"ti-trekking","tour-du-mont-blanc":"ti-mountain",
+  "john-muir-trail":"ti-trekking","camino":"ti-trekking","appalachian":"ti-trekking",
+  "tour-de-france":"ti-bike","route66":"ti-road","amazon-river":"ti-kayak","pct":"ti-trekking",
+  "everest-stairmaster":"ti-stairs","kilimanjaro-stairmaster":"ti-stairs","montblanc-stairmaster":"ti-stairs",
+  "comrades-ultra":"ti-run","utmb":"ti-mountain","run-5-marathons":"ti-run","run-jogle":"ti-run","run-trans-america":"ti-run",
+};
+function challengeIcon(t) { return (t && (CHALLENGE_ICON[t.id] || CATEGORY_ICON[t.category])) || "ti-target"; }
+function stripBadgeEmoji(label) { return String(label || "").replace(/^\s*[←-⯿️\u{1F000}-\u{1FAFF}]+\s*/u, "").trim(); }
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -73,8 +97,7 @@ const THEME_SWATCHES = {
 };
 const JOURNEY_THEMES = {
   mountain: {
-    label: "Mountain", emoji: "🏔️", tagline: "Conquer the Summit",
-    featureIcons: ["🏔️","🧭","❄️","🔒"],
+    label: "Mountain", icon: "ti-mountain", tagline: "Conquer the Summit",
     levels: [
       "Rookie","Wanderer","Trailblazer","Scout","Ranger","Climber","Adventurer",
       "Pathfinder","Mountaineer","Storm Rider","Iron Will","Blizzard Survivor",
@@ -84,8 +107,7 @@ const JOURNEY_THEMES = {
     ],
   },
   astronaut: {
-    label: "Astronaut", emoji: "🚀", tagline: "Reach for the Stars",
-    featureIcons: ["🚀","🛰️","⭐","🔒"],
+    label: "Astronaut", icon: "ti-rocket", tagline: "Reach for the Stars",
     levels: [
       "Space Dreamer","Mission Candidate","Cadet","Flight Trainee","Mission Specialist",
       "Launch Ready","Countdown","Orbit Reached","Spacewalker","Orbit Master",
@@ -95,8 +117,7 @@ const JOURNEY_THEMES = {
     ],
   },
   martial: {
-    label: "Martial Arts", emoji: "🥋", tagline: "Master Your Mind",
-    featureIcons: ["🥋","👊","🐉","🔒"],
+    label: "Martial Arts", icon: "ti-target", tagline: "Master Your Mind",
     levels: [
       "White Belt","Yellow Belt","Orange Belt","Green Belt","Blue Belt",
       "Purple Belt","Red Belt","Brown Belt","Black Belt","1st Dan",
@@ -106,8 +127,7 @@ const JOURNEY_THEMES = {
     ],
   },
   viking: {
-    label: "Viking", emoji: "⚔️", tagline: "Legend of the Sagas",
-    featureIcons: ["⚔️","🛡️","🔥","🔒"],
+    label: "Viking", icon: "ti-sword", tagline: "Legend of the Sagas",
     levels: [
       "Thrall","Freeman","Skald","Huscarl","Shield-Brother",
       "Berserker","Raider","Sea Wolf","Jarl's Guard","Bloodhawk",
@@ -117,8 +137,7 @@ const JOURNEY_THEMES = {
     ],
   },
   ocean: {
-    label: "Ocean Diver", emoji: "🌊", tagline: "Descend to the Deep",
-    featureIcons: ["🌊","🐚","🤿","🔒"],
+    label: "Ocean Diver", icon: "ti-anchor", tagline: "Descend to the Deep",
     levels: [
       "Beach Walker","Snorkeler","Surface Diver","Open Water Diver","Advanced Diver",
       "Rescue Diver","Night Diver","Deep Diver","Cave Explorer","Wreck Diver",
@@ -128,8 +147,7 @@ const JOURNEY_THEMES = {
     ],
   },
   rose: {
-    label: "Rose Journey", emoji: "🌹", tagline: "Bloom Into Your Best Self",
-    featureIcons: ["🌹","🌸","🦋","🔒"],
+    label: "Rose Journey", icon: "ti-heart", tagline: "Bloom Into Your Best Self",
     levels: [
       "Seedling","First Leaf","Tender Bud","Opening Bloom","Garden Starter",
       "Soft Power","Quiet Strength","Inner Glow","Rising Bloom","Wild Flower",
@@ -139,8 +157,7 @@ const JOURNEY_THEMES = {
     ],
   },
   forest: {
-    label: "Forest", emoji: "🌿", tagline: "Root Deep, Rise High",
-    featureIcons: ["🌲","🍃","🦌","🔒"],
+    label: "Forest", icon: "ti-trekking", tagline: "Root Deep, Rise High",
     levels: [
       "Seed","Sapling","First Branch","Young Oak","Root Setter",
       "Deep Roots","Forest Floor","Understory","Light Seeker","Mid Canopy",
@@ -150,8 +167,7 @@ const JOURNEY_THEMES = {
     ],
   },
   treasure: {
-    label: "Treasure Quest", emoji: "💎", tagline: "Complete Habits. Unlock Treasure.",
-    featureIcons: ["💎","🪙","👑","🔒"],
+    label: "Treasure Quest", icon: "ti-diamond", tagline: "Complete Habits. Unlock Treasure.",
     levels: [
       "Empty Pockets","Coin Finder","Bronze Key","Map Holder","Cave Scout",
       "Dungeon Crawler","Relic Seeker","Chest Hunter","Vault Raider","Gold Rush",
@@ -161,8 +177,7 @@ const JOURNEY_THEMES = {
     ],
   },
   phoenix: {
-    label: "Phoenix", emoji: "🔥", tagline: "Rise From the Ashes",
-    featureIcons: ["🔥","🪶","✨","🔒"],
+    label: "Phoenix", icon: "ti-flame", tagline: "Rise From the Ashes",
     levels: [
       "Broken","Still Breathing","First Ember","Choosing to Rise","One Step",
       "Finding Footing","Healing Starts","Inner Spark","Rebuilding","Unbroken",
@@ -172,6 +187,9 @@ const JOURNEY_THEMES = {
     ],
   },
 };
+
+// Fixed line-icon set for the 4 onboarding/welcome feature bullets (challenges, points, rest days, privacy)
+const OB_FEATURE_ICONS = ["ti-trophy", "ti-bolt", "ti-shield", "ti-lock"];
 
 function getThemedLevelName(levelNum) {
   const theme = JOURNEY_THEMES[state?.settings?.journeyTheme] || JOURNEY_THEMES.mountain;
@@ -235,13 +253,13 @@ function avgDailyXP() {
   return active >= 3 ? total / 14 : null;
 }
 
-// ── WoW-style Rarity Tiers ────────────────────────────────────────────────
+// ── Rarity Tiers (Field: monochrome + ember intensity ramp, no rainbow) ─────
 const TIERS = {
-  common:    { label:"Starter",   color:"#86efac", border:"#86efac" }, // soft green
-  uncommon:  { label:"Common",    color:"#1eff00", border:"#1eff00" }, // WoW classic green
-  rare:      { label:"Rare",      color:"#4da6ff", border:"#4da6ff" }, // WoW blue
-  epic:      { label:"Epic",      color:"#c070ff", border:"#c070ff" }, // WoW purple
-  legendary: { label:"Legendary", color:"#ff8c00", border:"#ff8c00" }, // WoW orange/gold
+  common:    { label:"Starter",   color:"var(--text-faint)", border:"var(--text-faint)" },
+  uncommon:  { label:"Common",    color:"var(--text-dim)",   border:"var(--text-dim)" },
+  rare:      { label:"Rare",      color:"var(--text)",       border:"var(--text)" },
+  epic:      { label:"Epic",      color:"var(--secondary)",  border:"var(--secondary)" },
+  legendary: { label:"Legendary", color:"var(--primary)",    border:"var(--primary)" },
 };
 
 // Plain-English descriptions of each tier for the builder
@@ -318,9 +336,12 @@ const TEMPLATE_DIFFICULTY = {
   "beginner-strength":"beginner","pushup-challenge":"beginner","pullup-progression":"intermediate",
   "language-learning":"intermediate","budget-reset":"beginner","mindful-eating":"beginner",
   "nature-reset":"beginner",
+  "start-small":"beginner","reset-week":"beginner","momentum-builder":"intermediate",
+  "lean-start":"intermediate","fat-loss-foundation":"intermediate","stress-reset":"beginner",
+  "deep-work-sprint":"intermediate","strength-foundation":"beginner",
 };
 const DIFF_LABEL = { beginner:"Beginner", intermediate:"Intermediate", advanced:"Advanced", extreme:"Extreme" };
-const DIFF_COLOR = { beginner:"#4caf50", intermediate:"#ff9800", advanced:"#f44336", extreme:"#9c27b0" };
+const DIFF_COLOR = { beginner:"var(--text-dim)", intermediate:"var(--text)", advanced:"var(--secondary)", extreme:"var(--primary)" };
 
 // Safety warnings for high-risk or health-sensitive challenges
 const TEMPLATE_SAFETY = {
@@ -338,6 +359,19 @@ const TEMPLATE_SAFETY = {
   "cruise-control": "Intense multi-habit daily protocol. Not suitable if you have joint issues, cardiovascular conditions, or are new to exercise.",
   "hyrox": "High-intensity functional fitness with heavy sleds, carries, and running. Consult a doctor before starting if you have cardiovascular, joint, or lower-back conditions. Progress loads gradually — do not start at race weight.",
 };
+
+const ENDUR_TEMPLATE_IDS = new Set([
+  "dog-walk","cycling","running","zone2","hyrox","half-marathon-prep","marathon-training",
+  "ironman-703","ironman-full","tough-mudder","spartan-race","c25k","5k-prep","10k-prep",
+  "everest-bc","west-highland-way","tour-du-mont-blanc","john-muir-trail","camino","appalachian",
+  "tour-de-france","route66","amazon-river","pct","everest-stairmaster","kilimanjaro-stairmaster",
+  "montblanc-stairmaster","comrades-ultra","utmb","run-5-marathons","run-jogle","run-trans-america",
+  "raid-pyrenees","trans-am-bike","thames-row","danube-row"
+]);
+
+function isConqurTemplate(t) {
+  return !!t && !t.deprecated && t.category !== "expedition" && !ENDUR_TEMPLATE_IDS.has(t.id);
+}
 
 // Challenge template → tier
 const TEMPLATE_TIERS = {
@@ -394,6 +428,9 @@ const TEMPLATE_TIERS = {
   "beginner-strength":"common","pushup-challenge":"common","pullup-progression":"uncommon",
   "language-learning":"uncommon","budget-reset":"common","mindful-eating":"common",
   "nature-reset":"common",
+  "start-small":"common","reset-week":"common","momentum-builder":"uncommon",
+  "lean-start":"uncommon","fat-loss-foundation":"rare","stress-reset":"common",
+  "deep-work-sprint":"uncommon","strength-foundation":"common",
 };
 
 // Universal / Lifetime badge → tier (template badges inherit their template's tier)
@@ -1035,7 +1072,7 @@ const TEMPLATES = [
 
   // ── Expedition Routes ────────────────────────────────────────────────────
   {
-    id: "everest-bc", name: "Everest Base Camp", emoji: "🏔️", category: "expedition",
+    id: "everest-bc", name: "Everest Base Camp", emoji: "🏔️", category: "expedition", deprecated: true,
     description: "Trek 130 km through the Himalayas to the foot of the world's highest peak.",
     duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 130,
     milestones: [
@@ -1052,7 +1089,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "west-highland-way", name: "West Highland Way", emoji: "🌄", category: "expedition",
+    id: "west-highland-way", name: "West Highland Way", emoji: "🌄", category: "expedition", deprecated: true,
     description: "Walk 154 km through the Scottish Highlands from Milngavie to Fort William — lochs, glens, and mountain passes.",
     duration: 30, weeklyGoal: 5, defaultMode: "soft", routeKm: 154,
     milestones: [
@@ -1069,7 +1106,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "tour-du-mont-blanc", name: "Tour du Mont Blanc", emoji: "🗻", category: "expedition",
+    id: "tour-du-mont-blanc", name: "Tour du Mont Blanc", emoji: "🗻", category: "expedition", deprecated: true,
     description: "Circle the Mont Blanc massif across France, Italy and Switzerland — 170 km of alpine trail through 3 countries.",
     duration: 60, weeklyGoal: 5, defaultMode: "soft", routeKm: 170,
     milestones: [
@@ -1086,7 +1123,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "john-muir-trail", name: "John Muir Trail", emoji: "🦅", category: "expedition",
+    id: "john-muir-trail", name: "John Muir Trail", emoji: "🦅", category: "expedition", deprecated: true,
     description: "Hike 340 km through California's Sierra Nevada — from Yosemite Valley to the summit of Mount Whitney.",
     duration: 90, weeklyGoal: 5, defaultMode: "soft", routeKm: 340,
     milestones: [
@@ -1103,7 +1140,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "camino", name: "Camino de Santiago", emoji: "⛪", category: "expedition",
+    id: "camino", name: "Camino de Santiago", emoji: "⛪", category: "expedition", deprecated: true,
     description: "Walk 790 km across Spain on the ancient pilgrimage route to Santiago de Compostela.",
     duration: 90, weeklyGoal: 5, defaultMode: "soft", routeKm: 790,
     milestones: [
@@ -1120,7 +1157,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "appalachian", name: "Appalachian Trail", emoji: "🌲", category: "expedition",
+    id: "appalachian", name: "Appalachian Trail", emoji: "🌲", category: "expedition", deprecated: true,
     description: "Hike the full 3,540 km from Georgia to Maine — one of the world's great long trails.",
     duration: 365, weeklyGoal: 5, defaultMode: "soft", routeKm: 3540,
     milestones: [
@@ -1137,7 +1174,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "tour-de-france", name: "Tour de France", emoji: "🚴", category: "expedition",
+    id: "tour-de-france", name: "Tour de France", emoji: "🚴", category: "expedition", deprecated: true,
     description: "Ride the full 3,490 km route of the world's most iconic cycling race.",
     duration: 120, weeklyGoal: 5, defaultMode: "soft", routeKm: 3490,
     milestones: [
@@ -1154,7 +1191,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "route66", name: "Route 66", emoji: "🚗", category: "expedition",
+    id: "route66", name: "Route 66", emoji: "🚗", category: "expedition", deprecated: true,
     description: "Travel the 3,940 km Mother Road from Chicago, Illinois to Santa Monica, California.",
     duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 3940,
     milestones: [
@@ -1171,7 +1208,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "amazon-river", name: "Amazon River", emoji: "🌿", category: "expedition",
+    id: "amazon-river", name: "Amazon River", emoji: "🌿", category: "expedition", deprecated: true,
     description: "Navigate 6,437 km down the world's greatest river from the Andes to the Atlantic.",
     duration: 365, weeklyGoal: 5, defaultMode: "soft", routeKm: 6437,
     milestones: [
@@ -1188,7 +1225,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "pct", name: "Pacific Crest Trail", emoji: "🌲", category: "expedition",
+    id: "pct", name: "Pacific Crest Trail", emoji: "🌲", category: "expedition", deprecated: true,
     description: "Walk 4,286 km from the Mexican border to the Canadian border — through the Sierra Nevada and Cascades. 5 months. No shortcuts.",
     duration: 150, weeklyGoal: 5, defaultMode: "soft", routeKm: 4286,
     milestones: [
@@ -1208,7 +1245,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "everest-stairmaster", name: "Everest StairMaster", emoji: "🏋️", category: "expedition",
+    id: "everest-stairmaster", name: "Everest StairMaster", emoji: "🏋️", category: "expedition", deprecated: true,
     description: "Climb 2,903 floors — the StairMaster equivalent of summiting Mount Everest from sea level. No oxygen tank. No shortcuts.",
     duration: 112, weeklyGoal: 5, defaultMode: "soft", routeKm: 2903.2,
     milestones: [
@@ -1226,7 +1263,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "kilimanjaro-stairmaster", name: "Kilimanjaro StairMaster", emoji: "🌋", category: "expedition",
+    id: "kilimanjaro-stairmaster", name: "Kilimanjaro StairMaster", emoji: "🌋", category: "expedition", deprecated: true,
     description: "Climb 1,934 floors — the StairMaster equivalent of Africa's highest peak, Uhuru at 5,895 m. Less oxygen, less mercy than Everest, but still Africa's crown.",
     duration: 240, weeklyGoal: 5, defaultMode: "strict", routeKm: 1934,
     milestones: [
@@ -1244,7 +1281,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "montblanc-stairmaster", name: "Mont Blanc StairMaster", emoji: "⛰️", category: "expedition",
+    id: "montblanc-stairmaster", name: "Mont Blanc StairMaster", emoji: "⛰️", category: "expedition", deprecated: true,
     description: "Climb 1,577 floors — the StairMaster equivalent of Mont Blanc, the highest peak in the Alps at 4,808 m. A serious mountain, but friendlier than the giants above.",
     duration: 180, weeklyGoal: 5, defaultMode: "strict", routeKm: 1577,
     milestones: [
@@ -1263,7 +1300,7 @@ const TEMPLATES = [
 
   // ── Running Expeditions ──────────────────────────────────────────────────
   {
-    id: "comrades-ultra", name: "Comrades Ultra", emoji: "🏃", category: "expedition",
+    id: "comrades-ultra", name: "Comrades Ultra", emoji: "🏃", category: "expedition", deprecated: true,
     description: "Run the legendary 89 km Comrades Marathon from Pietermaritzburg to Durban, South Africa.",
     duration: 21, weeklyGoal: 5, defaultMode: "soft", routeKm: 89,
     milestones: [
@@ -1280,7 +1317,7 @@ const TEMPLATES = [
     ]
   },
   {
-    id: "utmb", name: "Ultra Trail du Mont Blanc", emoji: "⛰️", category: "expedition",
+    id: "utmb", name: "Ultra Trail du Mont Blanc", emoji: "⛰️", category: "expedition", deprecated: true,
     description: "Tackle the 171 km UTMB course circling Mont Blanc through France, Italy and Switzerland.",
     duration: 40, weeklyGoal: 5, defaultMode: "soft", routeKm: 171,
     milestones: [
@@ -1298,7 +1335,7 @@ const TEMPLATES = [
     ]
   },
   {
-    id: "run-5-marathons", name: "5 Marathon Challenge", emoji: "🏃", category: "expedition",
+    id: "run-5-marathons", name: "5 Marathon Challenge", emoji: "🏃", category: "expedition", deprecated: true,
     description: "Run the equivalent of 5 consecutive marathons — 211 km total. Pace doesn't matter. Showing up does.",
     duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 211,
     milestones: [
@@ -1315,7 +1352,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "run-jogle", name: "Land's End to John o'Groats", emoji: "🏃", category: "expedition",
+    id: "run-jogle", name: "Land's End to John o'Groats", emoji: "🏃", category: "expedition", deprecated: true,
     description: "Run the entire length of Great Britain — 1,407 km from Land's End to John o'Groats. End to end.",
     duration: 90, weeklyGoal: 5, defaultMode: "soft", routeKm: 1407,
     milestones: [
@@ -1332,7 +1369,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "run-trans-america", name: "Trans-America Run", emoji: "🏃", category: "expedition",
+    id: "run-trans-america", name: "Trans-America Run", emoji: "🏃", category: "expedition", deprecated: true,
     description: "Run across the United States — 4,989 km from San Francisco to New York City.",
     duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 4989,
     milestones: [
@@ -1351,7 +1388,7 @@ const TEMPLATES = [
 
   // ── Additional Cycling Expeditions ──────────────────────────────────────
   {
-    id: "raid-pyrenees", name: "Raid Pyrénéen", emoji: "🚴", category: "expedition",
+    id: "raid-pyrenees", name: "Raid Pyrénéen", emoji: "🚴", category: "expedition", deprecated: true,
     description: "Cycle all 726 km of the legendary Pyrénées mountain route from the Atlantic coast to the Mediterranean.",
     duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 726,
     milestones: [
@@ -1368,7 +1405,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "trans-am-bike", name: "Trans-America Bike", emoji: "🚴", category: "expedition",
+    id: "trans-am-bike", name: "Trans-America Bike", emoji: "🚴", category: "expedition", deprecated: true,
     description: "Ride the 6,771 km TransAm Bike Trail from Yorktown, Virginia to Astoria, Oregon.",
     duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 6771,
     milestones: [
@@ -1387,7 +1424,7 @@ const TEMPLATES = [
 
   // ── Additional Rowing Expeditions ────────────────────────────────────────
   {
-    id: "thames-row", name: "Thames Row", emoji: "🚣", category: "expedition",
+    id: "thames-row", name: "Thames Row", emoji: "🚣", category: "expedition", deprecated: true,
     description: "Row the full length of the Thames from its source in the Cotswolds to the open sea — 346 km.",
     duration: 30, weeklyGoal: 5, defaultMode: "soft", routeKm: 346,
     milestones: [
@@ -1404,7 +1441,7 @@ const TEMPLATES = [
     ],
   },
   {
-    id: "danube-row", name: "Danube Row", emoji: "🚣", category: "expedition",
+    id: "danube-row", name: "Danube Row", emoji: "🚣", category: "expedition", deprecated: true,
     description: "Row 2,860 km down the Danube from Germany to the Black Sea — through 10 countries.",
     duration: 120, weeklyGoal: 5, defaultMode: "soft", routeKm: 2860,
     milestones: [
@@ -1550,6 +1587,95 @@ const TEMPLATES = [
       { id:"nr-noscreen",  title:"No screens first 30 min",        emoji:"📵", quip:"Start the day before the internet does.",                 type:"binary", points:2 },
     ]
   },
+  {
+    id: "start-small", name: "Start Small", emoji: "🎯", category: "lifestyle",
+    description: "14 days of simple daily wins. Build momentum without overwhelm.",
+    duration: 14, weeklyGoal: 45, defaultMode: "soft",
+    habits: [
+      { id:"ss-move",    title:"10 min movement",        emoji:"🚶", quip:"Walk, stretch, or move. Keep the promise small.", type:"binary", points:3 },
+      { id:"ss-water",   title:"Drink water",            emoji:"💧", quip:"Start with the basics. Hydrate today.",           type:"binary", points:2 },
+      { id:"ss-protein", title:"Protein with first meal",emoji:"🥩", quip:"Anchor the day with a solid first meal.",          type:"binary", points:3 },
+      { id:"ss-plan",    title:"Plan tomorrow",          emoji:"📝", quip:"One minute tonight makes tomorrow easier.",        type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "reset-week", name: "Reset Week", emoji: "↻", category: "lifestyle",
+    description: "A 7-day reset for getting back in control after falling off track.",
+    duration: 7, weeklyGoal: 45, defaultMode: "soft",
+    habits: [
+      { id:"rw-walk",  title:"Walk 10 minutes", emoji:"🚶", quip:"Move first. Momentum follows.",                 type:"binary", points:3 },
+      { id:"rw-food",  title:"Whole-food meal", emoji:"🥗", quip:"One real meal. Simple and honest.",              type:"binary", points:3 },
+      { id:"rw-alc",   title:"No alcohol",      emoji:"🚫", quip:"Keep the reset clean today.",                    type:"binary", points:3 },
+      { id:"rw-sleep", title:"Sleep routine",   emoji:"🌙", quip:"Set tomorrow up before tonight gets away.",      type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "momentum-builder", name: "Momentum Builder", emoji: "⚡", category: "transformation",
+    description: "30 days to build daily structure through routines, movement, reading, nutrition, and sleep.",
+    duration: 30, weeklyGoal: 70, defaultMode: "soft",
+    habits: [
+      { id:"mb-morning", title:"Morning routine", emoji:"🌅", quip:"Start the day deliberately.",                type:"binary", points:3 },
+      { id:"mb-steps",   title:"Daily steps",     emoji:"👟", quip:"Move enough to feel awake and capable.",      type:"binary", points:3 },
+      { id:"mb-read",    title:"Read 10 pages",   emoji:"📖", quip:"Feed your mind before the day ends.",         type:"binary", points:2 },
+      { id:"mb-protein", title:"Protein goal",    emoji:"🥩", quip:"Build meals around protein.",                 type:"binary", points:3 },
+      { id:"mb-sleep",   title:"Sleep routine",   emoji:"🌙", quip:"Close the day with control.",                 type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "lean-start", name: "Lean Start", emoji: "⚖️", category: "health",
+    description: "30 days building the foundation for fat loss without extreme dieting.",
+    duration: 30, weeklyGoal: 60, defaultMode: "soft",
+    habits: [
+      { id:"ls-protein", title:"Protein goal",       emoji:"🥩", quip:"Protein first. Keep it simple.",             type:"binary", points:4 },
+      { id:"ls-steps",   title:"Daily steps",        emoji:"👟", quip:"Walk daily. The baseline matters.",          type:"binary", points:3 },
+      { id:"ls-food",    title:"Whole-food meals",   emoji:"🥗", quip:"Choose real food most of the day.",          type:"binary", points:3 },
+      { id:"ls-drinks",  title:"No liquid calories", emoji:"🥤", quip:"Calories you drink are easy to miss.",       type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "fat-loss-foundation", name: "Fat Loss Foundation", emoji: "🔥", category: "health",
+    description: "42 days of protein, fiber, movement, strength, and sleep consistency.",
+    duration: 42, weeklyGoal: 70, defaultMode: "soft",
+    habits: [
+      { id:"fl-protein", title:"Protein goal",    emoji:"🥩", quip:"Hit the anchor habit.",                    type:"binary", points:4 },
+      { id:"fl-fiber",   title:"Fiber food",      emoji:"🥦", quip:"Vegetables, legumes, oats, or whole grains.", type:"binary", points:3 },
+      { id:"fl-steps",   title:"Daily steps",     emoji:"👟", quip:"Movement keeps the plan honest.",          type:"binary", points:3 },
+      { id:"fl-strength",title:"Strength habit",  emoji:"🏋️", quip:"A short session counts. Show up.",         type:"binary", points:4 },
+      { id:"fl-sleep",   title:"Sleep routine",   emoji:"🌙", quip:"Recovery supports better choices.",        type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "stress-reset", name: "Stress Reset", emoji: "🧘", category: "lifestyle",
+    description: "14 days of simple nervous-system habits for calmer days.",
+    duration: 14, weeklyGoal: 42, defaultMode: "soft",
+    habits: [
+      { id:"sr-light",  title:"Morning light",     emoji:"☀️", quip:"Get light early. Set the tone.",          type:"binary", points:3 },
+      { id:"sr-walk",   title:"10 min walk",       emoji:"🚶", quip:"Let the body discharge pressure.",         type:"binary", points:3 },
+      { id:"sr-shutdown",title:"Evening shutdown", emoji:"🌙", quip:"Close loops before bed.",                  type:"binary", points:3 },
+      { id:"sr-breathe",title:"5 min breathing",   emoji:"🫁", quip:"Slow breathing. Quiet system.",            type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "deep-work-sprint", name: "Deep Work Sprint", emoji: "🎯", category: "transformation",
+    description: "14 days of focused work. Fewer distractions, clearer priorities, better output.",
+    duration: 14, weeklyGoal: 38, defaultMode: "soft",
+    habits: [
+      { id:"dw-focus", title:"90 min focus block",       emoji:"🧠", quip:"One block. Phone away. Work deep.", type:"binary", points:5 },
+      { id:"dw-social",title:"No social during work",    emoji:"📵", quip:"Protect the block.",               type:"binary", points:3 },
+      { id:"dw-plan",  title:"Plan tomorrow",            emoji:"📝", quip:"Decide the next mission tonight.", type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "strength-foundation", name: "Strength Foundation", emoji: "🏋️", category: "movement",
+    description: "30 days of basic strength consistency. This is a habit challenge, not a performance program.",
+    duration: 30, weeklyGoal: 50, defaultMode: "soft",
+    habits: [
+      { id:"sf-strength", title:"Strength session", emoji:"🏋️", quip:"Bodyweight or weights. Train the pattern.", type:"binary", points:4 },
+      { id:"sf-core",     title:"Core work",        emoji:"🧱", quip:"Plank, dead bug, or carries.",               type:"binary", points:2 },
+      { id:"sf-mobility", title:"Mobility",         emoji:"🧘", quip:"Move better so you can train again.",        type:"binary", points:2 },
+      { id:"sf-protein",  title:"Protein goal",     emoji:"🥩", quip:"Support recovery with a solid meal.",        type:"binary", points:3 },
+    ]
+  },
 ];
 
 // ── Badge Definitions ──────────────────────────────────────────────────────
@@ -1584,7 +1710,6 @@ const UNIVERSAL_BADGES = [
   { id:"u-multi",  label:"🔀 Multi-Tasker",       desc:"Run 2 challenges at the same time.",                 test: u => u.activeChallenges >= 2 },
   { id:"u-perfwk", label:"⭐ Perfect Week",        desc:"Complete all habits every day for 7 consecutive days.", test: u => u.hasPerfectWeek },
   // Hidden badges — show as "🔒 ???" until earned
-  { id:"u-expedition",   label:"🗺️ The Expedition",  desc:"Complete any expedition challenge.",                          tier:"rare",      hidden:true, test: u => u.expeditionDone },
   { id:"u-double-agent", label:"🔀 Double Agent",     desc:"Complete the same challenge twice.",                         tier:"rare",      hidden:true, test: u => u.doubleAgent },
   { id:"u-dark-horse",   label:"🖤 Dark Horse",       desc:"Come back after a streak gap and still finish.",             tier:"epic",      hidden:true, test: u => u.darkHorse },
   { id:"u-perfect-mt",   label:"💎 Perfect Month",    desc:"Complete 100% of habits every day for 30 consecutive days.", tier:"legendary", hidden:true, test: u => u.perfectMonth },
@@ -2025,6 +2150,7 @@ let _shareModalDone      = false;   // true = challenge completion card, false =
 let _shareCardDataUrl    = null;    // cached base64 PNG of the last drawn share card
 let _notifNudgeDismissed = false;   // dismissal flag for the Day-3 notification nudge
 let builderQuizAnswers   = { goal: null, time: null, level: null };
+let onboardingAnswers    = { goal: null, intensity: null, time: null };
 let _badgeSheetQueue     = [];       // { label, desc, tier } — queued badge celebrations
 let _notifPromptVisible  = false;   // post-challenge-start notification prompt
 let _templateFilter      = "all";   // "all" | "short" | "medium" | "long"
@@ -2074,9 +2200,9 @@ let _forgotPwMode = false;         // forgot-password form is showing
 .dpb-desc{font-size:12px;color:var(--text-dim);margin-top:2px}
 .mode-chip--scheduled-rest{border-color:rgba(76,175,80,.5)!important;color:#4caf50!important}
 .template-filter-bar--diff{margin-top:6px}
-.cloud-sync-bar--warn{background:rgba(234,179,8,.18);color:#92400e;animation:none;height:auto;padding:5px 14px;font-size:12px;text-align:center}
-.cloud-sync-bar--err{background:rgba(220,38,38,.12);color:#dc2626;animation:none;height:auto;padding:5px 14px;font-size:12px;text-align:center}
-.cloud-sync-bar--err button.link-btn{color:#dc2626;font-size:12px;text-decoration:underline}
+.cloud-sync-bar--warn{background:color-mix(in srgb,var(--warning) 18%,transparent);color:var(--warning);animation:none;height:auto;padding:5px 14px;font-size:12px;text-align:center}
+.cloud-sync-bar--err{background:color-mix(in srgb,var(--error) 12%,transparent);color:var(--error);animation:none;height:auto;padding:5px 14px;font-size:12px;text-align:center}
+.cloud-sync-bar--err button.link-btn{color:var(--error);font-size:12px;text-decoration:underline}
 .backfill-limit-hint{font-size:11px;color:var(--text-dim);text-align:center;padding:2px 0 6px;opacity:.8}
 .badge-hint{font-size:11px;color:var(--text-dim);margin-top:3px;font-weight:400}
 .ob-forgot-sent{background:rgba(76,175,80,.12);border:1px solid rgba(76,175,80,.35);border-radius:8px;padding:10px 12px;font-size:13px;color:#166534;margin-bottom:12px;text-align:center}
@@ -2104,7 +2230,7 @@ let _forgotPwMode = false;         // forgot-password form is showing
 .meas-chart-tab.active{background:var(--primary);color:#fff}
 .meas-chart-svg{width:100%;height:110px;display:block}
 .meas-chart-delta{font-size:13px;font-weight:700;text-align:center;padding:4px 0 2px}
-.meas-chart-delta.good{color:#4ade80}.meas-chart-delta.bad{color:#f87171}
+.meas-chart-delta.good{color:var(--success)}.meas-chart-delta.bad{color:var(--error)}
 .meas-chart-hint{font-size:11px;color:var(--text-faint);text-align:center}
 `;
   document.head.appendChild(s);
@@ -2209,7 +2335,7 @@ const CloudSync = {
       state = merged;
       saveState();
       _skipCloudPush = false;
-      showToast("☁️ Data synced from cloud.");
+      showToast("Data synced from cloud.");
     } catch(e) { console.warn("Cloud pull failed:", e); _lastSyncError = true; }
     finally { _cloudSyncing = false; render(); }
   },
@@ -2556,7 +2682,7 @@ function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch(e) {
     console.warn("saveState failed (storage quota?):", e);
-    showToast("⚠️ Storage full — export a backup to avoid losing data.");
+    showToast("Storage full — export a backup to avoid losing data.");
   }
   // Debounced cloud push — 5 s after last save so rapid taps don't spam
   if (!_skipCloudPush && CloudSync.isSignedIn) {
@@ -3069,8 +3195,8 @@ function checkStreakFreezeAward(challenge, weeks) {
     if (!challenge.streakFreezeWeeksAwarded) challenge.streakFreezeWeeksAwarded = [];
     const isFirst = challenge.streakFreezeWeeksAwarded.length === 0;
     challenge.streakFreezeWeeksAwarded.push(weekKey);
-    showBigToast("❄️", "Streak freeze banked!", "5 days logged this week — you've earned a streak freeze.");
-    if (isFirst) setTimeout(() => showToast("❄️ Streak Freeze: tap the snowflake bar on any day you miss to use it."), 3500);
+    showBigToast('<i class="ti ti-snowflake"></i>', "Streak freeze banked!", "5 days logged this week — you've earned a streak freeze.");
+    if (isFirst) setTimeout(() => showToast("Streak Freeze: tap the snowflake bar on any day you miss to use it."), 3500);
     saveState();
   }
 }
@@ -3185,12 +3311,12 @@ function renderLevelUpOverlay() {
   return `
   <div class="luo-backdrop" data-close-levelup>
     <div class="luo-card" role="dialog" aria-modal="true" aria-label="Level up!">
-      <div class="luo-burst">${o.emoji}</div>
+      <div class="luo-burst"><i class="ti ${o.icon}"></i></div>
       <div class="luo-badge">LEVEL UP</div>
       <div class="luo-level">${o.level}</div>
       <div class="luo-name">${o.name}</div>
       <div class="luo-total">${o.total.toLocaleString()} XP total</div>
-      <button class="primary-button luo-cta" data-close-levelup>Keep going 🔥</button>
+      <button class="primary-button luo-cta" data-close-levelup>Keep going</button>
     </div>
   </div>`;
 }
@@ -3248,7 +3374,7 @@ function checkMilestones(challenge) {
   if (dayNumber === 1 && info.percent === 100 && !challenge.flags.day1done) {
     challenge.flags.day1done = true;
     setTimeout(() => {
-      showBigToast("✅", "Day 1 done.", "Come back tomorrow. Your streak starts now.");
+      showBigToast('<i class="ti ti-circle-check"></i>', "Day 1 done.", "Come back tomorrow. Your streak starts now.");
       if (_pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
         setTimeout(() => { _showInstallBanner = true; render(); }, 3000);
       }
@@ -3261,7 +3387,7 @@ function checkMilestones(challenge) {
   // Halfway
   if (dayNumber >= Math.ceil(totalDays / 2) && info.percent === 100 && !challenge.flags.halfway) {
     challenge.flags.halfway = true;
-    setTimeout(() => showBigToast("🎯", "Halfway there.", "Most people quit here. You didn't."), 600);
+    setTimeout(() => showBigToast('<i class="ti ti-target"></i>', "Halfway there.", "Most people quit here. You didn't."), 600);
   }
   // Streak milestones — fire only when the streak just hit that number today
   const STREAK_MILESTONES = [
@@ -3290,7 +3416,7 @@ function checkMilestones(challenge) {
       if (dayNumber === phases[i].end && !challenge.flags[flagKey]) {
         challenge.flags[flagKey] = true;
         const nextPhase = phases[i + 1];
-        setTimeout(() => showBigToast("🏔️", `Phase ${i + 1} complete!`, `Up next: ${nextPhase.name}`), 800);
+        setTimeout(() => showBigToast('<i class="ti ti-flag"></i>', `Phase ${i + 1} complete!`, `Up next: ${nextPhase.name}`), 800);
         break;
       }
     }
@@ -3349,7 +3475,7 @@ function render() {
     console.error("Render error:", err);
     const app = document.getElementById("app");
     if (app) app.innerHTML = `<div style="padding:32px 20px;text-align:center;color:var(--text)">
-      <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+      <div style="font-size:40px;margin-bottom:12px;color:var(--warning)"><i class="ti ti-alert-triangle"></i></div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px">Something went wrong</div>
       <div style="font-size:13px;color:var(--text-dim);margin-bottom:20px">A display error occurred. Your data is safe.</div>
       <button class="primary-button" onclick="window.location.reload()" style="margin:0 auto;max-width:200px">Reload app</button>
@@ -3415,7 +3541,7 @@ function _renderInner() {
   if (_showInstallBanner && _pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
     html += `
     <div class="install-banner">
-      <span style="font-size:28px">📲</span>
+      <span style="font-size:28px;color:var(--accent)"><i class="ti ti-download"></i></span>
       <div class="install-banner-text">
         <strong>Add Conqur to your Home Screen</strong>
         <span>Works offline. Opens like a native app.</span>
@@ -3436,7 +3562,7 @@ function _renderInner() {
       const cid = ppStrip.id.replace("pp-strip-", "");
       PhotoDB.list(cid + "_").then(photos => {
         if (!photos.length) {
-          ppStrip.innerHTML = `<p class="pp-empty">No photos yet — tap 📷 on the progress photo habit to capture one.</p>`;
+          ppStrip.innerHTML = `<p class="pp-empty">No photos yet — tap the camera icon on the progress photo habit to capture one.</p>`;
         } else {
           ppStrip.innerHTML = `<div class="pp-grid">${
             photos.slice(-9).reverse().map(p => {
@@ -3445,7 +3571,7 @@ function _renderInner() {
               return `<div class="pp-item">
                 <img src="${p.dataURL}" class="pp-img" alt="Progress ${label}">
                 <div class="pp-date">${label}</div>
-                <button class="pp-delete" data-delete-photo="${esc(p.key)}" title="Delete photo" aria-label="Delete photo">🗑</button>
+                <button class="pp-delete" data-delete-photo="${esc(p.key)}" title="Delete photo" aria-label="Delete photo"><i class="ti ti-trash"></i></button>
               </div>`;
             }).join("")
           }</div><p class="pp-count">${photos.length} photo${photos.length===1?"":"s"}</p>`;
@@ -3459,7 +3585,7 @@ function renderTopbar() {
   const showShare = activeTab === "today" && !builderOpen && !settingsOpen && !viewChallengeId && !editChallengeId && todayChallengeId !== "__all__" && getActiveChallenges().length > 0;
   return `
   ${_isOffline ? `<div class="cloud-sync-bar cloud-sync-bar--warn" role="status" aria-live="polite">Offline — will sync when reconnected</div>` : ""}
-  ${_lastSyncError && !_isOffline ? `<div class="cloud-sync-bar cloud-sync-bar--err" role="alert">⚠ Sync failed — <button class="link-btn" data-retry-sync>retry</button></div>` : ""}
+  ${_lastSyncError && !_isOffline ? `<div class="cloud-sync-bar cloud-sync-bar--err" role="alert"><i class="ti ti-alert-triangle"></i> Sync failed — <button class="link-btn" data-retry-sync>retry</button></div>` : ""}
   ${_cloudSyncing ? `<div class="cloud-sync-bar" role="progressbar" aria-label="Syncing…"></div>` : ""}
   <header class="topbar">
     <div class="brand">
@@ -3557,16 +3683,16 @@ function renderToday() {
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     <div class="xp-mini-bar">
-      <span class="xmb-badge">${xpTheme.emoji} Lv.${xpInfo.level}</span>
+      <span class="xmb-badge"><i class="ti ${xpTheme.icon}"></i> Lv.${xpInfo.level}</span>
       <span class="xmb-name">${xpInfo.name}</span>
       <span class="xmb-track"><span class="xmb-fill" style="width:${xpInfo.pct}%"></span></span>
-      <span class="xmb-hint">${xpToNext ? xpToNext + " XP to next · XP never resets" : "Max Level 🏆"}</span>
+      <span class="xmb-hint">${xpToNext ? xpToNext + " XP to next · XP never resets" : 'Max Level <i class="ti ti-trophy"></i>'}</span>
     </div>
     ${active.length > 1 ? renderChallengePills(active) : ""}
     ${renderWeeklyRecap(challenge)}
     ${_newWeekBanner ? `
     <div class="new-week-banner${_viewChanged ? " new-week-banner--anim" : ""}">
-      <h3>🗓 New week. Clean slate.</h3>
+      <h3><i class="ti ti-calendar"></i> New week. Clean slate.</h3>
       <p>Last week: <strong>${_newWeekBanner.pts} pts</strong>. Come back stronger.</p>
       <button class="new-week-dismiss" data-dismiss-newweek aria-label="Dismiss">×</button>
     </div>` : ""}
@@ -3588,20 +3714,20 @@ function renderToday() {
       <button class="date-nav-arrow ${canGoFwd?"":"disabled"}" data-date-fwd ${canGoFwd?"":"disabled"} aria-label="Next day">›</button>
     </div>
     ${!canGoBack && minDate === addDays(today, -3) && challenge.startDate < minDate ? `<div class="backfill-limit-hint">Logging is limited to the last 3 days</div>` : ""}
-    ${!isToday ? `<div class="backfill-banner">✏️ Editing ${formatDate(parseDate(effDate),{weekday:"long"})} — changes save immediately.</div>` : ""}
+    ${!isToday ? `<div class="backfill-banner"><i class="ti ti-pencil"></i> Editing ${formatDate(parseDate(effDate),{weekday:"long"})} — changes save immediately.</div>` : ""}
     <section class="hero">
       <div class="hero-title-row">
         <span class="hero-challenge-name">${esc(challenge.emoji)} ${esc(challenge.name)}</span>
-        ${streak > 0 && isToday ? `<span class="hero-streak-chip">🔥${streak}</span>` : ""}
+        ${streak > 0 && isToday ? `<span class="hero-streak-chip"><i class="ti ti-flame"></i>${streak}</span>` : ""}
         <span class="hero-day-badge">Day ${dayNumber}${totalDays ? `<span class="hero-day-of"> / ${totalDays}</span>` : ""}</span>
       </div>
       ${journeyPct !== null ? `<div class="journey-track"><div class="journey-fill" style="width:${journeyPct}%"></div></div>` : ""}
-      <div class="hero-meta">${phaseInfo ? `🏔 ${phaseInfo.phase.name} · ` : ""}${challenge.noEndDate ? "Ongoing" : daysLeft > 0 ? daysLeft+" days left" : "Final day!"}${isToday ? ` · <button class="link-btn hero-settings-link" data-view-challenge="${challenge.id}">✏️ Edit</button>` : ""}</div>
+      <div class="hero-meta">${phaseInfo ? `${phaseInfo.phase.name} · ` : ""}${challenge.noEndDate ? "Ongoing" : daysLeft > 0 ? daysLeft+" days left" : "Final day!"}${isToday ? ` · <button class="link-btn hero-settings-link" data-view-challenge="${challenge.id}">Edit</button>` : ""}</div>
       ${isToday ? `<div class="greeting">${currentGreeting(challenge, dayNumber, streak)}</div>` : ""}
       ${isToday ? renderModeSelector(day, challenge) : ""}
     </section>
     ${phaseInfo && isToday && dayNumber === phaseInfo.phase.end && dayNumber > 1 ? `
-    <div class="boss-day-callout"><div class="boss-day-callout-icon">⚡</div><div class="boss-day-callout-body"><div class="boss-day-callout-title">Phase Finale</div><div class="boss-day-callout-sub">Last day of <strong>${phaseInfo.phase.name}</strong> — finish strong.</div></div></div>` : ""}
+    <div class="boss-day-callout"><div class="boss-day-callout-icon"><i class="ti ti-bolt"></i></div><div class="boss-day-callout-body"><div class="boss-day-callout-title">Phase Finale</div><div class="boss-day-callout-sub">Last day of <strong>${phaseInfo.phase.name}</strong> — finish strong.</div></div></div>` : ""}
 
     ${(() => {
       const sched = getDaySchedule(challenge, effDate);
@@ -3641,7 +3767,7 @@ function renderToday() {
       if (shouldShowBackupNudge(challenge)) return renderBackupNudge(challenge);
       if (dayNumber >= 3 && !_notifNudgeDismissed && ("Notification" in window) && Notification.permission === "default") {
         return `<div class="notif-nudge" data-notif-nudge>
-          <span class="notif-nudge-icon">🔔</span>
+          <span class="notif-nudge-icon"><i class="ti ti-bell"></i></span>
           <span class="notif-nudge-text">Never miss a day — <button class="notif-nudge-link" data-request-notif-permission>enable reminders</button></span>
           <button class="notif-nudge-close" data-dismiss-notif-nudge aria-label="Dismiss">×</button>
         </div>`;
@@ -3672,12 +3798,13 @@ function renderTodayAll(active) {
     ${renderChallengePills(active)}
     ${isToday ? renderXPBar() : ""}
     <div class="all-today-banner">
-      <div class="atb-title">📋 All Active Challenges</div>
+      <div class="atb-title"><i class="ti ti-list-check"></i> All Active Challenges</div>
       <div class="atb-stats">${totalDone} / ${totalHabits} habits done today · ${allPct}%</div>
     </div>
     ${active.map(c => {
       const day = c.days[effDate] || normalizeDay({});
       const info = completionInfo(c, day);
+      const tpl  = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
       const dots = c.habits
         .filter(h => h.type !== "distance")
         .map(h => `<span class="atc-dot${day.done.includes(h.id)?" atc-dot--done":""}">${day.done.includes(h.id)?"✓":"○"}</span>`)
@@ -3685,7 +3812,7 @@ function renderTodayAll(active) {
       return `
       <button class="all-today-card" data-today-challenge="${c.id}">
         <div class="atc-row">
-          <span class="atc-emoji">${esc(c.emoji)}</span>
+          <span class="atc-emoji"><i class="ti ${challengeIcon(tpl)}"></i></span>
           <div class="atc-info">
             <div class="atc-name">${esc(c.name)}</div>
             <div class="atc-dots">${dots}</div>
@@ -3700,7 +3827,7 @@ function renderTodayAll(active) {
     }).join("")}
     ${allPct === 100 ? `
     <div class="all-done-today">
-      <div class="all-done-today-icon">🏆</div>
+      <div class="all-done-today-icon"><i class="ti ti-trophy"></i></div>
       <div class="all-done-today-title">All done today.</div>
       <div class="all-done-today-sub">Every habit logged. Rest up — tomorrow we go again.</div>
     </div>` : ""}
@@ -3719,16 +3846,17 @@ function renderChallengePills(active) {
       const journeyPct = clamp(Math.round((dayNum / totalDays) * 100), 0, 100);
       const todayD     = c.days[today];
       const todayInfo  = completionInfo(c, todayD || normalizeDay({}));
-      const todayDot   = todayInfo.percent === 100 ? "✅" : todayInfo.percent > 0 ? "🔸" : "";
+      const todayDot   = todayInfo.percent === 100 ? `<i class="ti ti-circle-check-filled"></i>` : todayInfo.percent > 0 ? `<i class="ti ti-circle-dot"></i>` : "";
       const isExp      = c.habits.some(h => h.type === "distance");
+      const tpl        = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
       const distPct    = isExp && challengeRouteKm(c)
         ? Math.min(100, Math.round((challengeTotalKm(c) / challengeRouteKm(c)) * 100))
         : null;
       const pctStr     = isExp && distPct !== null
-        ? `🗺${distPct}% ⏱${journeyPct}%`
+        ? `<i class="ti ti-map-2"></i>${distPct}% <i class="ti ti-clock"></i>${journeyPct}%`
         : `${journeyPct}%`;
       return `<button class="c-pill ${c.id===todayChallengeId?"active":""}" data-today-challenge="${c.id}">
-        ${todayDot}${esc(c.emoji)} ${esc(c.name)} <span class="c-pill-pct">${pctStr}</span>
+        ${todayDot}<i class="ti ${challengeIcon(tpl)}"></i> ${esc(c.name)} <span class="c-pill-pct">${pctStr}</span>
       </button>`;
     }).join("")}
   </div>`;
@@ -3752,15 +3880,15 @@ function renderNoChallenge() {
       </svg>
     </div>
     <h1 class="welcome-title">Conqur</h1>
-    <p class="welcome-sub">${upcoming.length ? "Your next challenge starts soon." : hasPast ? "All challenges complete. Start a new one." : "Pick a challenge. Build the habit. Win."}</p>
+    <p class="welcome-sub">${upcoming.length ? "Your next challenge starts soon." : hasPast ? "All challenges complete. Start a new one." : "Break the habit. Build the routine. Become new."}</p>
 
     ${isFirstTime ? `
-    <p class="welcome-desc">Build any habit in 21–86 days. Log daily, earn streaks and badges, and watch yourself change.</p>
+    <p class="welcome-desc">Conqur helps you break bad habits, build better routines, and prove to yourself that you can follow through.</p>
     <div class="welcome-features">
-      <div class="wf-item"><span class="wf-icon">${theme.featureIcons[0]}</span><span class="wf-text">90+ challenges — 75 Hard, Cold Exposure, Morning Routine, Pacific Crest Trail and more</span></div>
-      <div class="wf-item"><span class="wf-icon">${theme.featureIcons[1]}</span><span class="wf-text">Rest days built in — use your jokers wisely, streak stays safe</span></div>
-      <div class="wf-item"><span class="wf-icon">${theme.featureIcons[2]}</span><span class="wf-text">Streaks, badges, streak freezes, and weekly recaps that keep you honest</span></div>
-      <div class="wf-item"><span class="wf-icon">${theme.featureIcons[3]}</span><span class="wf-text">Works offline. No ads. Your data stays on your device.</span></div>
+      <div class="wf-item"><span class="wf-icon"><i class="ti ${OB_FEATURE_ICONS[0]}"></i></span><span class="wf-text">Challenges for bad habits, routines, discipline, health, focus, and mindset</span></div>
+      <div class="wf-item"><span class="wf-icon"><i class="ti ${OB_FEATURE_ICONS[1]}"></i></span><span class="wf-text">Daily checklists turn identity change into small wins you can repeat</span></div>
+      <div class="wf-item"><span class="wf-icon"><i class="ti ${OB_FEATURE_ICONS[2]}"></i></span><span class="wf-text">Streaks, badges, rest days, and weekly recaps keep you honest</span></div>
+      <div class="wf-item"><span class="wf-icon"><i class="ti ${OB_FEATURE_ICONS[3]}"></i></span><span class="wf-text">Works offline. No ads. Your data stays on your device.</span></div>
     </div>` : ""}
 
     ${upcoming.length ? `
@@ -3768,7 +3896,7 @@ function renderNoChallenge() {
       ${upcoming.map(c=>`
       <button class="challenge-card" data-view-challenge="${c.id}" style="text-align:left;width:100%">
         <div class="cc-top">
-          <div class="cc-emoji">${c.emoji}</div>
+          <div class="cc-emoji"><i class="ti ${challengeIcon(c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null)}"></i></div>
           <div class="cc-info">
             <div class="cc-name">${c.name}</div>
             <div class="cc-meta">Starts ${c.startDate} · ${diffDays(today, c.startDate)} day${diffDays(today,c.startDate)===1?"":"s"} away</div>
@@ -3782,7 +3910,7 @@ function renderNoChallenge() {
     </button>
     ${isFirstTime && !CloudSync.isSignedIn ? `
     <div class="device-only-nudge">
-      <span class="don-icon">💾</span>
+      <span class="don-icon"><i class="ti ti-device-floppy"></i></span>
       <div>Your data lives on this device only. <button class="link-btn" data-open-settings>Create a free account</button> to back it up.</div>
     </div>` : ""}
     ${isFirstTime ? `<p class="welcome-hint">No ads. No tracking. Just you and the challenge.</p>` : ""}
@@ -3822,7 +3950,7 @@ function renderRing(info, day, streak, challenge) {
     </svg>
     <div class="ring-center">
       ${day.mode === "rest"
-        ? `<div class="percent" style="font-size:2.2rem">😴</div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">rest day</div>`
+        ? `<div class="percent" style="font-size:2.2rem"><i class="ti ti-moon"></i></div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">rest day</div>`
         : isExpedition
           ? `<div class="percent" style="font-size:${todayKmD > 0 ? "1.6rem" : "2rem"}">${todayKmD > 0 ? todayKmD.toFixed(ringIsFloors?0:1) : "—"}</div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">${todayKmD > 0 ? ringDUnit+" today" : "log "+ringDUnit}</div>`
           : `<div class="percent">${info.percent}%</div><div class="ring-pts">${info.points}<span class="ring-pts-max">/${info.maxPoints}</span><span class="ring-pts-label"> pts</span></div>`
@@ -3851,13 +3979,13 @@ function renderRing(info, day, streak, challenge) {
     </div>`}
     <div class="ring-stat-sep"></div>
     <div class="ring-stat">
-      <div class="ring-stat-value${streak>=7?' streak-hero':''}">${streak}${gracePip?`<span style="font-size:10px;color:#ffcc44;margin-left:2px" title="Grace day used yesterday — don't miss today!">🛟</span>`:""}${streak>=7?"🔥":""}</div>
-      <div class="ring-stat-label">day streak${gracePip?`<span style="display:block;font-size:9px;color:#ffcc44">grace used</span>`:""}</div>
+      <div class="ring-stat-value${streak>=7?' streak-hero':''}">${streak}${gracePip?`<span style="font-size:10px;color:var(--warning);margin-left:2px" title="Grace day used yesterday — don't miss today!"><i class="ti ti-lifebuoy"></i></span>`:""}${streak>=7?` <i class="ti ti-flame"></i>`:""}</div>
+      <div class="ring-stat-label">day streak${gracePip?`<span style="display:block;font-size:9px;color:var(--warning)">grace used</span>`:""}</div>
       ${challenge && getStreakMultiplier(challenge) > 1.0 ? `<div class="ring-mult-chip">${getStreakMultiplier(challenge).toFixed(2).replace(/\.?0+$/,"")}× pts</div>` : ""}
     </div>
   </div>
-  ${isPerfect ? `<div class="perfect-day-chip">✅ PERFECT DAY</div>` : ""}
-  ${day.comebackBonus ? `<div class="perfect-day-chip comeback-chip">🧡 COMEBACK DAY</div>` : ""}`;
+  ${isPerfect ? `<div class="perfect-day-chip"><i class="ti ti-circle-check"></i> PERFECT DAY</div>` : ""}
+  ${day.comebackBonus ? `<div class="perfect-day-chip comeback-chip"><i class="ti ti-flame"></i> COMEBACK DAY</div>` : ""}`;
 }
 
 function renderStreakFreezeUI(challenge) {
@@ -3868,7 +3996,7 @@ function renderStreakFreezeUI(challenge) {
   if (freezes === 0) return "";
   return `
   <div class="freeze-bar">
-    <span class="freeze-bar-label">❄️ ${freezes} streak freeze${freezes > 1 ? "s" : ""}</span>
+    <span class="freeze-bar-label"><i class="ti ti-snowflake"></i> ${freezes} streak freeze${freezes > 1 ? "s" : ""}</span>
     ${yesterdayUnlogged
       ? `<button class="pill-btn" data-use-freeze>Protect streak</button>`
       : `<span class="freeze-bar-hint">Ready if you miss a day</span>`}
@@ -3889,26 +4017,26 @@ function renderModeSelector(day, challenge) {
 
   // Compact single-line chip row
   if (noRestDay) {
-    return `<div class="mode-chip-row"><button class="mode-chip mode-chip--active" data-mode="rest" title="No rest days on this challenge">🎯 Standard Day <span class="mode-chip-no-rest">· no rest days</span></button></div>`;
+    return `<div class="mode-chip-row"><button class="mode-chip mode-chip--active" data-mode="rest" title="No rest days on this challenge"><i class="ti ti-target"></i> Standard Day <span class="mode-chip-no-rest">· no rest days</span></button></div>`;
   }
   if (isScheduledRest) {
-    const restLabel = todayIsRest ? "😴 Scheduled Rest — active" : "😴 Scheduled Rest (free)";
+    const restLabel = todayIsRest ? `<i class="ti ti-moon"></i> Scheduled Rest — active` : `<i class="ti ti-moon"></i> Scheduled Rest (free)`;
     return `
   <div class="mode-chip-row">
-    <button class="mode-chip ${!todayIsRest ? "mode-chip--active" : ""}" data-mode="standard">🏃 Work out anyway</button>
+    <button class="mode-chip ${!todayIsRest ? "mode-chip--active" : ""}" data-mode="standard"><i class="ti ti-run"></i> Work out anyway</button>
     <button class="mode-chip mode-chip--rest ${todayIsRest ? "mode-chip--rest-active" : "mode-chip--scheduled-rest"}" data-mode="rest">${restLabel}</button>
   </div>`;
   }
   const restLabel = todayIsRest
-    ? "😴 Rest Day — active"
+    ? `<i class="ti ti-moon"></i> Rest Day — active`
     : budgetExhausted
-      ? `😴 Rest Day · none left`
-      : `😴 Rest Day · ${jokersLeft} flex ${jokersLeft === 1 ? "day" : "days"} left`;
+      ? `<i class="ti ti-moon"></i> Rest Day · none left`
+      : `<i class="ti ti-moon"></i> Rest Day · ${jokersLeft} flex ${jokersLeft === 1 ? "day" : "days"} left`;
   const restDisabled = budgetExhausted ? "mode-chip--disabled" : "";
   const activeChip   = todayIsRest ? "mode-chip--rest-active" : "mode-chip--active";
   return `
   <div class="mode-chip-row">
-    <button class="mode-chip ${!todayIsRest ? activeChip : ""}" data-mode="standard">🎯 Standard</button>
+    <button class="mode-chip ${!todayIsRest ? activeChip : ""}" data-mode="standard"><i class="ti ti-target"></i> Standard</button>
     <button class="mode-chip mode-chip--rest ${todayIsRest ? "mode-chip--rest-active" : ""} ${restDisabled}" data-mode="rest" ${budgetExhausted ? 'aria-disabled="true"' : ""}>${restLabel}</button>
   </div>`;
 }
@@ -4015,9 +4143,9 @@ function renderDistanceHabit(habit, day, challenge) {
   </div>`;
   const checked = day.done.includes(habit.id);
   const quip = checked
-    ? `${displayVal} ${displayUnit} logged today ✓`
+    ? `${displayVal} ${displayUnit} logged today`
     : remaining !== null && remaining === 0
-      ? `${isFloors ? "Summit" : "Route"} complete! 🎉`
+      ? `${isFloors ? "Summit" : "Route"} complete!`
       : remaining !== null
         ? `${remaining.toFixed(1)} ${displayUnit} left`
         : esc(habit.quip);
@@ -4128,7 +4256,7 @@ function renderRouteProgress(challenge, template) {
     <div class="route-pace">
       ${remaining > 0
         ? `${isFloors ? Math.round(remaining) : remaining.toFixed(1)} ${displayUnit} remaining${next ? ` · next: ${next.emoji} ${next.name}` : ""}`
-        : `🎉 ${isFloors ? "Summit reached" : "Route complete"}! You conquered ${template.name}.`}
+        : `${isFloors ? "Summit reached" : "Route complete"}! You conquered ${template.name}.`}
     </div>
     ${reached && totalNative > 0 ? `
     <div class="route-milestone-banner">
@@ -4161,7 +4289,7 @@ function renderWeightWidget() {
     <div class="ww-right">
       ${lost!==null?`<div class="ww-lost ${lost>0?"ww-good":lost<0?"ww-bad":""}">${lostText}</div>`:""}
       ${pct!==null?`<div class="ww-track"><div class="ww-fill" style="width:${pct}%"></div></div>
-        <div class="ww-goal">${toGoal>0?`${toGoal} ${unit} to go`:"🎯 Goal reached!"}</div>`:""}
+        <div class="ww-goal">${toGoal>0?`${toGoal} ${unit} to go`:'<i class="ti ti-target"></i> Goal reached!'}</div>`:""}
     </div>
   </div>`;
 }
@@ -4185,7 +4313,7 @@ function renderTodayWeightLog() {
 function renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToday) {
   if (info.done!==info.total || info.total===0) return "";
   const isExpedition = challenge?.habits.some(h => h.type === "distance");
-  if (day.mode==="rest") return `<div class="complete-banner rest-complete"><span class="cb-icon">😴</span><div class="cb-body"><div class="cb-title">Rest Day</div><div class="cb-sub">Recover. Come back stronger.</div></div></div>`;
+  if (day.mode==="rest") return `<div class="complete-banner rest-complete"><span class="cb-icon"><i class="ti ti-moon"></i></span><div class="cb-body"><div class="cb-title">Rest Day</div><div class="cb-sub">Recover. Come back stronger.</div></div></div>`;
   if (isExpedition) {
     const distHabit  = challenge.habits.find(h => h.type === "distance");
     const habitUnit  = distHabit?.unit || "km";
@@ -4203,23 +4331,23 @@ function renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToda
     const sub = remD !== null
       ? `${totalD.toFixed(1)} ${dUnit} covered · ${remD.toFixed(1)} ${dUnit} to go`
       : `${totalD.toFixed(1)} ${dUnit} covered`;
-    return `<div class="complete-banner"><span class="cb-icon">🗺️</span><div class="cb-body"><div class="cb-title">${todayD.toFixed(isFloors?0:1)} ${dUnit} today</div><div class="cb-sub">${sub}</div></div></div>`;
+    return `<div class="complete-banner"><span class="cb-icon"><i class="ti ti-map-2"></i></span><div class="cb-body"><div class="cb-title">${todayD.toFixed(isFloors?0:1)} ${dUnit} today</div><div class="cb-sub">${sub}</div></div></div>`;
   }
   const currentStreak = challenge ? calcChallengeStreak(challenge) : 0;
-  const streakShare = currentStreak >= 2 ? `<button class="cb-share-btn" data-share-streak>📤 Share streak</button>` : "";
+  const streakShare = currentStreak >= 2 ? `<button class="cb-share-btn" data-share-streak><i class="ti ti-share"></i> Share streak</button>` : "";
   const firstHabit = challenge?.habits[0];
   const tomorrowHook = isToday && dayNumber && totalDays && dayNumber < totalDays
-    ? `<div class="cb-tomorrow">Tomorrow: ${firstHabit ? esc(firstHabit.emoji)+" "+esc(firstHabit.title) : "Day "+(dayNumber+1)} · ${currentStreak+1}-day streak 🔥</div>`
+    ? `<div class="cb-tomorrow">Tomorrow: ${firstHabit ? esc(firstHabit.title) : "Day "+(dayNumber+1)} · ${currentStreak+1}-day streak <i class="ti ti-flame"></i></div>`
     : "";
   if (day.comebackBonus) {
-    return `<div class="complete-banner"><span class="cb-icon">🧡</span><div class="cb-body"><div class="cb-title">Comeback. Day ${dayNumber||""} is done.</div><div class="cb-sub">That's what resilience looks like · ${info.points} pts</div>${tomorrowHook}${streakShare}</div></div>`;
+    return `<div class="complete-banner"><span class="cb-icon"><i class="ti ti-flame"></i></span><div class="cb-body"><div class="cb-title">Comeback. Day ${dayNumber||""} is done.</div><div class="cb-sub">That's what resilience looks like · ${info.points} pts</div>${tomorrowHook}${streakShare}</div></div>`;
   }
   const tpl = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
   const cat = tpl?.category || "transformation";
   const copyLines = COMPLETE_COPY[cat] || COMPLETE_COPY.transformation;
   const seed = parseInt((day.date || todayKey()).replace(/-/g,"")) || 0;
   const copy = copyLines[seed % copyLines.length];
-  return `<div class="complete-banner"><span class="cb-icon">🔥</span><div class="cb-body"><div class="cb-title">${copy}${dayNumber ? ` Day ${dayNumber} done.` : ""}</div><div class="cb-sub">All habits done · ${info.points} pts</div>${tomorrowHook}${streakShare}</div></div>`;
+  return `<div class="complete-banner"><span class="cb-icon"><i class="ti ti-flame"></i></span><div class="cb-body"><div class="cb-title">${copy}${dayNumber ? ` Day ${dayNumber} done.` : ""}</div><div class="cb-sub">All habits done · ${info.points} pts</div>${tomorrowHook}${streakShare}</div></div>`;
 }
 
 function renderXPBar() {
@@ -4230,13 +4358,13 @@ function renderXPBar() {
   const freezes = c ? (c.streakFreezes || 0) : 0;
   const todayDay = c?.days[todayKey()];
   const mult     = todayDay?.streakMult ?? (c ? getStreakMultiplier(c) : 1);
-  const multLabel = mult >= 1.40 ? `🔥 +40% streak bonus active` : mult >= 1.25 ? `🔥 +25% streak bonus active` : mult >= 1.15 ? `🔥 +15% streak bonus active` : mult >= 1.10 ? `🔥 +10% streak bonus active` : null;
+  const multLabel = mult >= 1.40 ? `<i class="ti ti-flame"></i> +40% streak bonus active` : mult >= 1.25 ? `<i class="ti ti-flame"></i> +25% streak bonus active` : mult >= 1.15 ? `<i class="ti ti-flame"></i> +15% streak bonus active` : mult >= 1.10 ? `<i class="ti ti-flame"></i> +10% streak bonus active` : null;
   return `
   <div class="xp-bar-wrap">
     <div class="xp-bar-header">
-      <span class="xp-level-badge">⚡ Lv.${info.level} <span class="xp-level-name">${info.name}</span></span>
+      <span class="xp-level-badge"><i class="ti ti-bolt"></i> Lv.${info.level} <span class="xp-level-name">${info.name}</span></span>
       <div style="display:flex;align-items:center;gap:8px">
-        ${freezes > 0 ? `<span class="xp-freeze-badge" title="Streak freezes — use one to protect a missed day">❄️ ${freezes}</span>` : ""}
+        ${freezes > 0 ? `<span class="xp-freeze-badge" title="Streak freezes — use one to protect a missed day"><i class="ti ti-snowflake"></i> ${freezes}</span>` : ""}
         <span class="xp-bar-to-next">${isMax ? "Max Level" : (() => { const avg = avgDailyXP(); const d = avg ? `~${Math.ceil(toNext/avg)}d` : null; return `${toNext.toLocaleString()} XP to Lv.${info.next.level}${d?` · ${d}`:""}` })()}</span>
       </div>
     </div>
@@ -4290,8 +4418,8 @@ function renderWeeklyRecap(challenge) {
   return `
   <div class="weekly-recap-card">
     <div class="wrc-top">
-      <div class="wrc-title">📋 Week ${lastWeek.num} Review</div>
-      <button class="wrc-dismiss" data-dismiss-weekly-recap="${challenge.id}" aria-label="Dismiss">✕</button>
+      <div class="wrc-title"><i class="ti ti-clipboard-list"></i> Week ${lastWeek.num} Review</div>
+      <button class="wrc-dismiss" data-dismiss-weekly-recap="${challenge.id}" aria-label="Dismiss">×</button>
     </div>
     <div class="wrc-stats">
       ${isExpedition
@@ -4302,7 +4430,7 @@ function renderWeeklyRecap(challenge) {
       <div class="wrc-sep"></div>
       <div class="wrc-stat"><span class="wrc-val">${streak}</span><span class="wrc-lbl">streak</span></div>
     </div>
-    ${lastWeekGoal ? `<div class="wrc-goal-row${goalMetLast ? " wrc-goal-met" : ""}">${goalMetLast ? "🎯 Weekly goal hit!" : `🎯 ${pts}/${lastWeekGoal} pts — ${Math.round(pts/lastWeekGoal*100)}% of goal`}${thisWeekGoal && thisWeekGoal !== lastWeekGoal ? ` · Week ${curWeekIdx + 1} target: ${thisWeekGoal} pts` : ""}</div>` : ""}
+    ${lastWeekGoal ? `<div class="wrc-goal-row${goalMetLast ? " wrc-goal-met" : ""}"><i class="ti ti-target"></i> ${goalMetLast ? "Weekly goal hit!" : `${pts}/${lastWeekGoal} pts — ${Math.round(pts/lastWeekGoal*100)}% of goal`}${thisWeekGoal && thisWeekGoal !== lastWeekGoal ? ` · Week ${curWeekIdx + 1} target: ${thisWeekGoal} pts` : ""}</div>` : ""}
     ${deltaStr ? `<div class="wrc-delta-row">${deltaStr}</div>` : ""}
     <div class="wrc-msg">${msg}</div>
   </div>`;
@@ -4315,9 +4443,10 @@ function suggestNextChallenges(c) {
   const finishedId = c.templateId;
   // Check challenge chain first
   const chainNextId = finishedId && CHALLENGE_CHAINS[finishedId];
-  const chainNext   = chainNextId ? TEMPLATES.find(t => t.id === chainNextId) : null;
+  const chainNextRaw = chainNextId ? TEMPLATES.find(t => t.id === chainNextId) : null;
+  const chainNext   = isConqurTemplate(chainNextRaw) ? chainNextRaw : null;
   const cat  = TEMPLATES.find(t => t.id === finishedId)?.category;
-  const pool = TEMPLATES.filter(t => t.id !== finishedId && t.id !== chainNextId && !t.deprecated);
+  const pool = TEMPLATES.filter(t => t.id !== finishedId && t.id !== chainNextId && isConqurTemplate(t));
   const sameCat = pool.filter(t => t.category === cat);
   const extras  = pickRandom(sameCat.length ? sameCat : pool, chainNext ? 1 : 2);
   return chainNext ? [chainNext, ...extras] : extras;
@@ -4372,10 +4501,10 @@ function renderPersonalBests() {
   return `
   <div class="section-label" style="margin-top:8px">Personal Bests</div>
   <div class="pb-grid">
-    ${pbCard("🔥 Longest Streak", pb.longestStreak, "days")}
-    ${pbCard("⚡ Best Week",       pb.bestWeekPts,   "pts")}
-    ${pbCard("✅ Habits Logged",  pb.totalHabits,   "")}
-    ${pbCard("📅 Days Shown Up",  pb.totalDays,     "")}
+    ${pbCard('<i class="ti ti-flame"></i> Longest Streak', pb.longestStreak, "days")}
+    ${pbCard('<i class="ti ti-bolt"></i> Best Week',       pb.bestWeekPts,   "pts")}
+    ${pbCard('<i class="ti ti-check"></i> Habits Logged',  pb.totalHabits,   "")}
+    ${pbCard('<i class="ti ti-calendar"></i> Days Shown Up', pb.totalDays,   "")}
   </div>`;
 }
 
@@ -4416,8 +4545,8 @@ function drawShareCard(challenge, isDone) {
   // Gradient accent bar top
   const cs = getComputedStyle(document.documentElement);
   const grad = ctx.createLinearGradient(0, 0, s, 0);
-  grad.addColorStop(0, cs.getPropertyValue("--primary").trim()   || "#b44fff");
-  grad.addColorStop(1, cs.getPropertyValue("--secondary").trim() || "#ff4fa3");
+  grad.addColorStop(0, cs.getPropertyValue("--primary").trim()   || "#d97742");
+  grad.addColorStop(1, cs.getPropertyValue("--secondary").trim() || "#e0935f");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, s, 10);
 
@@ -4480,7 +4609,7 @@ function drawShareCard(challenge, isDone) {
   const _scTheme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
   ctx.fillStyle = "rgba(152,150,184,0.55)";
   ctx.font      = `400 ${Math.round(s * 0.03)}px 'Arial', sans-serif`;
-  ctx.fillText(`${_scTheme.emoji} ${_scTheme.label} · Lv.${_scLevel.level} ${_scLevel.name}`, s / 2, s * 0.81);
+  ctx.fillText(`${_scTheme.label} · Lv.${_scLevel.level} ${_scLevel.name}`, s / 2, s * 0.81);
 
   // Watermark
   ctx.fillStyle = "rgba(152,150,184,0.4)";
@@ -4505,9 +4634,9 @@ function renderShareModal() {
     <div class="share-modal-inner" onclick="event.stopPropagation()">
       <img src="${_shareCardDataUrl}" class="share-card-img" alt="Share card">
       <div class="share-modal-actions">
-        <button class="primary-button" data-share-card-native style="margin-bottom:8px">📤 Share</button>
-        <button class="secondary-button" data-download-share-card>⬇️ Save image</button>
-        <button class="secondary-button" data-copy-share-text style="margin-top:8px">📋 Copy text</button>
+        <button class="primary-button" data-share-card-native style="margin-bottom:8px"><i class="ti ti-share"></i> Share</button>
+        <button class="secondary-button" data-download-share-card><i class="ti ti-download"></i> Save image</button>
+        <button class="secondary-button" data-copy-share-text style="margin-top:8px"><i class="ti ti-copy"></i> Copy text</button>
       </div>
       <button class="share-modal-close" data-close-share-modal aria-label="Close">×</button>
     </div>
@@ -4520,7 +4649,8 @@ function renderCompletionModal(c) {
   const finalStreak  = c.finalStreak ?? calcChallengeStreak(c);
   const canShare     = !!navigator.share || !!navigator.clipboard;
   const nextId       = c.templateId && CHALLENGE_CHAINS[c.templateId];
-  const nextT        = nextId ? TEMPLATES.find(t => t.id === nextId) : null;
+  const nextRaw      = nextId ? TEMPLATES.find(t => t.id === nextId) : null;
+  const nextT        = isConqurTemplate(nextRaw) ? nextRaw : null;
   const isExpedition  = c.habits.some(h => h.type === "distance");
   const totalKmNativeM = isExpedition ? challengeTotalKm(c) : null;
   const routeFinished = challengeRouteKm(c) && totalKmNativeM >= challengeRouteKm(c);
@@ -4536,16 +4666,16 @@ function renderCompletionModal(c) {
   return `
   <div class="sheet-backdrop" data-close-completion>
     <section class="sheet completion-modal" role="dialog">
-      <div class="completion-emoji">${esc(c.emoji)}</div>
+      <div class="completion-emoji"><i class="ti ti-trophy"></i></div>
       <div class="completion-title">${isExpedition && routeFinished ? "Route Complete!" : "Challenge Complete!"}</div>
       <div class="completion-name">${esc(c.name)}</div>
       <div class="completion-sub">${completionSub}</div>
-      ${bonusXP ? `<div class="completion-bonus-row">⚡ Challenge Complete Bonus: <strong>+${bonusXP} XP</strong></div>` : ""}
+      ${bonusXP ? `<div class="completion-bonus-row"><i class="ti ti-bolt"></i> Challenge Complete Bonus: <strong>+${bonusXP} XP</strong></div>` : ""}
       ${nextT ? `
       <button class="chain-cta" data-start-suggested="${nextT.id}">
         <span class="chain-cta-pre">Continue your journey</span>
-        <span class="chain-cta-main">${nextT.emoji} ${nextT.name} →</span>
-        <span class="chain-cta-sub">${nextT.duration} days · Level up 🚀</span>
+        <span class="chain-cta-main"><i class="ti ${challengeIcon(nextT)}"></i> ${nextT.name} →</span>
+        <span class="chain-cta-sub">${nextT.duration} days · Level up</span>
       </button>` : ""}
       ${(() => {
         const restDays = totalDays >= 75 ? 5 : totalDays >= 30 ? 3 : 2;
@@ -4556,8 +4686,8 @@ function renderCompletionModal(c) {
           <div style="font-size:13px;color:var(--text);line-height:1.55">Take <strong>${restDays} days to recover</strong> — sleep, eat well, reflect on what you built. Your next challenge can start <strong>${nextStartLabel}</strong>.</div>
         </div>`;
       })()}
-      <button class="${nextT?"secondary-button":"primary-button"}" data-close-completion style="margin-top:${nextT?"8":"16"}px">Hell yeah! 🎉</button>
-      ${canShare ? `<button class="secondary-button" data-share-completion style="margin-top:8px">🔗 Share your achievement</button>` : ""}
+      <button class="${nextT?"secondary-button":"primary-button"}" data-close-completion style="margin-top:${nextT?"8":"16"}px">Hell yeah!</button>
+      ${canShare ? `<button class="secondary-button" data-share-completion style="margin-top:8px"><i class="ti ti-share"></i> Share your achievement</button>` : ""}
       <button class="secondary-button" data-completion-new-challenge style="margin-top:8px">Browse all challenges →</button>
       ${renderCompletionSuggestions(c)}
     </section>
@@ -4567,23 +4697,15 @@ function renderCompletionModal(c) {
 // ── Challenges Tab ────────────────────────────────────────────────────────
 
 function renderChallenges() {
-  const all   = getAllChallenges();
-  const isExp = c => c.habits.some(h => h.type === "distance");
-  const inSub = c => challengeSubTab === "expeditions" ? isExp(c) : !isExp(c);
-  const view  = all.filter(inSub);
-  const active = view.filter(c => c.status==="active");
-  const paused = view.filter(c => c.status==="paused");
-  const past   = view.filter(c => c.status!=="active" && c.status!=="paused");
-  const activeExpeditions = challengeSubTab === "habits" ? all.filter(c => c.status === "active" && isExp(c)) : [];
-  const emptyMsg = challengeSubTab === "expeditions"
-    ? `<div class="empty-state-icon">🗺️</div><div class="empty-state-title">No expedition running</div><div class="empty-state-sub">Pick a route and start climbing.</div><div><button class="link-btn" data-open-builder>Choose an expedition →</button></div>`
-    : activeExpeditions.length
-      ? `<div class="empty-state-icon">🗺️</div><div class="empty-state-title">Your active challenges are expeditions</div><div class="empty-state-sub">Switch to the Expeditions tab to log today's distance.</div><div><button class="link-btn" data-challenge-sub="expeditions">Go to Expeditions →</button></div>`
-      : `<div class="empty-state-icon">🏆</div><div class="empty-state-title">No active challenge</div><div class="empty-state-sub">Build a habit. Pick a goal. Show up daily.</div><div><button class="link-btn" data-open-builder>Start something →</button></div>`;
+  const all    = getAllChallenges();
+  const active = all.filter(c => c.status==="active");
+  const paused = all.filter(c => c.status==="paused");
+  const past   = all.filter(c => c.status!=="active" && c.status!=="paused");
+  const emptyMsg = `<div class="empty-state-icon"><i class="ti ti-trophy"></i></div><div class="empty-state-title">No active challenge</div><div class="empty-state-sub">Build a habit. Pick a goal. Show up daily.</div><div><button class="link-btn" data-open-builder>Start something →</button></div>`;
   const emailCapState = localStorage.getItem("conqur_email_capture");
-  const showEmailCapture = challengeSubTab === "habits" && emailCapState !== "dismissed";
-  // "What's Next" banner: shown when a challenge was recently completed and no active non-expedition challenges exist
-  const recentlyCompleted = challengeSubTab === "habits" && active.length === 0
+  const showEmailCapture = emailCapState !== "dismissed";
+  // "What's Next" banner: shown when a challenge was recently completed and no active challenges exist
+  const recentlyCompleted = active.length === 0
     ? getAllChallenges()
         .filter(c => c.status === "completed" && c.completedAt)
         .sort((a,b) => b.completedAt.localeCompare(a.completedAt))[0]
@@ -4596,16 +4718,12 @@ function renderChallenges() {
       <div class="wnb-sub">You finished <strong>${esc(recentlyCompleted.name)}</strong>. Keep the momentum going.</div>
       ${renderCompletionSuggestions(recentlyCompleted)}
     </div>` : ""}
-    <div class="challenge-sub-tabs">
-      <button class="csub-btn${challengeSubTab==="habits"?" active":""}" data-challenge-sub="habits">🎯 Habits</button>
-      <button class="csub-btn${challengeSubTab==="expeditions"?" active":""}" data-challenge-sub="expeditions">🗺️ Expeditions</button>
-    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div class="section-label" style="margin:0">${challengeSubTab==="expeditions"?"Active Routes":"Active Challenges"}</div>
-      <button class="pill-btn" data-open-builder>${challengeSubTab==="expeditions"?"+ Route":"+ New"}</button>
+      <div class="section-label" style="margin:0">Active Challenges</div>
+      <button class="pill-btn" data-open-builder>+ New</button>
     </div>
     ${active.length ? active.map(c=>renderChallengeCard(c)).join("") : `<div class="empty-state">${emptyMsg}</div>`}
-    ${paused.length ? `<div class="section-label">⏸ Paused</div>${paused.map(c=>renderChallengeCard(c)).join("")}` : ""}
+    ${paused.length ? `<div class="section-label"><i class="ti ti-player-pause"></i> Paused</div>${paused.map(c=>renderChallengeCard(c)).join("")}` : ""}
     ${past.length   ? `<div class="section-label">Past</div>${past.map(c=>renderChallengeCard(c)).join("")}` : ""}
   </main>`;
 }
@@ -4640,7 +4758,7 @@ function renderChallengeCard(c) {
   <div class="challenge-card-wrap">
     <button class="challenge-card" data-view-challenge="${c.id}">
       <div class="cc-top">
-        <div class="cc-emoji">${esc(c.emoji)}</div>
+        <div class="cc-emoji"><i class="ti ${challengeIcon(tpl)}"></i></div>
         <div class="cc-info">
           <div class="cc-name"${tierData?` style="color:${tierData.color}"`:""}>${esc(c.name)}${tierTag(c.templateId)}${c.noEndDate?` <span class="ongoing-badge">Ongoing</span>`:""}</div>
           <div class="cc-meta">${isExpedition && cRouteKm
@@ -4649,21 +4767,21 @@ function renderChallengeCard(c) {
         </div>
         <div class="cc-right">
           ${c.status!=="active"
-            ? `<div class="cc-status" style="color:${statusColor}">${c.status==="paused"?"⏸ paused":c.status}</div>`
+            ? `<div class="cc-status" style="color:${statusColor}">${c.status==="paused"?`<i class="ti ti-player-pause"></i> paused`:c.status}</div>`
             : isExpedition
               ? `<div class="cc-today">${todayNativeKm !== null && todayNativeKm > 0 ? (Math.round(todayNativeKm*factor*10)/10)+" "+dUnit : "—"}</div>`
               : `<div class="cc-today">${todayInfo?todayInfo.percent+"%":"—"}</div>`}
-          <div class="cc-streak">🔥 ${streak}</div>
+          <div class="cc-streak"><i class="ti ti-flame"></i> ${streak}</div>
         </div>
       </div>
       <div class="cc-track">
         <div class="cc-fill" style="width:${isExpedition && routePct !== null ? routePct : pct}%"></div>
       </div>
       <div class="cc-sub">${isExpedition && routePct !== null
-        ? `🗺 ${routePct}% dist · ✓ ${todayInfo ? todayInfo.percent : 0}% today · ⏱ ${pct}% time`
+        ? `<i class="ti ti-map-2"></i> ${routePct}% dist · <i class="ti ti-check"></i> ${todayInfo ? todayInfo.percent : 0}% today · <i class="ti ti-clock"></i> ${pct}% time`
         : `${pct}% complete · ${c.badges.length} ${c.badges.length === 1 ? "badge" : "badges"}`}</div>
     </button>
-    ${resumeNudge ? `<div class="resume-nudge">⏰ Reminder to resume! <button class="link-btn" data-pause-challenge="${c.id}">Resume now →</button></div>` : ""}
+    ${resumeNudge ? `<div class="resume-nudge"><i class="ti ti-bell"></i> Reminder to resume! <button class="link-btn" data-pause-challenge="${c.id}">Resume now →</button></div>` : ""}
   </div>`;
 }
 
@@ -4705,7 +4823,8 @@ function renderChallengeDetail(c) {
   const curWeekIdx = weeks.findIndex(w=>w.allDays.includes(today));
   const hasPhotoHabit = c.habits.some(h => h.id === "photo" || /progress\s*photo/i.test(h.title));
   const nextChainId   = c.templateId && CHALLENGE_CHAINS[c.templateId];
-  const nextChainT    = nextChainId ? TEMPLATES.find(t => t.id === nextChainId) : null;
+  const nextChainRaw  = nextChainId ? TEMPLATES.find(t => t.id === nextChainId) : null;
+  const nextChainT    = isConqurTemplate(nextChainRaw) ? nextChainRaw : null;
   const tpl           = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
   const isExpedition  = !!challengeRouteKm(c) || c.habits.some(h => h.type === "distance");
   const totalNativeKm = isExpedition ? challengeTotalKm(c) : null;
@@ -4723,17 +4842,17 @@ function renderChallengeDetail(c) {
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       </button>
       <div>
-        <div style="font-size:18px;font-weight:700">${esc(c.emoji)} ${(()=>{ const t=c.templateId?TEMPLATE_TIERS[c.templateId]:null; const td=t?TIERS[t]:null; return td?`<span style="color:${td.color}">${esc(c.name)}</span>${tierTag(c.templateId)}`:esc(c.name); })()}</div>
+        <div style="font-size:18px;font-weight:700"><i class="ti ${challengeIcon(tpl)}"></i> ${(()=>{ const t=c.templateId?TEMPLATE_TIERS[c.templateId]:null; const td=t?TIERS[t]:null; return td?`<span style="color:${td.color}">${esc(c.name)}</span>${tierTag(c.templateId)}`:esc(c.name); })()}</div>
         <div style="font-size:12px;color:var(--text-dim)">${c.startDate}${c.noEndDate ? " · Ongoing" : ` → ${c.endDate}`}</div>
       </div>
     </div>
     <div class="stats-grid" style="margin-bottom:14px">
-      ${statCard("🔥 Streak", streak, "days")}
+      ${statCard('<i class="ti ti-flame"></i> Streak', streak, "days")}
       ${isExpedition
-        ? statCard("🗺️ Distance", totalKmDisplay.toFixed(isFloorsDet?0:1), dUnitDet)
-        : statCard("⚡ Total pts", totalPts, "")}
-      ${statCard("✅ Active days", `${activeDaysDone}/${activeTotal}`, "")}
-      ${statCard("🏅 Badges", c.badges.length, "")}
+        ? statCard('<i class="ti ti-map-2"></i> Distance', totalKmDisplay.toFixed(isFloorsDet?0:1), dUnitDet)
+        : statCard('<i class="ti ti-bolt"></i> Total pts', totalPts, "")}
+      ${statCard('<i class="ti ti-check"></i> Active days', `${activeDaysDone}/${activeTotal}`, "")}
+      ${statCard('<i class="ti ti-medal"></i> Badges', c.badges.length, "")}
     </div>
     ${pct !== null ? `<div class="detail-progress-bar" style="margin-bottom:14px"><div class="detail-progress-fill" style="width:${pct}%"></div><div class="detail-progress-label">${pct}% journey complete</div></div>` : `<div class="detail-progress-bar" style="margin-bottom:14px"><div class="detail-progress-label">Day ${dayNumber} · Ongoing</div></div>`}
     ${isExpedition ? renderRouteProgress(c, tpl) : ""}
@@ -4746,7 +4865,7 @@ function renderChallengeDetail(c) {
         <span class="cnb-emoji">${nextChainT.emoji}</span>
         <div class="cnb-info">
           <div class="cnb-name">${nextChainT.name}</div>
-          <div class="cnb-meta">${nextChainT.duration} days · Level up 🚀</div>
+          <div class="cnb-meta">${nextChainT.duration} days · Level up</div>
         </div>
         <span class="cnb-arrow">→</span>
       </div>
@@ -4770,7 +4889,7 @@ function renderChallengeDetail(c) {
           const routeKm = challengeRouteKm(c) || 0;
           const routePct = routeKm ? Math.min(100, Math.round((kmTotal / routeKm) * 100)) : null;
           return `<div class="habit-preview-item">
-            <span>${esc(h.emoji)} ${esc(h.title)}</span>
+            <span>${esc(h.title)}</span>
             <span class="hpi-rate" style="color:var(--accent)">${kmTotal.toFixed(1)} km${routePct !== null ? ` · ${routePct}% of route` : ` · ${daysLogged}d logged`}</span>
           </div>`;
         }
@@ -4791,7 +4910,7 @@ function renderChallengeDetail(c) {
             : "";
           return `<div class="habit-preview-item habit-preview-meas">
             <div class="hpm-top">
-              <span>${esc(h.emoji)} ${esc(h.title)}</span>
+              <span>${esc(h.title)}</span>
               <span class="hpi-rate" style="color:var(--accent)">
                 ${latest != null ? `${latest.toFixed(decimals)} ${unit}` : "No entries"}${avg != null ? ` · avg ${avg.toFixed(decimals)}` : ""}
               </span>
@@ -4804,9 +4923,9 @@ function renderChallengeDetail(c) {
         const available = allDays.filter(d => d.mode !== "rest" && (d.done.length > 0 || d.recovered));
         const done = available.filter(d => d.done.includes(h.id)).length;
         const hpct = available.length ? Math.round((done / available.length) * 100) : null;
-        const color = hpct == null ? "var(--text-faint)" : hpct >= 80 ? "var(--success)" : hpct >= 50 ? "#f5a623" : "var(--secondary)";
+        const color = hpct == null ? "var(--text-faint)" : hpct >= 80 ? "var(--success)" : hpct >= 50 ? "var(--warning)" : "var(--secondary)";
         return `<div class="habit-preview-item">
-          <span>${esc(h.emoji)} ${esc(h.title)}</span>
+          <span>${esc(h.title)}</span>
           ${hpct != null ? `<span class="hpi-rate" style="color:${color}">${hpct}%</span>` : ""}
         </div>`;
       }).join("")}
@@ -4819,17 +4938,17 @@ function renderChallengeDetail(c) {
 
     ${c.habits.some(h => h.type === "measurement") ? `
     <div style="margin-top:16px">
-      <button class="secondary-button" data-export-health="${c.id}">📊 Export Health Data (CSV)</button>
+      <button class="secondary-button" data-export-health="${c.id}"><i class="ti ti-chart-bar"></i> Export Health Data (CSV)</button>
     </div>` : ""}
     ${(c.status==="active"||c.status==="paused")?`
     <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
-      ${c.status==="active"?`<button class="secondary-button" data-edit-challenge="${c.id}">✏️ Edit</button>`:""}
+      ${c.status==="active"?`<button class="secondary-button" data-edit-challenge="${c.id}"><i class="ti ti-pencil"></i> Edit</button>`:""}
       <button class="secondary-button" data-pause-challenge="${c.id}">${c.status==="paused"?"▶️ Resume":"⏸ Pause"}</button>
       <button class="secondary-button danger" data-abandon-challenge="${c.id}">Abandon</button>
     </div>`:""}
     ${(c.status==="completed"||c.status==="failed")?`
     <div style="margin-top:16px">
-      <button class="secondary-button danger" data-delete-challenge="${c.id}">🗑 Delete challenge</button>
+      <button class="secondary-button danger" data-delete-challenge="${c.id}"><i class="ti ti-trash"></i> Delete challenge</button>
     </div>`:""}
   </main>`;
 }
@@ -4889,8 +5008,8 @@ function renderEditChallenge(c) {
             <span class="custom-habit-emoji">${esc(h.emoji)}</span>
             <span class="custom-habit-name">${esc(h.title)}</span>
             <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points??h.tiers[0].pts??0}–${(t=>t.points??t.pts??0)(h.tiers[h.tiers.length-1])}pt` : h.points+"pt"}</span>
-            <button class="icon-btn" data-ec-edit-habit="${i}" title="Edit">✏️</button>
-            <button class="icon-btn" data-ec-delete-habit="${i}" title="Delete" style="color:var(--secondary)">✕</button>
+            <button class="icon-btn" data-ec-edit-habit="${i}" title="Edit"><i class="ti ti-pencil"></i></button>
+            <button class="icon-btn" data-ec-delete-habit="${i}" title="Delete" style="color:var(--secondary)"><i class="ti ti-x"></i></button>
           </div>`;
         }).join("")}
         ${(() => {
@@ -4914,7 +5033,7 @@ function renderEditChallenge(c) {
             <div class="tier-row">
               <input class="tier-label-input" id="ech-tier-${i}-label" type="text" value="${esc(t.label)}" placeholder="e.g. 3 km">
               <input class="tier-pts-input" id="ech-tier-${i}-pts" type="number" value="${t.points}" min="1" max="20">
-              ${newTiers.length>2?`<button class="icon-btn" data-ech-remove-tier="${i}" style="font-size:11px">✕</button>`:""}
+              ${newTiers.length>2?`<button class="icon-btn" data-ech-remove-tier="${i}" style="font-size:11px"><i class="ti ti-x"></i></button>`:""}
             </div>`).join("")}
             ${newTiers.length<5?`<button class="link-btn" data-ech-add-tier style="font-size:12px;margin-top:2px">+ Add tier</button>`:""}
           </div>` : `
@@ -5031,8 +5150,8 @@ function renderMonthCalendar(challenge) {
       return `<div class="cal-cell cal-missed${todayCls}">${dn}</div>`;
     }
     const info = completionInfo(challenge, day);
-    if (day.mode === "rest")                             return `<div class="cal-cell cal-rest${todayCls}">😴</div>`;
-    if (day.freezeUsed && !day.done.length)              return `<div class="cal-cell cal-freeze${todayCls}">❄️</div>`;
+    if (day.mode === "rest")                             return `<div class="cal-cell cal-rest${todayCls}"><i class="ti ti-moon"></i></div>`;
+    if (day.freezeUsed && !day.done.length)              return `<div class="cal-cell cal-freeze${todayCls}"><i class="ti ti-snowflake"></i></div>`;
     if (info.percent === 100)                            return `<div class="cal-cell cal-full${todayCls}">${dn}</div>`;
     return `<div class="cal-cell cal-partial${todayCls}">${dn}</div>`;
   }).join("");
@@ -5051,8 +5170,8 @@ function renderMonthCalendar(challenge) {
     <div class="cal-legend">
       <span class="cal-leg full">✓ Full</span>
       <span class="cal-leg partial">● Partial</span>
-      <span class="cal-leg rest">😴 Rest</span>
-      <span class="cal-leg freeze">❄️ Frozen</span>
+      <span class="cal-leg rest"><i class="ti ti-moon"></i> Rest</span>
+      <span class="cal-leg freeze"><i class="ti ti-snowflake"></i> Frozen</span>
       <span class="cal-leg missed">— Missed</span>
     </div>
   </div>`;
@@ -5064,14 +5183,14 @@ function getQuizRecommendation(q) {
   const { goal, time, level } = q;
   if (goal === "fitness" && level === "hardcore" && (time === "60" || time === "90")) return "75-hard";
   if (goal === "fitness" && level === "hardcore") return "cruise-control";
-  if (goal === "fitness" && level === "some" && (time === "60" || time === "90")) return "strength";
-  if (goal === "fitness" && level === "some") return "running";
-  if (goal === "fitness" && level === "beginner") return "morning-routine";
-  if (goal === "fitness") return "morning-routine";
+  if (goal === "fitness" && level === "some" && (time === "60" || time === "90")) return "strength-foundation";
+  if (goal === "fitness" && level === "some") return "strength-foundation";
+  if (goal === "fitness" && level === "beginner") return "start-small";
+  if (goal === "fitness") return "momentum-builder";
   if (goal === "discipline" && level === "hardcore") return "75-hard";
   if (goal === "discipline" && level === "some") return "monk-mode";
   if (goal === "discipline") return "digital-detox";
-  if (goal === "wellness") return "morning-routine";
+  if (goal === "wellness") return "stress-reset";
   if (goal === "routine") return "morning-routine";
   return "morning-routine";
 }
@@ -5080,10 +5199,10 @@ function renderBuilderQuiz() {
   const q = builderQuizAnswers;
   const ready = q.goal && q.time && q.level;
   const goalOpts  = [
-    { id:"fitness",    label:"Get physically fitter",         emoji:"💪" },
+    { id:"fitness",    label:"Build an active habit",         emoji:"💪" },
     { id:"discipline", label:"Build daily discipline",        emoji:"🎯" },
-    { id:"wellness",   label:"Mental health & mindfulness",   emoji:"🧘" },
-    { id:"routine",    label:"Build a morning routine",       emoji:"🌅" },
+    { id:"wellness",   label:"Care for my mind",              emoji:"🧘" },
+    { id:"routine",    label:"Build better routines",         emoji:"🌅" },
   ];
   const timeOpts  = [
     { id:"15", label:"15–30 min" },
@@ -5147,39 +5266,40 @@ function renderBuilder() {
     ${builderStep==="template"          ? renderBuilderTemplates()             : ""}
     ${builderStep==="quickstart"        ? renderBuilderQuickstart()            : ""}
     ${builderStep==="customize"         ? renderBuilderCustomize()             : ""}
-    ${builderStep==="expedition-custom" ? renderBuilderExpeditionCustomize()   : ""}
   </main>`;
 }
 
 function renderBuilderTemplates() {
   const cats = [
-    { id:"transformation", label:"🔥 Transformation" },
-    { id:"movement",       label:"🏃 Movement"       },
-    { id:"endurance",      label:"🏆 Endurance"      },
-    { id:"health",         label:"❤️ Health"         },
-    { id:"lifestyle",      label:"🌱 Lifestyle"      },
-    { id:"expedition",     label:"🗺️ Expeditions"    },
+    { label:"Start Here", ids:["start-small","reset-week","momentum-builder","morning-routine"] },
+    { label:"Transformation", ids:["cruise-control","75-soft","75-hard","project-50","morning-power-hour","cold-exposure"] },
+    { label:"Weight Loss", ids:["lean-start","fat-loss-foundation","weight-loss-30","mindful-eating"] },
+    { label:"Nutrition", ids:["no-sugar","dry-month","intermittent-fasting","protein-challenge","fiber-challenge","hydration","meal-prep"] },
+    { label:"Mindset", ids:["stress-reset","mental-health-30","meditation","journaling","gratitude-reset","self-care-30","nature-reset"] },
+    { label:"Productivity", ids:["monk-mode","deep-work-sprint","digital-detox","budget-reset","reading","creative","language-learning","no-spend","declutter"] },
+    { label:"Sleep & Recovery", ids:["sleep-reset","sleep-tracker","recovery-reset","yoga-flexibility","posture-fix"] },
+    { label:"Strength Basics", ids:["strength-foundation","beginner-strength","strength","calisthenics","kettlebell","pushup-challenge","pullup-progression","core-abs","pilates"] },
+    { label:"Daily Routines", ids:["morning-routine","sleep-reset","self-care-30","hydration","walking"] },
   ];
-  const orderedCats = challengeSubTab === "expeditions"
-    ? [cats.find(c => c.id === "expedition")]
-    : cats.filter(c => c.id !== "expedition");
-  const POPULAR_IDS = ["cruise-control","75-hard","75-soft","cold-exposure","morning-routine","meditation","journaling","walking","no-sugar","intermittent-fasting","monk-mode","half-marathon-prep"];
-  const START_HERE_IDS = ["morning-routine","walking","sleep-reset","meditation","reading","c25k","dry-month","30-pushups","zone2","self-care-30","gratitude-reset","posture-fix","pushup-challenge","budget-reset","nature-reset"];
+  const orderedCats = cats;
+  const POPULAR_IDS = ["start-small","momentum-builder","lean-start","digital-detox","sleep-reset","cruise-control","75-soft","monk-mode","stress-reset","strength-foundation"];
+  const START_HERE_IDS = ["start-small","reset-week","momentum-builder","morning-routine","sleep-reset","digital-detox","lean-start","stress-reset"];
   const filterTabs = [
     { id:"all",      label:"All" },
-    { id:"popular",  label:"🔥 Popular" },
+    { id:"popular",  label:"Popular" },
     { id:"short",    label:"≤30 days" },
     { id:"medium",   label:"31–60 days" },
     { id:"long",     label:"61+ days" },
   ];
   const diffTabs = [
     { id:"all",          label:"All levels" },
-    { id:"beginner",     label:"🟢 Beginner" },
-    { id:"intermediate", label:"🟡 Intermediate" },
-    { id:"advanced",     label:"🔴 Advanced" },
-    { id:"extreme",      label:"🟣 Extreme" },
+    { id:"beginner",     label:"Beginner" },
+    { id:"intermediate", label:"Intermediate" },
+    { id:"advanced",     label:"Advanced" },
+    { id:"extreme",      label:"Extreme" },
   ];
   const passesFilter = t => {
+    if (!isConqurTemplate(t)) return false;
     if (t.deprecated) return false;
     const dur = _templateFilter;
     const diff = _difficultyFilter;
@@ -5193,109 +5313,58 @@ function renderBuilderTemplates() {
     }
     return true;
   };
-  const templateCard = t => {
-    const isExpedition = t.category === "expedition";
-    const distHabit    = t.habits?.find(h => h.type === "distance");
-    const isFloors     = distHabit?.unit === "floors";
-    const MI_PER_KM    = 0.621371;
-    const globalDist   = state.settings.units.distance || "km";
-    const dUnit        = isFloors ? "floors" : (globalDist === "miles" ? "mi" : "km");
-    const factor       = dUnit === "mi" ? MI_PER_KM : 1;
-    const meta = isExpedition
-      ? `${Math.round(t.routeKm * factor).toLocaleString()} ${dUnit} · ${t.duration} days`
-      : `${t.duration} days · ${t.defaultMode}`;
-    const tier     = TEMPLATE_TIERS[t.id] || "common";
-    const tierData = TIERS[tier];
-    const diff     = TEMPLATE_DIFFICULTY[t.id] || "intermediate";
+  const templateRow = t => {
+    const diff = TEMPLATE_DIFFICULTY[t.id] || "intermediate";
+    const meta = `${t.duration} days · ${t.defaultMode} · ${DIFF_LABEL[diff]}`;
     const hasSafety = !!TEMPLATE_SAFETY[t.id];
     return `
-    <button class="template-card${isExpedition?" tc-cat expedition":""}" data-select-template="${t.id}">
-      <div class="tc-emoji">${t.emoji}${hasSafety?` <span class="tc-safety-icon" title="Safety note">⚠️</span>`:""}</div>
-      <div class="tc-name" style="color:${tierData.color}">${t.name}</div>
-      <div class="tc-difficulty" style="color:${tierData.color}">${tierData.label} · <span style="color:${DIFF_COLOR[diff]};font-weight:600">${DIFF_LABEL[diff]}</span></div>
-      <div class="tc-meta">${meta}</div>
-      <div class="tc-desc">${t.description}</div>
+    <button class="cl-row" data-select-template="${t.id}">
+      <i class="ti ${challengeIcon(t)} cl-ic" aria-hidden="true"></i>
+      <span class="cl-main">
+        <span class="cl-name">${t.name}${hasSafety?`<i class="ti ti-alert-triangle cl-safety" title="Safety note"></i>`:""}</span>
+        <span class="cl-meta">${meta}</span>
+      </span>
+      <i class="ti ti-chevron-right cl-go" aria-hidden="true"></i>
     </button>`;
   };
+  const chip = (active, attr, val, label) =>
+    `<button class="cl-chip${active?" active":""}" ${attr}="${val}">${label}</button>`;
   const filterBar = `
-  <div class="template-filter-bar">${
-    filterTabs.map(f => `<button class="template-filter-tab${_templateFilter===f.id?" active":""}" data-template-filter="${f.id}">${f.label}</button>`).join("")
-  }<button class="template-filter-tab tf-surprise" data-surprise-me title="Pick a random challenge for me">🎲 Surprise me</button></div>
-  <div class="template-filter-bar template-filter-bar--diff">${
-    diffTabs.map(f => `<button class="template-filter-tab${_difficultyFilter===f.id?" active":""}" data-difficulty-filter="${f.id}">${f.label}</button>`).join("")
-  }</div>`;
-  const showStartHere = _templateFilter === "all" && _difficultyFilter === "all" && challengeSubTab !== "expeditions";
+  <div class="cl-filters">
+    ${filterTabs.map(f => chip(_templateFilter===f.id, "data-template-filter", f.id, f.label)).join("")}
+    <button class="cl-chip cl-chip--ghost" data-surprise-me title="Pick a random challenge for me"><i class="ti ti-arrows-shuffle"></i> Surprise</button>
+  </div>
+  <div class="cl-filters cl-filters--diff">
+    ${diffTabs.map(f => chip(_difficultyFilter===f.id, "data-difficulty-filter", f.id, f.label)).join("")}
+  </div>`;
+  const catBlock = (label, count, rowsHtml) =>
+    `<div class="cl-cat"><span class="cl-cat-name">${label}</span><span class="cl-cat-count">${count}</span></div>
+     <div class="cl-list">${rowsHtml}</div>`;
+  const showStartHere = false;
   const startHereSection = showStartHere ? (() => {
     const picks = START_HERE_IDS.map(id => TEMPLATES.find(t => t.id === id)).filter(Boolean);
-    return `<div class="template-cat-label">⭐ Start Here <span style="font-weight:500;opacity:.6;font-size:12px">— 12 picks across all levels</span></div>
-    <div class="template-grid">${picks.map(templateCard).join("")}</div>
-    <div class="template-cat-label" style="margin-top:20px">📚 Full Library</div>`;
+    return catBlock("Start here", picks.length, picks.map(templateRow).join(""));
   })() : "";
   const catSections = orderedCats.map(cat => {
-    const group = TEMPLATES.filter(t => t.category === cat.id && passesFilter(t));
+    const seen = new Set();
+    const group = cat.ids.map(id => TEMPLATES.find(t => t.id === id)).filter(t => {
+      if (!t || seen.has(t.id) || !passesFilter(t)) return false;
+      seen.add(t.id);
+      return true;
+    });
     if (!group.length) return "";
-    const createCard = cat.id === "expedition" ? `
-    <button class="template-card tc-cat expedition tc-custom-exp" data-select-template="custom-expedition">
-      <div class="tc-emoji">🗺️</div>
-      <div class="tc-name">Your Route</div>
-      <div class="tc-meta">Any distance · Any duration</div>
-      <div class="tc-desc">Set your own goal and track every km.</div>
-    </button>` : "";
-    return `
-    <div class="template-cat-label">${cat.label}</div>
-    <div class="template-grid">${createCard}${group.map(templateCard).join("")}</div>`;
+    return catBlock(cat.label, group.length, group.map(templateRow).join(""));
   }).join("");
-  const customSection = _templateFilter === "all" ? `
-  <div class="template-cat-label">✏️ Custom</div>
-  <div class="template-grid">
-    <button class="template-card" data-select-template="custom">
-      <div class="tc-emoji">🎯</div>
-      <div class="tc-name">Custom</div>
-      <div class="tc-meta">Any duration</div>
-      <div class="tc-desc">Build your own challenge from scratch.</div>
-    </button>
-  </div>` : "";
+  const customSection = _templateFilter === "all" ? catBlock("Custom", 1, `
+    <button class="cl-row" data-select-template="custom">
+      <i class="ti ti-target cl-ic" aria-hidden="true"></i>
+      <span class="cl-main">
+        <span class="cl-name">Custom challenge</span>
+        <span class="cl-meta">Build your own from scratch</span>
+      </span>
+      <i class="ti ti-chevron-right cl-go" aria-hidden="true"></i>
+    </button>`) : "";
   return filterBar + startHereSection + catSections + customSection;
-}
-
-function renderBuilderExpeditionCustomize() {
-  const u = builderForm.expeditionUnit || "km";
-  return `
-  <div class="builder-header">
-    <button class="back-btn" data-builder-back-exp>← Back</button>
-    <h2 class="builder-title">Your Expedition</h2>
-  </div>
-  <div class="exp-form panel">
-    <label class="form-label">Name</label>
-    <input id="exp-name" class="text-input" value="${esc(builderForm.name || "My Expedition")}" maxlength="60" placeholder="My Expedition">
-
-    <label class="form-label">Emoji</label>
-    <input id="exp-emoji" class="text-input exp-emoji-input" value="${esc(builderForm.emoji || "🗺️")}" maxlength="2">
-
-    <label class="form-label">Unit</label>
-    <div class="exp-unit-row">
-      <button class="exp-unit-btn${u==="km"?" active":""}" data-exp-unit="km">km</button>
-      <button class="exp-unit-btn${u==="floors"?" active":""}" data-exp-unit="floors">floors</button>
-    </div>
-
-    <label class="form-label">Total distance goal</label>
-    <div class="exp-distance-row">
-      <input id="exp-distance" class="text-input" type="number" min="1" max="99999"
-             value="${builderForm.expeditionDistance || 100}" inputmode="decimal">
-      <span class="exp-unit-label">${u}</span>
-    </div>
-
-    <label class="form-label">Duration (days)</label>
-    <input id="exp-duration" class="text-input" type="number" min="1" max="730"
-           value="${builderForm.expeditionDuration || 30}" inputmode="numeric">
-
-    <label class="form-label">Start date</label>
-    <input id="exp-start" class="text-input" type="date" value="${builderForm.startDate}">
-
-    <button class="primary-button" style="margin-top:24px" data-start-expedition>
-      Start Expedition 🗺️
-    </button>
-  </div>`;
 }
 
 function renderBuilderCustomize() {
@@ -5390,7 +5459,7 @@ function renderBuilderCustomize() {
             <span class="custom-habit-emoji">${esc(h.emoji)}</span>
             <span class="custom-habit-name">${esc(h.title)}</span>
             <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points??h.tiers[0].pts??0}–${(t=>t.points??t.pts??0)(h.tiers[h.tiers.length-1])}pt` : h.points+"pt"}</span>
-            <button class="icon-btn" data-remove-habit="${i}">✕</button>
+            <button class="icon-btn" data-remove-habit="${i}"><i class="ti ti-x"></i></button>
           </div>`).join("")}
         <div class="add-habit-form">
           <div class="add-habit-top-row">
@@ -5408,7 +5477,7 @@ function renderBuilderCustomize() {
             <div class="tier-row">
               <input class="tier-label-input" id="nh-tier-${i}-label" type="text" value="${esc(t.label)}" placeholder="e.g. 1 km">
               <input class="tier-pts-input" id="nh-tier-${i}-pts" type="number" value="${t.points}" min="1" max="20">
-              ${builderForm.newHabitTiers.length>2?`<button class="icon-btn" data-nh-remove-tier="${i}" style="font-size:11px">✕</button>`:""}
+              ${builderForm.newHabitTiers.length>2?`<button class="icon-btn" data-nh-remove-tier="${i}" style="font-size:11px"><i class="ti ti-x"></i></button>`:""}
             </div>`).join("")}
             ${builderForm.newHabitTiers.length<5?`<button class="link-btn" data-nh-add-tier style="font-size:12px;margin-top:2px">+ Add tier</button>`:""}
           </div>` : `
@@ -5426,12 +5495,12 @@ function renderBuilderCustomize() {
     </div>
     ${("Notification" in window) && Notification.permission === "default" ? `
     <div class="builder-notif-request">
-      <div style="font-size:13px;font-weight:700;margin-bottom:4px">🔔 Enable daily reminders?</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px"><i class="ti ti-bell"></i> Enable daily reminders?</div>
       <div class="mode-desc" style="margin-bottom:8px">People who enable reminders are far more likely to finish. Takes one tap.</div>
       <button class="secondary-button" style="width:100%" data-request-notif-from-builder>Enable Reminders</button>
     </div>` : ("Notification" in window) && Notification.permission === "granted" ? `
-    <div class="builder-reminder-hint">✅ Reminders on — we'll notify you at ${state.settings.reminderTime || "20:00"}.</div>` : `
-    <div class="builder-reminder-hint">💡 Enable daily reminders in ⚙️ Settings after you start — it's the best habit for actually finishing.</div>`}
+    <div class="builder-reminder-hint"><i class="ti ti-circle-check"></i> Reminders on — we'll notify you at ${state.settings.reminderTime || "20:00"}.</div>` : `
+    <div class="builder-reminder-hint"><i class="ti ti-bulb"></i> Enable daily reminders in Settings after you start — it's the best habit for actually finishing.</div>`}
     <div class="builder-cta-footer">
       <button class="primary-button" data-start-challenge>Start Challenge 🚀</button>
       <button class="secondary-button" style="margin-top:8px" data-builder-back>← Back</button>
@@ -5462,7 +5531,7 @@ function renderBody() {
     <div class="section-label">Body Composition</div>
     ${!entries.length ? `
     <div style="padding:28px 20px;text-align:center;background:var(--surface-2);border-radius:12px;margin-bottom:12px">
-      <div style="font-size:32px;margin-bottom:8px">📊</div>
+      <div style="font-size:32px;margin-bottom:8px;color:var(--text-dim)"><i class="ti ti-chart-bar"></i></div>
       <p style="font-weight:700;margin:0 0 4px">No check-ins yet</p>
       <p style="font-size:13px;color:var(--text-dim);margin:0">Log your first weight below to start tracking your progress.</p>
     </div>` : ""}
@@ -5584,7 +5653,7 @@ function renderLevelProfile() {
   return `
   <div class="level-profile-card">
     <div class="lp-top">
-      <div class="lp-level-num">${theme.emoji} Lv.${info.level}</div>
+      <div class="lp-level-num"><i class="ti ${theme.icon}"></i> Lv.${info.level}</div>
       <div class="lp-level-name">${info.name}</div>
     </div>
     <div class="xp-bar-track lp-track">
@@ -5592,7 +5661,7 @@ function renderLevelProfile() {
     </div>
     <div class="lp-xp-row">
       <span>${state.xp.toLocaleString()} XP total</span>
-      <span>${isMax ? "Max Level 🏆" : `${toNext.toLocaleString()} XP to Lv.${info.next.level}`}</span>
+      <span>${isMax ? 'Max Level <i class="ti ti-trophy"></i>' : `${toNext.toLocaleString()} XP to Lv.${info.next.level}`}</span>
     </div>
     <div class="level-road">
       ${XP_LEVELS.map(lvl => {
@@ -5613,7 +5682,7 @@ function renderTrophyCase() {
     .sort((a,b) => (b.completedAt||"").localeCompare(a.completedAt||""));
   if (!trophies.length) return "";
   return `
-  <div class="section-label">🏆 Trophies</div>
+  <div class="section-label"><i class="ti ti-trophy"></i> Trophies</div>
   <div class="more-card trophy-case">
     ${trophies.map(c => {
       const streak = c.personalBest?.streak ?? c.finalStreak ?? 0;
@@ -5622,18 +5691,19 @@ function renderTrophyCase() {
       const dateStr = c.completedAt
         ? new Date(c.completedAt).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})
         : null;
+      const tcTpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
       const challengeBadges = (TEMPLATE_BADGES[c.templateId] || []).filter(b => c.badges.includes(b.id));
       return `
       <div class="trophy-card">
         <div class="tc-top">
-          <span class="tc-emoji">${esc(c.emoji)}</span>
+          <span class="tc-emoji"><i class="ti ${challengeIcon(tcTpl)}"></i></span>
           <div class="tc-info">
             <div class="tc-name">${esc(c.name)}</div>
             <div class="tc-meta">${streak}-day streak · ${totalPts} pts${dateStr ? ` · ${dateStr}` : ""}</div>
           </div>
         </div>
         ${perfectDays > 0 ? `<div class="tc-sub">${perfectDays} perfect day${perfectDays!==1?"s":""}</div>` : ""}
-        ${challengeBadges.length ? `<div class="tc-badges">${challengeBadges.slice(0,5).map(b => `<span class="tc-badge-pill">${b.label}</span>`).join("")}</div>` : ""}
+        ${challengeBadges.length ? `<div class="tc-badges">${challengeBadges.slice(0,5).map(b => `<span class="tc-badge-pill">${stripBadgeEmoji(b.label)}</span>`).join("")}</div>` : ""}
       </div>`;
     }).join("")}
   </div>`;
@@ -5643,12 +5713,12 @@ function renderChapterOverlay() {
   const level = _chapterOverlay;
   const data  = level ? CHAPTER_LEVELS[level] : null;
   if (!data) return "";
-  const emoji = level >= 25 ? "🏆" : level >= 20 ? "🌟" : level >= 15 ? "🔥" : level >= 10 ? "⚡" : "🌱";
+  const chapterIcon = level >= 25 ? "ti-trophy" : level >= 20 ? "ti-star" : level >= 15 ? "ti-flame" : level >= 10 ? "ti-bolt" : "ti-seedling";
   const levelName = getThemedLevelName(level, state.settings.journeyTheme);
   return `
   <div class="luo-backdrop" data-close-chapter>
     <div class="luo-card" role="dialog" aria-modal="true">
-      <div class="luo-burst">${emoji}</div>
+      <div class="luo-burst"><i class="ti ${chapterIcon}"></i></div>
       <div class="luo-badge">CHAPTER ${data.title.toUpperCase()}</div>
       <div class="luo-level">Level ${level}</div>
       <div class="luo-name">${levelName}</div>
@@ -5684,12 +5754,13 @@ function renderBadges() {
       </div>
       <div class="badge-overall-track"><div class="badge-overall-fill" style="width:${pct}%"></div></div>
       ${earned === 0 ? `<div class="badges-new-hint">Log your first habit to unlock your first badge — most people earn 3–5 in their first week.</div>` : ""}
-      ${renderBadgeCat("🌍 Universal", UNIVERSAL_BADGES, state.globalBadges, null, { xp: state.xp, maxStreak: Math.max(0, ...getAllChallenges().map(c => calcChallengeStreak(c))) })}
-      ${renderBadgeCat("💎 Lifetime Achievements", LIFETIME_BADGES, state.globalBadges, null, null)}
+      ${renderBadgeCat('<i class="ti ti-world"></i> Universal', UNIVERSAL_BADGES, state.globalBadges, null, { xp: state.xp, maxStreak: Math.max(0, ...getAllChallenges().map(c => calcChallengeStreak(c))) })}
+      ${renderBadgeCat('<i class="ti ti-diamond"></i> Lifetime Achievements', LIFETIME_BADGES, state.globalBadges, null, null)}
       ${startedChallenges.map(c => {
         const tBadges = TEMPLATE_BADGES[c.templateId];
         if (!tBadges) return "";
-        return renderBadgeCat(`${esc(c.emoji)} ${esc(c.name)}`, tBadges, c.badges, c.templateId, null);
+        const tpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
+        return renderBadgeCat(`<i class="ti ${challengeIcon(tpl)}"></i> ${esc(c.name)}`, tBadges, c.badges, c.templateId, null);
       }).join("")}
     </div>
     ${renderPersonalBests()}
@@ -5771,7 +5842,7 @@ function renderBadgeCat(label, defs, earned, templateId, progressCtx) {
     if (b.hidden && !isEarned) {
       return `
       <div class="badge badge-hidden">
-        <div class="badge-label">🔒 ???</div>
+        <div class="badge-label"><i class="ti ti-lock"></i> ???</div>
         <div class="badge-desc">Hidden badge</div>
       </div>`;
     }
@@ -5781,8 +5852,8 @@ function renderBadgeCat(label, defs, earned, templateId, progressCtx) {
     const glowStyle   = isEarned && tier === "legendary" ? `box-shadow:0 0 10px ${td.border};` : "";
     return `
     <div class="badge ${isEarned?"earned":""}" style="${borderStyle}${glowStyle}">
-      ${isEarned && td ? `<span class="badge-tier-dot" style="background:${td.color}" title="${td.label}"></span>` : ""}
-      <div class="badge-label">${b.label}</div>
+      ${isEarned && td ? `<span class="badge-tier-dot" style="color:${td.color}" title="${td.label}"><i class="ti ${TIER_ICON[tier]}"></i></span>` : ""}
+      <div class="badge-label">${stripBadgeEmoji(b.label)}</div>
       ${b.desc?`<div class="badge-desc">${b.desc}</div>`:""}
       ${!isEarned ? badgeProgressHint(b) : ""}
     </div>`;
@@ -5808,7 +5879,7 @@ function renderNotifPrompt() {
   <div class="notif-prompt-overlay">
     <div class="notif-prompt-backdrop" data-notif-prompt-skip></div>
     <div class="notif-prompt" role="dialog" aria-modal="true">
-      <div class="notif-prompt-icon">🔔</div>
+      <div class="notif-prompt-icon"><i class="ti ti-bell"></i></div>
       <div class="notif-prompt-title">Day 1 done — great start!</div>
       <div class="notif-prompt-sub">People with daily reminders are 3× more likely to finish. When should we nudge you?</div>
       <div class="notif-time-row">
@@ -5828,16 +5899,16 @@ function renderBadgeSheet(badge) {
     return `
   <div class="badge-sheet-overlay" data-close-badge-sheet>
     <div class="badge-sheet" role="dialog" aria-modal="true" aria-label="Badges earned">
-      <div class="badge-sheet-icon">🏅</div>
+      <div class="badge-sheet-icon"><i class="ti ti-medal"></i></div>
       <div class="badge-sheet-tier" style="color:var(--success)">${queue.length} Badges Unlocked</div>
       <div class="badge-sheet-title">Achievement haul!</div>
       <div class="multi-badge-list">
         ${queue.map(b => {
-          const p = b.label.match(/^(\S+)\s*(.*)/);
+          const tier = b.tier || "common";
           return `<div class="mbl-row">
-            <div class="mbl-icon">${p ? p[1] : esc(b.label)}</div>
+            <div class="mbl-icon" style="color:${(TIERS[tier]||TIERS.common).color}"><i class="ti ${TIER_ICON[tier] || TIER_ICON.common}"></i></div>
             <div class="mbl-body">
-              <div class="mbl-label">${esc(p ? p[2] : b.label)}</div>
+              <div class="mbl-label">${stripBadgeEmoji(b.label)}</div>
               ${b.desc ? `<div class="mbl-desc">${esc(b.desc)}</div>` : ""}
             </div>
           </div>`;
@@ -5848,17 +5919,16 @@ function renderBadgeSheet(badge) {
   </div>`;
   }
   const td = TIERS[badge.tier] || TIERS.common;
-  const parts = badge.label.match(/^(\S+)\s*(.*)/);
-  const icon  = parts ? parts[1] : badge.label;
-  const title = parts ? parts[2] : "";
+  const tier  = badge.tier || "common";
+  const title = stripBadgeEmoji(badge.label);
   return `
   <div class="badge-sheet-overlay" data-close-badge-sheet>
     <div class="badge-sheet" role="dialog" aria-modal="true" aria-label="Badge earned">
-      <div class="badge-sheet-icon">${icon}</div>
+      <div class="badge-sheet-icon" style="color:${td.color}"><i class="ti ${TIER_ICON[tier] || TIER_ICON.common}"></i></div>
       <div class="badge-sheet-tier" style="color:${td.color}">${td.label}</div>
       <div class="badge-sheet-title">${esc(title)}</div>
       <div class="badge-sheet-desc">${esc(badge.desc)}</div>
-      <div class="badge-sheet-congrats">Achievement unlocked! 🎉</div>
+      <div class="badge-sheet-congrats">Achievement unlocked!</div>
       <button class="primary-button badge-sheet-cta" data-close-badge-sheet>Awesome!</button>
     </div>
   </div>`;
@@ -5875,7 +5945,7 @@ function renderBackupNudge(challenge) {
   return `
   <div class="backup-nudge">
     <button class="backup-nudge-close" data-dismiss-backup-nudge aria-label="Dismiss">×</button>
-    <div class="backup-nudge-icon">☁️</div>
+    <div class="backup-nudge-icon"><i class="ti ti-cloud"></i></div>
     <div class="backup-nudge-body">
       <div class="backup-nudge-title">Protect your progress</div>
       <div class="backup-nudge-sub">You've built a solid streak — back it up so you never lose it.</div>
@@ -5922,7 +5992,7 @@ function renderChallengeMetricChart(challenge) {
   <div class="meas-chart-card">
     ${measHabits.length > 1 ? `<div class="meas-chart-tabs">${measHabits.map(h =>
       `<button class="meas-chart-tab${h.id === activeId ? " active" : ""}" data-meas-tab="${h.id}">${esc(h.title.replace(/^Log /, ""))}</button>`
-    ).join("")}</div>` : `<div class="meas-chart-label">📈 ${esc(habit.title)}</div>`}
+    ).join("")}</div>` : `<div class="meas-chart-label"><i class="ti ti-chart-line"></i> ${esc(habit.title)}</div>`}
     ${renderMeasurementChartSVG(points, unit, habit.unit === "weight" || habit.unit === "%")}
     ${dayEntries.length >= 2 ? `<div class="meas-chart-hint">Last 30 logged days · earlier ← → recent</div>` : ""}
   </div>`;
@@ -5973,7 +6043,7 @@ function renderAlmostThereBadge(challenge, streak) {
   });
   if (!next) return "";
   const diff = next - streak;
-  return `<div class="almost-badge-chip">🏅 ${diff === 1 ? "One more day" : "2 days"} to unlock your ${next}-day badge!</div>`;
+  return `<div class="almost-badge-chip"><i class="ti ti-medal"></i> ${diff === 1 ? "One more day" : "2 days"} to unlock your ${next}-day badge!</div>`;
 }
 
 // ── Settings ──────────────────────────────────────────────────────────────
@@ -5981,9 +6051,9 @@ function renderAlmostThereBadge(challenge, streak) {
 // ── Onboarding ────────────────────────────────────────────────────────────
 
 const ONBOARDING_STEPS = [
-  { emoji:"🎯", title:"Pick a challenge",  body:"Choose from 90+ challenges — from Daily Journaling to the Pacific Crest Trail. Each one comes with daily habits to check off." },
-  { emoji:"⚡", title:"Earn points daily",  body:"Every habit you check earns points and XP. XP builds your level — it never resets. Log 5 days in a week and you'll bank a streak freeze." },
-  { emoji:"🔥", title:"Come back tomorrow", body:"Your streak grows every day you log. Miss a day? Soft mode gives you grace. Rest days are built in. One day at a time." },
+  { emoji:"🎯", title:"Choose what to conquer", body:"Break a bad habit, build a better routine, or commit to a discipline challenge. Conqur is for becoming the person you keep promising yourself you'll be." },
+  { emoji:"⚡", title:"Win the day", body:"Every habit you check earns points and XP. Small wins stack into streaks, badges, and proof that you followed through." },
+  { emoji:"🔥", title:"Become the new you", body:"Your streak grows every day you log. Miss a day? Soft mode gives you grace. The goal is identity change, one day at a time." },
 ];
 // onboardingStep: 0=hero, 1=journey, 2=goal, 3–(2+N)=info slides (N=ONBOARDING_STEPS.length), +3=name, +4=account
 
@@ -5992,15 +6062,15 @@ function renderObHero() {
   return `
   <div class="ob-screen" role="main">
     <div class="ob-hero-top">
-      <div class="ob-hero-icon" aria-hidden="true">${theme.emoji}</div>
+      <div class="ob-hero-icon" aria-hidden="true"><i class="ti ${theme.icon}"></i></div>
       <div class="ob-hero-logo">CONQUR</div>
-      <div class="ob-hero-tagline">Build the habits.<br>${theme.tagline}.</div>
+      <div class="ob-hero-tagline">Conquer bad habits.<br>Build a new you.</div>
     </div>
     <ul class="ob-features" aria-label="App features">
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">${theme.featureIcons[0]}</span><span>90+ challenges — from journaling to epic trails</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">${theme.featureIcons[1]}</span><span>Daily points, streaks &amp; badges</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">${theme.featureIcons[2]}</span><span>Rest days &amp; streak protection built in</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true">${theme.featureIcons[3]}</span><span>Works offline — no account required</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[0]}"></i></span><span>Break bad habits like sugar, alcohol, spending, and scrolling</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[1]}"></i></span><span>Build routines for mornings, sleep, focus, and self-care</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[2]}"></i></span><span>Daily points, streaks, badges &amp; streak protection</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[3]}"></i></span><span>Works offline — no account required</span></li>
     </ul>
     <button class="primary-button ob-cta" data-ob-next>Let's go →</button>
     <button class="link-btn ob-link" data-ob-to-signin>Already have an account? Sign in</button>
@@ -6009,24 +6079,25 @@ function renderObHero() {
 
 function renderObGoal() {
   const goals = [
-    { emoji:"🏃", label:"Get Active",          desc:"Walking, running, cycling",              template:"walking" },
-    { emoji:"💪", label:"Transform My Body",    desc:"75 Hard, nutrition, strength",           template:"75-soft" },
-    { emoji:"❤️", label:"Track My Health",      desc:"Weight, BP, glucose, sleep",             template:"sleep-tracker" },
-    { emoji:"🌱", label:"Build Better Habits",  desc:"Morning routine, journaling, focus",     template:"morning-routine" },
-    { emoji:"🏆", label:"Train for an Event",   desc:"Half marathon, ironman, OCR race",       template:"half-marathon-prep" },
-    { emoji:"🗺️", label:"Conquer a Route",      desc:"Pacific Crest Trail, Camino, UTMB",     template:"camino" },
+    { id:"lose_weight",  icon:"ti-scale", label:"Lose weight",        desc:"Protein, steps, whole foods" },
+    { id:"discipline",   icon:"ti-flame", label:"Build discipline",   desc:"Structure, standards, follow-through" },
+    { id:"health",       icon:"ti-heart-rate-monitor", label:"Improve health", desc:"Sleep, hydration, movement" },
+    { id:"productivity", icon:"ti-target", label:"Be more productive", desc:"Focus, planning, less scrolling" },
+    { id:"stress",       icon:"ti-leaf", label:"Reduce stress",       desc:"Calm routines and recovery" },
+    { id:"sleep",        icon:"ti-moon", label:"Sleep better",        desc:"Better evenings and mornings" },
+    { id:"start_small",  icon:"ti-seedling", label:"Start small",     desc:"Low-friction daily wins" },
   ];
   return `
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
-      <div class="ob-emoji" aria-hidden="true">🎯</div>
-      <div class="ob-title">What's your main goal?</div>
-      <div class="ob-body">We'll open your recommended challenge — ready to start.</div>
+      <div class="ob-emoji" aria-hidden="true"><i class="ti ti-target"></i></div>
+      <div class="ob-title">What do you want most right now?</div>
+      <div class="ob-body">Answer 3 questions. We'll recommend one challenge to start today.</div>
     </div>
     <div class="ob-goal-grid">
       ${goals.map(g => `
-      <button class="ob-goal-btn" data-ob-goal="${g.template}">
-        <span class="ob-goal-emoji">${g.emoji}</span>
+      <button class="ob-goal-btn" data-ob-answer="goal" data-ob-value="${g.id}">
+        <span class="ob-goal-emoji"><i class="ti ${g.icon}"></i></span>
         <div class="ob-goal-info">
           <div class="ob-goal-label">${g.label}</div>
           <div class="ob-goal-desc">${g.desc}</div>
@@ -6034,20 +6105,125 @@ function renderObGoal() {
         <span class="ob-goal-arrow">→</span>
       </button>`).join("")}
     </div>
-    <button class="link-btn ob-link" data-ob-next>Skip — I'll choose myself →</button>
+    <button class="link-btn ob-link" data-ob-browse>Browse all challenges</button>
+  </div>`;
+}
+
+function renderObIntensity() {
+  const options = [
+    { id:"easy", icon:"ti-leaf", label:"Easy start", desc:"Simple, forgiving, low pressure" },
+    { id:"balanced", icon:"ti-adjustments", label:"Balanced", desc:"Challenging but sustainable" },
+    { id:"strict", icon:"ti-flame", label:"Strict", desc:"Higher standards, less wiggle room" },
+  ];
+  return renderObChoice("How hard do you want to go?", "Pick the level that you can honestly show up for.", options, "intensity");
+}
+
+function renderObTime() {
+  const options = [
+    { id:"10", icon:"ti-clock", label:"10 minutes", desc:"Start small and build momentum" },
+    { id:"30", icon:"ti-clock-hour-4", label:"30 minutes", desc:"A solid daily commitment" },
+    { id:"60", icon:"ti-clock-hour-8", label:"60+ minutes", desc:"Ready for a serious challenge" },
+  ];
+  return renderObChoice("How much time per day?", "This keeps the recommendation realistic.", options, "time");
+}
+
+function renderObChoice(title, body, options, key) {
+  return `
+  <div class="ob-screen ob-screen--slide" role="main">
+    <div class="ob-slide-inner">
+      <div class="ob-emoji" aria-hidden="true"><i class="ti ti-target-arrow"></i></div>
+      <div class="ob-title">${title}</div>
+      <div class="ob-body">${body}</div>
+    </div>
+    <div class="ob-goal-grid">
+      ${options.map(o => `
+      <button class="ob-goal-btn" data-ob-answer="${key}" data-ob-value="${o.id}">
+        <span class="ob-goal-emoji"><i class="ti ${o.icon}"></i></span>
+        <div class="ob-goal-info">
+          <div class="ob-goal-label">${o.label}</div>
+          <div class="ob-goal-desc">${o.desc}</div>
+        </div>
+        <span class="ob-goal-arrow">→</span>
+      </button>`).join("")}
+    </div>
+    <button class="link-btn ob-link" data-ob-next>Skip →</button>
+  </div>`;
+}
+
+function recommendedOnboardingTemplateId() {
+  const goal = onboardingAnswers.goal || "start_small";
+  const intensity = onboardingAnswers.intensity || "easy";
+  const time = onboardingAnswers.time || "10";
+  if (goal === "sleep") return "sleep-reset";
+  if (goal === "start_small") return "start-small";
+  if (goal === "lose_weight") {
+    if (intensity === "easy" || time === "10") return "start-small";
+    if (intensity === "strict") return "fat-loss-foundation";
+    return "lean-start";
+  }
+  if (goal === "discipline") {
+    if (intensity === "easy") return "momentum-builder";
+    if (intensity === "strict") return time === "60" ? "75-hard" : "cruise-control";
+    return "cruise-control";
+  }
+  if (goal === "health") {
+    if (intensity === "easy") return "reset-week";
+    if (intensity === "strict") return "75-soft";
+    return "momentum-builder";
+  }
+  if (goal === "productivity") {
+    if (intensity === "strict") return "monk-mode";
+    if (intensity === "easy") return "deep-work-sprint";
+    return "digital-detox";
+  }
+  if (goal === "stress") {
+    if (intensity === "easy") return "stress-reset";
+    if (intensity === "strict") return "sleep-reset";
+    return "mental-health-30";
+  }
+  return "start-small";
+}
+
+function renderObRecommendation() {
+  const id = recommendedOnboardingTemplateId();
+  const t = TEMPLATES.find(t => t.id === id) || TEMPLATES.find(t => t.id === "start-small");
+  const diff = TEMPLATE_DIFFICULTY[t.id] || "beginner";
+  const habits = t.habits.slice(0, 5);
+  return `
+  <div class="ob-screen ob-screen--slide" role="main">
+    <div class="ob-slide-inner">
+      <div class="ob-emoji" aria-hidden="true"><i class="ti ${challengeIcon(t)}"></i></div>
+      <div class="ob-title">Recommended for you</div>
+      <div class="ob-body">Start with one clear mission. You can browse the full library later.</div>
+    </div>
+    <div class="challenge-card" style="text-align:left;width:100%;margin:0 auto 16px">
+      <div class="cc-top">
+        <div class="cc-emoji"><i class="ti ${challengeIcon(t)}"></i></div>
+        <div class="cc-info">
+          <div class="cc-name">${esc(t.name)}</div>
+          <div class="cc-meta">${t.duration} days · ${DIFF_LABEL[diff] || "Beginner"} · ${t.habits.length} habits</div>
+        </div>
+      </div>
+      <div class="cc-desc">${esc(t.description)}</div>
+      <div class="habit-preview-list" style="margin-top:12px">
+        ${habits.map(h => `<div class="habit-preview-item">${esc(h.title)}</div>`).join("")}
+      </div>
+    </div>
+    <button class="primary-button ob-cta" data-ob-start-rec="${t.id}">Start ${esc(t.name)}</button>
+    <button class="link-btn ob-link" data-ob-browse>Browse all challenges</button>
   </div>`;
 }
 
 function renderObSlide() {
   const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
   const slides = [
-    { emoji:"🎯", title:"Pick a challenge",
-      body:`90+ challenges — from Morning Routine to the Pacific Crest Trail. Each one comes with daily habits to check off.` },
-    { emoji:theme.emoji, title:"Log. Earn. Level up.",
+    { icon:"ti-target", title:"Pick a challenge",
+      body:`Choose a path: break a bad habit, build a routine, improve your health, or train your discipline. Each challenge turns change into daily checkboxes.` },
+    { icon:theme.icon, title:"Log. Earn. Level up.",
       body:`Every habit earns XP. You start as a <strong>${theme.levels[0]}</strong> and climb all the way to <strong>${theme.levels[24]}</strong>. Your progress never resets.`,
       extra:`<div class="ob-ring-demo" aria-hidden="true"><div class="ob-ring-demo-pct">68%</div></div>` },
-    { emoji:"🔥", title:"Show up every day.",
-      body:`Your streak grows with every logged day. Rest days are built in. One day at a time.` },
+    { icon:"ti-flame", title:"Become consistent.",
+      body:`Your streak grows with every logged day. Rest days are built in. You are not just finishing tasks — you are building evidence for a new identity.` },
   ];
   const step = slides[onboardingStep - 3];
   const dots = ONBOARDING_STEPS.map((_,i) =>
@@ -6056,7 +6232,7 @@ function renderObSlide() {
   return `
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
-      <div class="ob-emoji" aria-hidden="true">${step.emoji}</div>
+      <div class="ob-emoji" aria-hidden="true"><i class="ti ${step.icon}"></i></div>
       <div class="ob-title">${step.title}</div>
       <div class="ob-body">${step.body}</div>
       ${step.extra || ""}
@@ -6072,7 +6248,7 @@ function renderObName() {
   return `
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
-      <div class="ob-emoji" aria-hidden="true">👋</div>
+      <div class="ob-emoji" aria-hidden="true"><i class="ti ti-hand-stop"></i></div>
       <div class="ob-title">What should we call you?</div>
       <div class="ob-body">We'll use your name to cheer you on along the way.</div>
     </div>
@@ -6094,7 +6270,7 @@ function renderObAccount() {
     return `
   <div class="ob-screen ob-screen--account" role="main">
     <div class="ob-slide-inner">
-      <div class="ob-emoji" aria-hidden="true">🔑</div>
+      <div class="ob-emoji" aria-hidden="true"><i class="ti ti-key"></i></div>
       <div class="ob-title">Reset your password</div>
       <div class="ob-body">Enter your email and we'll send you a reset link.</div>
     </div>
@@ -6113,7 +6289,7 @@ function renderObAccount() {
   return `
   <div class="ob-screen ob-screen--account" role="main">
     <div class="ob-slide-inner">
-      <div class="ob-emoji" aria-hidden="true">☁️</div>
+      <div class="ob-emoji" aria-hidden="true"><i class="ti ti-cloud"></i></div>
       <div class="ob-title">${isSignin ? "Welcome back" : "Save your progress"}</div>
       <div class="ob-body">${isSignin
         ? "Sign in to restore your challenges, streaks and badges."
@@ -6147,20 +6323,20 @@ function renderObJourney() {
   return `
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
-      <div class="ob-emoji" aria-hidden="true">🗺️</div>
+      <div class="ob-emoji" aria-hidden="true"><i class="ti ti-map-2"></i></div>
       <div class="ob-title">Choose your journey</div>
-      <div class="ob-body">Pick the world that fits you. It changes your level names and app colors — and you can switch anytime in Settings.</div>
+      <div class="ob-body">Pick the world that fits you. It changes your level names — and you can switch anytime in Settings.</div>
     </div>
     <div class="ob-journey-grid">
       ${Object.entries(JOURNEY_THEMES).map(([id, t]) => `
       <button class="ob-journey-btn${cur === id ? " selected" : ""}" data-ob-journey="${id}">
-        <div class="ob-journey-swatch" style="background:linear-gradient(135deg,${(THEME_SWATCHES[id]||["#52c8f0","#a8e8ff"])[0]},${(THEME_SWATCHES[id]||["#52c8f0","#a8e8ff"])[1]})"></div>
+        <div class="ob-journey-swatch"><i class="ti ${t.icon}"></i></div>
         <div class="ob-journey-info">
           <div class="ob-journey-label">${t.label}</div>
           <div class="ob-journey-sub">${t.tagline}</div>
           <div class="ob-journey-peak">Lv.25: ${t.levels[24]}</div>
         </div>
-        ${cur === id ? `<span class="ob-journey-check">✓</span>` : ""}
+        ${cur === id ? `<span class="ob-journey-check"><i class="ti ti-check"></i></span>` : ""}
       </button>`).join("")}
     </div>
     <button class="primary-button ob-cta" data-ob-next>Continue →</button>
@@ -6171,10 +6347,11 @@ function renderObJourney() {
 function renderOnboarding() {
   if (onboardingStep === null) return "";
   if (onboardingStep === 0) return renderObHero();
-  if (onboardingStep === 1) return renderObJourney();
-  if (onboardingStep === 2) return renderObGoal();
-  if (onboardingStep <= ONBOARDING_STEPS.length + 2) return renderObSlide();
-  if (onboardingStep === ONBOARDING_STEPS.length + 3) return renderObName();
+  if (onboardingStep === 1) return renderObGoal();
+  if (onboardingStep === 2) return renderObIntensity();
+  if (onboardingStep === 3) return renderObTime();
+  if (onboardingStep === 4) return renderObRecommendation();
+  if (onboardingStep === 5) return renderObName();
   return renderObAccount();
 }
 
@@ -6185,11 +6362,11 @@ function renderSafetyModal() {
   return `
   <div class="sheet-backdrop" data-safety-backdrop>
     <section class="sheet" role="dialog" style="max-width:400px">
-      <div style="font-size:40px;text-align:center;margin-bottom:10px">⚠️</div>
+      <div style="font-size:40px;text-align:center;margin-bottom:10px;color:var(--warning)"><i class="ti ti-alert-triangle"></i></div>
       <div style="font-size:18px;font-weight:700;text-align:center;margin-bottom:14px">Health Notice</div>
       <div style="font-size:14px;color:var(--text);line-height:1.65;margin-bottom:16px">${warning}</div>
       <div style="font-size:12px;color:var(--text-dim);line-height:1.55;margin-bottom:22px;padding:10px 12px;background:var(--surface-2,var(--surface));border-radius:8px">By starting this challenge you confirm you have read this notice. Seek medical advice before starting if you have any relevant health conditions.</div>
-      <button class="primary-button" data-safety-confirm>I understand — Start ${esc(t.name)} 🚀</button>
+      <button class="primary-button" data-safety-confirm>I understand — Start ${esc(t.name)}</button>
       <button class="secondary-button" data-safety-dismiss style="margin-top:8px">Go back</button>
     </section>
   </div>`;
@@ -6200,7 +6377,7 @@ function renderDataSettings() {
   <div class="section-label" style="margin-top:20px">Data</div>
   ${!CloudSync.isSignedIn ? `
   <div style="background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.35);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start">
-    <span style="font-size:18px;flex-shrink:0">⚠️</span>
+    <span style="font-size:18px;flex-shrink:0;color:var(--warning)"><i class="ti ti-alert-triangle"></i></span>
     <div>
       <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px">Your data is local only</div>
       <div style="font-size:12px;color:var(--text-dim);line-height:1.5">Progress is stored on this device. If you clear your browser or switch devices, it will be lost. <button class="link-btn" data-preview-onboarding style="font-size:12px">Sign in to back up →</button></div>
@@ -6215,22 +6392,22 @@ function renderDataSettings() {
         Restore backup ↑
         <input type="file" id="import-file-input" accept=".json" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none">
       </label>
-      <div style="font-size:12px;color:var(--text-dim);margin-top:8px">⚠️ Restoring will overwrite all current data.</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-top:8px"><i class="ti ti-alert-triangle"></i> Restoring will overwrite all current data.</div>
     </div>
   </div>
   ${CloudSync.isSignedIn ? `
   <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
     ${_resetConfirm ? `
-      <div style="background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.3);border-radius:10px;padding:14px">
-        <div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:6px">Delete account?</div>
+      <div style="background:color-mix(in srgb,var(--error) 8%,transparent);border:1px solid color-mix(in srgb,var(--error) 30%,transparent);border-radius:10px;padding:14px">
+        <div style="font-size:13px;font-weight:700;color:var(--error);margin-bottom:6px">Delete account?</div>
         <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">All challenges, XP, badges, streaks, and settings will be permanently deleted and your account removed. This cannot be undone.</div>
         <div style="display:flex;gap:8px">
           <button class="secondary-button" data-reset-cancel style="flex:1">Cancel</button>
-          <button class="primary-button" data-reset-confirm style="flex:1;background:#dc2626;border-color:#dc2626">Yes, delete account</button>
+          <button class="primary-button" data-reset-confirm style="flex:1;background:var(--error);border-color:var(--error)">Yes, delete account</button>
         </div>
       </div>` : `
       <div style="font-size:13px;color:var(--text-dim);margin-bottom:8px">Permanently delete your account and all data.</div>
-      <button class="secondary-button" data-reset-app style="color:#f87171;border-color:rgba(220,38,38,0.4)">Delete account</button>`}
+      <button class="secondary-button" data-reset-app style="color:var(--error);border-color:color-mix(in srgb,var(--error) 40%,transparent)">Delete account</button>`}
   </div>` : ""}
   <div style="margin-top:20px;text-align:center">
     <a href="/privacy.html" target="_blank" style="font-size:12px;color:var(--text-dim);text-decoration:none">Privacy Policy</a>
@@ -6267,13 +6444,13 @@ function renderReminderSettings() {
       : `Click the icon next to the address bar → find <strong>Notifications</strong> → set to <strong>Allow</strong>`;
     body = `
     <div style="text-align:center;padding:8px 0">
-      <div style="font-size:32px;margin-bottom:10px">🔕</div>
+      <div style="font-size:32px;margin-bottom:10px;color:var(--text-dim)"><i class="ti ti-bell-off"></i></div>
       <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px">Notifications are blocked</div>
       <div style="font-size:13px;color:var(--text-dim);line-height:1.6;margin-bottom:14px">${steps}, then tap the button below.</div>
       <button class="secondary-button" style="width:100%" onclick="window.location.reload()">I've enabled them — reload ↻</button>
     </div>`;
   } else if (perm === "default") {
-    body = `<button class="primary-button" data-request-notif-permission>Enable reminders 🔔</button>
+    body = `<button class="primary-button" data-request-notif-permission>Enable reminders</button>
             <p class="reminder-note" style="margin-top:8px">We'll nudge you once a day if habits are still open.</p>`;
   } else {
     body = `
@@ -6303,10 +6480,10 @@ function renderProSection() {
   if (CloudSync.isSignedIn) {
     // Already a member — show compact "Pro" badge + sync controls
     return `
-    <div class="section-label">☁️ Cloud Backup</div>
+    <div class="section-label"><i class="ti ti-cloud"></i> Cloud Backup</div>
     <div class="more-card" style="margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-        <span style="font-size:18px">✅</span>
+        <span style="font-size:18px;color:var(--success)"><i class="ti ti-circle-check"></i></span>
         <div>
           <div style="font-size:13px;font-weight:700;color:var(--text)">${esc(CloudSync.userEmail || "")}</div>
           <div style="font-size:11px;color:var(--text-dim)">Data auto-syncs after each save</div>
@@ -6319,7 +6496,7 @@ function renderProSection() {
     </div>`;
   }
   return `
-  <div class="section-label">☁️ Cloud Backup</div>
+  <div class="section-label"><i class="ti ti-cloud"></i> Cloud Backup</div>
   <div class="more-card" style="margin-bottom:14px">
     <div style="font-size:13px;color:var(--text-dim);margin-bottom:14px">Back up your progress and sync across devices. Your streaks, badges, and challenges stay safe even if you clear your browser.</div>
     ${_cloudAuthError ? `<div class="cloud-auth-error">${esc(_cloudAuthError)}</div>` : ""}
@@ -6358,18 +6535,18 @@ function renderSettings() {
     </div>
     <div class="section-label">Journey &amp; Theme</div>
     <div class="more-card" style="margin-bottom:14px">
-      <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">Changes your level names and app color scheme.</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">Changes your level names.</div>
       <div class="ob-journey-grid ob-journey-grid--settings">
         ${Object.entries(JOURNEY_THEMES).map(([id, t]) => {
           const active = (state.settings.journeyTheme || "mountain") === id;
           return `<button class="ob-journey-btn${active ? " selected" : ""}" data-settings-journey="${id}">
-            <span class="ob-journey-emoji">${t.emoji}</span>
+            <span class="ob-journey-emoji"><i class="ti ${t.icon}"></i></span>
             <div class="ob-journey-info">
               <div class="ob-journey-label">${t.label}</div>
               <div class="ob-journey-sub">${t.tagline}</div>
               <div class="ob-journey-peak">Lv.25: ${t.levels[24]}</div>
             </div>
-            ${active ? `<span class="ob-journey-check">✓</span>` : ""}
+            ${active ? `<span class="ob-journey-check"><i class="ti ti-check"></i></span>` : ""}
           </button>`;
         }).join("")}
       </div>
@@ -6393,13 +6570,12 @@ function renderSettings() {
     </div>
     <div class="section-label" style="margin-top:20px">How Conqur Works</div>
     <div class="more-card" style="font-size:13px;line-height:1.65;color:var(--text-dim)">
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">🎯 Challenges</strong> — Pick one of 90+ challenges. Each has daily habits to check off. Complete all habits for the day to earn full points.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">⚡ Points &amp; XP</strong> — Each habit is worth points. Points fuel your XP, which builds your level and never resets. Log 5 days in a week to bank a streak freeze.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">🔥 Streaks</strong> — Your streak grows every day you log all habits. Soft mode gives you one grace day before it breaks. Rest days don't break streaks.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">🛡️ Rest Days</strong> — Each challenge allows up to 3 rest days. They're planned recovery — not failures.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">⚡ XP &amp; Levels</strong> — XP accumulates from points across all challenges and never resets. Climb from Base Camp all the way to Everest.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)">🏔 Phases</strong> — Longer challenges are split into phases so the finish line always feels reachable. Each phase completion is celebrated.</div>
-      <div><strong style="color:var(--text)">🏅 Badges</strong> — Earn badges for streaks, consistency, and challenge completions. Proof of everything you've built.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-target"></i> Challenges</strong> — Pick something to conquer: a bad habit, a routine, a health reset, or a discipline test. Each one gives you daily habits to check off.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-bolt"></i> Points &amp; XP</strong> — Each habit is worth points. XP builds your level and never resets, so every small win becomes part of your record.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-flame"></i> Streaks</strong> — Your streak grows every day you log your habits. Soft mode gives you one grace day before it breaks.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-shield"></i> Rest Days</strong> — Rest days are planned recovery, reflection, and reset time. They do not erase your progress.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-flag"></i> Phases</strong> — Longer challenges are split into phases so a big identity change still feels reachable.</div>
+      <div><strong style="color:var(--text)"><i class="ti ti-medal"></i> Badges</strong> — Earn badges for streaks, consistency, and completions. Proof that you are becoming the new you.</div>
     </div>
     ${renderProSection()}
     ${renderReminderSettings()}
@@ -6486,33 +6662,6 @@ function bindEvents() {
     render();
   });
   on("[data-select-template]", el => selectTemplate(el.dataset.selectTemplate));
-  on("[data-builder-back-exp]", () => { builderStep = "template"; render(); });
-  on("[data-exp-unit]", el => { builderForm.expeditionUnit = el.dataset.expUnit; render(); });
-  on("[data-start-expedition]", () => {
-    const name     = document.getElementById("exp-name")?.value.trim() || "My Expedition";
-    const emoji    = document.getElementById("exp-emoji")?.value.trim() || "🗺️";
-    const distance = parseFloat(document.getElementById("exp-distance")?.value) || 0;
-    const duration = parseInt(document.getElementById("exp-duration")?.value) || 0;
-    const startDate = document.getElementById("exp-start")?.value || todayKey();
-    const unit     = builderForm.expeditionUnit || "km";
-    if (!distance || distance <= 0) { showToast("Enter a distance goal."); return; }
-    if (!duration || duration <= 0) { showToast("Enter a duration."); return; }
-    const endDate  = addDays(startDate, duration - 1);
-    const habitEmoji = unit === "floors" ? "🏢" : "🥾";
-    const form = {
-      templateId: null, name, emoji, startDate, endDate,
-      mode: "soft", weeklyGoal: 5, jokerBudget: 3, noEndDate: false,
-      routeKm: distance,
-      habits: [{ id:"dist", title:"Log distance", emoji:habitEmoji, quip:"Every step counts.", type:"distance", points:1, unit }],
-    };
-    const c = createChallenge(form);
-    todayChallengeId = c.id;
-    builderOpen = false;
-    activeTab = "today";
-    showToast(`${emoji} ${name} started!`);
-    trackEvent("Challenge Started", { challenge: name, template: "custom-expedition" });
-    render();
-  });
   on("[data-bf-mode]",      el => { saveBuilderFormFromDOM(); builderForm.mode=el.dataset.bfMode; render(); });
   on("[data-pin-challenge]", el => { // kept for old data; no-op
     const c = getChallenge(el.dataset.pinChallenge); if (!c) return;
@@ -6550,7 +6699,7 @@ function bindEvents() {
   on("[data-surprise-me]", () => {
     const pool = TEMPLATES.filter(t => {
       const d = TEMPLATE_DIFFICULTY[t.id] || "intermediate";
-      return d === "beginner" || d === "intermediate";
+      return isConqurTemplate(t) && (d === "beginner" || d === "intermediate");
     });
     const pick = pool[Math.floor(Math.random() * pool.length)];
     if (pick) { _safetyPendingTemplateId = null; selectTemplate(pick.id); }
@@ -6650,7 +6799,7 @@ function bindEvents() {
     const res = await CloudSync.signIn(email, password);
     _cloudAuthLoading = false;
     if (res.error) { _cloudAuthError = res.error; render(); return; }
-    showToast("✅ Signed in! Data restored.");
+    showToast("Signed in! Data restored.");
     render();
   });
   on("[data-cloud-signup]", async () => {
@@ -6663,9 +6812,9 @@ function bindEvents() {
     _cloudAuthLoading = false;
     if (res.error) { _cloudAuthError = res.error; render(); return; }
     if (res.emailPending) {
-      showToast("✅ Account created! Check your inbox to confirm your email.");
+      showToast("Account created! Check your inbox to confirm your email.");
     } else {
-      showToast("✅ Account created! Data syncing to cloud.");
+      showToast("Account created! Data syncing to cloud.");
     }
     render();
   });
@@ -6686,7 +6835,7 @@ function bindEvents() {
     _cloudAuthLoading = true; render();
     await CloudSync.push();
     _cloudAuthLoading = false;
-    showToast("☁️ Data synced to cloud."); render();
+    showToast("Data synced to cloud."); render();
   });
   on("[data-edit-challenge]", el => {
     const c = getChallenge(el.dataset.editChallenge); if (!c) return;
@@ -6898,7 +7047,7 @@ function bindEvents() {
     state.settings.journeyTheme = id;
     saveState();
     applyTheme();
-    showToast(`${JOURNEY_THEMES[id].emoji} Journey changed to ${JOURNEY_THEMES[id].label}`);
+    showToast(`Journey changed to ${JOURNEY_THEMES[id].label}`);
     render();
   });
   on("[data-ob-next]", () => {
@@ -6906,36 +7055,47 @@ function bindEvents() {
     render();
   });
   on("[data-ob-skip]", () => {
-    // Skip info slides → jump straight to name screen
-    onboardingStep = ONBOARDING_STEPS.length + 3;
+    onboardingStep = 5;
     _obAuthError = "";
     render();
   });
   on("[data-ob-to-signin]", () => {
     _obAuthMode = "signin";
-    onboardingStep = ONBOARDING_STEPS.length + 4; // skip name step for returning users
+    onboardingStep = 6; // skip name step for returning users
     _obAuthError = "";
     render();
   });
-  on("[data-ob-goal]", el => {
-    const templateId = el.dataset.obGoal;
-    const tpl = TEMPLATES.find(t => t.id === templateId);
+  on("[data-ob-answer]", el => {
+    const key = el.dataset.obAnswer;
+    const value = el.dataset.obValue;
+    if (key && value && key in onboardingAnswers) onboardingAnswers[key] = value;
+    onboardingStep++;
+    render();
+  });
+  on("[data-ob-browse]", () => {
     onboardingStep = null;
-    _skipAccountAfterStart = true;
     activeTab = "challenges";
     builderOpen = true;
-    builderStep = "customize";
+    builderStep = "template";
     builderForm = defaultBuilderForm();
-    if (tpl) {
-      builderForm.templateId = templateId;
-      builderForm.name       = tpl.name;
-      builderForm.emoji      = tpl.emoji;
-      builderForm.endDate    = addDays(todayKey(), tpl.duration - 1);
-      builderForm.weeklyGoal = tpl.weeklyGoal;
-      builderForm.mode       = tpl.defaultMode || "soft";
-      builderForm.jokerBudget = tpl.noRestDay ? 0 : 3;
-    }
     render();
+  });
+  on("[data-ob-start-rec]", el => {
+    const templateId = el.dataset.obStartRec;
+    const tpl = TEMPLATES.find(t => t.id === templateId);
+    if (!tpl) return;
+    builderForm = defaultBuilderForm();
+    builderForm.templateId = tpl.id;
+    builderForm.name       = tpl.name;
+    builderForm.emoji      = tpl.emoji;
+    builderForm.startDate  = todayKey();
+    builderForm.endDate    = addDays(todayKey(), tpl.duration - 1);
+    builderForm.weeklyGoal = tpl.weeklyGoal;
+    builderForm.mode       = tpl.defaultMode || "soft";
+    builderForm.jokerBudget = tpl.noRestDay ? 0 : 3;
+    onboardingStep = null;
+    _skipAccountAfterStart = true;
+    startChallenge();
   });
   on("[data-ob-save-name]", () => {
     const nameInput = document.getElementById("ob-name");
@@ -6968,7 +7128,7 @@ function bindEvents() {
     if (res.emailPending) {
       // Email confirmation required — show message and let user continue offline
       _obAuthError = "";
-      showToast("✅ Account created! Check your inbox to confirm your email.");
+      showToast("Account created! Check your inbox to confirm your email.");
       trackEvent("Account Created");
       onboardingStep = null;
       activeTab = "challenges";
@@ -7008,7 +7168,7 @@ function bindEvents() {
     try { await _sb().auth.resetPasswordForEmail(email); } catch(e) { /* silent — Supabase always returns 200 */ }
     _obAuthLoading = false;
     _forgotPwMode = false;
-    showToast("📧 Reset link sent — check your inbox.");
+    showToast("Reset link sent — check your inbox.");
     render();
   });
   on("[data-cloud-forgot]",      async () => {
@@ -7017,7 +7177,7 @@ function bindEvents() {
     _cloudAuthLoading = true; _cloudAuthError = ""; render();
     try { await _sb().auth.resetPasswordForEmail(email); } catch(e) { /* silent */ }
     _cloudAuthLoading = false;
-    showToast("📧 Reset link sent — check your inbox.");
+    showToast("Reset link sent — check your inbox.");
     render();
   });
   on("[data-retry-sync]", () => { _lastSyncError = false; CloudSync.push(); });
@@ -7140,13 +7300,13 @@ function setMode(mode) {
   const isScheduledRest = getDaySchedule(c, dayKey)?.type === "rest";
   if (mode === "rest") {
     const tpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
-    if (tpl?.noRestDay) { showToast("No rest days on this challenge — that's the point. 💪"); return; }
+    if (tpl?.noRestDay) { showToast("No rest days on this challenge — that's the point."); return; }
     const alreadyRest = c.days[dayKey]?.mode === "rest";
     if (!alreadyRest && !isScheduledRest) {
       const used = Object.values(c.days).filter(d => d.mode === "rest" && !d.scheduledRest).length;
       const budget = c.jokerBudget ?? 3;
       if (used >= budget) {
-        showToast(`No rest days left — you used all ${budget}. Keep going. 💪`);
+        showToast(`No rest days left — you used all ${budget}. Keep going.`);
         return;
       }
     }
@@ -7197,11 +7357,11 @@ function toggleHabit(id) {
   }
   if (lvlInfo.level > levelBefore) {
     const _luT = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
-    setTimeout(() => { _levelUpOverlay = { level: lvlInfo.level, name: lvlInfo.name, emoji: _luT.emoji, total: state.xp }; render(); }, 600);
+    setTimeout(() => { _levelUpOverlay = { level: lvlInfo.level, name: lvlInfo.name, icon: _luT.icon, total: state.xp }; render(); }, 600);
   } else if (xpGain > 0) {
     const mult = day.streakMult || 1;
     const multStr = mult > 1 ? ` 🔥×${mult.toFixed(2)}` : "";
-    showToast(`⚡ +${xpGain} XP${multStr}`);
+    showToast(`+${xpGain} XP${multStr}`);
   }
   saveState(); navigator.vibrate?.(10);
   _savedFlash = true;
@@ -7292,11 +7452,11 @@ function selectTier(habitId, rawVal) {
   }
   if (lvlInfo2.level > levelBefore2) {
     const _luT2 = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
-    setTimeout(() => { _levelUpOverlay = { level: lvlInfo2.level, name: lvlInfo2.name, emoji: _luT2.emoji, total: state.xp }; render(); }, 600);
+    setTimeout(() => { _levelUpOverlay = { level: lvlInfo2.level, name: lvlInfo2.name, icon: _luT2.icon, total: state.xp }; render(); }, 600);
   } else if (xpGain2 > 0) {
     const mult2 = day.streakMult || 1;
     const multStr2 = mult2 > 1 ? ` 🔥×${mult2.toFixed(2)}` : "";
-    showToast(`⚡ +${xpGain2} XP${multStr2}`);
+    showToast(`+${xpGain2} XP${multStr2}`);
   }
   saveState(); navigator.vibrate?.(10);
   checkBadges(c); checkMilestones(c); render();
@@ -7377,18 +7537,10 @@ function saveReminderTime() {
   if (!el || !el.value) return;
   state.settings.reminderTime = el.value;
   saveState(); scheduleReminder();
-  showToast("Reminder set for " + el.value + " 🔔"); render();
+  showToast("Reminder set for " + el.value); render();
 }
 
 function selectTemplate(id) {
-  if (id === "custom-expedition") {
-    builderForm = defaultBuilderForm();
-    builderForm.name = "";
-    builderForm.emoji = "🗺️";
-    builderStep = "expedition-custom";
-    render();
-    return;
-  }
   const template = id==="custom" ? null : TEMPLATES.find(t=>t.id===id);
   builderForm.templateId = id==="custom" ? null : id;
   builderForm.name  = template ? template.name  : "";
@@ -7424,17 +7576,17 @@ function renderBuilderQuickstart() {
       ${template.habits.length > 5 ? `<div class="bqs-habit-row" style="color:var(--text-faint)">+ ${template.habits.length - 5} more habits</div>` : ""}
     </div>
     <div class="bqs-desc">${esc(template.description)}</div>
-    ${TEMPLATE_SAFETY[template.id] ? `<div class="bqs-safety-warning"><span class="bqs-safety-icon">⚠️</span><span>${TEMPLATE_SAFETY[template.id]}</span></div>` : ""}
+    ${TEMPLATE_SAFETY[template.id] ? `<div class="bqs-safety-warning"><span class="bqs-safety-icon"><i class="ti ti-alert-triangle"></i></span><span>${TEMPLATE_SAFETY[template.id]}</span></div>` : ""}
     <div class="bqs-xp-row">
-      ${xpTheme.emoji} Earn ~<strong>${weeklyXP.toLocaleString()} XP</strong> per week logging every habit
+      <i class="ti ${xpTheme.icon}"></i> Earn ~<strong>${weeklyXP.toLocaleString()} XP</strong> per week logging every habit
     </div>
     <div class="bqs-mode-note">
       ${template.defaultMode === "soft"
-        ? "💡 <strong>Soft mode</strong> — one grace day per week if life gets in the way."
-        : "⚡ <strong>Strict mode</strong> — no missed days. Zero compromise."}
+        ? "<i class=\"ti ti-bulb\"></i> <strong>Soft mode</strong> — one grace day per week if life gets in the way."
+        : "<i class=\"ti ti-bolt\"></i> <strong>Strict mode</strong> — no missed days. Zero compromise."}
     </div>
     <div class="builder-cta-footer">
-      <button class="primary-button" data-start-challenge>Start ${dur}-Day Challenge 🚀</button>
+      <button class="primary-button" data-start-challenge>Start ${dur}-Day Challenge</button>
       <button class="secondary-button" style="margin-top:8px" data-quickstart-customise>Customise first →</button>
       <button class="link-btn" style="margin-top:10px;text-align:center;display:block" data-builder-back>← Choose a different challenge</button>
     </div>
@@ -7468,13 +7620,13 @@ function startChallenge(safetyConfirmed = false) {
   todayChallengeId = c.id;
   builderOpen = false;
   activeTab = "today";
-  showToast(`${c.emoji} ${c.name} started!`);
+  showToast(`${c.name} started!`);
   trackEvent("Challenge Started", { challenge: c.name, template: builderForm.templateId || "custom" });
   if (_skipAccountAfterStart && !CloudSync.isSignedIn) {
     _skipAccountAfterStart = false;
     _obAuthMode = "signup";
     _obAuthError = "";
-    onboardingStep = ONBOARDING_STEPS.length + 4;
+    onboardingStep = 6;
     render(); return;
   }
   _skipAccountAfterStart = false;
@@ -7649,7 +7801,7 @@ function useStreakFreeze() {
   day.freezeUsed = true;
   c.streakFreezes--;
   saveState();
-  showToast("❄️ Streak freeze applied! Yesterday is covered. Streak protected.");
+  showToast("Streak freeze applied! Yesterday is covered. Streak protected.");
   render();
 }
 
@@ -7674,7 +7826,7 @@ async function captureProgressPhoto(habitId) {
         day.done.push(habitId); _animHabitId = habitId;
         updateDayPoints(c, day); state.xp = recalcXP(); saveState(); checkBadges(c);
       }
-      showToast("📸 Progress photo saved!");
+      showToast("Progress photo saved!");
       render();
     } catch(err) { showToast("Couldn't save photo — try again."); }
   };
@@ -7729,7 +7881,7 @@ function graceUsedYesterday(challenge) {
 
 function launchConfetti() {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const colors = ["var(--primary)","var(--secondary)","var(--success)","#ffcc44","#f43f5e","#38bdf8"];
+  const colors = ["var(--primary)","var(--secondary)","var(--warning)","var(--text)"];
   const count = 48;
   for (let i = 0; i < count; i++) {
     const el = document.createElement("div");
@@ -7766,12 +7918,12 @@ function currentGreeting(challenge, dayNumber, streak) {
   const h = new Date().getHours();
   const t = h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
   // Streak-based (highest priority — most motivating)
-  if (streak >= 50) return `🔥 ${streak}-day streak. You are in the 1%.`;
-  if (streak >= 30) return `⚡ ${streak} days straight. Most people never get here.`;
-  if (streak >= 21) return `🏆 ${streak} days. The average person quits at day 12. You didn't.`;
-  if (streak >= 14) return `🔥 ${streak} in a row. The week-one graveyard is behind you.`;
-  if (streak >= 7)  return `⚡ ${streak}-day streak. Habit is forming. Don't stop now.`;
-  if (streak >= 3)  return `🔥 ${streak} days in a row. The streak is real.`;
+  if (streak >= 50) return `<i class="ti ti-flame"></i> ${streak}-day streak. You are in the 1%.`;
+  if (streak >= 30) return `<i class="ti ti-bolt"></i> ${streak} days straight. Most people never get here.`;
+  if (streak >= 21) return `<i class="ti ti-trophy"></i> ${streak} days. The average person quits at day 12. You didn't.`;
+  if (streak >= 14) return `<i class="ti ti-flame"></i> ${streak} in a row. The week-one graveyard is behind you.`;
+  if (streak >= 7)  return `<i class="ti ti-bolt"></i> ${streak}-day streak. Habit is forming. Don't stop now.`;
+  if (streak >= 3)  return `<i class="ti ti-flame"></i> ${streak} days in a row. The streak is real.`;
   // Data-driven on total habits logged
   if (totalHabits >= 200) return `${totalHabits} habits logged. You're not the same person you were.`;
   if (totalHabits >= 100) return `${totalHabits} habits. 100 small decisions that add up.`;
@@ -7817,7 +7969,7 @@ function fireReminder() {
   const names = incomplete.length === 1
     ? incomplete[0].name
     : `${incomplete.length} challenges`;
-  new Notification("Conqur — Don't break the streak 🔥", {
+  new Notification("Conqur — Don't break the streak", {
     body: `${names}: you still have habits left for today.`,
     icon: "/icons/icon-192.svg",
     tag: "conqur-daily",
@@ -7834,7 +7986,7 @@ async function requestNotificationPermission() {
     state.settings.reminderEnabled = true;
     saveState();
     scheduleReminder();
-    showToast("Reminders on! 🔔 You'll be nudged at " + state.settings.reminderTime);
+    showToast("Reminders on! You'll be nudged at " + state.settings.reminderTime);
   } else {
     state.settings.reminderEnabled = false;
     saveState();
@@ -7913,8 +8065,8 @@ function setDynamicIcon() {
   const link = document.querySelector("link[rel='icon']");
   if (!link) return;
   const cs = getComputedStyle(document.documentElement);
-  const c1 = cs.getPropertyValue("--primary").trim()   || "#b44fff";
-  const c2 = cs.getPropertyValue("--secondary").trim() || "#ff4fa3";
+  const c1 = cs.getPropertyValue("--primary").trim()   || "#d97742";
+  const c2 = cs.getPropertyValue("--secondary").trim() || "#e0935f";
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs><rect width="192" height="192" rx="42" fill="#000"/><circle cx="96" cy="96" r="76" fill="none" stroke="#111" stroke-width="11"/><circle cx="96" cy="96" r="76" fill="none" stroke="url(#g)" stroke-width="11" stroke-linecap="round" stroke-dasharray="358 120" transform="rotate(-90 96 96)"/><text x="96" y="96" text-anchor="middle" dominant-baseline="central" font-family="'Lato',system-ui,sans-serif" font-weight="900" font-size="88" fill="url(#g)">C</text></svg>`;
   link.href=`data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
