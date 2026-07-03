@@ -1,28 +1,37 @@
 :root {
-  /* ── Conqur — Field (Steel + Ember) ──────────────────────────────── */
-  --bg: #0b0b0c;
-  --surface: #141416;
-  --surface-2: #1c1c1f;
-  --surface-3: #26262a;
-  --primary: #d97742;
-  --secondary: #e0935f;
-  --gradient: var(--primary); /* Field: flat ember fill, not a gradient — kept as a var so existing background:var(--gradient) call sites stay flat automatically */
-  --text: #f0efed;
-  --text-dim: #9a9a98;
-  --text-faint: #5a5a58;
-  --success: #6fae8a;
-  --warning: #d9b25f;
-  --error: #d96a6a;
-  --track: #1c1c1f;
-  --border: rgba(255, 255, 255, 0.11);
-  --border-active: rgba(255, 255, 255, 0.22);
+  /* ── Conqur — Frostborn (Norse ice + steel + fire) ─────────────────── */
+  --bg: #07111F;
+  --surface: #0D1B2A;
+  --surface-2: #102033;
+  --surface-3: #15263A;
+  --primary: #38BDF8;
+  --secondary: #7DD3FC;
+  --gradient: linear-gradient(135deg, #38BDF8, #7DD3FC);
+  --text: #F1F5F9;
+  --text-dim: #CBD5E1;
+  --text-faint: #64748B;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #991B1B;
+  --danger: #7F1D1D;
+  --track: #111827;
+  --border: rgba(125, 211, 252, 0.14);
+  --border-active: rgba(125, 211, 252, 0.28);
   --shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.6);
-  --primary-glow: rgba(217, 119, 66, 0.26);
-  --primary-haze: rgba(217, 119, 66, 0.10);
-  --primary-pulse: rgba(217, 119, 66, 0.40);
-  --primary-clear: rgba(217, 119, 66, 0);
-  --secondary-soft: rgba(224, 147, 95, 0.15);
+  --primary-glow: rgba(56, 189, 248, 0.28);
+  --primary-haze: rgba(56, 189, 248, 0.10);
+  --primary-pulse: rgba(56, 189, 248, 0.40);
+  --primary-clear: rgba(56, 189, 248, 0);
+  --secondary-soft: rgba(125, 211, 252, 0.15);
+  /* Fire accent — reserved for streaks (Fire), rewards, runes, and celebration moments only */
+  --fire: #F59E0B;
+  --fire-alt: #EA580C;
+  --fire-gold: #FBBF24;
+  --fire-glow: rgba(245, 158, 11, 0.35);
+  /* Rune rarity — Epic tier only (others reuse text-faint/primary/success/fire) */
+  --epic: #818CF8;
+  --epic-glow: rgba(129, 140, 248, 0.30);
   --black-28: rgba(0, 0, 0, 0.28);
   --black-55: rgba(0, 0, 0, 0.55);
   --white-06: rgba(255, 255, 255, 0.06);
@@ -35,109 +44,7 @@
   --font: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-num: "Inter", ui-sans-serif, system-ui, sans-serif;
   --accent: var(--primary);
-  --nebula: rgba(217, 119, 66, 0.07);
-}
-
-/* ── Journey Themes ──────────────────────────────────────────────────────── */
-[data-theme="mountain"] {
-  --nebula: rgba(82,200,240,0.10);
-  --bg: #070d18; --surface: #0d1a2e; --surface-2: #112338; --surface-3: #162c44;
-  --primary: #52c8f0; --secondary: #a8e8ff;
-  --text-dim: #7eafc9; --text-faint: #3d6a85; --track: #0f2035;
-  --primary-glow: rgba(82,200,240,0.28); --primary-haze: rgba(82,200,240,0.1);
-  --primary-pulse: rgba(82,200,240,0.4); --primary-clear: rgba(82,200,240,0);
-  --secondary-soft: rgba(168,232,255,0.15);
-  --gradient: linear-gradient(135deg, #52c8f0, #a8e8ff);
-}
-[data-theme="astronaut"] {
-  --nebula: rgba(255,114,53,0.10);
-  --bg: #0a0805; --surface: #150f08; --surface-2: #1e1610; --surface-3: #281d15;
-  --primary: #ff7235; --secondary: #ff3b3b;
-  --text-dim: #c47850; --text-faint: #6b3e20; --track: #1c1008;
-  --primary-glow: rgba(255,114,53,0.28); --primary-haze: rgba(255,114,53,0.1);
-  --primary-pulse: rgba(255,114,53,0.4); --primary-clear: rgba(255,114,53,0);
-  --secondary-soft: rgba(255,59,59,0.15);
-  --gradient: linear-gradient(135deg, #ff7235, #ff3b3b);
-}
-[data-theme="martial"] {
-  --nebula: rgba(217,119,6,0.10);
-  --bg: #0a0800; --surface: #160f00; --surface-2: #1e1500; --surface-3: #261c00;
-  --primary: #d97706; --secondary: #fcd34d;
-  --text-dim: #a07030; --text-faint: #5a3e10; --track: #160f00;
-  --primary-glow: rgba(217,119,6,0.28); --primary-haze: rgba(217,119,6,0.1);
-  --primary-pulse: rgba(217,119,6,0.4); --primary-clear: rgba(217,119,6,0);
-  --secondary-soft: rgba(252,211,77,0.15);
-  --gradient: linear-gradient(135deg, #d97706, #fcd34d);
-}
-[data-theme="viking"] {
-  --nebula: rgba(220,38,38,0.10);
-  --bg: #0d0404; --surface: #1a0808; --surface-2: #221010; --surface-3: #2a1414;
-  --primary: #dc2626; --secondary: #be123c;
-  --text-dim: #a06060; --text-faint: #5a3030; --track: #1a0808;
-  --primary-glow: rgba(220,38,38,0.28); --primary-haze: rgba(220,38,38,0.1);
-  --primary-pulse: rgba(220,38,38,0.4); --primary-clear: rgba(220,38,38,0);
-  --secondary-soft: rgba(190,18,60,0.15);
-  --gradient: linear-gradient(135deg, #dc2626, #be123c);
-}
-[data-theme="ocean"] {
-  --nebula: rgba(0,200,212,0.10);
-  --bg: #020c18; --surface: #051825; --surface-2: #082035; --surface-3: #0a2845;
-  --primary: #00c8d4; --secondary: #0070ff;
-  --text-dim: #5090a8; --text-faint: #1e4a60; --track: #041520;
-  --primary-glow: rgba(0,200,212,0.28); --primary-haze: rgba(0,200,212,0.1);
-  --primary-pulse: rgba(0,200,212,0.4); --primary-clear: rgba(0,200,212,0);
-  --secondary-soft: rgba(0,112,255,0.15);
-  --gradient: linear-gradient(135deg, #00c8d4, #0070ff);
-}
-[data-theme="sunrise"] {
-  --nebula: rgba(249,115,22,0.10);
-  --bg: #120a04; --surface: #1e1008; --surface-2: #271508; --surface-3: #311b0a;
-  --primary: #f97316; --secondary: #fbbf24;
-  --text-dim: #c08060; --text-faint: #6b4020; --track: #1e1008;
-  --primary-glow: rgba(249,115,22,0.28); --primary-haze: rgba(249,115,22,0.1);
-  --primary-pulse: rgba(249,115,22,0.4); --primary-clear: rgba(249,115,22,0);
-  --secondary-soft: rgba(251,191,36,0.15);
-  --gradient: linear-gradient(135deg, #f97316, #fbbf24);
-}
-[data-theme="rose"] {
-  --nebula: rgba(244,114,182,0.10);
-  --bg: #0f000a; --surface: #1a0012; --surface-2: #22001a; --surface-3: #2a0020;
-  --primary: #f472b6; --secondary: #c084fc;
-  --text-dim: #c580a0; --text-faint: #5a2040; --track: #1a0012;
-  --primary-glow: rgba(244,114,182,0.28); --primary-haze: rgba(244,114,182,0.1);
-  --primary-pulse: rgba(244,114,182,0.4); --primary-clear: rgba(244,114,182,0);
-  --secondary-soft: rgba(192,132,252,0.15);
-  --gradient: linear-gradient(135deg, #f472b6, #c084fc);
-}
-[data-theme="forest"] {
-  --nebula: rgba(74,222,128,0.10);
-  --bg: #040f06; --surface: #081510; --surface-2: #0c1c14; --surface-3: #102418;
-  --primary: #4ade80; --secondary: #a3e635;
-  --text-dim: #5a9a70; --text-faint: #2a5a38; --track: #081510;
-  --primary-glow: rgba(74,222,128,0.28); --primary-haze: rgba(74,222,128,0.1);
-  --primary-pulse: rgba(74,222,128,0.4); --primary-clear: rgba(74,222,128,0);
-  --secondary-soft: rgba(163,230,53,0.15);
-  --gradient: linear-gradient(135deg, #4ade80, #a3e635);
-}
-[data-theme="phoenix"] {
-  --nebula: rgba(168,85,247,0.12);
-  --bg: #07030e; --surface: #110822; --surface-2: #180d2e; --surface-3: #1f1040;
-  --primary: #a855f7; --secondary: #e879f9;
-  --text-dim: #9060c0; --text-faint: #3d1a6e; --track: #110822;
-  --primary-glow: rgba(168,85,247,0.30); --primary-haze: rgba(168,85,247,0.10);
-  --primary-pulse: rgba(168,85,247,0.42); --primary-clear: rgba(168,85,247,0);
-  --secondary-soft: rgba(232,121,249,0.15);
-  --gradient: linear-gradient(135deg, #a855f7, #e879f9);
-}
-[data-theme="treasure"] {
-  --nebula: rgba(245,158,11,0.12);
-  --bg: #090600; --surface: #150e00; --surface-2: #1e1500; --surface-3: #281c00;
-  --primary: #f59e0b; --secondary: #fcd34d;
-  --text-dim: #b08030; --text-faint: #5a4010; --track: #150e00;
-  --primary-glow: rgba(245,158,11,0.30); --primary-haze: rgba(245,158,11,0.10);
-  --primary-pulse: rgba(245,158,11,0.42); --primary-clear: rgba(245,158,11,0);
-  --secondary-soft: rgba(252,211,77,0.15);
-  --gradient: linear-gradient(135deg, #f59e0b, #fcd34d);
+  --nebula: rgba(56, 189, 248, 0.08);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1203,7 +1110,9 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .more-card {
   padding: 16px;
   border-radius: var(--radius);
-  background: var(--surface);
+  background: rgba(16, 32, 51, 0.62);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border: 1px solid var(--border);
   margin-bottom: 10px;
 }
@@ -1350,14 +1259,15 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   min-height: 48px;
   border-radius: 999px;
   background: var(--gradient);
-  color: #fff;
+  color: #07111F; /* dark navy, not white — ice-blue gradient fails WCAG AA with white text (~2.2:1) */
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  transition: opacity 180ms;
+  box-shadow: 0 4px 20px var(--primary-glow);
+  transition: opacity 180ms, box-shadow 180ms;
 }
 
-.primary-button:active { opacity: 0.85; }
+.primary-button:active { opacity: 0.85; box-shadow: 0 2px 10px var(--primary-glow); }
 
 /* ── Save-day floating button ─────────────────────────────────── */
 
@@ -1873,7 +1783,9 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   text-align: left;
   padding: 14px 16px;
   border-radius: var(--radius);
-  background: var(--surface);
+  background: rgba(16, 32, 51, 0.62);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border: 1px solid var(--border);
   margin-bottom: 10px;
   cursor: pointer;
@@ -2301,6 +2213,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .completion-title {
   font-size: 22px;
   font-weight: 900;
+  letter-spacing: -0.01em;
   background: var(--gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -2503,6 +2416,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .ob-title {
   font-size: 22px;
   font-weight: 900;
+  letter-spacing: -0.01em;
   margin-bottom: 12px;
   background: var(--gradient);
   -webkit-background-clip: text;
@@ -3906,7 +3820,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   padding: 3px 12px; display: inline-block; margin-bottom: 10px;
 }
 .luo-level {
-  font-size: 72px; font-weight: 900; line-height: 1;
+  font-size: 72px; font-weight: 900; line-height: 1; letter-spacing: -0.02em;
   background: var(--gradient); -webkit-background-clip: text;
   -webkit-text-fill-color: transparent; background-clip: text;
   margin-bottom: 4px;
@@ -4066,11 +3980,14 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 /* ── Level Profile (Badges tab) ─────────────────────────────────────────── */
 
 .level-profile-card {
-  background: var(--surface);
+  background: rgba(16, 32, 51, 0.62);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 16px;
   margin-bottom: 16px;
+  box-shadow: 0 0 24px var(--primary-haze);
 }
 
 .lp-top {
@@ -5212,27 +5129,8 @@ details[open] .badge-locked-summary::before {
   margin-top: 4px;
 }
 
-/* ── Conqur · Field — palette override (neutralizes journey themes to ember) ── */
-[data-theme] {
-  --bg: #0b0b0c; --surface: #141416; --surface-2: #1c1c1f; --surface-3: #26262a;
-  --primary: #d97742; --secondary: #e0935f;
-  --gradient: var(--primary);
-  --text-dim: #9a9a98; --text-faint: #5a5a58; --track: #1c1c1f;
-  --primary-glow: rgba(217,119,66,0.26); --primary-haze: rgba(217,119,66,0.10);
-  --primary-pulse: rgba(217,119,66,0.40); --primary-clear: rgba(217,119,66,0);
-  --secondary-soft: rgba(224,147,95,0.15); --nebula: rgba(217,119,66,0.07);
-}
-
 /* ── Conqur · Field — journey swatch (icon tile, not a color swatch) ── */
-.ob-journey-swatch {
-  background: var(--surface-3) !important;
-  border: 1px solid var(--border);
-  box-shadow: none !important;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text-dim);
-  font-size: 14px;
-}
-.ob-journey-btn.selected .ob-journey-swatch { color: var(--primary); border-color: var(--primary); }
+.ob-journey-btn.selected .ob-journey-swatch { box-shadow: 0 0 0 2px var(--primary), 0 2px 8px rgba(0,0,0,0.4); }
 .ob-journey-check { color: var(--primary); font-size: 16px; line-height: 1; }
 
 /* ── Conqur · Field — hide per-habit content emoji in checklists (matches Endur precedent) ── */

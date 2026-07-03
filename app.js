@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.26.0";
+const APP_VERSION = "2026.06.26.5";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -87,103 +87,19 @@ const COMPLETE_COPY = {
   mindset:        ["Clear.",            "Mind worked.",        "Presence: logged."],
 };
 
-// ── Journey Themes ─────────────────────────────────────────────────────────
-const THEME_SWATCHES = {
-  mountain:  ["#52c8f0","#a8e8ff"], astronaut: ["#ff7235","#ff3b3b"],
-  martial:   ["#d97706","#fcd34d"], viking:    ["#dc2626","#be123c"],
-  ocean:     ["#00c8d4","#0070ff"], sunrise:   ["#f97316","#fbbf24"],
-  rose:      ["#f472b6","#c084fc"], forest:    ["#4ade80","#a3e635"],
-  phoenix:   ["#a855f7","#e879f9"], treasure:  ["#f59e0b","#fcd34d"],
-};
+// ── Frostborn identity (single default theme — no theme picker) ───────────
+// Rank names anchor on the 10 major ranks (Initiate → Conqueror); levels between
+// anchors carry unique Frostborn-flavored names so progression still feels granular.
+const THEME_SWATCHES = { frostborn: ["#38BDF8","#7DD3FC"] };
 const JOURNEY_THEMES = {
-  mountain: {
-    label: "Mountain", icon: "ti-mountain", tagline: "Conquer the Summit",
+  frostborn: {
+    label: "Frostborn", icon: "ti-snowflake", tagline: "Rise Through the Ranks",
     levels: [
-      "Rookie","Wanderer","Trailblazer","Scout","Ranger","Climber","Adventurer",
-      "Pathfinder","Mountaineer","Storm Rider","Iron Will","Blizzard Survivor",
-      "Altitude Master","Ridge Walker","Summit Seeker","Above the Clouds",
-      "Ice Axe","Death Zone","Near the Top","Final Push",
-      "Summit Reached","The Conqueror","Everest Bound","Everest Champion","Conqueror of Everest",
-    ],
-  },
-  astronaut: {
-    label: "Astronaut", icon: "ti-rocket", tagline: "Reach for the Stars",
-    levels: [
-      "Space Dreamer","Mission Candidate","Cadet","Flight Trainee","Mission Specialist",
-      "Launch Ready","Countdown","Orbit Reached","Spacewalker","Orbit Master",
-      "Moon Bound","Lunar Approach","Moon Walker","Deep Space Pioneer","Asteroid Belt",
-      "Jupiter Bound","Outer Rim","Mars Approach","Mars Orbit","Mars Landing",
-      "Red Planet Pioneer","Mars Colony","Mars Legend","First Martian","First on Mars",
-    ],
-  },
-  martial: {
-    label: "Martial Arts", icon: "ti-target", tagline: "Master Your Mind",
-    levels: [
-      "White Belt","Yellow Belt","Orange Belt","Green Belt","Blue Belt",
-      "Purple Belt","Red Belt","Brown Belt","Black Belt","1st Dan",
-      "Iron Fist","Silent Mind","Dragon Spirit","Tiger Heart","Storm Breaker",
-      "Shadow Walker","Unbroken","The Sensei","Shihan","Hanshi",
-      "Iron Legend","Ancient Master","The Soke","Hall of Champions","Grandmaster",
-    ],
-  },
-  viking: {
-    label: "Viking", icon: "ti-sword", tagline: "Legend of the Sagas",
-    levels: [
-      "Thrall","Freeman","Skald","Huscarl","Shield-Brother",
-      "Berserker","Raider","Sea Wolf","Jarl's Guard","Bloodhawk",
-      "War Chief","Drakkar Captain","Valhalla Seeker","Thor's Chosen","Jotun Slayer",
-      "Saga Writer","Odin's Eye","Ragnarok Survivor","Jarl","High Jarl",
-      "Warlord","King of the North","Allfather's Chosen","Einherjar","Legend of the Sagas",
-    ],
-  },
-  ocean: {
-    label: "Ocean Diver", icon: "ti-anchor", tagline: "Descend to the Deep",
-    levels: [
-      "Beach Walker","Snorkeler","Surface Diver","Open Water Diver","Advanced Diver",
-      "Rescue Diver","Night Diver","Deep Diver","Cave Explorer","Wreck Diver",
-      "Reef Master","Coral Guardian","Pelagic Diver","Abyss Seeker","Twilight Zone",
-      "Midnight Zone","Deep Sea Pioneer","Hadal Explorer","Pressure Tested","Trench Walker",
-      "Abyss Master","Shadow of the Deep","Mariana Bound","Mariana Champion","Mariana Legend",
-    ],
-  },
-  rose: {
-    label: "Rose Journey", icon: "ti-heart", tagline: "Bloom Into Your Best Self",
-    levels: [
-      "Seedling","First Leaf","Tender Bud","Opening Bloom","Garden Starter",
-      "Soft Power","Quiet Strength","Inner Glow","Rising Bloom","Wild Flower",
-      "Flourishing","Thorns & All","Full Bloom","Garden Keeper","Heart of Gold",
-      "Climbing Rose","Grace & Grit","Bloom Queen","Wild Rose","Prize Bloom",
-      "Perennial","Garden Legend","Petal Champion","Peak Bloom","The Full Rose",
-    ],
-  },
-  forest: {
-    label: "Forest", icon: "ti-trekking", tagline: "Root Deep, Rise High",
-    levels: [
-      "Seed","Sapling","First Branch","Young Oak","Root Setter",
-      "Deep Roots","Forest Floor","Understory","Light Seeker","Mid Canopy",
-      "Storm Tested","Old Growth","Trail Blazer","Forest Elder","Sky Seeker",
-      "Wildwood","Ancient Grove","Canopy Champion","Sequoia Spirit","Timberline",
-      "Forest Guardian","Cloud Toucher","Ancient Oak","Peak Canopy","Ancient Giant",
-    ],
-  },
-  treasure: {
-    label: "Treasure Quest", icon: "ti-diamond", tagline: "Complete Habits. Unlock Treasure.",
-    levels: [
-      "Empty Pockets","Coin Finder","Bronze Key","Map Holder","Cave Scout",
-      "Dungeon Crawler","Relic Seeker","Chest Hunter","Vault Raider","Gold Rush",
-      "Loot Master","Dragon's Guard","Lost Temple","Ancient Relic","Epic Haul",
-      "Crown Chaser","Legendary Find","Enchanted Vault","Gem Lord","Mythic Collector",
-      "Treasure Titan","Hoard Master","The Grand Vault","Legendary Collector","Master of Treasure",
-    ],
-  },
-  phoenix: {
-    label: "Phoenix", icon: "ti-flame", tagline: "Rise From the Ashes",
-    levels: [
-      "Broken","Still Breathing","First Ember","Choosing to Rise","One Step",
-      "Finding Footing","Healing Starts","Inner Spark","Rebuilding","Unbroken",
-      "Wings Forming","First Flight","Rising Fast","Storm Rider","Reborn",
-      "Scarlet Flame","Blazing Trail","Wildfire","Crown of Ash","Living Proof",
-      "The Comeback","Eternal Flame","Legend of the Ash","The Undying","The Phoenix",
+      "Initiate","Oath-Sworn","Oathkeeper","Oath-Bound","Ice-Tempered",
+      "Raider","Reaver","Sea-Wolf","Shieldbearer","Shield-Wall",
+      "Iron Shield","Stormwalker","Storm-Born","Frost Strider","Jarl",
+      "High Jarl","Warlord","War-Chief","Iron Warlord","Frostborn",
+      "Deep Frostborn","Saga-Bound","Saga-Keeper","Saga-Eternal","Conqueror",
     ],
   },
 };
@@ -192,7 +108,7 @@ const JOURNEY_THEMES = {
 const OB_FEATURE_ICONS = ["ti-trophy", "ti-bolt", "ti-shield", "ti-lock"];
 
 function getThemedLevelName(levelNum) {
-  const theme = JOURNEY_THEMES[state?.settings?.journeyTheme] || JOURNEY_THEMES.mountain;
+  const theme = JOURNEY_THEMES[state?.settings?.journeyTheme] || JOURNEY_THEMES.frostborn;
   return theme.levels[levelNum - 1] || "";
 }
 
@@ -254,12 +170,13 @@ function avgDailyXP() {
 }
 
 // ── Rarity Tiers (Field: monochrome + ember intensity ramp, no rainbow) ─────
+// Rune rarity hierarchy: steel (common) → ice blue (uncommon) → emerald (rare) → purple-blue (epic) → amber fire (legendary)
 const TIERS = {
-  common:    { label:"Starter",   color:"var(--text-faint)", border:"var(--text-faint)" },
-  uncommon:  { label:"Common",    color:"var(--text-dim)",   border:"var(--text-dim)" },
-  rare:      { label:"Rare",      color:"var(--text)",       border:"var(--text)" },
-  epic:      { label:"Epic",      color:"var(--secondary)",  border:"var(--secondary)" },
-  legendary: { label:"Legendary", color:"var(--primary)",    border:"var(--primary)" },
+  common:    { label:"Common",    color:"var(--text-faint)", border:"var(--text-faint)" },
+  uncommon:  { label:"Uncommon",  color:"var(--primary)",    border:"var(--primary)" },
+  rare:      { label:"Rare",      color:"var(--success)",    border:"var(--success)" },
+  epic:      { label:"Epic",      color:"var(--epic)",       border:"var(--epic)" },
+  legendary: { label:"Legendary", color:"var(--fire)",       border:"var(--fire)" },
 };
 
 // Plain-English descriptions of each tier for the builder
@@ -1725,6 +1642,18 @@ const LIFETIME_BADGES = [
   { id:"lt-freeze", label:"❄️ Ice Age",             desc:"Use a streak freeze to save a streak.",             test: l => l.freezeUsed },
 ];
 
+// Rank runes — earned by reaching rank milestones (5/10/15/20/25) on the Frostborn path.
+// Tracked in state.globalBadges like Universal/Lifetime runes. Sticky once earned.
+const THEME_BADGES = {
+  frostborn: [
+    { id:"theme-frostborn-5",  label:"❄️ Ice-Tempered",   desc:"Reach Rank 5. The cold no longer bothers you.",         levelReq:5,  tier:"uncommon" },
+    { id:"theme-frostborn-10", label:"🛡️ Shield-Wall",    desc:"Reach Rank 10. You hold the line.",                     levelReq:10, tier:"rare" },
+    { id:"theme-frostborn-15", label:"⚡ Jarl",            desc:"Reach Rank 15. You lead now.",                          levelReq:15, tier:"rare" },
+    { id:"theme-frostborn-20", label:"🔥 Frostborn",      desc:"Reach Rank 20. Ice and fire, both yours to command.",   levelReq:20, tier:"epic" },
+    { id:"theme-frostborn-25", label:"👑 Conqueror",       desc:"Reach Rank 25 — the top of the Frostborn path.",        levelReq:25, tier:"legendary" },
+  ],
+};
+
 // Template-specific badges — 5 per template, only shown/counted for that challenge (tracked in challenge.badges)
 const TEMPLATE_BADGES = {
   "cruise-control": [
@@ -2498,7 +2427,7 @@ function normalizeState(raw) {
       name:            raw.settings?.name            || "",
       reminderEnabled: raw.settings?.reminderEnabled === true,
       reminderTime:    raw.settings?.reminderTime    || "20:00",
-      journeyTheme:    JOURNEY_THEMES[raw.settings?.journeyTheme] ? raw.settings.journeyTheme : "mountain",
+      journeyTheme:    JOURNEY_THEMES[raw.settings?.journeyTheme] ? raw.settings.journeyTheme : "frostborn",
       units: {
         weight:        raw.settings?.units?.weight        || "lbs",
         distance:      raw.settings?.units?.distance      || "km",
@@ -3176,6 +3105,17 @@ function checkBadges(challenge) {
     }
   });
 
+  // ── 4. Journey badges (level milestones within the currently active theme) ──
+  const activeThemeId = state.settings.journeyTheme;
+  const curLevel = getLevelInfo(state.xp).level;
+  (THEME_BADGES[activeThemeId] || []).forEach(b => {
+    if (!state.globalBadges.includes(b.id) && curLevel >= b.levelReq) {
+      state.globalBadges.push(b.id);
+      _badgeSheetQueue.push({ label: b.label, desc: b.desc || "", tier: b.tier });
+      earned = true;
+    }
+  });
+
   if (earned) saveState();
   checkStreakFreezeAward(challenge, myWeeks);
 }
@@ -3374,7 +3314,7 @@ function checkMilestones(challenge) {
   if (dayNumber === 1 && info.percent === 100 && !challenge.flags.day1done) {
     challenge.flags.day1done = true;
     setTimeout(() => {
-      showBigToast('<i class="ti ti-circle-check"></i>', "Day 1 done.", "Come back tomorrow. Your streak starts now.");
+      showBigToast('<i class="ti ti-circle-check"></i>', "Day 1 done.", "Come back tomorrow. Your Fire starts now.");
       if (_pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
         setTimeout(() => { _showInstallBanner = true; render(); }, 3000);
       }
@@ -3464,7 +3404,7 @@ function getChallengePhaseInfo(challenge, dayNumber) {
 // ── Render Core ────────────────────────────────────────────────────────────
 
 function applyTheme() {
-  document.documentElement.setAttribute("data-theme", state?.settings?.journeyTheme || "mountain");
+  document.documentElement.setAttribute("data-theme", state?.settings?.journeyTheme || "frostborn");
   setDynamicIcon();
 }
 
@@ -3629,7 +3569,7 @@ const NAV_ICONS = {
 };
 
 function renderNav() {
-  const tabs = [["today","Today"],["challenges","Challenges"],["badges","Badges"]];
+  const tabs = [["today","Today"],["challenges","Quests"],["badges","Runes"]];
   return `
   <nav class="bottom-nav" aria-label="Conqur sections">
     ${tabs.map(([id,label]) => `
@@ -3677,7 +3617,7 @@ function renderToday() {
   // Comeback: consecutive missed days before today
   const missedStreak = isToday ? getConsecutiveMisses(challenge) : 0;
   const xpInfo  = getLevelInfo(state.xp);
-  const xpTheme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
+  const xpTheme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
   const xpToNext = xpInfo.next ? (xpInfo.next.xp - state.xp).toLocaleString() : null;
 
   return `
@@ -3698,10 +3638,10 @@ function renderToday() {
     </div>` : ""}
     ${missedStreak >= 2 ? `
     <div class="comeback-banner${_viewChanged ? " comeback-banner--anim" : ""}">
-      <strong>Welcome back.</strong> ${missedStreak} days missed — that's okay. <span class="cb-alive">Your challenge is still running.</span> Today still counts.
+      <strong>Welcome back.</strong> Your Fire went out ${missedStreak} days ago — that's okay. <span class="cb-alive">Your Quest is still running.</span> Begin again. Stronger.
     </div>` : missedStreak === 1 ? `
     <div class="comeback-banner comeback-banner--soft${_viewChanged ? " comeback-banner--anim" : ""}">
-      Streak paused at ${streak} days. Come back today to restart. <span class="cb-alive">Your challenge is still running.</span>
+      Your Fire weakened at ${streak} days. Keep today's Oaths to relight it. <span class="cb-alive">Your Quest is still running.</span>
     </div>` : ""}
     <div class="date-nav">
       <button class="date-nav-arrow ${canGoBack?"":"disabled"}" data-date-back ${canGoBack?"":"disabled"} aria-label="Previous day" ${!canGoBack ? 'title="Only the last 3 days can be logged"' : ""}>‹</button>
@@ -3727,7 +3667,7 @@ function renderToday() {
       ${isToday ? renderModeSelector(day, challenge) : ""}
     </section>
     ${phaseInfo && isToday && dayNumber === phaseInfo.phase.end && dayNumber > 1 ? `
-    <div class="boss-day-callout"><div class="boss-day-callout-icon"><i class="ti ti-bolt"></i></div><div class="boss-day-callout-body"><div class="boss-day-callout-title">Phase Finale</div><div class="boss-day-callout-sub">Last day of <strong>${phaseInfo.phase.name}</strong> — finish strong.</div></div></div>` : ""}
+    <div class="boss-day-callout"><div class="boss-day-callout-icon"><i class="ti ti-bolt"></i></div><div class="boss-day-callout-body"><div class="boss-day-callout-title">Raid Day</div><div class="boss-day-callout-sub">Last day of <strong>${phaseInfo.phase.name}</strong> — finish strong.</div></div></div>` : ""}
 
     ${(() => {
       const sched = getDaySchedule(challenge, effDate);
@@ -3752,8 +3692,8 @@ function renderToday() {
       <div class="section-head">
         ${challenge.habits.some(h => h.type === "distance")
           ? `<div class="section-label" style="margin:0">Distance</div>`
-          : `<div class="section-label" style="margin:0">Habits</div>
-             <div style="font-size:12px;font-weight:500;color:var(--text-dim)">${_savedFlash ? `<span class="saved-flash">Saved ✓</span>` : dayNumber === 1 && info.done === 0 ? "Tap to log your first day →" : `${info.done} / ${info.total}`}</div>`}
+          : `<div class="section-label" style="margin:0">Today's Oaths</div>
+             <div style="font-size:12px;font-weight:500;color:var(--text-dim)">${_savedFlash ? `<span class="saved-flash">Saved ✓</span>` : dayNumber === 1 && info.done === 0 ? "One Oath is enough to begin →" : `${info.done} / ${info.total}`}</div>`}
       </div>
       <div class="habit-list">
         ${challenge.habits.map(h => renderHabit(h, day, challenge)).join("")}
@@ -3798,8 +3738,8 @@ function renderTodayAll(active) {
     ${renderChallengePills(active)}
     ${isToday ? renderXPBar() : ""}
     <div class="all-today-banner">
-      <div class="atb-title"><i class="ti ti-list-check"></i> All Active Challenges</div>
-      <div class="atb-stats">${totalDone} / ${totalHabits} habits done today · ${allPct}%</div>
+      <div class="atb-title"><i class="ti ti-list-check"></i> All Active Quests</div>
+      <div class="atb-stats">${totalDone} / ${totalHabits} Oaths kept today · ${allPct}%</div>
     </div>
     ${active.map(c => {
       const day = c.days[effDate] || normalizeDay({});
@@ -3867,7 +3807,7 @@ function renderNoChallenge() {
   const hasPast = Object.values(state.challenges).some(c => c.status !== "active");
   const upcoming = Object.values(state.challenges).filter(c => c.status === "active" && c.startDate > today);
   const isFirstTime = !hasPast && !upcoming.length;
-  const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
+  const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
   return `
   <main class="welcome-shell">
     <div class="welcome-logo">
@@ -3880,14 +3820,14 @@ function renderNoChallenge() {
       </svg>
     </div>
     <h1 class="welcome-title">Conqur</h1>
-    <p class="welcome-sub">${upcoming.length ? "Your next challenge starts soon." : hasPast ? "All challenges complete. Start a new one." : "Break the habit. Build the routine. Become new."}</p>
+    <p class="welcome-sub">${upcoming.length ? "Your next Quest starts soon." : hasPast ? "All Quests complete. Choose your next one." : "Keep your Oaths. Protect your Fire. Rise in Rank."}</p>
 
     ${isFirstTime ? `
-    <p class="welcome-desc">Conqur helps you break bad habits, build better routines, and prove to yourself that you can follow through.</p>
+    <p class="welcome-desc">Conqur helps you build discipline through daily Quests, Oaths, and streaks — and prove to yourself that you can follow through.</p>
     <div class="welcome-features">
-      <div class="wf-item"><span class="wf-icon"><i class="ti ${OB_FEATURE_ICONS[0]}"></i></span><span class="wf-text">Challenges for bad habits, routines, discipline, health, focus, and mindset</span></div>
-      <div class="wf-item"><span class="wf-icon"><i class="ti ${OB_FEATURE_ICONS[1]}"></i></span><span class="wf-text">Daily checklists turn identity change into small wins you can repeat</span></div>
-      <div class="wf-item"><span class="wf-icon"><i class="ti ${OB_FEATURE_ICONS[2]}"></i></span><span class="wf-text">Streaks, badges, rest days, and weekly recaps keep you honest</span></div>
+      <div class="wf-item"><span class="wf-icon"><i class="ti ${OB_FEATURE_ICONS[0]}"></i></span><span class="wf-text">Quests for routines, discipline, health, focus, and mindset</span></div>
+      <div class="wf-item"><span class="wf-icon"><i class="ti ${OB_FEATURE_ICONS[1]}"></i></span><span class="wf-text">Daily Oaths turn identity change into small wins you can repeat</span></div>
+      <div class="wf-item"><span class="wf-icon"><i class="ti ${OB_FEATURE_ICONS[2]}"></i></span><span class="wf-text">Fire, Runes, Recovery Days, and Saga Reviews keep you honest</span></div>
       <div class="wf-item"><span class="wf-icon"><i class="ti ${OB_FEATURE_ICONS[3]}"></i></span><span class="wf-text">Works offline. No ads. Your data stays on your device.</span></div>
     </div>` : ""}
 
@@ -3950,7 +3890,7 @@ function renderRing(info, day, streak, challenge) {
     </svg>
     <div class="ring-center">
       ${day.mode === "rest"
-        ? `<div class="percent" style="font-size:2.2rem"><i class="ti ti-moon"></i></div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">rest day</div>`
+        ? `<div class="percent" style="font-size:2.2rem"><i class="ti ti-moon"></i></div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">recovery day</div>`
         : isExpedition
           ? `<div class="percent" style="font-size:${todayKmD > 0 ? "1.6rem" : "2rem"}">${todayKmD > 0 ? todayKmD.toFixed(ringIsFloors?0:1) : "—"}</div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">${todayKmD > 0 ? ringDUnit+" today" : "log "+ringDUnit}</div>`
           : `<div class="percent">${info.percent}%</div><div class="ring-pts">${info.points}<span class="ring-pts-max">/${info.maxPoints}</span><span class="ring-pts-label"> pts</span></div>`
@@ -3980,7 +3920,7 @@ function renderRing(info, day, streak, challenge) {
     <div class="ring-stat-sep"></div>
     <div class="ring-stat">
       <div class="ring-stat-value${streak>=7?' streak-hero':''}">${streak}${gracePip?`<span style="font-size:10px;color:var(--warning);margin-left:2px" title="Grace day used yesterday — don't miss today!"><i class="ti ti-lifebuoy"></i></span>`:""}${streak>=7?` <i class="ti ti-flame"></i>`:""}</div>
-      <div class="ring-stat-label">day streak${gracePip?`<span style="display:block;font-size:9px;color:var(--warning)">grace used</span>`:""}</div>
+      <div class="ring-stat-label">day Fire${gracePip?`<span style="display:block;font-size:9px;color:var(--warning)">grace used</span>`:""}</div>
       ${challenge && getStreakMultiplier(challenge) > 1.0 ? `<div class="ring-mult-chip">${getStreakMultiplier(challenge).toFixed(2).replace(/\.?0+$/,"")}× pts</div>` : ""}
     </div>
   </div>
@@ -4017,10 +3957,10 @@ function renderModeSelector(day, challenge) {
 
   // Compact single-line chip row
   if (noRestDay) {
-    return `<div class="mode-chip-row"><button class="mode-chip mode-chip--active" data-mode="rest" title="No rest days on this challenge"><i class="ti ti-target"></i> Standard Day <span class="mode-chip-no-rest">· no rest days</span></button></div>`;
+    return `<div class="mode-chip-row"><button class="mode-chip mode-chip--active" data-mode="rest" title="No Recovery Days on this Quest"><i class="ti ti-target"></i> Standard Day <span class="mode-chip-no-rest">· no Recovery Days</span></button></div>`;
   }
   if (isScheduledRest) {
-    const restLabel = todayIsRest ? `<i class="ti ti-moon"></i> Scheduled Rest — active` : `<i class="ti ti-moon"></i> Scheduled Rest (free)`;
+    const restLabel = todayIsRest ? `<i class="ti ti-moon"></i> Scheduled Recovery — active` : `<i class="ti ti-moon"></i> Scheduled Recovery (free)`;
     return `
   <div class="mode-chip-row">
     <button class="mode-chip ${!todayIsRest ? "mode-chip--active" : ""}" data-mode="standard"><i class="ti ti-run"></i> Work out anyway</button>
@@ -4028,10 +3968,10 @@ function renderModeSelector(day, challenge) {
   </div>`;
   }
   const restLabel = todayIsRest
-    ? `<i class="ti ti-moon"></i> Rest Day — active`
+    ? `<i class="ti ti-moon"></i> Recovery Day — active`
     : budgetExhausted
-      ? `<i class="ti ti-moon"></i> Rest Day · none left`
-      : `<i class="ti ti-moon"></i> Rest Day · ${jokersLeft} flex ${jokersLeft === 1 ? "day" : "days"} left`;
+      ? `<i class="ti ti-moon"></i> Recovery Day · none left`
+      : `<i class="ti ti-moon"></i> Recovery Day · ${jokersLeft} flex ${jokersLeft === 1 ? "day" : "days"} left`;
   const restDisabled = budgetExhausted ? "mode-chip--disabled" : "";
   const activeChip   = todayIsRest ? "mode-chip--rest-active" : "mode-chip--active";
   return `
@@ -4071,7 +4011,7 @@ function renderHabit(habit, day, challenge) {
     <span class="habit-emoji">${locked?"🔒":esc(habit.emoji)}</span>
     <span class="habit-info">
       <span class="habit-title">${esc(habit.title)}</span>
-      <span class="habit-quip">${locked?"Rest Day — recover well.":esc(habit.quip)}</span>
+      <span class="habit-quip">${locked?"Recovery Day — recover well.":esc(habit.quip)}</span>
     </span>
     <span class="check-circle">${checked?"✓":""}</span>
   </button>`;
@@ -4087,7 +4027,7 @@ function renderTieredHabit(habit, day, challenge) {
     <span class="habit-emoji">🔒</span>
     <span class="habit-info">
       <span class="habit-title">${esc(habit.title)}</span>
-      <span class="habit-quip">Rest Day — recover well.</span>
+      <span class="habit-quip">Recovery Day — recover well.</span>
     </span>
     <span class="check-circle"></span>
   </div>`;
@@ -4137,7 +4077,7 @@ function renderDistanceHabit(habit, day, challenge) {
     <span class="habit-emoji">🔒</span>
     <span class="habit-info">
       <span class="habit-title">${esc(habit.title)}</span>
-      <span class="habit-quip">Rest Day — recover well.</span>
+      <span class="habit-quip">Recovery Day — recover well.</span>
     </span>
     <span class="check-circle"></span>
   </div>`;
@@ -4191,7 +4131,7 @@ function renderMeasurementHabit(habit, day) {
     <span class="habit-emoji">🔒</span>
     <span class="habit-info">
       <span class="habit-title">${esc(habit.title)}</span>
-      <span class="habit-quip">Rest Day — recover well.</span>
+      <span class="habit-quip">Recovery Day — recover well.</span>
     </span>
     <span class="check-circle"></span>
   </div>`;
@@ -4313,7 +4253,7 @@ function renderTodayWeightLog() {
 function renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToday) {
   if (info.done!==info.total || info.total===0) return "";
   const isExpedition = challenge?.habits.some(h => h.type === "distance");
-  if (day.mode==="rest") return `<div class="complete-banner rest-complete"><span class="cb-icon"><i class="ti ti-moon"></i></span><div class="cb-body"><div class="cb-title">Rest Day</div><div class="cb-sub">Recover. Come back stronger.</div></div></div>`;
+  if (day.mode==="rest") return `<div class="complete-banner rest-complete"><span class="cb-icon"><i class="ti ti-moon"></i></span><div class="cb-body"><div class="cb-title">Recovery Day</div><div class="cb-sub">Recovery is part of the work.</div></div></div>`;
   if (isExpedition) {
     const distHabit  = challenge.habits.find(h => h.type === "distance");
     const habitUnit  = distHabit?.unit || "km";
@@ -4358,20 +4298,20 @@ function renderXPBar() {
   const freezes = c ? (c.streakFreezes || 0) : 0;
   const todayDay = c?.days[todayKey()];
   const mult     = todayDay?.streakMult ?? (c ? getStreakMultiplier(c) : 1);
-  const multLabel = mult >= 1.40 ? `<i class="ti ti-flame"></i> +40% streak bonus active` : mult >= 1.25 ? `<i class="ti ti-flame"></i> +25% streak bonus active` : mult >= 1.15 ? `<i class="ti ti-flame"></i> +15% streak bonus active` : mult >= 1.10 ? `<i class="ti ti-flame"></i> +10% streak bonus active` : null;
+  const multLabel = mult >= 1.40 ? `<i class="ti ti-flame"></i> +40% Fire bonus active` : mult >= 1.25 ? `<i class="ti ti-flame"></i> +25% Fire bonus active` : mult >= 1.15 ? `<i class="ti ti-flame"></i> +15% Fire bonus active` : mult >= 1.10 ? `<i class="ti ti-flame"></i> +10% Fire bonus active` : null;
   return `
   <div class="xp-bar-wrap">
     <div class="xp-bar-header">
-      <span class="xp-level-badge"><i class="ti ti-bolt"></i> Lv.${info.level} <span class="xp-level-name">${info.name}</span></span>
+      <span class="xp-level-badge"><i class="ti ti-bolt"></i> Rank ${info.level} <span class="xp-level-name">${info.name}</span></span>
       <div style="display:flex;align-items:center;gap:8px">
         ${freezes > 0 ? `<span class="xp-freeze-badge" title="Streak freezes — use one to protect a missed day"><i class="ti ti-snowflake"></i> ${freezes}</span>` : ""}
-        <span class="xp-bar-to-next">${isMax ? "Max Level" : (() => { const avg = avgDailyXP(); const d = avg ? `~${Math.ceil(toNext/avg)}d` : null; return `${toNext.toLocaleString()} XP to Lv.${info.next.level}${d?` · ${d}`:""}` })()}</span>
+        <span class="xp-bar-to-next">${isMax ? "Max Rank" : (() => { const avg = avgDailyXP(); const d = avg ? `~${Math.ceil(toNext/avg)}d` : null; return `${toNext.toLocaleString()} XP to Rank ${info.next.level}${d?` · ${d}`:""}` })()}</span>
       </div>
     </div>
     <div class="xp-bar-track" role="progressbar" aria-valuenow="${info.pct}" aria-valuemin="0" aria-valuemax="100">
       <div class="xp-bar-fill" style="width:${info.pct}%"></div>
     </div>
-    <div class="xp-bar-explainer">${multLabel || "XP builds your level forever"}</div>
+    <div class="xp-bar-explainer">${multLabel || "XP builds your Rank forever"}</div>
   </div>`;
 }
 
@@ -4418,7 +4358,7 @@ function renderWeeklyRecap(challenge) {
   return `
   <div class="weekly-recap-card">
     <div class="wrc-top">
-      <div class="wrc-title"><i class="ti ti-clipboard-list"></i> Week ${lastWeek.num} Review</div>
+      <div class="wrc-title"><i class="ti ti-clipboard-list"></i> Saga Review — Week ${lastWeek.num}</div>
       <button class="wrc-dismiss" data-dismiss-weekly-recap="${challenge.id}" aria-label="Dismiss">×</button>
     </div>
     <div class="wrc-stats">
@@ -4501,9 +4441,9 @@ function renderPersonalBests() {
   return `
   <div class="section-label" style="margin-top:8px">Personal Bests</div>
   <div class="pb-grid">
-    ${pbCard('<i class="ti ti-flame"></i> Longest Streak', pb.longestStreak, "days")}
+    ${pbCard('<i class="ti ti-flame"></i> Longest Fire',   pb.longestStreak, "days")}
     ${pbCard('<i class="ti ti-bolt"></i> Best Week',       pb.bestWeekPts,   "pts")}
-    ${pbCard('<i class="ti ti-check"></i> Habits Logged',  pb.totalHabits,   "")}
+    ${pbCard('<i class="ti ti-check"></i> Oaths Kept',     pb.totalHabits,   "")}
     ${pbCard('<i class="ti ti-calendar"></i> Days Shown Up', pb.totalDays,   "")}
   </div>`;
 }
@@ -4539,7 +4479,7 @@ function drawShareCard(challenge, isDone) {
   const ctx = canvas.getContext("2d");
 
   // Background
-  ctx.fillStyle = "#09080f";
+  ctx.fillStyle = "#07111F";
   ctx.fillRect(0, 0, s, s);
 
   // Gradient accent bar top
@@ -4555,8 +4495,8 @@ function drawShareCard(challenge, isDone) {
   ctx.textAlign = "center";
   ctx.fillText(challenge.emoji || "🏆", s / 2, s * 0.25);
 
-  // Challenge name
-  ctx.fillStyle = "#f0eff8";
+  // Quest name
+  ctx.fillStyle = "#F1F5F9";
   ctx.font      = `700 ${Math.round(s * 0.065)}px 'Arial', sans-serif`;
   ctx.fillText(challenge.name, s / 2, s * 0.38);
 
@@ -4567,8 +4507,8 @@ function drawShareCard(challenge, isDone) {
   const totalDays  = diffDays(challenge.startDate, challenge.endDate) + 1;
 
   const statLine = isDone
-    ? `${totalDays} days · ${totalPts} pts · ${streak}-day streak`
-    : `Day ${dayNum} · ${streak}-day streak · ${totalPts} pts`;
+    ? `${totalDays} days · ${totalPts} XP · ${streak}-day Fire`
+    : `Day ${dayNum} · ${streak}-day Fire · ${totalPts} XP`;
 
   // Pill background
   const pillW = s * 0.78, pillH = s * 0.085, pillX = (s - pillW) / 2, pillY = s * 0.44;
@@ -4587,12 +4527,12 @@ function drawShareCard(challenge, isDone) {
   ctx.closePath();
   ctx.fill();
 
-  ctx.fillStyle = "#c8c5e8";
+  ctx.fillStyle = "#CBD5E1";
   ctx.font      = `400 ${Math.round(s * 0.038)}px 'Arial', sans-serif`;
   ctx.fillText(statLine, s / 2, pillY + pillH * 0.64);
 
   // Headline
-  const headline = isDone ? "Challenge complete. 🏆"
+  const headline = isDone ? "Quest complete. 🏆"
     : streak >= 2 ? `${streak} days straight. 🔥`
     : `Day ${dayNum} — showing up. 💪`;
   ctx.fillStyle = grad;
@@ -4600,19 +4540,19 @@ function drawShareCard(challenge, isDone) {
   ctx.fillText(headline, s / 2, s * 0.65);
 
   // Sub copy
-  ctx.fillStyle = "#9896b8";
+  ctx.fillStyle = "#CBD5E1";
   ctx.font      = `400 ${Math.round(s * 0.033)}px 'Arial', sans-serif`;
-  ctx.fillText(isDone ? "Built the habit. Won the challenge." : "One day at a time. " + SHARE_URL, s / 2, s * 0.72);
+  ctx.fillText(isDone ? "Kept the Oaths. Won the Quest." : "One day at a time. " + SHARE_URL, s / 2, s * 0.72);
 
-  // Level + theme line
+  // Rank line
   const _scLevel = getLevelInfo(state.xp);
-  const _scTheme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
-  ctx.fillStyle = "rgba(152,150,184,0.55)";
+  const _scTheme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
+  ctx.fillStyle = "rgba(203,213,225,0.55)";
   ctx.font      = `400 ${Math.round(s * 0.03)}px 'Arial', sans-serif`;
-  ctx.fillText(`${_scTheme.label} · Lv.${_scLevel.level} ${_scLevel.name}`, s / 2, s * 0.81);
+  ctx.fillText(`${_scTheme.label} · Rank ${_scLevel.level} ${_scLevel.name}`, s / 2, s * 0.81);
 
   // Watermark
-  ctx.fillStyle = "rgba(152,150,184,0.4)";
+  ctx.fillStyle = "rgba(203,213,225,0.4)";
   ctx.font      = `700 ${Math.round(s * 0.028)}px 'Arial', sans-serif`;
   ctx.fillText("CONQUR", s / 2, s * 0.89);
 
@@ -4626,8 +4566,8 @@ function renderShareModal() {
   const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate) + 1;
   const dayNum    = challengeDayNumber(_shareModalChallenge);
   const shareText = _shareModalDone
-    ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\n${SHARE_URL}`
-    : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\n${SHARE_URL}`;
+    ? `I just completed the ${_shareModalChallenge.name} Quest on Conqur! 🏆\n${totalDays} days · ${totalPts} XP · ${streak}-day Fire.\nKeeping my Oaths. 💪\n${SHARE_URL}`
+    : `Day ${dayNum} of my ${_shareModalChallenge.name} Quest — ${streak}-day Fire. 🔥\nKeeping my Oaths, one day at a time.\n${SHARE_URL}`;
 
   return `
   <div class="share-modal-overlay" data-close-share-modal>
@@ -4667,7 +4607,7 @@ function renderCompletionModal(c) {
   <div class="sheet-backdrop" data-close-completion>
     <section class="sheet completion-modal" role="dialog">
       <div class="completion-emoji"><i class="ti ti-trophy"></i></div>
-      <div class="completion-title">${isExpedition && routeFinished ? "Route Complete!" : "Challenge Complete!"}</div>
+      <div class="completion-title">${isExpedition && routeFinished ? "Route Complete!" : "Quest Complete!"}</div>
       <div class="completion-name">${esc(c.name)}</div>
       <div class="completion-sub">${completionSub}</div>
       ${bonusXP ? `<div class="completion-bonus-row"><i class="ti ti-bolt"></i> Challenge Complete Bonus: <strong>+${bonusXP} XP</strong></div>` : ""}
@@ -4701,7 +4641,7 @@ function renderChallenges() {
   const active = all.filter(c => c.status==="active");
   const paused = all.filter(c => c.status==="paused");
   const past   = all.filter(c => c.status!=="active" && c.status!=="paused");
-  const emptyMsg = `<div class="empty-state-icon"><i class="ti ti-trophy"></i></div><div class="empty-state-title">No active challenge</div><div class="empty-state-sub">Build a habit. Pick a goal. Show up daily.</div><div><button class="link-btn" data-open-builder>Start something →</button></div>`;
+  const emptyMsg = `<div class="empty-state-icon"><i class="ti ti-trophy"></i></div><div class="empty-state-title">No Quest Active</div><div class="empty-state-sub">Choose your next Quest and enter the Hall.</div><div><button class="link-btn" data-open-builder>Start something →</button></div>`;
   const emailCapState = localStorage.getItem("conqur_email_capture");
   const showEmailCapture = emailCapState !== "dismissed";
   // "What's Next" banner: shown when a challenge was recently completed and no active challenges exist
@@ -4719,7 +4659,7 @@ function renderChallenges() {
       ${renderCompletionSuggestions(recentlyCompleted)}
     </div>` : ""}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div class="section-label" style="margin:0">Active Challenges</div>
+      <div class="section-label" style="margin:0">Active Quests</div>
       <button class="pill-btn" data-open-builder>+ New</button>
     </div>
     ${active.length ? active.map(c=>renderChallengeCard(c)).join("") : `<div class="empty-state">${emptyMsg}</div>`}
@@ -4779,7 +4719,7 @@ function renderChallengeCard(c) {
       </div>
       <div class="cc-sub">${isExpedition && routePct !== null
         ? `<i class="ti ti-map-2"></i> ${routePct}% dist · <i class="ti ti-check"></i> ${todayInfo ? todayInfo.percent : 0}% today · <i class="ti ti-clock"></i> ${pct}% time`
-        : `${pct}% complete · ${c.badges.length} ${c.badges.length === 1 ? "badge" : "badges"}`}</div>
+        : `${pct}% complete · ${c.badges.length} ${c.badges.length === 1 ? "Rune" : "Runes"}`}</div>
     </button>
     ${resumeNudge ? `<div class="resume-nudge"><i class="ti ti-bell"></i> Reminder to resume! <button class="link-btn" data-pause-challenge="${c.id}">Resume now →</button></div>` : ""}
   </div>`;
@@ -4847,12 +4787,12 @@ function renderChallengeDetail(c) {
       </div>
     </div>
     <div class="stats-grid" style="margin-bottom:14px">
-      ${statCard('<i class="ti ti-flame"></i> Streak', streak, "days")}
+      ${statCard('<i class="ti ti-flame"></i> Fire', streak, "days")}
       ${isExpedition
         ? statCard('<i class="ti ti-map-2"></i> Distance', totalKmDisplay.toFixed(isFloorsDet?0:1), dUnitDet)
-        : statCard('<i class="ti ti-bolt"></i> Total pts', totalPts, "")}
+        : statCard('<i class="ti ti-bolt"></i> Total XP', totalPts, "")}
       ${statCard('<i class="ti ti-check"></i> Active days', `${activeDaysDone}/${activeTotal}`, "")}
-      ${statCard('<i class="ti ti-medal"></i> Badges', c.badges.length, "")}
+      ${statCard('<i class="ti ti-medal"></i> Runes', c.badges.length, "")}
     </div>
     ${pct !== null ? `<div class="detail-progress-bar" style="margin-bottom:14px"><div class="detail-progress-fill" style="width:${pct}%"></div><div class="detail-progress-label">${pct}% journey complete</div></div>` : `<div class="detail-progress-bar" style="margin-bottom:14px"><div class="detail-progress-label">Day ${dayNumber} · Ongoing</div></div>`}
     ${isExpedition ? renderRouteProgress(c, tpl) : ""}
@@ -4879,7 +4819,7 @@ function renderChallengeDetail(c) {
       ? renderMonthCalendar(c)
       : `<div class="week-history">${weeks.map((w,i)=>renderWeekCard(c,w,i===curWeekIdx)).join("")}</div>`}
 
-    <div class="section-label">Habits</div>
+    <div class="section-label">Oaths</div>
     <div class="habit-preview-list" style="margin-bottom:14px">
       ${c.habits.map(h => {
         if (h.type === "distance") {
@@ -4932,7 +4872,7 @@ function renderChallengeDetail(c) {
     </div>
 
     ${hasPhotoHabit ? `
-    <div class="section-label">Progress Photos</div>
+    <div class="section-label">Proof</div>
     <div id="pp-strip-${c.id}" class="pp-strip"><div class="pp-loading">Loading photos…</div></div>
     ` : ""}
 
@@ -4981,7 +4921,7 @@ function renderEditChallenge(c) {
         <button class="mode-button ${(editForm?.mode||c.mode)==="soft"?"active":""}" data-ec-mode="soft">Soft</button>
         <button class="mode-button ${(editForm?.mode||c.mode)==="strict"?"active":""}" data-ec-mode="strict">Strict</button>
       </div>
-      <div class="section-label" style="margin:20px 0 8px">Habits</div>
+      <div class="section-label" style="margin:20px 0 8px">Oaths</div>
       <div class="custom-habits-list">
         ${(editForm?.habits || []).map((h, i) => {
           if (editForm?.habitEditIdx === i) {
@@ -5217,7 +5157,7 @@ function renderBuilderQuiz() {
   ];
   return `
   <div class="builder-quiz">
-    <div class="bq-title">Find your challenge</div>
+    <div class="bq-title">Find your Quest</div>
     <div class="bq-sub">3 quick questions → 1 perfect match</div>
 
     <div class="bq-question">What's your main goal?</div>
@@ -5259,7 +5199,7 @@ function renderBuilder() {
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
       <div style="font-size:16px;font-weight:700">
-        ${builderStep==="quiz"?"Find Your Challenge":builderStep==="template"?"Choose Challenge":builderStep==="quickstart"?"Ready to Start?":"Customise"}
+        ${builderStep==="quiz"?"Find Your Quest":builderStep==="template"?"Choose Quest":builderStep==="quickstart"?"Ready to Start?":"Customise"}
       </div>
     </div>
     ${builderStep==="quiz"              ? renderBuilderQuiz()                 : ""}
@@ -5359,7 +5299,7 @@ function renderBuilderTemplates() {
     <button class="cl-row" data-select-template="custom">
       <i class="ti ti-target cl-ic" aria-hidden="true"></i>
       <span class="cl-main">
-        <span class="cl-name">Custom challenge</span>
+        <span class="cl-name">Custom Quest</span>
         <span class="cl-meta">Build your own from scratch</span>
       </span>
       <i class="ti ti-chevron-right cl-go" aria-hidden="true"></i>
@@ -5400,17 +5340,17 @@ function renderBuilderCustomize() {
     <p class="mode-desc" style="margin-bottom:14px">${builderForm.mode==="soft"?"One grace day allowed if you miss — streak stays alive.":"Zero misses. Every day counts. No exceptions."}</p>
     ${template?.noRestDay ? `
     <div class="joker-budget-row" style="margin-bottom:14px">
-      <span class="field-label">Rest Days</span>
-      <span class="mode-desc" style="margin:0">Zero — no rest days on this challenge.</span>
+      <span class="field-label">Recovery Days</span>
+      <span class="mode-desc" style="margin:0">Zero — no recovery days on this Quest.</span>
     </div>` : `
     <div class="joker-budget-row" style="margin-bottom:14px">
-      <div class="field-label">Rest Days allowed</div>
+      <div class="field-label">Recovery Days allowed</div>
       <div class="joker-stepper">
         <button class="joker-step-btn" data-joker-adj="-1">−</button>
         <span class="joker-step-val" id="joker-val">${builderForm.jokerBudget}</span>
         <button class="joker-step-btn" data-joker-adj="1">+</button>
       </div>
-      <p class="mode-desc" style="margin:4px 0 0">${builderForm.jokerBudget === 0 ? "Zero compromise — no rest days." : `${builderForm.jokerBudget} day${builderForm.jokerBudget===1?"":"s"} you can skip without breaking your streak.`}</p>
+      <p class="mode-desc" style="margin:4px 0 0">${builderForm.jokerBudget === 0 ? "Zero compromise — no recovery days." : `${builderForm.jokerBudget} day${builderForm.jokerBudget===1?"":"s"} you can use to recover without breaking your Fire.`}</p>
     </div>`}
     ${(() => {
       const tpl = builderForm.templateId ? TEMPLATES.find(t=>t.id===builderForm.templateId) : null;
@@ -5485,7 +5425,7 @@ function renderBuilderCustomize() {
             <span style="font-size:12px;color:var(--text-dim)">Points</span>
             <input id="nh-pts" type="number" value="${builderForm.newHabitPoints}" min="1" max="20" style="width:60px">
           </div>`}
-          <button class="pill-btn" data-add-habit style="margin-top:8px;width:100%">+ Add habit</button>
+          <button class="pill-btn" data-add-habit style="margin-top:8px;width:100%">+ Add Oath</button>
         </div>
       </div>`}
     `}
@@ -5645,7 +5585,7 @@ function renderLevelProfile() {
   const info  = getLevelInfo(state.xp);
   const isMax = !info.next;
   const toNext = isMax ? 0 : info.next.xp - state.xp;
-  const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
+  const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
   const roadChunks = [];
   for (let i = 0; i < XP_LEVELS.length; i += 5) {
     roadChunks.push(XP_LEVELS.slice(i, i + 5));
@@ -5653,7 +5593,7 @@ function renderLevelProfile() {
   return `
   <div class="level-profile-card">
     <div class="lp-top">
-      <div class="lp-level-num"><i class="ti ${theme.icon}"></i> Lv.${info.level}</div>
+      <div class="lp-level-num"><i class="ti ${theme.icon}"></i> Rank ${info.level}</div>
       <div class="lp-level-name">${info.name}</div>
     </div>
     <div class="xp-bar-track lp-track">
@@ -5661,13 +5601,13 @@ function renderLevelProfile() {
     </div>
     <div class="lp-xp-row">
       <span>${state.xp.toLocaleString()} XP total</span>
-      <span>${isMax ? 'Max Level <i class="ti ti-trophy"></i>' : `${toNext.toLocaleString()} XP to Lv.${info.next.level}`}</span>
+      <span>${isMax ? 'Max Rank <i class="ti ti-trophy"></i>' : `${toNext.toLocaleString()} XP to Rank ${info.next.level}`}</span>
     </div>
     <div class="level-road">
       ${XP_LEVELS.map(lvl => {
         const unlocked = state.xp >= lvl.xp;
         const isCurrent = info.level === lvl.level;
-        return `<div class="lvl-node ${unlocked ? "unlocked" : ""} ${isCurrent ? "current" : ""}" title="Lv.${lvl.level} ${getThemedLevelName(lvl.level)}">
+        return `<div class="lvl-node ${unlocked ? "unlocked" : ""} ${isCurrent ? "current" : ""}" title="Rank ${lvl.level} ${getThemedLevelName(lvl.level)}">
           <div class="lvl-node-dot"></div>
           <div class="lvl-node-num">${lvl.level}</div>
         </div>`;
@@ -5699,7 +5639,7 @@ function renderTrophyCase() {
           <span class="tc-emoji"><i class="ti ${challengeIcon(tcTpl)}"></i></span>
           <div class="tc-info">
             <div class="tc-name">${esc(c.name)}</div>
-            <div class="tc-meta">${streak}-day streak · ${totalPts} pts${dateStr ? ` · ${dateStr}` : ""}</div>
+            <div class="tc-meta">${streak}-day Fire · ${totalPts} XP${dateStr ? ` · ${dateStr}` : ""}</div>
           </div>
         </div>
         ${perfectDays > 0 ? `<div class="tc-sub">${perfectDays} perfect day${perfectDays!==1?"s":""}</div>` : ""}
@@ -5720,10 +5660,10 @@ function renderChapterOverlay() {
     <div class="luo-card" role="dialog" aria-modal="true">
       <div class="luo-burst"><i class="ti ${chapterIcon}"></i></div>
       <div class="luo-badge">CHAPTER ${data.title.toUpperCase()}</div>
-      <div class="luo-level">Level ${level}</div>
+      <div class="luo-level">Rank ${level}</div>
       <div class="luo-name">${levelName}</div>
       <div class="luo-total">${data.msg}</div>
-      <button class="primary-button luo-cta" data-close-chapter>Keep going →</button>
+      <button class="primary-button luo-cta" data-close-chapter>Begin again. Stronger. →</button>
     </div>
   </div>`;
 }
@@ -5734,28 +5674,36 @@ function renderBadges() {
   const startedChallenges = allChallenges.filter(c => Object.keys(c.days).length > 0 || c.badges.length > 0);
 
   // Honest denominator: fixed global pool + per-challenge template sets
+  const allThemeBadges = Object.values(THEME_BADGES).flat();
   const templateTotal = startedChallenges.reduce((s,c) => s + (TEMPLATE_BADGES[c.templateId]?.length || 0), 0);
-  const total  = UNIVERSAL_BADGES.length + LIFETIME_BADGES.length + templateTotal;
+  const total  = UNIVERSAL_BADGES.length + LIFETIME_BADGES.length + allThemeBadges.length + templateTotal;
 
   const universalEarned = state.globalBadges.filter(id => UNIVERSAL_BADGES.some(b=>b.id===id)).length;
   const lifetimeEarned  = state.globalBadges.filter(id => LIFETIME_BADGES.some(b=>b.id===id)).length;
+  const themeEarned     = state.globalBadges.filter(id => allThemeBadges.some(b=>b.id===id)).length;
   const templateEarned  = allChallenges.reduce((s,c) => s+c.badges.length, 0);
-  const earned = universalEarned + lifetimeEarned + templateEarned;
+  const earned = universalEarned + lifetimeEarned + themeEarned + templateEarned;
 
   const pct = total > 0 ? Math.round((earned/total)*100) : 0;
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     ${renderLevelProfile()}
-    <div class="section-label">Badges</div>
+    <div class="section-label">Runes</div>
     <div class="more-card">
       <div class="badge-overview">
         <div class="badge-overview-count"><span class="boc-num">${earned}</span><span class="boc-total"> / ${total}</span></div>
-        <div class="badge-overview-label">badges earned</div>
+        <div class="badge-overview-label">Runes earned</div>
       </div>
       <div class="badge-overall-track"><div class="badge-overall-fill" style="width:${pct}%"></div></div>
-      ${earned === 0 ? `<div class="badges-new-hint">Log your first habit to unlock your first badge — most people earn 3–5 in their first week.</div>` : ""}
+      ${earned === 0 ? `<div class="badges-new-hint">Keep your first Oath to unlock your first Rune — most people earn 3–5 in their first week.</div>` : ""}
       ${renderBadgeCat('<i class="ti ti-world"></i> Universal', UNIVERSAL_BADGES, state.globalBadges, null, { xp: state.xp, maxStreak: Math.max(0, ...getAllChallenges().map(c => calcChallengeStreak(c))) })}
       ${renderBadgeCat('<i class="ti ti-diamond"></i> Lifetime Achievements', LIFETIME_BADGES, state.globalBadges, null, null)}
+      ${Object.entries(THEME_BADGES).map(([themeId, defs]) => {
+        const theme = JOURNEY_THEMES[themeId];
+        const isActiveTheme = state.settings.journeyTheme === themeId;
+        const progressCtx = isActiveTheme ? { level: getLevelInfo(state.xp).level } : null;
+        return renderBadgeCat(`<i class="ti ${theme.icon}"></i> ${theme.label} Path`, defs, state.globalBadges, null, progressCtx);
+      }).join("")}
       ${startedChallenges.map(c => {
         const tBadges = TEMPLATE_BADGES[c.templateId];
         if (!tBadges) return "";
@@ -5799,7 +5747,7 @@ function renderConsistencyChart(allChallenges) {
 
   return `
   <div class="pchart-section">
-    <div class="section-label">Habit Consistency</div>
+    <div class="section-label">Oath Consistency</div>
     <div class="pchart-wrap">
       <div class="pchart-bars">
         ${weeks.map(w => `
@@ -5833,6 +5781,10 @@ function renderBadgeCat(label, defs, earned, templateId, progressCtx) {
       const need = XP_BADGES[b.id];
       const have = Math.min(progressCtx.xp, need);
       return `<div class="badge-hint">${have} / ${need} XP</div>`;
+    }
+    if (b.levelReq !== undefined && progressCtx.level !== undefined) {
+      const have = Math.min(progressCtx.level, b.levelReq);
+      return `<div class="badge-hint">Lv.${have} / ${b.levelReq}</div>`;
     }
     return "";
   }
@@ -6050,26 +6002,19 @@ function renderAlmostThereBadge(challenge, streak) {
 
 // ── Onboarding ────────────────────────────────────────────────────────────
 
-const ONBOARDING_STEPS = [
-  { emoji:"🎯", title:"Choose what to conquer", body:"Break a bad habit, build a better routine, or commit to a discipline challenge. Conqur is for becoming the person you keep promising yourself you'll be." },
-  { emoji:"⚡", title:"Win the day", body:"Every habit you check earns points and XP. Small wins stack into streaks, badges, and proof that you followed through." },
-  { emoji:"🔥", title:"Become the new you", body:"Your streak grows every day you log. Miss a day? Soft mode gives you grace. The goal is identity change, one day at a time." },
-];
-// onboardingStep: 0=hero, 1=journey, 2=goal, 3–(2+N)=info slides (N=ONBOARDING_STEPS.length), +3=name, +4=account
-
 function renderObHero() {
-  const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
+  const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
   return `
   <div class="ob-screen" role="main">
     <div class="ob-hero-top">
       <div class="ob-hero-icon" aria-hidden="true"><i class="ti ${theme.icon}"></i></div>
       <div class="ob-hero-logo">CONQUR</div>
-      <div class="ob-hero-tagline">Conquer bad habits.<br>Build a new you.</div>
+      <div class="ob-hero-tagline">Enter the Hall.<br>Build who you're becoming.</div>
     </div>
     <ul class="ob-features" aria-label="App features">
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[0]}"></i></span><span>Break bad habits like sugar, alcohol, spending, and scrolling</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[1]}"></i></span><span>Build routines for mornings, sleep, focus, and self-care</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[2]}"></i></span><span>Daily points, streaks, badges &amp; streak protection</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[0]}"></i></span><span><strong>Daily Quests</strong> — pick a challenge and complete daily Oaths</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[1]}"></i></span><span><strong>Keep your Fire</strong> — your streak burns as long as you show up</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[2]}"></i></span><span><strong>Earn Runes, rise in Rank</strong> — real progress for real consistency</span></li>
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[3]}"></i></span><span>Works offline — no account required</span></li>
     </ul>
     <button class="primary-button ob-cta" data-ob-next>Let's go →</button>
@@ -6214,35 +6159,6 @@ function renderObRecommendation() {
   </div>`;
 }
 
-function renderObSlide() {
-  const theme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
-  const slides = [
-    { icon:"ti-target", title:"Pick a challenge",
-      body:`Choose a path: break a bad habit, build a routine, improve your health, or train your discipline. Each challenge turns change into daily checkboxes.` },
-    { icon:theme.icon, title:"Log. Earn. Level up.",
-      body:`Every habit earns XP. You start as a <strong>${theme.levels[0]}</strong> and climb all the way to <strong>${theme.levels[24]}</strong>. Your progress never resets.`,
-      extra:`<div class="ob-ring-demo" aria-hidden="true"><div class="ob-ring-demo-pct">68%</div></div>` },
-    { icon:"ti-flame", title:"Become consistent.",
-      body:`Your streak grows with every logged day. Rest days are built in. You are not just finishing tasks — you are building evidence for a new identity.` },
-  ];
-  const step = slides[onboardingStep - 3];
-  const dots = ONBOARDING_STEPS.map((_,i) =>
-    `<span class="ob-dot ${i === onboardingStep - 3 ? "active" : ""}"></span>`).join("");
-  const isLast = onboardingStep === ONBOARDING_STEPS.length + 2;
-  return `
-  <div class="ob-screen ob-screen--slide" role="main">
-    <div class="ob-slide-inner">
-      <div class="ob-emoji" aria-hidden="true"><i class="ti ${step.icon}"></i></div>
-      <div class="ob-title">${step.title}</div>
-      <div class="ob-body">${step.body}</div>
-      ${step.extra || ""}
-    </div>
-    <div class="ob-dots" aria-hidden="true">${dots}</div>
-    <button class="primary-button ob-cta" data-ob-next>${isLast ? "Let's go →" : "Next →"}</button>
-    <button class="link-btn ob-link" data-ob-skip>Skip intro →</button>
-  </div>`;
-}
-
 function renderObName() {
   const saved = state.settings.name || "";
   return `
@@ -6292,7 +6208,7 @@ function renderObAccount() {
       <div class="ob-emoji" aria-hidden="true"><i class="ti ti-cloud"></i></div>
       <div class="ob-title">${isSignin ? "Welcome back" : "Save your progress"}</div>
       <div class="ob-body">${isSignin
-        ? "Sign in to restore your challenges, streaks and badges."
+        ? "Sign in to restore your Quests, Fire, and Runes."
         : "Create a free account so your data survives a reinstall or new phone."}</div>
     </div>
     ${_obAuthError ? `<div class="ob-auth-error">${esc(_obAuthError)}</div>` : ""}
@@ -6318,32 +6234,6 @@ function renderObAccount() {
   </div>`;
 }
 
-function renderObJourney() {
-  const cur = state.settings.journeyTheme || "mountain";
-  return `
-  <div class="ob-screen ob-screen--slide" role="main">
-    <div class="ob-slide-inner">
-      <div class="ob-emoji" aria-hidden="true"><i class="ti ti-map-2"></i></div>
-      <div class="ob-title">Choose your journey</div>
-      <div class="ob-body">Pick the world that fits you. It changes your level names — and you can switch anytime in Settings.</div>
-    </div>
-    <div class="ob-journey-grid">
-      ${Object.entries(JOURNEY_THEMES).map(([id, t]) => `
-      <button class="ob-journey-btn${cur === id ? " selected" : ""}" data-ob-journey="${id}">
-        <div class="ob-journey-swatch"><i class="ti ${t.icon}"></i></div>
-        <div class="ob-journey-info">
-          <div class="ob-journey-label">${t.label}</div>
-          <div class="ob-journey-sub">${t.tagline}</div>
-          <div class="ob-journey-peak">Lv.25: ${t.levels[24]}</div>
-        </div>
-        ${cur === id ? `<span class="ob-journey-check"><i class="ti ti-check"></i></span>` : ""}
-      </button>`).join("")}
-    </div>
-    <button class="primary-button ob-cta" data-ob-next>Continue →</button>
-  </div>`;
-}
-
-
 function renderOnboarding() {
   if (onboardingStep === null) return "";
   if (onboardingStep === 0) return renderObHero();
@@ -6365,7 +6255,7 @@ function renderSafetyModal() {
       <div style="font-size:40px;text-align:center;margin-bottom:10px;color:var(--warning)"><i class="ti ti-alert-triangle"></i></div>
       <div style="font-size:18px;font-weight:700;text-align:center;margin-bottom:14px">Health Notice</div>
       <div style="font-size:14px;color:var(--text);line-height:1.65;margin-bottom:16px">${warning}</div>
-      <div style="font-size:12px;color:var(--text-dim);line-height:1.55;margin-bottom:22px;padding:10px 12px;background:var(--surface-2,var(--surface));border-radius:8px">By starting this challenge you confirm you have read this notice. Seek medical advice before starting if you have any relevant health conditions.</div>
+      <div style="font-size:12px;color:var(--text-dim);line-height:1.55;margin-bottom:22px;padding:10px 12px;background:var(--surface-2,var(--surface));border-radius:8px">By starting this Quest you confirm you have read this notice. Seek medical advice before starting if you have any relevant health conditions.</div>
       <button class="primary-button" data-safety-confirm>I understand — Start ${esc(t.name)}</button>
       <button class="secondary-button" data-safety-dismiss style="margin-top:8px">Go back</button>
     </section>
@@ -6384,7 +6274,7 @@ function renderDataSettings() {
     </div>
   </div>` : ""}
   <div class="more-card">
-    <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px">Export a full backup of your challenges, body tracking, and badges as a JSON file.</div>
+    <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px">Export a full backup of your Quests, body tracking, and Runes as a JSON file.</div>
     <button class="secondary-button" data-export-data>Export backup ↓</button>
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
       <div style="font-size:13px;color:var(--text-dim);margin-bottom:8px">Restore from a previously exported backup.</div>
@@ -6400,7 +6290,7 @@ function renderDataSettings() {
     ${_resetConfirm ? `
       <div style="background:color-mix(in srgb,var(--error) 8%,transparent);border:1px solid color-mix(in srgb,var(--error) 30%,transparent);border-radius:10px;padding:14px">
         <div style="font-size:13px;font-weight:700;color:var(--error);margin-bottom:6px">Delete account?</div>
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">All challenges, XP, badges, streaks, and settings will be permanently deleted and your account removed. This cannot be undone.</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">All Quests, XP, Runes, Fire, and settings will be permanently deleted and your account removed. This cannot be undone.</div>
         <div style="display:flex;gap:8px">
           <button class="secondary-button" data-reset-cancel style="flex:1">Cancel</button>
           <button class="primary-button" data-reset-confirm style="flex:1;background:var(--error);border-color:var(--error)">Yes, delete account</button>
@@ -6498,7 +6388,7 @@ function renderProSection() {
   return `
   <div class="section-label"><i class="ti ti-cloud"></i> Cloud Backup</div>
   <div class="more-card" style="margin-bottom:14px">
-    <div style="font-size:13px;color:var(--text-dim);margin-bottom:14px">Back up your progress and sync across devices. Your streaks, badges, and challenges stay safe even if you clear your browser.</div>
+    <div style="font-size:13px;color:var(--text-dim);margin-bottom:14px">Back up your progress and sync across devices. Your Fire, Runes, and Quests stay safe even if you clear your browser.</div>
     ${_cloudAuthError ? `<div class="cloud-auth-error">${esc(_cloudAuthError)}</div>` : ""}
     ${_cloudAuthLoading ? `<div style="text-align:center;padding:12px;color:var(--text-dim);font-size:14px">Loading…</div>` : `
     <label class="field" style="margin-bottom:10px">
@@ -6533,24 +6423,6 @@ function renderSettings() {
     <div class="log-card" style="margin-bottom:14px">
       <label class="field">Name<input id="s-name" type="text" value="${esc(state.settings.name)}" placeholder="Optional" data-autosave-name></label>
     </div>
-    <div class="section-label">Journey &amp; Theme</div>
-    <div class="more-card" style="margin-bottom:14px">
-      <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">Changes your level names.</div>
-      <div class="ob-journey-grid ob-journey-grid--settings">
-        ${Object.entries(JOURNEY_THEMES).map(([id, t]) => {
-          const active = (state.settings.journeyTheme || "mountain") === id;
-          return `<button class="ob-journey-btn${active ? " selected" : ""}" data-settings-journey="${id}">
-            <span class="ob-journey-emoji"><i class="ti ${t.icon}"></i></span>
-            <div class="ob-journey-info">
-              <div class="ob-journey-label">${t.label}</div>
-              <div class="ob-journey-sub">${t.tagline}</div>
-              <div class="ob-journey-peak">Lv.25: ${t.levels[24]}</div>
-            </div>
-            ${active ? `<span class="ob-journey-check"><i class="ti ti-check"></i></span>` : ""}
-          </button>`;
-        }).join("")}
-      </div>
-    </div>
     <div class="section-label">Units</div>
     <div class="more-card">
       <div style="margin-bottom:14px">
@@ -6570,12 +6442,12 @@ function renderSettings() {
     </div>
     <div class="section-label" style="margin-top:20px">How Conqur Works</div>
     <div class="more-card" style="font-size:13px;line-height:1.65;color:var(--text-dim)">
-      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-target"></i> Challenges</strong> — Pick something to conquer: a bad habit, a routine, a health reset, or a discipline test. Each one gives you daily habits to check off.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-bolt"></i> Points &amp; XP</strong> — Each habit is worth points. XP builds your level and never resets, so every small win becomes part of your record.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-flame"></i> Streaks</strong> — Your streak grows every day you log your habits. Soft mode gives you one grace day before it breaks.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-shield"></i> Rest Days</strong> — Rest days are planned recovery, reflection, and reset time. They do not erase your progress.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-flag"></i> Phases</strong> — Longer challenges are split into phases so a big identity change still feels reachable.</div>
-      <div><strong style="color:var(--text)"><i class="ti ti-medal"></i> Badges</strong> — Earn badges for streaks, consistency, and completions. Proof that you are becoming the new you.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-target"></i> Quests</strong> — Pick a challenge: a routine, a health reset, or a discipline test. Each one gives you daily Oaths to keep.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-bolt"></i> XP &amp; Rank</strong> — Each Oath you keep is worth XP. XP builds your Rank and never resets, so every small win becomes part of your record.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-flame"></i> Fire</strong> — Your Fire grows every day you keep your Oaths. Soft mode gives you one grace day before it goes out.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-shield"></i> Recovery Days</strong> — Recovery Days are planned rest, reflection, and reset time. They do not erase your progress.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-flag"></i> Phases &amp; Raid Days</strong> — Longer Quests are split into phases, each ending in a Raid Day — a harder push with bonus XP.</div>
+      <div><strong style="color:var(--text)"><i class="ti ti-medal"></i> Runes</strong> — Earn Runes for Fire, consistency, and completions. Proof of who you're becoming.</div>
     </div>
     ${renderProSection()}
     ${renderReminderSettings()}
@@ -6685,7 +6557,7 @@ function bindEvents() {
     // update the desc text inline without full re-render
     const row = el.closest(".joker-budget-row");
     const desc = row?.querySelector(".mode-desc");
-    if (desc) desc.textContent = builderForm.jokerBudget === 0 ? "Zero compromise — no rest days." : `${builderForm.jokerBudget} planned day${builderForm.jokerBudget===1?"":"s"} off. Use them wisely.`;
+    if (desc) desc.textContent = builderForm.jokerBudget === 0 ? "Zero compromise — no recovery days." : `${builderForm.jokerBudget} planned Recovery Day${builderForm.jokerBudget===1?"":"s"}. Use them wisely.`;
   });
   on("[data-builder-back]", () => {
     if (builderStep === "customize")  { builderStep = "quickstart"; render(); }
@@ -6756,8 +6628,8 @@ function bindEvents() {
     const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate)+1;
     const dayNum    = challengeDayNumber(_shareModalChallenge);
     const text = _shareModalDone
-      ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\n${SHARE_URL}`
-      : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\n${SHARE_URL}`;
+      ? `I just completed the ${_shareModalChallenge.name} Quest on Conqur! 🏆\n${totalDays} days · ${totalPts} XP · ${streak}-day Fire.\nKeeping my Oaths. 💪\n${SHARE_URL}`
+      : `Day ${dayNum} of my ${_shareModalChallenge.name} Quest — ${streak}-day Fire. 🔥\nKeeping my Oaths, one day at a time.\n${SHARE_URL}`;
     if (navigator.share) {
       fetch(_shareCardDataUrl).then(r=>r.blob()).then(blob => {
         const file = new File([blob], "conqur-share.png", { type:"image/png" });
@@ -6783,8 +6655,8 @@ function bindEvents() {
     const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate)+1;
     const dayNum    = challengeDayNumber(_shareModalChallenge);
     const text = _shareModalDone
-      ? `I just completed the ${_shareModalChallenge.name} challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} pts · ${streak}-day streak.\nBuilding habits that stick. 💪\n${SHARE_URL}`
-      : `Day ${dayNum} of my ${_shareModalChallenge.name} challenge — ${streak}-day streak. 🔥\nBuilding habits one day at a time.\n${SHARE_URL}`;
+      ? `I just completed the ${_shareModalChallenge.name} Quest on Conqur! 🏆\n${totalDays} days · ${totalPts} XP · ${streak}-day Fire.\nKeeping my Oaths. 💪\n${SHARE_URL}`
+      : `Day ${dayNum} of my ${_shareModalChallenge.name} Quest — ${streak}-day Fire. 🔥\nKeeping my Oaths, one day at a time.\n${SHARE_URL}`;
     navigator.clipboard?.writeText(text).then(() => showToast("Copied!")).catch(() => showToast(text));
   });
   on("[data-dismiss-notif-nudge]", () => { _notifNudgeDismissed = true; render(); });
@@ -6888,7 +6760,7 @@ function bindEvents() {
     const h = editForm.habits[i];
     if (!h) return;
     showConfirm(
-      `Remove "${h.title}" from this challenge? Past logs for this habit will be cleared.`,
+      `Remove "${h.title}" from this Quest? Past logs for this Oath will be cleared.`,
       () => {
         editForm.habits.splice(i, 1);
         if (editForm.habitEditIdx === i) editForm.habitEditIdx = null;
@@ -6900,7 +6772,7 @@ function bindEvents() {
     if (!editForm) return;
     const emoji = (document.getElementById("ech-new-emoji")?.value || "⭐").trim() || "⭐";
     const title = (document.getElementById("ech-new-title")?.value || "").trim();
-    if (!title) { showToast("Enter a habit name."); return; }
+    if (!title) { showToast("Enter an Oath name."); return; }
     if (editForm.newHabitType === "tiered") {
       const tiers = (editForm.newHabitTiers || []).map((t, i) => ({
         label:  (document.getElementById(`ech-tier-${i}-label`)?.value || t.label || `Tier ${i+1}`).trim() || `Tier ${i+1}`,
@@ -7024,7 +6896,7 @@ function bindEvents() {
         const cCount = Object.keys(parsed.challenges || {}).length;
         const normalized = normalizeState(parsed);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
-        showToast(`Backup restored (${cCount} challenge${cCount===1?"":"s"})! Reloading…`);
+        showToast(`Backup restored (${cCount} Quest${cCount===1?"":"s"})! Reloading…`);
         setTimeout(() => window.location.reload(), 1400);
       } catch(err) {
         showToast("Invalid backup file — couldn't restore.");
@@ -7033,23 +6905,6 @@ function bindEvents() {
     reader.readAsText(file);
   });
   // ── Onboarding navigation ──────────────────────────────────────────────────
-  on("[data-ob-journey]", el => {
-    const id = el.dataset.obJourney;
-    if (!JOURNEY_THEMES[id]) return;
-    state.settings.journeyTheme = id;
-    saveState();
-    applyTheme();
-    render();
-  });
-  on("[data-settings-journey]", el => {
-    const id = el.dataset.settingsJourney;
-    if (!JOURNEY_THEMES[id]) return;
-    state.settings.journeyTheme = id;
-    saveState();
-    applyTheme();
-    showToast(`Journey changed to ${JOURNEY_THEMES[id].label}`);
-    render();
-  });
   on("[data-ob-next]", () => {
     onboardingStep++;
     render();
@@ -7300,7 +7155,7 @@ function setMode(mode) {
   const isScheduledRest = getDaySchedule(c, dayKey)?.type === "rest";
   if (mode === "rest") {
     const tpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
-    if (tpl?.noRestDay) { showToast("No rest days on this challenge — that's the point."); return; }
+    if (tpl?.noRestDay) { showToast("No Recovery Days on this Quest — that's the point."); return; }
     const alreadyRest = c.days[dayKey]?.mode === "rest";
     if (!alreadyRest && !isScheduledRest) {
       const used = Object.values(c.days).filter(d => d.mode === "rest" && !d.scheduledRest).length;
@@ -7356,7 +7211,7 @@ function toggleHabit(id) {
     setTimeout(launchConfetti, 250);
   }
   if (lvlInfo.level > levelBefore) {
-    const _luT = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
+    const _luT = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
     setTimeout(() => { _levelUpOverlay = { level: lvlInfo.level, name: lvlInfo.name, icon: _luT.icon, total: state.xp }; render(); }, 600);
   } else if (xpGain > 0) {
     const mult = day.streakMult || 1;
@@ -7451,7 +7306,7 @@ function selectTier(habitId, rawVal) {
     setTimeout(launchConfetti, 250);
   }
   if (lvlInfo2.level > levelBefore2) {
-    const _luT2 = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
+    const _luT2 = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
     setTimeout(() => { _levelUpOverlay = { level: lvlInfo2.level, name: lvlInfo2.name, icon: _luT2.icon, total: state.xp }; render(); }, 600);
   } else if (xpGain2 > 0) {
     const mult2 = day.streakMult || 1;
@@ -7561,7 +7416,7 @@ function renderBuilderQuickstart() {
   const td   = TIERS[tier];
   const dur  = diffDays(builderForm.startDate, builderForm.endDate) + 1;
   const habits = template.habits.slice(0, 5);
-  const xpTheme  = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.mountain;
+  const xpTheme  = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
   const weeklyXP = template.habits.reduce((sum, h) => sum + (h.points || 2), 0) * 7;
   return `
   <div class="builder-quickstart">
@@ -7573,7 +7428,7 @@ function renderBuilderQuickstart() {
     </div>
     <div class="bqs-habits">
       ${habits.map(h => `<div class="bqs-habit-row">✓ ${esc(h.title)}</div>`).join("")}
-      ${template.habits.length > 5 ? `<div class="bqs-habit-row" style="color:var(--text-faint)">+ ${template.habits.length - 5} more habits</div>` : ""}
+      ${template.habits.length > 5 ? `<div class="bqs-habit-row" style="color:var(--text-faint)">+ ${template.habits.length - 5} more Oaths</div>` : ""}
     </div>
     <div class="bqs-desc">${esc(template.description)}</div>
     ${TEMPLATE_SAFETY[template.id] ? `<div class="bqs-safety-warning"><span class="bqs-safety-icon"><i class="ti ti-alert-triangle"></i></span><span>${TEMPLATE_SAFETY[template.id]}</span></div>` : ""}
@@ -7609,7 +7464,7 @@ function startChallenge(safetyConfirmed = false) {
   if (!builderForm.noEndDate && !builderForm.endDate) { showToast("Set an end date or enable Ongoing."); return; }
   const template = builderForm.templateId ? TEMPLATES.find(t=>t.id===builderForm.templateId) : null;
   const habitCount = template ? template.habits.length : builderForm.habits.length;
-  if (habitCount === 0) { showToast("Add at least one habit first."); return; }
+  if (habitCount === 0) { showToast("Add at least one Oath first."); return; }
   if (!safetyConfirmed && template && TEMPLATE_SAFETY[template.id]) {
     _safetyPendingTemplateId = template.id;
     render();
@@ -7636,7 +7491,7 @@ function startChallenge(safetyConfirmed = false) {
 function addCustomHabit() {
   const emoji = (document.getElementById("nh-emoji")?.value||"⭐").trim()||"⭐";
   const name  = (document.getElementById("nh-name")?.value||"").trim();
-  if (!name) { showToast("Enter a habit name."); return; }
+  if (!name) { showToast("Enter an Oath name."); return; }
 
   if (builderForm.newHabitType === "tiered") {
     const tiers = builderForm.newHabitTiers.map((t, i) => ({
@@ -7697,7 +7552,7 @@ function saveEditChallenge() {
       updateDayPoints(c, day);
     }
     c.habits = editForm.habits;
-    if (c.habits.length === 0) { showToast("Add at least one habit."); return; }
+    if (c.habits.length === 0) { showToast("Add at least one Oath."); return; }
   }
 
   state.xp = recalcXP();
@@ -7706,7 +7561,7 @@ function saveEditChallenge() {
   editChallengeId = null;
   editForm        = null;
   viewChallengeId = c.id;
-  showToast("Challenge updated ✓");
+  showToast("Quest updated ✓");
   render();
 }
 
@@ -7720,7 +7575,7 @@ function pauseChallenge(id) {
     c.pausedDays = (c.pausedDays || 0) + daysPaused;
     c.status = "active";
     delete c.pausedOn;
-    showToast(`Challenge resumed. End date moved to ${c.endDate}.`);
+    showToast(`Quest resumed. End date moved to ${c.endDate}.`);
     saveState(); render();
   } else {
     c.status = "paused";
@@ -7734,7 +7589,7 @@ function pauseChallenge(id) {
         ch.resumeReminderDate = addDays(todayKey(), days);
         showToast(`Paused. Reminder set for ${ch.resumeReminderDate}.`);
       } else {
-        showToast("Challenge paused. End date adjusts when you resume.");
+        showToast("Quest paused. End date adjusts when you resume.");
       }
       saveState();
     });
@@ -7744,12 +7599,12 @@ function pauseChallenge(id) {
 function abandonChallenge(id) {
   const c = getChallenge(id); if (!c) return;
   showConfirm(
-    `Abandon "${c.name}"? Progress is kept but the challenge will be marked as failed.`,
+    `Abandon "${c.name}"? Progress is kept but the Quest will be marked as failed.`,
     () => {
       c.finalStreak = calcChallengeStreak(c);
       c.status = "failed";
       saveState(); viewChallengeId = null;
-      showToast("Challenge abandoned."); render();
+      showToast("Quest abandoned."); render();
     }
   );
 }
@@ -7786,16 +7641,16 @@ function deleteChallenge(id) {
     () => {
       delete state.challenges[id];
       saveState(); viewChallengeId = null;
-      showToast("Challenge deleted."); render();
+      showToast("Quest deleted."); render();
     }
   );
 }
 
 function useStreakFreeze() {
   const c = currentChallenge(); if (!c) return;
-  if ((c.streakFreezes || 0) <= 0) { showToast("No streak freezes available."); return; }
+  if ((c.streakFreezes || 0) <= 0) { showToast("No Fire freezes available."); return; }
   const yesterday = addDays(todayKey(), -1);
-  if (yesterday < c.startDate) { showToast("Nothing to freeze — challenge just started."); return; }
+  if (yesterday < c.startDate) { showToast("Nothing to freeze — Quest just started."); return; }
   const day = getChallengeDay(c, yesterday);
   if (dayLogged(day)) { showToast("Yesterday is already logged — no freeze needed."); return; }
   day.freezeUsed = true;
@@ -7968,9 +7823,9 @@ function fireReminder() {
   if (!incomplete.length) return;
   const names = incomplete.length === 1
     ? incomplete[0].name
-    : `${incomplete.length} challenges`;
-  new Notification("Conqur — Don't break the streak", {
-    body: `${names}: you still have habits left for today.`,
+    : `${incomplete.length} Quests`;
+  new Notification("Conqur — Protect your Fire", {
+    body: `${names}: you still have Oaths left for today.`,
     icon: "/icons/icon-192.svg",
     tag: "conqur-daily",
     renotify: true,
