@@ -62,7 +62,7 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(ellipse 70% 40% at 50% -5%, var(--nebula, rgba(217,119,66,0.12)), transparent),
+    radial-gradient(ellipse 70% 40% at 50% -5%, var(--nebula, rgba(56,189,248,0.12)), transparent),
     var(--bg);
   color: var(--text);
 }
@@ -313,7 +313,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 .ring-stat-value.streak-hero {
   font-size: 28px;
-  background: linear-gradient(135deg, #ff9f43, #ff6b35);
+  background: linear-gradient(135deg, var(--fire), var(--fire-alt));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -393,7 +393,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 .mode-button.active {
   background: var(--primary);
-  color: #2a1206;
+  color: #07111F;
   font-weight: 700;
 }
 
@@ -420,8 +420,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .habit-card:active { transform: scale(0.984); }
 
 .habit-card.checked {
-  background: linear-gradient(135deg, rgba(217,119,66,0.18), rgba(224,147,95,0.12));
-  border-color: rgba(217,119,66, 0.35);
+  background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(125,211,252,0.12));
+  border-color: rgba(56,189,248, 0.35);
 }
 
 .habit-card.locked { opacity: 0.38; }
@@ -484,7 +484,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 .checked .check-circle {
   border-color: var(--primary);
-  background: rgba(217,119,66, 0.22);
+  background: rgba(56,189,248, 0.22);
   color: var(--text);
 }
 
@@ -637,8 +637,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   width: 100%;
   padding: 14px 16px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, rgba(217,119,66,0.2), rgba(224,147,95,0.12));
-  border: 1px solid rgba(217,119,66, 0.4);
+  background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(125,211,252,0.12));
+  border: 1px solid rgba(56,189,248, 0.4);
   animation: banner-glow 2.4s ease-in-out infinite alternate;
 }
 
@@ -665,8 +665,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 @keyframes banner-glow {
-  from { box-shadow: 0 0 0 0 rgba(217,119,66,0); }
-  to   { box-shadow: 0 0 18px 0 rgba(217,119,66,0.25); }
+  from { box-shadow: 0 0 0 0 rgba(56,189,248,0); }
+  to   { box-shadow: 0 0 18px 0 rgba(56,189,248,0.25); }
 }
 
 
@@ -900,8 +900,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .week-card-current {
-  background: linear-gradient(135deg, rgba(217,119,66,0.12), rgba(224,147,95,0.07));
-  border-color: rgba(217,119,66,0.35);
+  background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(125,211,252,0.07));
+  border-color: rgba(56,189,248,0.35);
 }
 
 .wc-top {
@@ -981,7 +981,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 .wc-km-badge {
   font-size: 12px; font-weight: 600; color: var(--accent);
-  background: rgba(217,119,66,0.12); border-radius: 20px;
+  background: rgba(56,189,248,0.12); border-radius: 20px;
   padding: 2px 8px; margin-left: auto;
 }
 
@@ -1241,9 +1241,9 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .badge.earned::after { display: none; }
 .badge.earned {
   font-weight: 700;
-  background: linear-gradient(135deg, rgba(217,119,66,0.18), rgba(224,147,95,0.1));
-  border-color: rgba(217,119,66,0.4);
-  box-shadow: 0 0 14px rgba(217,119,66,0.18), inset 0 0 24px rgba(217,119,66,0.05);
+  background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(125,211,252,0.1));
+  border-color: rgba(56,189,248,0.4);
+  box-shadow: 0 0 14px rgba(56,189,248,0.18), inset 0 0 24px rgba(56,189,248,0.05);
 }
 .badge.earned .badge-label { color: var(--text); }
 .badge.earned .badge-desc  { color: var(--text-dim); }
@@ -1338,7 +1338,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   grid-template-columns: repeat(3, 1fr);
   width: min(100%, 520px);
   padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-  background: rgba(9, 9, 15, 0.92);
+  background: rgba(7, 17, 31, 0.85);
   border-top: 1px solid var(--border);
   transform: translateX(-50%);
   backdrop-filter: blur(20px);
@@ -1352,7 +1352,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   gap: 4px;
   min-height: 56px;
   border-radius: var(--radius-sm);
-  color: #b8b6d8;
+  color: var(--text-dim);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -1548,7 +1548,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 @keyframes pulse {
   0%, 100% { box-shadow: 0 0 0 0 var(--primary-pulse); }
-  50%       { box-shadow: 0 0 0 6px rgba(217,119,66, 0); }
+  50%       { box-shadow: 0 0 0 6px rgba(56,189,248, 0); }
 }
 
 /* ── Responsive ─────────────────────────────────── */
@@ -1615,7 +1615,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   transition: background 150ms;
 }
 .secondary-button:active { background: var(--surface-3); }
-.secondary-button.danger { color: var(--secondary); border-color: rgba(224,147,95,0.3); }
+.secondary-button.danger { color: var(--secondary); border-color: rgba(125,211,252,0.3); }
 
 /* ── Welcome Screen ───────────────────────────────────────────────────────── */
 
@@ -1713,8 +1713,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   transition: all 180ms;
 }
 .c-pill.active {
-  background: linear-gradient(135deg, rgba(217,119,66,0.2), rgba(224,147,95,0.12));
-  border-color: rgba(217,119,66,0.4);
+  background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(125,211,252,0.12));
+  border-color: rgba(56,189,248,0.4);
   color: var(--text);
   font-weight: 700;
 }
@@ -2031,8 +2031,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .ht-btn.active {
-  background: rgba(217,119,66,0.2);
-  border-color: rgba(217,119,66,0.5);
+  background: rgba(56,189,248,0.2);
+  border-color: rgba(56,189,248,0.5);
   color: var(--accent);
 }
 
@@ -2665,8 +2665,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 /* ── Weekly Recap Card (Sunday) ─────────────────────────────────────────── */
 
 .weekly-recap-card {
-  background: linear-gradient(135deg, rgba(217,119,66,0.12), rgba(224,147,95,0.07));
-  border: 1px solid rgba(217,119,66,0.3);
+  background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(125,211,252,0.07));
+  border: 1px solid rgba(56,189,248,0.3);
   border-radius: var(--radius);
   padding: 14px 16px;
   margin-bottom: 14px;
@@ -2827,7 +2827,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .trophy-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-left: 3px solid #c9a33b;
+  border-left: 3px solid var(--fire-gold);
   border-radius: 12px;
   padding: 12px 14px;
 }
@@ -3171,8 +3171,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .dvt-tab.active {
-  background: linear-gradient(135deg, rgba(217,119,66,0.18), rgba(224,147,95,0.10));
-  border-color: rgba(217,119,66,0.4);
+  background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(125,211,252,0.10));
+  border-color: rgba(56,189,248,0.4);
   color: var(--text);
 }
 
@@ -3247,7 +3247,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .cal-cell.cal-outside  { background: transparent; color: var(--text-faint); opacity: 0.3; }
 .cal-cell.cal-missed   { background: var(--surface-2); color: var(--text-faint); border-color: var(--border); }
 .cal-cell.cal-full     { background: rgba(79, 255, 180, 0.20); color: var(--success); border-color: rgba(79,255,180,0.35); }
-.cal-cell.cal-partial  { background: rgba(245, 166, 35, 0.18); color: #f5a623; border-color: rgba(245,166,35,0.35); }
+.cal-cell.cal-partial  { background: rgba(245, 158, 11, 0.18); color: var(--warning); border-color: rgba(245,158,11,0.35); }
 .cal-cell.cal-rest     { background: var(--surface-3); font-size: 13px; border-color: var(--border-active); color: var(--text-dim); }
 .cal-cell.cal-freeze   { background: color-mix(in srgb, var(--accent) 14%, transparent); font-size: 12px; border-color: color-mix(in srgb, var(--accent) 30%, transparent); color: var(--accent); }
 .cal-cell.cal-today    { outline: 2px solid var(--primary); outline-offset: -1px; }
@@ -3266,7 +3266,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   color: var(--text-dim);
 }
 .cal-leg.full    { color: var(--success); }
-.cal-leg.partial { color: #f5a623; }
+.cal-leg.partial { color: var(--warning); }
 
 /* ── Challenge Chain (completion modal & detail) ─────────────────────────── */
 
@@ -3278,13 +3278,13 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   margin-top: 20px;
   padding: 14px 16px;
   border-radius: var(--radius);
-  background: linear-gradient(135deg, rgba(217,119,66,0.18), rgba(224,147,95,0.12));
-  border: 1px solid rgba(217,119,66,0.4);
+  background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(125,211,252,0.12));
+  border: 1px solid rgba(56,189,248,0.4);
   cursor: pointer;
   transition: border-color 150ms, background 150ms;
   gap: 3px;
 }
-.chain-cta:active { background: linear-gradient(135deg, rgba(217,119,66,0.28), rgba(224,147,95,0.18)); }
+.chain-cta:active { background: linear-gradient(135deg, rgba(56,189,248,0.28), rgba(125,211,252,0.18)); }
 
 .chain-cta-pre  { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-dim); }
 .chain-cta-main { font-size: 17px; font-weight: 900; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
@@ -3295,15 +3295,15 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   display: flex;
   flex-direction: column;
   gap: 8px;
-  background: linear-gradient(135deg, rgba(217,119,66,0.10), rgba(224,147,95,0.07));
-  border: 1px solid rgba(217,119,66,0.3);
+  background: linear-gradient(135deg, rgba(56,189,248,0.10), rgba(125,211,252,0.07));
+  border: 1px solid rgba(56,189,248,0.3);
   border-radius: var(--radius);
   padding: 12px 14px;
   margin-bottom: 14px;
   cursor: pointer;
   transition: border-color 150ms;
 }
-.chain-next-banner:active { border-color: rgba(217,119,66,0.6); }
+.chain-next-banner:active { border-color: rgba(56,189,248,0.6); }
 
 .cnb-label {
   font-size: 10px;
@@ -3542,9 +3542,6 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .rmb-title { font-weight: 700; font-size: 15px; }
 .rmb-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
 
-/* ── Expedition category chip ── */
-.tc-cat.expedition { background: rgba(180,120,255,0.15); color: #c090ff; }
-.tc-custom-exp { border: 1.5px dashed var(--accent) !important; }
 
 /* ── Custom expedition creation form ── */
 .exp-form { display: flex; flex-direction: column; gap: 8px; padding: 20px; max-width: 420px; margin: 16px auto 0; }
@@ -3625,22 +3622,6 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   margin: 4px 0 0; text-align: right;
 }
 
-/* ── WoW-style Rarity Tier Chips ── */
-.tier-chip {
-  display: inline-block;
-  font-size: 9px; font-weight: 800;
-  letter-spacing: .5px; text-transform: uppercase;
-  padding: 2px 7px; border-radius: 99px;
-  border: 1px solid; line-height: 1.5;
-  vertical-align: middle; white-space: nowrap;
-}
-.tier-common    { color: #aaa;    border-color: rgba(170,170,170,0.4); background: rgba(170,170,170,0.1); }
-.tier-uncommon  { color: #1eff00; border-color: rgba(30,255,0,0.4);   background: rgba(30,255,0,0.08);  }
-.tier-rare      { color: #4da6ff; border-color: rgba(0,112,255,0.45); background: rgba(0,112,255,0.08); }
-.tier-epic      { color: #c070ff; border-color: rgba(163,53,238,0.45);background: rgba(163,53,238,0.08);}
-.tier-legendary { color: #ff8c00; border-color: rgba(255,128,0,0.5);  background: rgba(255,128,0,0.1);
-                  box-shadow: 0 0 8px rgba(255,128,0,0.2); }
-
 
 /* Badge tier dot (tiny colored circle above earned badge label) */
 .badge-tier-dot {
@@ -3706,8 +3687,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 /* ── New-week Monday ceremony banner ── */
 .new-week-banner {
-  background: linear-gradient(135deg, rgba(217,119,66,0.12), rgba(224,147,95,0.08));
-  border: 1px solid rgba(217,119,66,0.2);
+  background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(125,211,252,0.08));
+  border: 1px solid rgba(56,189,248,0.2);
   border-radius: var(--radius); padding: 18px 20px;
   margin-bottom: 18px; position: relative;
 }
@@ -3743,8 +3724,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 /* ── Builder reminder hint ── */
 .builder-reminder-hint {
-  background: rgba(217,119,66,0.07);
-  border: 1px solid rgba(217,119,66,0.15);
+  background: rgba(56,189,248,0.07);
+  border: 1px solid rgba(56,189,248,0.15);
   border-radius: var(--radius-sm); padding: 10px 14px; margin-top: 12px;
   font-size: 12px; color: var(--text-dim); line-height: 1.5;
 }
@@ -3756,7 +3737,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   left: 50%; transform: translateX(-50%);
   width: min(calc(100% - 32px), 440px);
   background: var(--surface-3);
-  border: 1px solid rgba(217,119,66,0.3);
+  border: 1px solid rgba(56,189,248,0.3);
   border-radius: var(--radius); padding: 14px 16px;
   display: flex; align-items: center; gap: 12px;
   z-index: 100;
@@ -3778,8 +3759,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   position: fixed; bottom: calc(88px + env(safe-area-inset-bottom) + 12px);
   left: 50%; transform: translateX(-50%);
   width: min(calc(100% - 32px), 440px);
-  background: linear-gradient(135deg, rgba(217,119,66,0.2), rgba(224,147,95,0.15));
-  border: 1px solid rgba(217,119,66,0.35);
+  background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(125,211,252,0.15));
+  border: 1px solid rgba(56,189,248,0.35);
   border-radius: var(--radius); padding: 16px 18px;
   z-index: 60; text-align: center;
   animation: toast-in 0.3s ease, fade-out 0.4s ease 3.6s forwards;
@@ -3940,7 +3921,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .pchart-blur-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, var(--panel, #13121e) 45%, transparent 100%);
+  background: linear-gradient(to top, var(--surface, #0D1B2A) 45%, transparent 100%);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -4060,7 +4041,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .lvl-node.current .lvl-node-dot {
   background: var(--gradient);
   border-color: transparent;
-  box-shadow: 0 0 6px rgba(217,119,66, 0.6);
+  box-shadow: 0 0 6px rgba(56,189,248, 0.6);
   transform: scale(1.3);
 }
 
@@ -4157,8 +4138,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 .mode-chip--active {
-  background: rgba(217,119,66,0.15);
-  border-color: rgba(217,119,66,0.5);
+  background: rgba(56,189,248,0.15);
+  border-color: rgba(56,189,248,0.5);
   color: var(--accent);
 }
 
@@ -4194,8 +4175,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   padding: 10px 14px;
   margin: 0 0 12px;
   border-radius: var(--radius-sm);
-  background: rgba(217,119,66,0.08);
-  border: 1px solid rgba(217,119,66,0.25);
+  background: rgba(56,189,248,0.08);
+  border: 1px solid rgba(56,189,248,0.25);
   font-size: 13px;
   color: var(--text-dim);
 }
@@ -4236,8 +4217,8 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   margin-top: 6px;
   padding: 4px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(217,119,66,0.4);
-  background: rgba(217,119,66,0.1);
+  border: 1px solid rgba(56,189,248,0.4);
+  background: rgba(56,189,248,0.1);
   color: var(--accent);
   font-size: 12px;
   font-weight: 600;
@@ -4678,8 +4659,8 @@ details[open] .badge-locked-summary::before {
 .hero-streak-chip {
   font-size: 13px;
   font-weight: 700;
-  background: rgba(255,130,40,0.15);
-  color: #ff8228;
+  background: var(--fire-glow);
+  color: var(--fire);
   border-radius: 20px;
   padding: 2px 8px;
   white-space: nowrap;
@@ -4688,13 +4669,13 @@ details[open] .badge-locked-summary::before {
 
 /* ── Almost-there badge chip ── */
 .almost-badge-chip {
-  background: rgba(255,200,0,0.08);
-  border: 1px solid rgba(255,200,0,0.22);
+  background: rgba(251,191,36,0.08);
+  border: 1px solid rgba(251,191,36,0.22);
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 13px;
   font-weight: 600;
-  color: #ffcb2d;
+  color: var(--fire-gold);
   margin-bottom: 12px;
   text-align: center;
 }
@@ -5059,7 +5040,7 @@ details[open] .badge-locked-summary::before {
 .ring-mult-chip {
   display: inline-block; margin-top: 3px; padding: 1px 6px;
   font-size: 10px; font-weight: 700; border-radius: 999px;
-  background: rgba(249,199,79,0.2); color: #f9c74f; letter-spacing: 0.04em;
+  background: rgba(251,191,36,0.2); color: var(--fire-gold); letter-spacing: 0.04em;
 }
 
 /* ── Onboarding ring demo (slide 2) ── */
