@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.27.3";
+const APP_VERSION = "2026.06.27.9";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -26,6 +26,23 @@ const CHALLENGE_ICON = {
   "comrades-ultra":"ti-run","utmb":"ti-mountain","run-5-marathons":"ti-run","run-jogle":"ti-run","run-trans-america":"ti-run",
 };
 function challengeIcon(t) { return (t && (CHALLENGE_ICON[t.id] || CATEGORY_ICON[t.category])) || "ti-target"; }
+
+// Rough daily time estimate for a template's habit list — parses explicit durations out of
+// habit titles ("45 min", "2 hours") and falls back to a 5-min default for quick check-off
+// habits with no stated duration. Sleep habits are excluded (they're not "active time today").
+function estimateMinutesPerDay(habits) {
+  let total = 0;
+  for (const h of habits || []) {
+    const text = h.title || "";
+    if (/sleep/i.test(text)) continue;
+    const hourMatch = text.match(/(\d+(?:\.\d+)?)\s*h(?:r|ours?)?\b/i);
+    const minMatch = text.match(/(\d+)\s*min/i);
+    if (hourMatch) total += parseFloat(hourMatch[1]) * 60;
+    else if (minMatch) total += parseInt(minMatch[1], 10);
+    else total += 5;
+  }
+  return Math.max(5, Math.round(total / 5) * 5);
+}
 function stripBadgeEmoji(label) { return String(label || "").replace(/^\s*[←-⯿️\u{1F000}-\u{1FAFF}]+\s*/u, "").trim(); }
 function scheduleIcon(type) {
   return ({
@@ -103,7 +120,7 @@ const THEME_SWATCHES = {
 };
 const JOURNEY_THEMES = {
   frostborn: {
-    label: "Frostborn", icon: "ti-snowflake", tagline: "Rise Through the Ranks",
+    label: "Frostborn", icon: "ti-axe", tagline: "Rise as a Viking",
     levels: [
       "Initiate","Oath-Sworn","Oathkeeper","Oath-Bound","Ice-Tempered",
       "Raider","Reaver","Sea-Wolf","Shieldbearer","Shield-Wall",
@@ -362,13 +379,15 @@ const TEMPLATE_DIFFICULTY = {
   "no-spend":"beginner","dry-month":"beginner","creative":"beginner",
   "sleep-tracker":"beginner","no-sugar":"beginner","digital-detox":"beginner",
   "blood-pressure":"beginner","c25k":"beginner","pilates":"beginner",
+  "sugar-reset-7":"beginner","caffeine-reset":"beginner","processed-food-reset":"beginner",
+  "dry-reset-14":"beginner",
   // Intermediate — consistent effort or existing fitness base needed
   "running":"intermediate","cycling":"intermediate","yoga-flexibility":"intermediate",
   "core-abs":"intermediate","strength":"intermediate","30-pushups":"intermediate",
   "30-squats":"intermediate","30-plank":"intermediate","spin":"intermediate",
   "12-3-30":"intermediate","5k-prep":"intermediate","protein-challenge":"intermediate",
   "weight-loss-30":"intermediate","body-composition":"intermediate",
-  "glucose-control":"intermediate",
+  "glucose-control":"intermediate","sugar-reset-strict":"intermediate",
   "everest-bc":"intermediate","west-highland-way":"intermediate","everest-stairmaster":"intermediate","kilimanjaro-stairmaster":"intermediate","montblanc-stairmaster":"intermediate","thames-row":"intermediate",
   // Advanced — high consistency demands or health-sensitive protocols
   "75-soft":"advanced","10k-prep":"advanced","run-streak":"advanced",
@@ -444,10 +463,12 @@ const TEMPLATE_TIERS = {
   "dry-month":"common","reading":"common","creative":"common",
   "meditation":"common","sleep-reset":"common","yoga-flexibility":"common",
   "digital-detox":"common","walking":"common","journaling":"common",
+  "sugar-reset-7":"common","caffeine-reset":"common","processed-food-reset":"common",
+  "dry-reset-14":"common",
   // ── Uncommon: 30-day fitness / requires real consistency
   "30-pushups":"uncommon","dog-walk":"uncommon","cycling":"uncommon",
   "running":"uncommon","strength":"uncommon","no-sugar":"uncommon",
-  "morning-routine":"uncommon","core-abs":"uncommon",
+  "morning-routine":"uncommon","core-abs":"uncommon","sugar-reset-strict":"uncommon",
   // ── Rare: mentally demanding, 75-day, or short expedition
   "cold-exposure":"rare","intermittent-fasting":"rare",
   "75-soft":"rare","everest-bc":"rare","monk-mode":"rare","montblanc-stairmaster":"rare",
@@ -692,6 +713,54 @@ const TEMPLATES = [
       { id:"ns-nosugar",  title:"No added sugar today",      emoji:"🚫", quip:"Read the label. It's in everything.",   type:"binary", points:5 },
       { id:"ns-fruit",    title:"Eat whole fruit (no juice)",emoji:"🍎", quip:"Fibre intact. Spike avoided.",          type:"binary", points:1 },
       { id:"ns-label",    title:"Read every food label",     emoji:"🔍", quip:"Knowledge is the weapon.",             type:"binary", points:1 },
+    ]
+  },
+  {
+    id: "sugar-reset-7", name: "Sugar Reset — 7 Day Starter", emoji: "🍬", category: "lifestyle",
+    description: "A gentle 7-day on-ramp before you commit to 30. Cut added sugar, keep it simple.",
+    duration: 7, weeklyGoal: 21, defaultMode: "soft",
+    habits: [
+      { id:"sr7-nosugar", title:"No added sugar today",              emoji:"🚫", quip:"Read the label. It's in everything.", type:"binary", points:4 },
+      { id:"sr7-craving", title:"Swap a craving for fruit or water", emoji:"🍎", quip:"Give the urge somewhere to go.",       type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "sugar-reset-strict", name: "Zero Sugar — 30 Day Strict", emoji: "🚫", category: "lifestyle",
+    description: "No added sugar, no artificial sweeteners, no fruit juice. The hard version of a sugar reset.",
+    duration: 30, weeklyGoal: 55, defaultMode: "strict",
+    habits: [
+      { id:"zs-nosugar", title:"No added sugar or sweeteners", emoji:"🚫", quip:"Real or artificial — both stay off the list.", type:"binary", points:5 },
+      { id:"zs-nojuice", title:"No fruit juice or soda",       emoji:"🥤", quip:"Whole fruit only. Juice is sugar water.",       type:"binary", points:2 },
+      { id:"zs-label",   title:"Read every food label",       emoji:"🔍", quip:"It hides under 60 different names.",            type:"binary", points:1 },
+    ]
+  },
+  {
+    id: "caffeine-reset", name: "Caffeine Reset", emoji: "☕", category: "lifestyle",
+    description: "14 days to reset your tolerance. Cut the afternoon crash, sleep like it's supposed to feel.",
+    duration: 14, weeklyGoal: 30, defaultMode: "soft",
+    habits: [
+      { id:"cr-cutoff",  title:"No caffeine after 12pm",           emoji:"⏰", quip:"It's still in your system 8 hours later.", type:"binary", points:3 },
+      { id:"cr-hydrate", title:"Water before you reach for coffee", emoji:"💧", quip:"Half the time you're just thirsty.",       type:"binary", points:2 },
+      { id:"cr-sleep",   title:"Sleep 7+ hours",                   emoji:"😴", quip:"This is the whole point. Watch it improve.", type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "processed-food-reset", name: "Processed Food Reset", emoji: "🥗", category: "lifestyle",
+    description: "21 days of whole foods only. Read less, cook more.",
+    duration: 21, weeklyGoal: 45, defaultMode: "soft",
+    habits: [
+      { id:"pfr-whole", title:"Whole-food meals only",          emoji:"🥦", quip:"If it has a wrapper, it's probably not it.", type:"binary", points:4 },
+      { id:"pfr-cook",  title:"Cook at least one meal at home", emoji:"🍳", quip:"You control what goes in.",                  type:"binary", points:3 },
+      { id:"pfr-label", title:"Check the ingredient list",      emoji:"🔍", quip:"5 ingredients or fewer is a good sign.",      type:"binary", points:1 },
+    ]
+  },
+  {
+    id: "dry-reset-14", name: "Dry Reset — 14 Day", emoji: "🥃", category: "lifestyle",
+    description: "A shorter on-ramp before Dry Month. 14 days, zero alcohol.",
+    duration: 14, weeklyGoal: 18, defaultMode: "soft",
+    habits: [
+      { id:"dr14-noalc",   title:"No alcohol",    emoji:"🚫", quip:"Not today.",   type:"binary", points:4 },
+      { id:"dr14-journal", title:"Journal 5 min", emoji:"✍️", quip:"Write it out.", type:"binary", points:2 },
     ]
   },
   {
@@ -1771,7 +1840,6 @@ const UNIVERSAL_BADGES = [
   { id:"u-first",  label:"🌊 First Wave",         desc:"Complete 100% of habits on your very first day.",   test: u => u.anyFirstDay },
   { id:"u-done1",  label:"✅ Challenge Done",     desc:"Finish your first challenge.",                        test: u => u.completedChallenges >= 1 },
   { id:"u-done3",  label:"🏆 Triple Threat",      desc:"Complete 3 challenges.",                              test: u => u.completedChallenges >= 3 },
-  { id:"u-multi",  label:"🔀 Multi-Tasker",       desc:"Run 2 challenges at the same time.",                 test: u => u.activeChallenges >= 2 },
   { id:"u-perfwk", label:"⭐ Perfect Week",        desc:"Complete all Oaths every day for 7 consecutive days.", test: u => u.hasPerfectWeek },
   // Hidden badges — show as "🔒 ???" until earned
   { id:"u-double-agent", label:"🔀 Double Agent",     desc:"Complete the same challenge twice.",                         tier:"rare",      hidden:true, test: u => u.doubleAgent },
@@ -2154,6 +2222,10 @@ const CHALLENGE_CHAINS = {
   "sleep-reset":        "morning-routine",
   "digital-detox":      "meditation",
   "dry-month":          "no-sugar",
+  "sugar-reset-7":      "no-sugar",
+  "processed-food-reset": "meal-prep",
+  "caffeine-reset":     "sleep-reset",
+  "dry-reset-14":       "dry-month",
   "yoga-flexibility":   "75-soft",
   "core-abs":           "strength",
   "journaling":         "reading",
@@ -2257,6 +2329,8 @@ let builderQuizAnswers   = { goal: null, time: null, level: null };
 let onboardingAnswers    = { goal: null, intensity: null, time: null };
 let _badgeSheetQueue     = [];       // { label, desc, tier } — queued badge celebrations
 let _notifPromptVisible  = false;   // post-challenge-start notification prompt
+let _showThemePrompt     = false;   // post-Day-1 "how do you want to level up" sheet
+let _themePromptShown    = false;   // shown-once guard, separate from themeChosen (dismissing != choosing)
 let _templateFilter      = "all";   // "all" | "short" | "medium" | "long"
 let _difficultyFilter    = "all";   // "all" | "beginner" | "intermediate" | "advanced" | "extreme"
 let _statsCollapsed      = null;    // kept for legacy reads — accordion removed
@@ -2602,6 +2676,7 @@ function normalizeState(raw) {
       reminderEnabled: raw.settings?.reminderEnabled === true,
       reminderTime:    raw.settings?.reminderTime    || "20:00",
       journeyTheme:    JOURNEY_THEMES[raw.settings?.journeyTheme] ? raw.settings.journeyTheme : "frostborn",
+      themeChosen:     raw.settings?.themeChosen === true,
       units: {
         weight:        raw.settings?.units?.weight        || "lbs",
         distance:      raw.settings?.units?.distance      || "km",
@@ -3007,36 +3082,58 @@ function createChallenge(form) {
   return c;
 }
 
+// Real completion % — counts every calendar day of the challenge (not just days the
+// user happened to open the app on), so days never visited don't just vanish from the
+// denominator. Rest days are only excluded if the user actually took them (visited and
+// marked rest) — an unvisited day is assumed to be a normal day, not a free pass.
+// Shared by the completion-status decision below and the challenge-detail stat card.
+function challengeCompletionStats(c) {
+  const today = todayKey();
+  const rangeEnd = c.noEndDate ? today : (c.endDate < today ? c.endDate : today);
+  const totalDays = Math.max(1, diffDays(c.startDate, rangeEnd) + 1);
+  const restDaysTaken = Object.values(c.days).filter(d => d.mode === "rest").length;
+  const loggedDays = Object.values(c.days).filter(d => d.mode !== "rest" && (d.done.length > 0 || d.recovered)).length;
+  const eligibleDays = Math.max(1, totalDays - restDaysTaken);
+  return { loggedDays, eligibleDays, pct: Math.round((loggedDays / eligibleDays) * 100) };
+}
+
 function updateChallengeStatuses() {
   const today = todayKey();
   let changed = false;
   for (const c of Object.values(state.challenges)) {
     if (c.status === "active" && !c.noEndDate && c.endDate < today) {
       c.finalStreak = calcChallengeStreak(c); // snapshot before status changes
-      c.status = "completed";
-      if (!c.completedAt) c.completedAt = new Date().toISOString();
+      c.finalCompletionPct = challengeCompletionStats(c).pct;
       if (!c.flags) c.flags = {};
-      if (!c.flags.completionBonusPaid) {
-        const dur = Math.round((new Date(c.endDate) - new Date(c.startDate)) / 86400000);
-        const bonus = COMPLETION_BONUS[dur] ?? (dur >= 180 ? 300 : dur >= 90 ? 150 : 75);
-        state.xp = (state.xp || 0) + bonus;
-        c.flags.completionBonusPaid = true;
-        c.completionBonus = bonus;
+      if (!c.completedAt) c.completedAt = new Date().toISOString();
+      if (c.finalCompletionPct >= 50) {
+        c.status = "completed";
+        if (!c.flags.completionBonusPaid) {
+          const dur = Math.round((new Date(c.endDate) - new Date(c.startDate)) / 86400000);
+          const bonus = COMPLETION_BONUS[dur] ?? (dur >= 180 ? 300 : dur >= 90 ? 150 : 75);
+          state.xp = (state.xp || 0) + bonus;
+          c.flags.completionBonusPaid = true;
+          c.completionBonus = bonus;
+        }
+        if (!c.personalBest) {
+          c.personalBest = {
+            streak: c.finalStreak,
+            perfectDays: Object.values(c.days).filter(d => {
+              const i = completionInfo(c, d); return d.mode !== "rest" && i.percent >= 100 && i.total > 0;
+            }).length,
+            totalPts: c.totalPts,
+            completedAt: c.completedAt,
+          };
+        }
+        // Queue — show first one immediately, rest after user dismisses
+        if (!justCompletedId) justCompletedId = c.id;
+        else justCompletedIds.push(c.id);
+        launchConfetti();
+      } else {
+        // Ran out the clock without showing up enough — no bonus, no confetti, no false trophy.
+        c.status = "failed";
+        c.flags.autoEnded = true;
       }
-      if (!c.personalBest) {
-        c.personalBest = {
-          streak: c.finalStreak,
-          perfectDays: Object.values(c.days).filter(d => {
-            const i = completionInfo(c, d); return d.mode !== "rest" && i.percent >= 100 && i.total > 0;
-          }).length,
-          totalPts: c.totalPts,
-          completedAt: c.completedAt,
-        };
-      }
-      // Queue — show first one immediately, rest after user dismisses
-      if (!justCompletedId) justCompletedId = c.id;
-      else justCompletedIds.push(c.id);
-      launchConfetti();
       changed = true;
     }
   }
@@ -3224,7 +3321,6 @@ function checkBadges(challenge) {
       return fi.percent === 100 && fi.total > 0;
     }),
     completedChallenges: allChallenges.filter(c => c.status==="completed").length,
-    activeChallenges:    getActiveChallenges().length,
     hasPerfectWeek:      allChallenges.some(c => getPerfectRunLength(c, todayKey()) >= 7),
     expeditionDone:      allChallenges.some(c => c.status==="completed" && c.habits.some(h => h.type==="distance")),
     doubleAgent: (() => {
@@ -3496,6 +3592,10 @@ function checkMilestones(challenge) {
         localStorage.setItem("conqur_notif_asked", "1");
         setTimeout(() => { _notifPromptVisible = true; render(); }, 2500);
       }
+      if (!state.settings.themeChosen && !_themePromptShown) {
+        _themePromptShown = true;
+        setTimeout(() => { _showThemePrompt = true; render(); }, 4000);
+      }
     }, 500);
   }
   // Halfway
@@ -3652,6 +3752,7 @@ function _renderInner() {
   html += renderConfirmModal();
   html += renderPromptModal();
   if (_safetyPendingTemplateId) html += renderSafetyModal();
+  if (_showThemePrompt) html += renderThemePromptSheet();
   if (_showInstallBanner && _pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
     html += `
     <div class="install-banner">
@@ -3881,7 +3982,11 @@ function renderToday() {
       </div>
     </section>
     ${renderChallengeMetricChart(challenge)}
-    ${isToday ? renderAlmostThereBadge(challenge, streak) : ""}
+    ${(() => {
+      if (!isToday) return "";
+      const badgeHint = renderAlmostThereBadge(challenge, streak);
+      return badgeHint || renderRankProgressHint();
+    })()}
     ${(() => {
       // Only one nudge at a time: backup (Day 7+, no account) beats notif nudge
       if (!isToday) return "";
@@ -4886,7 +4991,7 @@ function renderChallengeCard(c) {
         </div>
         <div class="cc-right">
           ${c.status!=="active"
-            ? `<div class="cc-status" style="color:${statusColor}">${c.status==="paused"?`<i class="ti ti-player-pause"></i> paused`:c.status}</div>`
+            ? `<div class="cc-status" style="color:${statusColor}">${c.status==="paused"?`<i class="ti ti-player-pause"></i> paused`:c.status==="failed"?(c.flags?.autoEnded?`ended · ${c.finalCompletionPct ?? 0}%`:"abandoned"):c.status}</div>`
             : isExpedition
               ? `<div class="cc-today">${todayNativeKm !== null && todayNativeKm > 0 ? (Math.round(todayNativeKm*factor*10)/10)+" "+dUnit : "—"}</div>`
               : `<div class="cc-today">${todayInfo?todayInfo.percent+"%":"—"}</div>`}
@@ -4934,10 +5039,10 @@ function renderChallengeDetail(c) {
   const pct       = totalDays ? clamp(Math.round((dayNumber/totalDays)*100), 0, 100) : null;
   const streak    = calcChallengeStreak(c);
   const totalPts  = Object.values(c.days).reduce((s,d)=>s+(d.pts||0),0);
-  const activeDays = Object.values(c.days).filter(d => d.mode !== "rest" && (d.done.length > 0 || d.recovered));
-  const activeDaysDone = activeDays.filter(d => d.done.length > 0 || d.recovered).length;
-  const activeTotal = Object.values(c.days).filter(d => d.mode !== "rest").length;
-  const activeCompPct = activeTotal ? Math.round((activeDaysDone / activeTotal) * 100) : 0;
+  const compStats = challengeCompletionStats(c);
+  const activeDaysDone = compStats.loggedDays;
+  const activeTotal = compStats.eligibleDays;
+  const activeCompPct = compStats.pct;
   const hasPhotoHabit = c.habits.some(h => h.id === "photo" || /progress\s*photo/i.test(h.title));
   const nextChainId   = c.templateId && CHALLENGE_CHAINS[c.templateId];
   const nextChainRaw  = nextChainId ? TEMPLATES.find(t => t.id === nextChainId) : null;
@@ -5116,7 +5221,7 @@ function renderEditChallenge(c) {
           }
           return `
           <div class="custom-habit-row">
-            <span class="custom-habit-emoji">${esc(h.emoji)}</span>
+            <span class="custom-habit-emoji"><i class="ti ti-square"></i></span>
             <span class="custom-habit-name">${esc(h.title)}</span>
             <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points??h.tiers[0].pts??0}–${(t=>t.points??t.pts??0)(h.tiers[h.tiers.length-1])}pt` : h.points+"pt"}</span>
             <button class="icon-btn" data-ec-edit-habit="${i}" title="Edit"><i class="ti ti-pencil"></i></button>
@@ -5344,7 +5449,7 @@ function renderBuilderTemplates() {
     { label:"Start Here", ids:["start-small","reset-week","momentum-builder","morning-routine"] },
     { label:"Transformation", ids:["cruise-control","75-soft","75-hard","project-50","morning-power-hour","cold-exposure"] },
     { label:"Weight Loss", ids:["lean-start","fat-loss-foundation","weight-loss-30","mindful-eating"] },
-    { label:"Nutrition", ids:["no-sugar","dry-month","intermittent-fasting","protein-challenge","fiber-challenge","hydration","meal-prep"] },
+    { label:"Nutrition", ids:["no-sugar","sugar-reset-7","sugar-reset-strict","caffeine-reset","processed-food-reset","dry-month","dry-reset-14","intermittent-fasting","protein-challenge","fiber-challenge","hydration","meal-prep"] },
     { label:"Mindset", ids:["stress-reset","mental-health-30","meditation","journaling","gratitude-reset","self-care-30","nature-reset"] },
     { label:"Productivity", ids:["monk-mode","deep-work-sprint","digital-detox","budget-reset","reading","creative","language-learning","no-spend","declutter"] },
     { label:"Sleep & Recovery", ids:["sleep-reset","sleep-tracker","recovery-reset","yoga-flexibility","posture-fix"] },
@@ -5385,7 +5490,9 @@ function renderBuilderTemplates() {
   };
   const templateRow = t => {
     const diff = TEMPLATE_DIFFICULTY[t.id] || "intermediate";
-    const meta = `${t.duration} days · ${t.defaultMode} · ${DIFF_LABEL[diff]}`;
+    const mins = estimateMinutesPerDay(t.habits);
+    const minsLabel = mins >= 60 ? `${(mins/60).toFixed(mins % 60 ? 1 : 0)}h/day` : `${mins} min/day`;
+    const meta = `${t.duration} days · ${t.defaultMode} · ${DIFF_LABEL[diff]} · ~${minsLabel}`;
     const hasSafety = !!TEMPLATE_SAFETY[t.id];
     return `
     <button class="cl-row" data-select-template="${t.id}">
@@ -5526,7 +5633,7 @@ function renderBuilderCustomize() {
       <div class="custom-habits-list">
         ${builderForm.habits.map((h,i)=>`
           <div class="custom-habit-row">
-            <span class="custom-habit-emoji">${esc(h.emoji)}</span>
+            <span class="custom-habit-emoji"><i class="ti ti-square"></i></span>
             <span class="custom-habit-name">${esc(h.title)}</span>
             <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points??h.tiers[0].pts??0}–${(t=>t.points??t.pts??0)(h.tiers[h.tiers.length-1])}pt` : h.points+"pt"}</span>
             <button class="icon-btn" data-remove-habit="${i}"><i class="ti ti-x"></i></button>
@@ -6129,6 +6236,15 @@ function renderAlmostThereBadge(challenge, streak) {
   return `<div class="almost-badge-chip"><i class="ti ti-medal"></i> ${diff === 1 ? "One more day" : "2 days"} to unlock your ${next}-day badge!</div>`;
 }
 
+// Shown on Today only when no streak-badge hint is already taking that slot, so the two
+// gold chips never stack.
+function renderRankProgressHint() {
+  const info = getLevelInfo(state.xp);
+  if (!info.next || info.pct < 70) return "";
+  const xpToNext = (info.next.xp - state.xp).toLocaleString();
+  return `<div class="almost-badge-chip"><i class="ti ti-bolt"></i> ${xpToNext} XP to ${term('level')} ${info.next.level}!</div>`;
+}
+
 // ── Settings ──────────────────────────────────────────────────────────────
 
 // ── Onboarding ────────────────────────────────────────────────────────────
@@ -6153,14 +6269,25 @@ function renderObHero() {
   </div>`;
 }
 
-function renderObTheme() {
+function renderObExplainer() {
   return `
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
-      <div class="ob-emoji" aria-hidden="true"><i class="ti ti-sparkles"></i></div>
-      <div class="ob-title">How do you want to level up?</div>
-      <div class="ob-body">Pick a path. You can change this anytime in Settings.</div>
+      <div class="ob-emoji" aria-hidden="true"><i class="ti ti-trending-up"></i></div>
+      <div class="ob-title">Habits become a game</div>
+      <div class="ob-body">Here's the whole system in three steps.</div>
     </div>
+    <ul class="ob-features" aria-label="How it works">
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-list-check"></i></span><span><strong>Pick a challenge</strong> — a set of daily habits to keep for a set number of days</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-bolt"></i></span><span><strong>Keep your habits, earn XP</strong> — every day you show up adds up</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-trophy"></i></span><span><strong>XP levels you up</strong> — your level never resets, no matter what</span></li>
+    </ul>
+    <button class="primary-button ob-cta" data-ob-next>Choose how you level up →</button>
+  </div>`;
+}
+
+function renderThemeCardsGrid() {
+  return `
     <div class="ob-goal-grid">
       ${Object.entries(JOURNEY_THEMES).map(([id, t]) => `
       <button class="ob-goal-btn ob-theme-btn" data-ob-theme="${id}" style="--theme-swatch:${THEME_SWATCHES[id][0]}">
@@ -6171,7 +6298,19 @@ function renderObTheme() {
         </div>
         <span class="ob-goal-arrow">→</span>
       </button>`).join("")}
-    </div>
+    </div>`;
+}
+
+function renderThemePromptSheet() {
+  return `
+  <div class="sheet-backdrop" data-theme-prompt-backdrop>
+    <section class="sheet" role="dialog" style="max-width:400px">
+      <div class="ob-emoji" aria-hidden="true" style="margin-bottom:6px"><i class="ti ti-sparkles"></i></div>
+      <div style="font-size:18px;font-weight:700;text-align:center;margin-bottom:6px">Day 1 done. Nice.</div>
+      <div style="font-size:13px;color:var(--text-dim);text-align:center;margin-bottom:16px">How do you want to level up from here? You can change this anytime in Settings.</div>
+      ${renderThemeCardsGrid()}
+      <button class="link-btn" data-theme-prompt-dismiss style="display:block;margin:4px auto 0;font-size:12px">Maybe later</button>
+    </section>
   </div>`;
 }
 
@@ -6390,7 +6529,7 @@ function renderObAccount() {
 function renderOnboarding() {
   if (onboardingStep === null) return "";
   if (onboardingStep === 0) return renderObHero();
-  if (onboardingStep === 1) return renderObTheme();
+  if (onboardingStep === 1) return renderObExplainer();
   if (onboardingStep === 2) return renderObGoal();
   if (onboardingStep === 3) return renderObIntensity();
   if (onboardingStep === 4) return renderObTime();
@@ -7058,14 +7197,17 @@ function bindEvents() {
   });
   on("[data-ob-theme]", el => {
     const themeId = el.dataset.obTheme;
-    if (JOURNEY_THEMES[themeId]) { state.settings.journeyTheme = themeId; saveState(); }
-    onboardingStep++;
-    render();
+    if (JOURNEY_THEMES[themeId]) { state.settings.journeyTheme = themeId; state.settings.themeChosen = true; saveState(); }
+    if (_showThemePrompt) { _showThemePrompt = false; render(); }
+    else { onboardingStep++; render(); }
   });
+  on("[data-theme-prompt-dismiss]", () => { _showThemePrompt = false; render(); });
+  on("[data-theme-prompt-backdrop]", (el, e) => { if (e.target === el) { _showThemePrompt = false; render(); } });
   on("[data-set-theme]", el => {
     const themeId = el.dataset.setTheme;
     if (JOURNEY_THEMES[themeId] && themeId !== state.settings.journeyTheme) {
       state.settings.journeyTheme = themeId;
+      state.settings.themeChosen = true;
       saveState();
       render();
       showToast(`Theme changed to ${JOURNEY_THEMES[themeId].label}.`);
@@ -7578,7 +7720,7 @@ function renderBuilderQuickstart() {
   </div>`;
 }
 
-function startChallenge(safetyConfirmed = false) {
+function startChallenge(safetyConfirmed = false, multiConfirmed = false) {
   const nameEl       = document.getElementById("bf-name");
   const startEl      = document.getElementById("bf-start");
   const endEl        = document.getElementById("bf-end");
@@ -7599,6 +7741,16 @@ function startChallenge(safetyConfirmed = false) {
     _safetyPendingTemplateId = template.id;
     render();
     return;
+  }
+  if (!multiConfirmed) {
+    const active = getActiveChallenges();
+    if (active.length > 0) {
+      const msg = active.length === 1
+        ? `You already have "${active[0].name}" running. Starting another splits your focus. Continue anyway?`
+        : `You already have ${active.length} ${term('challengePlural')} running. Starting another splits your focus. Continue anyway?`;
+      showConfirm(msg, () => startChallenge(true, true));
+      return;
+    }
   }
   _safetyPendingTemplateId = null;
   const c = createChallenge(builderForm);

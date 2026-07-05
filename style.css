@@ -1806,7 +1806,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   background: var(--surface);
   border: 1px solid var(--border);
 }
-.custom-habit-emoji { font-size: 18px; }
+.custom-habit-emoji { font-size: 15px; color: var(--text-faint); flex-shrink: 0; }
 .custom-habit-name  { flex: 1; font-size: 13px; min-width: 0; }
 .custom-habit-pts   { font-size: 12px; font-weight: 700; color: var(--text-dim); }
 
