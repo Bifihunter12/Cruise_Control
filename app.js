@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.26.8";
+const APP_VERSION = "2026.06.26.10";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -27,6 +27,12 @@ const CHALLENGE_ICON = {
 };
 function challengeIcon(t) { return (t && (CHALLENGE_ICON[t.id] || CATEGORY_ICON[t.category])) || "ti-target"; }
 function stripBadgeEmoji(label) { return String(label || "").replace(/^\s*[←-⯿️\u{1F000}-\u{1FAFF}]+\s*/u, "").trim(); }
+function scheduleIcon(type) {
+  return ({
+    easy:"ti-run", tempo:"ti-gauge", long:"ti-road", interval:"ti-bolt", cross:"ti-arrows-cross",
+    rest:"ti-bed", strength:"ti-barbell", wod:"ti-stopwatch", simulate:"ti-trophy", combo:"ti-bolt"
+  })[type] || "ti-calendar";
+}
 const STORAGE_KEY = "conqur_v1";
 const OLD_KEY     = "cruise_mode_v1";
 const RING_CIRC   = 2 * Math.PI * 90;
@@ -2611,7 +2617,7 @@ function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch(e) {
     console.warn("saveState failed (storage quota?):", e);
-    showToast("Storage full — export a backup to avoid losing data.");
+    showToast(CloudSync.isSignedIn ? "Storage full — some data may not save." : "Storage full — sign in to back up your progress.");
   }
   // Debounced cloud push — 5 s after last save so rapid taps don't spam
   if (!_skipCloudPush && CloudSync.isSignedIn) {
@@ -3657,13 +3663,19 @@ function renderToday() {
     ${!canGoBack && minDate === addDays(today, -3) && challenge.startDate < minDate ? `<div class="backfill-limit-hint">Logging is limited to the last 3 days</div>` : ""}
     ${!isToday ? `<div class="backfill-banner"><i class="ti ti-pencil"></i> Editing ${formatDate(parseDate(effDate),{weekday:"long"})} — changes save immediately.</div>` : ""}
     <section class="hero">
-      <div class="hero-title-row">
-        <span class="hero-challenge-name"><i class="ti ${challengeIcon(heroTpl)}"></i> ${esc(challenge.name)}</span>
-        ${streak > 0 && isToday ? `<span class="hero-streak-chip"><i class="ti ti-flame"></i>${streak}</span>` : ""}
-        <span class="hero-day-badge">Day ${dayNumber}${totalDays ? `<span class="hero-day-of"> / ${totalDays}</span>` : ""}</span>
+      <div class="hero-daycount">Day ${dayNumber}${totalDays ? ` / ${totalDays}` : ""}</div>
+      <div class="hero-titlebar">
+        <i class="ti ${challengeIcon(heroTpl)} hero-ic" aria-hidden="true"></i>
+        <h1 class="hero-name">${esc(challenge.name)}</h1>
       </div>
       ${journeyPct !== null ? `<div class="journey-track"><div class="journey-fill" style="width:${journeyPct}%"></div></div>` : ""}
-      <div class="hero-meta">${phaseInfo ? `${phaseInfo.phase.name} · ` : ""}${challenge.noEndDate ? "Ongoing" : daysLeft > 0 ? daysLeft+" days left" : "Final day!"}${isToday ? ` · <button class="link-btn hero-settings-link" data-view-challenge="${challenge.id}">Edit</button>` : ""}</div>
+      <div class="hero-stats">
+        ${journeyPct !== null ? `<span>${journeyPct}%</span><span class="hero-stat-dot">·</span>` : ""}
+        ${streak > 0 && isToday ? `<span><i class="ti ti-flame"></i> ${streak} day Fire</span><span class="hero-stat-dot">·</span>` : ""}
+        <span>${challenge.noEndDate ? "Ongoing" : daysLeft > 0 ? daysLeft+" days left" : "Final day!"}</span>
+        ${phaseInfo ? `<span class="hero-stat-dot">·</span><span>${esc(phaseInfo.phase.name)}</span>` : ""}
+        ${isToday ? `<button class="link-btn hero-settings-link" data-view-challenge="${challenge.id}">Edit</button>` : ""}
+      </div>
       ${isToday ? `<div class="greeting">${currentGreeting(challenge, dayNumber, streak)}</div>` : ""}
       ${isToday ? renderModeSelector(day, challenge) : ""}
     </section>
@@ -3675,7 +3687,7 @@ function renderToday() {
       if (!sched) return "";
       const typeClass = { easy:"plan-easy", tempo:"plan-tempo", long:"plan-long", interval:"plan-interval", cross:"plan-cross", rest:"plan-rest", strength:"plan-strength", wod:"plan-wod", simulate:"plan-simulate", combo:"plan-interval" }[sched.type] || "plan-easy";
       return `<div class="day-plan-banner ${typeClass}">
-        <span class="dpb-emoji">${sched.emoji}</span>
+        <span class="dpb-emoji"><i class="ti ${scheduleIcon(sched.type)}"></i></span>
         <div>
           <div class="dpb-type">Today's Plan: ${sched.label}</div>
           <div class="dpb-desc">${sched.desc}</div>
@@ -6272,18 +6284,6 @@ function renderDataSettings() {
       <div style="font-size:12px;color:var(--text-dim);line-height:1.5">Progress is stored on this device. If you clear your browser or switch devices, it will be lost. <button class="link-btn" data-preview-onboarding style="font-size:12px">Sign in to back up →</button></div>
     </div>
   </div>` : ""}
-  <div class="more-card">
-    <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px">Export a full backup of your Quests, body tracking, and Runes as a JSON file.</div>
-    <button class="secondary-button" data-export-data>Export backup ↓</button>
-    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
-      <div style="font-size:13px;color:var(--text-dim);margin-bottom:8px">Restore from a previously exported backup.</div>
-      <label class="secondary-button" style="display:inline-block;cursor:pointer">
-        Restore backup ↑
-        <input type="file" id="import-file-input" accept=".json" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none">
-      </label>
-      <div style="font-size:12px;color:var(--text-dim);margin-top:8px"><i class="ti ti-alert-triangle"></i> Restoring will overwrite all current data.</div>
-    </div>
-  </div>
   ${CloudSync.isSignedIn ? `
   <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
     ${_resetConfirm ? `
@@ -6848,7 +6848,6 @@ function bindEvents() {
     render();
   });
   on("[data-save-reminder]",   () => saveReminderTime());
-  on("[data-export-data]",     () => exportData());
   on("[data-reset-app]",       () => { _resetConfirm = true;  render(); });
   on("[data-reset-cancel]",    () => { _resetConfirm = false; render(); });
   on("[data-reset-confirm]",   async () => {
@@ -6879,29 +6878,6 @@ function bindEvents() {
     } catch(e) {}
     // 6. Hard reload
     window.location.replace(window.location.pathname + "?reset=" + Date.now());
-  });
-  // Import file — delegated so it works when settings panel opens after first render
-  document.addEventListener("change", e => {
-    if (!e.target.matches("#import-file-input")) return;
-    const file = e.target.files?.[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      try {
-        const parsed = JSON.parse(ev.target.result);
-        // Basic shape check — must look like a Conqur backup
-        if (!parsed || typeof parsed !== "object" || !("challenges" in parsed)) {
-          showToast("That doesn't look like a Conqur backup file."); return;
-        }
-        const cCount = Object.keys(parsed.challenges || {}).length;
-        const normalized = normalizeState(parsed);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
-        showToast(`Backup restored (${cCount} Quest${cCount===1?"":"s"})! Reloading…`);
-        setTimeout(() => window.location.reload(), 1400);
-      } catch(err) {
-        showToast("Invalid backup file — couldn't restore.");
-      }
-    };
-    reader.readAsText(file);
   });
   // ── Onboarding navigation ──────────────────────────────────────────────────
   on("[data-ob-next]", () => {
@@ -7370,20 +7346,6 @@ function saveSettings() {
   const nameEl = document.getElementById("s-name");
   if (nameEl) state.settings.name = nameEl.value.trim();
   saveState(); scheduleReminder(); showToast("Settings saved."); render();
-}
-
-function exportData() {
-  const json = localStorage.getItem(STORAGE_KEY) || "{}";
-  const blob = new Blob([json], { type: "application/json" });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement("a");
-  a.href = url;
-  a.download = `conqur-backup-${todayKey()}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showToast("Backup downloaded ✓");
 }
 
 function saveReminderTime() {

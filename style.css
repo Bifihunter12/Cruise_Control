@@ -118,55 +118,16 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 /* ── Hero ─────────────────────────────────── */
 
-.hero { margin-bottom: 12px; }
+.hero { margin-bottom: 16px; }
 
-/* compact single-row title: challenge name left, day count right */
-.hero-title-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.hero-challenge-name {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.hero-day-badge {
-  font-size: 26px;
-  font-weight: 700;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.hero-day-of {
-  font-size: 0.5em;
-  font-weight: 500;
-  opacity: 0.65;
-}
-
-/* single meta line: phase name · days left · Edit */
-.hero-meta {
-  margin-top: 5px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-dim);
-}
+.hero-daycount { font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+.hero-titlebar { display: flex; align-items: center; gap: 11px; margin-top: 7px; }
+.hero-ic { font-size: 25px; color: var(--text-dim); flex: none; line-height: 1; }
+.hero-name { font-size: 25px; font-weight: 500; letter-spacing: -0.4px; line-height: 1.04; color: var(--text); margin: 0; }
+.hero-stats { margin-top: 11px; display: flex; flex-wrap: wrap; align-items: center; gap: 7px; font-size: 11px; font-weight: 500; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+.hero-stats i { font-size: 12px; vertical-align: -1px; color: var(--accent); }
+.hero-stat-dot { opacity: .45; }
+.hero-stats .hero-settings-link { font-size: 11px; letter-spacing: 0.6px; text-transform: uppercase; color: var(--accent); }
 
 .greeting {
   margin-top: 4px;
@@ -187,7 +148,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   height: 100%;
   width: 0;
   border-radius: inherit;
-  background: var(--gradient);
+  background: var(--accent);
   transition: width 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -1555,7 +1516,6 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 @media (max-width: 420px) {
   .app-shell { padding-left: 14px; padding-right: 14px; }
-  .hero-day-badge { font-size: 22px; }
   .ring-wrap  { width: min(70vw, 240px); }
   .ring-stats { width: min(70vw, 240px); }
   .metric-value { font-size: 18px; }
@@ -4655,18 +4615,6 @@ details[open] .badge-locked-summary::before {
 .badge-sheet-congrats { font-size: 13px; color: var(--text-faint); margin-bottom: 22px; }
 .badge-sheet-cta     { max-width: 240px; margin: 0 auto; }
 
-/* ── Hero streak chip ── */
-.hero-streak-chip {
-  font-size: 13px;
-  font-weight: 700;
-  background: var(--fire-glow);
-  color: var(--fire);
-  border-radius: 20px;
-  padding: 2px 8px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
 /* ── Almost-there badge chip ── */
 .almost-badge-chip {
   background: rgba(251,191,36,0.08);
@@ -5163,3 +5111,25 @@ details[open] .badge-locked-summary::before {
 .cl-go { font-size:17px; color:var(--text-faint); flex:none; transition:color .12s, transform .12s; }
 .cl-row:hover .cl-go { color:var(--accent); transform:translateX(2px); }
 
+/* ── Frostborn · Field alignment — match Endur's task rows + checkbox ────── */
+.habit-list { display:flex; flex-direction:column; gap:0; }
+.habit-card {
+  grid-template-columns: 1fr 24px; gap:12px; min-height:54px;
+  background:transparent !important; border:none !important; border-bottom:1px solid var(--border) !important;
+  border-radius:0; padding:14px 2px; overflow:visible;
+}
+.habit-card:last-child { border-bottom:none !important; }
+.habit-card .accent, .habit-card .habit-emoji { display:none !important; }
+.habit-card.checked { background:transparent !important; }
+.habit-card.checked .habit-title { color:var(--text-faint); }
+.habit-title { font-weight:500; font-size:14.5px; }
+.habit-quip { letter-spacing:0.1px; }
+.check-circle {
+  width:24px; height:24px; border-radius:3px;
+  border:1.5px solid var(--text-faint); background:transparent; color:transparent;
+  font-size:13px; font-weight:500;
+}
+.checked .check-circle, .check-circle.checked, .photo-habit-card.checked .check-hollow {
+  border-color:var(--accent) !important; background:var(--accent) !important; color:#07111F !important;
+}
+.run-habit .check-circle { width:auto; min-width:24px; padding:0 6px; }
