@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.27.9";
+const APP_VERSION = "2026.06.27.12";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -969,8 +969,8 @@ const TEMPLATES = [
 
   // ── Health Tracking ──────────────────────────────────────────────────────
   {
-    id: "weight-loss-30", name: "Weight Loss 30", emoji: "⚖️", category: "health",
-    description: "30 days of daily weigh-ins and healthy habits. Track your weight, build the routine.",
+    id: "weight-loss-30", name: "Weight Loss 30 — Track & Build", emoji: "⚖️", category: "health",
+    description: "30 days, with daily weigh-ins and a deficit target. See the number move while you build the routine.",
     duration: 30, weeklyGoal: 80, defaultMode: "soft",
     habits: [
       { id:"wl-weight",   title:"Log weight",          emoji:"⚖️", quip:"Same time each morning.", type:"measurement", unit:"weight", decimals:1 },
@@ -1755,8 +1755,8 @@ const TEMPLATES = [
     ]
   },
   {
-    id: "lean-start", name: "Lean Start", emoji: "⚖️", category: "health",
-    description: "30 days building the foundation for fat loss without extreme dieting.",
+    id: "lean-start", name: "Lean Start — Simple Basics", emoji: "⚖️", category: "health",
+    description: "30 days, no tracking required. Protein, steps, real food — the simplest starting point for fat loss.",
     duration: 30, weeklyGoal: 60, defaultMode: "soft",
     habits: [
       { id:"ls-protein", title:"Protein goal",       emoji:"🥩", quip:"0.8–1g per lb bodyweight. Keep it simple.",             type:"binary", points:4 },
@@ -1766,8 +1766,8 @@ const TEMPLATES = [
     ]
   },
   {
-    id: "fat-loss-foundation", name: "Fat Loss Foundation", emoji: "🔥", category: "health",
-    description: "42 days of protein, fiber, movement, strength, and sleep consistency.",
+    id: "fat-loss-foundation", name: "Fat Loss Foundation — 42 Day Complete", emoji: "🔥", category: "health",
+    description: "The full 6-week version — protein, fiber, movement, strength, and sleep, all in one.",
     duration: 42, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"fl-protein", title:"Protein goal",    emoji:"🥩", quip:"0.8–1g per lb bodyweight. The anchor habit.",                    type:"binary", points:4 },
@@ -5566,7 +5566,7 @@ function renderBuilderCustomize() {
     <div class="ongoing-toggle" style="margin-bottom:14px">
       <label class="ongoing-toggle-label">
         <input type="checkbox" id="bf-ongoing" ${builderForm.noEndDate?"checked":""} style="width:16px;height:16px;accent-color:var(--accent)">
-        <span>Ongoing habit — no end date</span>
+        <span>Ongoing ${term('challenge')} — no end date</span>
       </label>
     </div>
     <div class="section-label" style="margin:0 0 8px">Challenge Mode</div>
@@ -5614,21 +5614,21 @@ function renderBuilderCustomize() {
     ${template?.routeKm ? `
     <div class="route-info-card">
       <div class="route-info-header">
-        <span class="route-info-emoji">${template.emoji}</span>
+        <span class="route-info-emoji"><i class="ti ${challengeIcon(template)}"></i></span>
         <div>
           <div class="route-info-name">${template.name}</div>
           <div class="route-info-km">${template.routeKm.toLocaleString()} km · ${template.milestones.length} milestones</div>
         </div>
       </div>
       <div class="route-milestones-preview">
-        ${template.milestones.map(m => `<span class="route-ms-chip">${m.emoji} ${m.name}</span>`).join("")}
+        ${template.milestones.map(m => `<span class="route-ms-chip"><i class="ti ti-flag"></i> ${m.name}</span>`).join("")}
       </div>
       <p class="mode-desc" style="margin:8px 0 0">Log any distance each day — walking, running, cycling, swimming. It all counts toward your route.</p>
     </div>` : `
-    <div class="section-label" style="margin:0 0 8px">Habits (${template?template.habits.length:builderForm.habits.length})</div>
+    <div class="section-label" style="margin:0 0 8px">${term('habitPlural')} (${template?template.habits.length:builderForm.habits.length})</div>
     ${template ? `
       <div class="habit-preview-list">
-        ${template.habits.map(h=>`<div class="habit-preview-item">${h.emoji} ${h.title}</div>`).join("")}
+        ${template.habits.map(h=>`<div class="habit-preview-item"><i class="ti ti-square" style="color:var(--text-faint);margin-right:8px"></i>${esc(h.title)}</div>`).join("")}
       </div>` : `
       <div class="custom-habits-list">
         ${builderForm.habits.map((h,i)=>`
@@ -5667,8 +5667,8 @@ function renderBuilderCustomize() {
       </div>`}
     `}
     <div class="pts-explainer">
-      <div class="pts-explainer-title">⚡ How points work</div>
-      <div class="pts-explainer-body">Check off habits to earn points and XP. XP builds your level and never resets. Log 5 days in a week to earn a streak freeze.</div>
+      <div class="pts-explainer-title"><i class="ti ti-bolt"></i> How XP works</div>
+      <div class="pts-explainer-body">Check off ${term('habitPlural')} to earn XP. XP builds your ${term('level')} and never resets. Log 5 days in a week to earn a ${term('streak')} freeze.</div>
     </div>
     ${("Notification" in window) && Notification.permission === "default" ? `
     <div class="builder-notif-request">
@@ -5679,7 +5679,7 @@ function renderBuilderCustomize() {
     <div class="builder-reminder-hint"><i class="ti ti-circle-check"></i> Reminders on — we'll notify you at ${state.settings.reminderTime || "20:00"}.</div>` : `
     <div class="builder-reminder-hint"><i class="ti ti-bulb"></i> Enable daily reminders in Settings after you start — it's the best habit for actually finishing.</div>`}
     <div class="builder-cta-footer">
-      <button class="primary-button" data-start-challenge>Start Challenge 🚀</button>
+      <button class="primary-button" data-start-challenge>Start ${term('challenge')} <i class="ti ti-rocket"></i></button>
       <button class="secondary-button" style="margin-top:8px" data-builder-back>← Back</button>
     </div>
   </div>`;
@@ -6622,13 +6622,13 @@ function renderReminderSettings() {
     </div>`;
   } else if (perm === "default") {
     body = `<button class="primary-button" data-request-notif-permission>Enable reminders</button>
-            <p class="reminder-note" style="margin-top:8px">We'll nudge you once a day if habits are still open.</p>`;
+            <p class="reminder-note" style="margin-top:8px">Best-effort — we'll try to nudge you once a day if today's habits are still open. This only works while the app is open in a tab somewhere; fully closing it can stop the reminder from firing.</p>`;
   } else {
     body = `
     <div class="reminder-row">
       <div>
         <div style="font-size:14px;font-weight:700">Daily reminder</div>
-        <div style="font-size:12px;color:var(--text-dim);margin-top:2px">Fires when today's habits are incomplete</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:2px">Fires when today's habits are incomplete — best-effort, needs the app open in a tab</div>
       </div>
       <label class="toggle-switch">
         <input type="checkbox" ${enabled ? "checked" : ""} data-toggle-reminder>
@@ -6640,7 +6640,8 @@ function renderReminderSettings() {
       Remind me at
       <input id="reminder-time" type="time" value="${time}">
     </label>
-    <button class="secondary-button" data-save-reminder style="margin-top:10px">Save time</button>` : ""}`;
+    <button class="secondary-button" data-save-reminder style="margin-top:10px">Save time</button>
+    <p class="reminder-note" style="margin-top:8px">Browsers suspend timers in closed or backgrounded tabs, so this can miss firing if you're not near the app. We're looking at a proper background version.</p>` : ""}`;
   }
   return `
   <div class="section-label" style="margin-top:20px">Reminders</div>
@@ -7693,7 +7694,7 @@ function renderBuilderQuickstart() {
   return `
   <div class="builder-quickstart">
     <div class="bqs-hero">
-      <div class="bqs-emoji">${template.emoji}</div>
+      <div class="bqs-emoji"><i class="ti ${challengeIcon(template)}"></i></div>
       <div class="bqs-tier" style="color:${td.color}">${td.label}</div>
       <div class="bqs-name">${esc(template.name)}</div>
       <div class="bqs-meta">${dur} days · starts today</div>
@@ -7705,7 +7706,7 @@ function renderBuilderQuickstart() {
     <div class="bqs-desc">${esc(template.description)}</div>
     ${TEMPLATE_SAFETY[template.id] ? `<div class="bqs-safety-warning"><span class="bqs-safety-icon"><i class="ti ti-alert-triangle"></i></span><span>${TEMPLATE_SAFETY[template.id]}</span></div>` : ""}
     <div class="bqs-xp-row">
-      <i class="ti ${xpTheme.icon}"></i> Earn ~<strong>${weeklyXP.toLocaleString()} XP</strong> per week logging every habit
+      <i class="ti ${xpTheme.icon}"></i> Earn ~<strong>${weeklyXP.toLocaleString()} XP</strong> per week logging every ${term('habit')}
     </div>
     <div class="bqs-mode-note">
       ${template.defaultMode === "soft"
@@ -7713,9 +7714,9 @@ function renderBuilderQuickstart() {
         : "<i class=\"ti ti-bolt\"></i> <strong>Strict mode</strong> — no missed days. Zero compromise."}
     </div>
     <div class="builder-cta-footer">
-      <button class="primary-button" data-start-challenge>Start ${dur}-Day Challenge</button>
+      <button class="primary-button" data-start-challenge>Start ${dur}-Day ${term('challenge')}</button>
       <button class="secondary-button" style="margin-top:8px" data-quickstart-customise>Customise first →</button>
-      <button class="link-btn" style="margin-top:10px;text-align:center;display:block" data-builder-back>← Choose a different challenge</button>
+      <button class="link-btn" style="margin-top:10px;text-align:center;display:block" data-builder-back>← Choose a different ${term('challenge')}</button>
     </div>
   </div>`;
 }
