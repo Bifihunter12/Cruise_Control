@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.27.12";
+const APP_VERSION = "2026.06.27.14";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -3739,15 +3739,23 @@ function _renderInner() {
     if (_cc) html += renderCompletionModal(_cc);
   }
   html += renderShareModal();
-  if (_badgeSheetQueue.length > 0) html += renderBadgeSheet(_badgeSheetQueue[0]);
-  if (_levelUpOverlay) html += renderLevelUpOverlay();
-  // Chapter milestone check (show once per threshold, guarded by state.lastChapterSeen)
-  if (!_chapterOverlay && !_levelUpOverlay) {
-    const _curLevel = getLevelInfo(state.xp).level;
-    const _chapterDue = [5, 10, 15, 20, 25].find(l => l <= _curLevel && l > (state.lastChapterSeen ?? 0));
-    if (_chapterDue) { _chapterOverlay = _chapterDue; state.lastChapterSeen = _chapterDue; saveState(); }
+  // Celebration overlays are mutually exclusive — show at most one per render so
+  // dismissing a badge/level-up/chapter popup doesn't immediately reveal another
+  // stacked behind it. Each one persists in its own flag/queue until dismissed,
+  // so the next-highest-priority celebration surfaces on the following render.
+  if (_badgeSheetQueue.length > 0) {
+    html += renderBadgeSheet(_badgeSheetQueue[0]);
+  } else if (_levelUpOverlay) {
+    html += renderLevelUpOverlay();
+  } else {
+    // Chapter milestone check (show once per threshold, guarded by state.lastChapterSeen)
+    if (!_chapterOverlay) {
+      const _curLevel = getLevelInfo(state.xp).level;
+      const _chapterDue = [5, 10, 15, 20, 25].find(l => l <= _curLevel && l > (state.lastChapterSeen ?? 0));
+      if (_chapterDue) { _chapterOverlay = _chapterDue; state.lastChapterSeen = _chapterDue; saveState(); }
+    }
+    if (_chapterOverlay) html += renderChapterOverlay();
   }
-  if (_chapterOverlay) html += renderChapterOverlay();
   if (_notifPromptVisible) html += renderNotifPrompt();
   html += renderConfirmModal();
   html += renderPromptModal();
