@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.27.14";
+const APP_VERSION = "2026.06.27.16";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -3739,13 +3739,16 @@ function _renderInner() {
     if (_cc) html += renderCompletionModal(_cc);
   }
   html += renderShareModal();
-  // Celebration overlays are mutually exclusive — show at most one per render so
-  // dismissing a badge/level-up/chapter popup doesn't immediately reveal another
-  // stacked behind it. Each one persists in its own flag/queue until dismissed,
-  // so the next-highest-priority celebration surfaces on the following render.
+  // Badge unlocks are non-blocking stacked toasts (see flushBadgeToasts) — they're
+  // appended straight to document.body, outside the render() HTML string, so an
+  // unrelated re-render can't recreate and replay their entrance animation.
   if (_badgeSheetQueue.length > 0) {
-    html += renderBadgeSheet(_badgeSheetQueue[0]);
-  } else if (_levelUpOverlay) {
+    flushBadgeToasts(_badgeSheetQueue);
+    _badgeSheetQueue = [];
+  }
+  // Level-up / chapter overlays are mutually exclusive — show at most one per render
+  // so dismissing one doesn't immediately reveal another stacked behind it.
+  if (_levelUpOverlay) {
     html += renderLevelUpOverlay();
   } else {
     // Chapter milestone check (show once per threshold, guarded by state.lastChapterSeen)
@@ -6091,45 +6094,45 @@ function renderNotifPrompt() {
   </div>`;
 }
 
-function renderBadgeSheet(badge) {
-  const queue = _badgeSheetQueue;
-  if (queue.length > 1) {
-    return `
-  <div class="badge-sheet-overlay" data-close-badge-sheet>
-    <div class="badge-sheet" role="dialog" aria-modal="true" aria-label="Badges earned">
-      <div class="badge-sheet-icon"><i class="ti ti-medal"></i></div>
-      <div class="badge-sheet-tier" style="color:var(--success)">${queue.length} Badges Unlocked</div>
-      <div class="badge-sheet-title">Achievement haul!</div>
-      <div class="multi-badge-list">
-        ${queue.map(b => {
-          const tier = b.tier || "common";
-          return `<div class="mbl-row">
-            <div class="mbl-icon" style="color:${(TIERS[tier]||TIERS.common).color}"><i class="ti ${TIER_ICON[tier] || TIER_ICON.common}"></i></div>
-            <div class="mbl-body">
-              <div class="mbl-label">${stripBadgeEmoji(b.label)}</div>
-              ${b.desc ? `<div class="mbl-desc">${esc(b.desc)}</div>` : ""}
-            </div>
-          </div>`;
-        }).join("")}
-      </div>
-      <button class="primary-button badge-sheet-cta" data-close-badge-sheet>Awesome!</button>
-    </div>
-  </div>`;
+// Stack of non-blocking badge toasts: each one flies in from the bottom, stacking
+// above earlier ones (newest slot closest to the bottom edge), holds for a few
+// seconds, then flies out upward on its own. Staggered so multiple simultaneous
+// unlocks read as a sequence rather than a single dump.
+function flushBadgeToasts(list) {
+  list.forEach((badge, i) => {
+    setTimeout(() => addBadgeToast(badge), i * 220);
+  });
+}
+
+function addBadgeToast(badge) {
+  let stack = document.getElementById("badge-toast-stack");
+  if (!stack) {
+    stack = document.createElement("div");
+    stack.id = "badge-toast-stack";
+    stack.className = "badge-toast-stack";
+    document.body.appendChild(stack);
   }
-  const td = TIERS[badge.tier] || TIERS.common;
+  const td    = TIERS[badge.tier] || TIERS.common;
   const tier  = badge.tier || "common";
   const title = stripBadgeEmoji(badge.label);
-  return `
-  <div class="badge-sheet-overlay" data-close-badge-sheet>
-    <div class="badge-sheet" role="dialog" aria-modal="true" aria-label="Badge earned">
-      <div class="badge-sheet-icon" style="color:${td.color}"><i class="ti ${TIER_ICON[tier] || TIER_ICON.common}"></i></div>
-      <div class="badge-sheet-tier" style="color:${td.color}">${td.label}</div>
-      <div class="badge-sheet-title">${esc(title)}</div>
-      <div class="badge-sheet-desc">${esc(badge.desc)}</div>
-      <div class="badge-sheet-congrats">Achievement unlocked!</div>
-      <button class="primary-button badge-sheet-cta" data-close-badge-sheet>Awesome!</button>
-    </div>
-  </div>`;
+  const el = document.createElement("div");
+  el.className = "badge-toast";
+  el.innerHTML = `
+    <div class="badge-toast-icon" style="color:${td.color}"><i class="ti ${TIER_ICON[tier] || TIER_ICON.common}"></i></div>
+    <div class="badge-toast-body">
+      <div class="badge-toast-tier" style="color:${td.color}">${td.label}</div>
+      <div class="badge-toast-title">${esc(title)}</div>
+    </div>`;
+  stack.appendChild(el);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("show")));
+  setTimeout(() => {
+    el.classList.remove("show");
+    el.classList.add("hide");
+    setTimeout(() => {
+      el.remove();
+      if (!stack.children.length) stack.remove();
+    }, 380);
+  }, 2800);
 }
 
 function shouldShowBackupNudge(challenge) {
@@ -6220,8 +6223,7 @@ function renderMeasurementChartSVG(points, unit, lowerIsBetter) {
     </defs>
     <path d="${area}" fill="url(#mcga${W})"/>
     <path d="${line}" fill="none" stroke="url(#mcg${W})" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="${coords[0][0]}" cy="${coords[0][1]}" r="3" fill="url(#mcg${W})"/>
-    <circle cx="${coords[coords.length-1][0]}" cy="${coords[coords.length-1][1]}" r="3.5" fill="url(#mcg${W})"/>
+    ${coords.map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="${i===0||i===coords.length-1?3.5:2.5}" fill="url(#mcg${W})"/>`).join("")}
     <text x="${coords[0][0]}" y="${H - 2}" fill="var(--text-dim)" font-size="9" text-anchor="middle">${points[0].toFixed(1)}</text>
     <text x="${coords[coords.length-1][0]}" y="${H - 2}" fill="var(--text-dim)" font-size="9" text-anchor="middle">${points[points.length-1].toFixed(1)}</text>
   </svg>
@@ -6883,7 +6885,6 @@ function bindEvents() {
   on("[data-quiz-find]",  () => { selectTemplate(getQuizRecommendation(builderQuizAnswers)); });
   on("[data-quiz-skip]",  () => { builderStep="template"; render(); });
   on("[data-request-notif-from-builder]", () => requestNotificationPermission());
-  on("[data-close-badge-sheet]",    () => { _badgeSheetQueue = []; render(); });
   on("[data-dismiss-backup-nudge]", () => { localStorage.setItem("conqur_backup_nudge_dismissed","1"); render(); });
   on("[data-dismiss-email-capture]", () => { localStorage.setItem("conqur_email_capture","dismissed"); render(); });
   document.addEventListener("keydown", e => {
