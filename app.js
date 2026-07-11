@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.27.16";
+const APP_VERSION = "2026.06.27.18";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -6124,7 +6124,8 @@ function addBadgeToast(badge) {
       <div class="badge-toast-title">${esc(title)}</div>
     </div>`;
   stack.appendChild(el);
-  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("show")));
+  el.offsetHeight; // force layout so the browser commits the initial transform before animating to "show"
+  el.classList.add("show");
   setTimeout(() => {
     el.classList.remove("show");
     el.classList.add("hide");
