@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.27.18";
+const APP_VERSION = "2026.06.27.19";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -4200,7 +4200,6 @@ function renderRing(info, day, streak, challenge) {
       <div class="ring-stat-value">${totalKmD !== null ? totalKmD.toFixed(ringIsFloors?0:1) : "0"}<span class="ring-stat-sub"> ${ringDUnit}</span></div>
       <div class="ring-stat-label">total distance</div>
     </div>
-    <div class="ring-stat-sep"></div>
     <div class="ring-stat">
       <div class="ring-stat-value">${routeKm ? Math.min(100,Math.round((totalKmNative/routeKm)*100)) : "—"}<span class="ring-stat-sub">${routeKm ? "%" : ""}</span></div>
       <div class="ring-stat-label">route done</div>
@@ -4209,12 +4208,10 @@ function renderRing(info, day, streak, challenge) {
       <div class="ring-stat-value">${info.done}<span class="ring-stat-sub">/${info.total}</span></div>
       <div class="ring-stat-label">${term('habitPlural').toLowerCase()}</div>
     </div>
-    <div class="ring-stat-sep"></div>
     <div class="ring-stat">
       <div class="ring-stat-value">${challengePts}</div>
       <div class="ring-stat-label">XP</div>
     </div>`}
-    <div class="ring-stat-sep"></div>
     <div class="ring-stat">
       <div class="ring-stat-value${streak>=7?' streak-hero':''}">${streak}${gracePip?`<span style="font-size:10px;color:var(--warning);margin-left:2px" title="Grace day used yesterday — don't miss today!"><i class="ti ti-lifebuoy"></i></span>`:""}${streak>=7?` <i class="ti ti-flame"></i>`:""}</div>
       <div class="ring-stat-label">day ${term('streak')}${gracePip?`<span style="display:block;font-size:9px;color:var(--warning)">grace used</span>`:""}</div>
@@ -6053,7 +6050,7 @@ function renderBadgeCat(label, defs, earned, templateId, progressCtx) {
     const glowStyle   = isEarned && tier === "legendary" ? `box-shadow:0 0 10px ${td.border};` : "";
     return `
     <div class="badge ${isEarned?"earned":""}" style="${borderStyle}${glowStyle}">
-      ${isEarned && td ? `<span class="badge-tier-dot" style="color:${td.color}" title="${td.label}"><i class="ti ${TIER_ICON[tier]}"></i></span>` : ""}
+      <span class="badge-tier-dot" style="color:${isEarned && td ? td.color : "var(--text-faint)"}" title="${td ? td.label : ""}"><i class="ti ${TIER_ICON[tier]}"></i></span>
       <div class="badge-label">${stripBadgeEmoji(b.label)}</div>
       ${b.desc?`<div class="badge-desc">${b.desc}</div>`:""}
       ${!isEarned ? badgeProgressHint(b) : ""}

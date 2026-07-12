@@ -294,17 +294,18 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 .ring-stats {
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  gap: 8px;
   width: min(72vw, 270px);
-  padding: 14px 0;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
 }
 
 .ring-stat {
   flex: 1;
   text-align: center;
+  padding: 10px 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
 .ring-stat-value {
@@ -337,14 +338,6 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   letter-spacing: 0.1em;
   color: var(--text-dim);
 }
-
-.ring-stat-sep {
-  width: 1px;
-  height: 30px;
-  background: var(--border);
-  flex-shrink: 0;
-}
-
 
 .speech {
   font-size: 13px;
@@ -1093,17 +1086,9 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   font-weight: 500;
   transition: box-shadow 300ms;
 }
-.badge::after {
-  content: "🔒";
-  position: absolute;
-  top: 6px; right: 8px;
-  font-size: 11px;
-  opacity: 0.4;
-}
 .badge .badge-label { color: var(--text-dim); display: block; }
 .badge .badge-desc  { color: var(--text-faint); font-size: 11px; margin-top: 2px; display: block; }
 
-.badge.earned::after { display: none; }
 .badge.earned {
   font-weight: 700;
   background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(125,211,252,0.1));
@@ -1113,7 +1098,6 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .badge.earned .badge-label { color: var(--text); }
 .badge.earned .badge-desc  { color: var(--text-dim); }
 
-.badge-hidden::after { display: none; }
 .badge-hidden .badge-label { letter-spacing: 0.04em; }
 .badge-hidden .badge-desc { font-style: italic; color: var(--text-faint); }
 
@@ -3439,11 +3423,13 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 
 
-/* Badge tier dot (tiny colored circle above earned badge label) */
+/* Badge tier icon — shown above the label for both earned (colored) and locked (muted) badges */
 .badge-tier-dot {
-  display: block; margin: 0 auto 4px;
-  font-size: 13px; line-height: 1;
+  display: block; margin: 0 auto 6px;
+  font-size: 18px; line-height: 1;
+  opacity: 0.9;
 }
+.badge:not(.earned) .badge-tier-dot { opacity: 0.45; }
 
 /* ── Epic / Legendary tier tag ── */
 .tier-tag {
