@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.27.19";
+const APP_VERSION = "2026.06.27.21";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -543,6 +543,7 @@ const TEMPLATES = [
   {
     id: "cruise-control", name: "Mental Toughness", emoji: "🔱", category: "transformation",
     description: "30 days that change everything. Body, habits, and an unbreakable mind.",
+    identity: "I am becoming someone with an unbreakable mind.",
     duration: 30, weeklyGoal: 90, defaultMode: "soft",
     habits: [
       { id:"yoga",      title:"Yoga or mobility",          emoji:"🧘", quip:"Sets the tone for everything after.",      type:"binary", points:2 },
@@ -558,6 +559,7 @@ const TEMPLATES = [
   {
     id: "75-hard", name: "75 Hard-Style", emoji: "💪", category: "transformation",
     description: "The original mental toughness program. 75 days. Zero compromises.",
+    identity: "I am someone who doesn't negotiate with excuses.",
     duration: 75, weeklyGoal: 91, defaultMode: "strict", noRestDay: true,
     habits: [
       { id:"w1",       title:"Workout 1 — 45 min",          emoji:"🏋️", quip:"First session done.",               type:"binary", points:3 },
@@ -571,6 +573,7 @@ const TEMPLATES = [
   {
     id: "75-soft", name: "75 Soft", emoji: "🧘", category: "transformation",
     description: "The balanced version. 75 days of consistent, sustainable habits.",
+    identity: "I am someone who builds habits that actually last.",
     duration: 75, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"workout",  title:"Workout 45 min",                  emoji:"🏃", quip:"Move your body.",               type:"binary", points:3 },
@@ -582,6 +585,7 @@ const TEMPLATES = [
   {
     id: "dry-month", name: "Dry Month", emoji: "🥃", category: "lifestyle",
     description: "30 days, zero alcohol. Feel the difference.",
+    identity: "I am someone who doesn't need it to have a good time.",
     duration: 30, weeklyGoal: 40, defaultMode: "strict",
     habits: [
       { id:"noalc",    title:"No alcohol",                  emoji:"🚫", quip:"Not today.",                        type:"binary", points:4 },
@@ -591,6 +595,7 @@ const TEMPLATES = [
   {
     id: "reading", name: "Reading Challenge", emoji: "📚", category: "lifestyle",
     description: "Read every day for 30 days. 10 pages minimum.",
+    identity: "I am a reader.",
     duration: 30, weeklyGoal: 60, defaultMode: "soft",
     habits: [
       { id:"readpg",   title:"Read 10 pages",               emoji:"📖", quip:"10 pages a day is a book a month.", type:"binary", points:4 },
@@ -601,6 +606,7 @@ const TEMPLATES = [
   {
     id: "dog-walk", name: "Dog Walk Challenge", emoji: "🐕", category: "movement",
     description: "30 days of daily walks with your dog. Fresh air, consistency, and happy paws.",
+    identity: "I am someone who shows up for more than just myself.",
     duration: 30, weeklyGoal: 75, defaultMode: "soft",
     habits: [
       { id:"dw-walk",    title:"Morning walk",              emoji:"🌅", quip:"Start the day right — both of you.", type:"binary", points:3 },
@@ -613,6 +619,7 @@ const TEMPLATES = [
   {
     id: "cycling", name: "Cycling Challenge", emoji: "🚴", category: "movement",
     description: "30 days in the saddle. Build endurance, torch calories, go farther than yesterday.",
+    identity: "I am someone who goes farther than yesterday.",
     duration: 30, weeklyGoal: 90, defaultMode: "soft",
     habits: [
       { id:"cy-ride",    title:"Bike ride",                 emoji:"🚲", quip:"Clip in. Show up.",                  type:"tiered", points:3,
@@ -624,6 +631,7 @@ const TEMPLATES = [
   {
     id: "walking", name: "Walking Challenge", emoji: "🚶", category: "movement",
     description: "30 days of daily walking. The simplest habit with the biggest returns.",
+    identity: "I am someone who moves every day, no matter how small the step.",
     duration: 30, weeklyGoal: 50, defaultMode: "soft",
     habits: [
       { id:"wk-dist",    title:"Daily walk",                emoji:"👟", quip:"Every step counts.",                 type:"tiered", points:2,
@@ -635,6 +643,7 @@ const TEMPLATES = [
   {
     id: "steps-10k", name: "10,000 Steps", emoji: "👟", category: "movement", deprecated: true,
     description: "30 days of hitting 10,000 steps every day. The most evidence-backed daily movement habit there is.",
+    identity: "I am someone who keeps moving, deliberately.",
     duration: 30, weeklyGoal: 28, defaultMode: "soft",
     habits: [
       { id:"ts-steps",   title:"Hit step target",           emoji:"👟", quip:"10k is the goal. Beat it when you can.", type:"tiered", points:4,
@@ -645,6 +654,7 @@ const TEMPLATES = [
   {
     id: "running", name: "Running Challenge", emoji: "🏃", category: "movement",
     description: "30 days of running. Build the habit, find the pace, feel the difference. Rest days are encouraged — 4–5 sessions per week is plenty and helps prevent injury.",
+    identity: "I am a runner.",
     duration: 30, weeklyGoal: 80, defaultMode: "soft",
     habits: [
       { id:"rn-run",     title:"Run session",               emoji:"👟", quip:"Shoes on. Door open. Go.",           type:"tiered", points:3,
@@ -656,6 +666,7 @@ const TEMPLATES = [
   {
     id: "creative", name: "Creative Challenge", emoji: "🎨", category: "lifestyle",
     description: "30 days of daily creative practice. Write, draw, build, make — just create something.",
+    identity: "I am someone who makes things.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"cr-create",  title:"Create something today",    emoji:"✨", quip:"It doesn't have to be good. It has to exist.", type:"binary", points:4 },
@@ -667,6 +678,7 @@ const TEMPLATES = [
   {
     id: "strength", name: "Strength Training", emoji: "🏋️", category: "movement",
     description: "30 days of consistent lifting. Build the habit, then build the muscle. Rest and recovery days are part of the process — 3–4 training days per week is realistic and sustainable.",
+    identity: "I am someone who gets stronger on purpose.",
     duration: 30, weeklyGoal: 55, defaultMode: "soft",
     habits: [
       { id:"st-lift",    title:"Lift session",              emoji:"🏋️", quip:"Show up. Lift. Repeat.",               type:"binary", points:5 },
@@ -677,6 +689,7 @@ const TEMPLATES = [
   {
     id: "meditation", name: "Meditation", emoji: "🧘", category: "lifestyle",
     description: "30 days of daily stillness. Calm the mind, sharpen the focus.",
+    identity: "I am someone who can sit still with my own mind.",
     duration: 30, weeklyGoal: 60, defaultMode: "soft",
     habits: [
       { id:"med-sit",    title:"Meditate 10 min",           emoji:"🧘", quip:"10 minutes. Eyes closed. Phone away.", type:"binary", points:4 },
@@ -687,6 +700,7 @@ const TEMPLATES = [
   {
     id: "cold-exposure", name: "Cold Exposure", emoji: "🧊", category: "transformation",
     description: "30 days of cold showers. Builds mental resilience like nothing else.",
+    identity: "I am someone who can do hard things before breakfast.",
     duration: 30, weeklyGoal: 65, defaultMode: "soft",
     habits: [
       { id:"ce-cold",    title:"Cold shower",               emoji:"🧊", quip:"Get in. Don't think about it.",        type:"binary", points:5 },
@@ -697,6 +711,7 @@ const TEMPLATES = [
   {
     id: "sleep-reset", name: "Sleep Reset", emoji: "😴", category: "lifestyle",
     description: "21 days to fix your sleep. Consistent schedule, no screens, real rest.",
+    identity: "I am someone who protects my sleep.",
     duration: 21, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"sl-hours",   title:"7+ hour sleep opportunity", emoji:"🌙", quip:"In bed for 7+ hours. Sleep does the rest.", type:"binary", points:4 },
@@ -708,6 +723,7 @@ const TEMPLATES = [
   {
     id: "no-sugar", name: "No Added Sugar", emoji: "🚫🍬", category: "lifestyle",
     description: "30 days without added sugar. Clearer skin, steadier energy, fewer crashes.",
+    identity: "I am someone who doesn't need sugar to get through the day.",
     duration: 30, weeklyGoal: 35, defaultMode: "strict",
     habits: [
       { id:"ns-nosugar",  title:"No added sugar today",      emoji:"🚫", quip:"Read the label. It's in everything.",   type:"binary", points:5 },
@@ -718,6 +734,7 @@ const TEMPLATES = [
   {
     id: "sugar-reset-7", name: "Sugar Reset — 7 Day Starter", emoji: "🍬", category: "lifestyle",
     description: "A gentle 7-day on-ramp before you commit to 30. Cut added sugar, keep it simple.",
+    identity: "I am someone who starts before I feel ready.",
     duration: 7, weeklyGoal: 21, defaultMode: "soft",
     habits: [
       { id:"sr7-nosugar", title:"No added sugar today",              emoji:"🚫", quip:"Read the label. It's in everything.", type:"binary", points:4 },
@@ -727,6 +744,7 @@ const TEMPLATES = [
   {
     id: "sugar-reset-strict", name: "Zero Sugar — 30 Day Strict", emoji: "🚫", category: "lifestyle",
     description: "No added sugar, no artificial sweeteners, no fruit juice. The hard version of a sugar reset.",
+    identity: "I am someone who commits to the harder version when it matters.",
     duration: 30, weeklyGoal: 55, defaultMode: "strict",
     habits: [
       { id:"zs-nosugar", title:"No added sugar or sweeteners", emoji:"🚫", quip:"Real or artificial — both stay off the list.", type:"binary", points:5 },
@@ -737,6 +755,7 @@ const TEMPLATES = [
   {
     id: "caffeine-reset", name: "Caffeine Reset", emoji: "☕", category: "lifestyle",
     description: "14 days to reset your tolerance. Cut the afternoon crash, sleep like it's supposed to feel.",
+    identity: "I am someone who isn't run by caffeine.",
     duration: 14, weeklyGoal: 30, defaultMode: "soft",
     habits: [
       { id:"cr-cutoff",  title:"No caffeine after 12pm",           emoji:"⏰", quip:"It's still in your system 8 hours later.", type:"binary", points:3 },
@@ -747,6 +766,7 @@ const TEMPLATES = [
   {
     id: "processed-food-reset", name: "Processed Food Reset", emoji: "🥗", category: "lifestyle",
     description: "21 days of whole foods only. Read less, cook more.",
+    identity: "I am someone who knows what's actually in my food.",
     duration: 21, weeklyGoal: 45, defaultMode: "soft",
     habits: [
       { id:"pfr-whole", title:"Whole-food meals only",          emoji:"🥦", quip:"If it has a wrapper, it's probably not it.", type:"binary", points:4 },
@@ -757,6 +777,7 @@ const TEMPLATES = [
   {
     id: "dry-reset-14", name: "Dry Reset — 14 Day", emoji: "🥃", category: "lifestyle",
     description: "A shorter on-ramp before Dry Month. 14 days, zero alcohol.",
+    identity: "I am someone who can take a real break.",
     duration: 14, weeklyGoal: 18, defaultMode: "soft",
     habits: [
       { id:"dr14-noalc",   title:"No alcohol",    emoji:"🚫", quip:"Not today.",   type:"binary", points:4 },
@@ -766,6 +787,7 @@ const TEMPLATES = [
   {
     id: "morning-routine", name: "Morning Routine", emoji: "🌅", category: "lifestyle",
     description: "30 days of owning the first hour. Win the morning, win the day.",
+    identity: "I am someone who owns the first hour.",
     duration: 30, weeklyGoal: 80, defaultMode: "soft",
     habits: [
       { id:"mr-wake",     title:"Wake up on time — no snooze",emoji:"⏰", quip:"First decision of the day. Make it right.", type:"binary", points:3 },
@@ -778,6 +800,7 @@ const TEMPLATES = [
   {
     id: "yoga-flexibility", name: "Yoga & Mobility", emoji: "🧘‍♀️", category: "movement",
     description: "30 days of yoga, stretching, and mobility work. Move better, recover faster, feel lighter.",
+    identity: "I am someone who takes care of how my body moves.",
     duration: 30, weeklyGoal: 42, defaultMode: "soft",
     habits: [
       { id:"yf-yoga",     title:"Yoga or mobility (10 min+)", emoji:"🧘", quip:"Mat out. 10 minutes is enough. Just start.", type:"binary", points:4 },
@@ -788,6 +811,7 @@ const TEMPLATES = [
   {
     id: "digital-detox", name: "Digital Detox", emoji: "📵", category: "lifestyle",
     description: "30 days of intentional screen use. Take back your attention.",
+    identity: "I am someone who decides where my attention goes.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"dd-limit",    title:"Max 1h social media",        emoji:"📱", quip:"Your attention is the product. Guard it.", type:"binary", points:4 },
@@ -799,6 +823,7 @@ const TEMPLATES = [
   {
     id: "intermittent-fasting", name: "Intermittent Fasting", emoji: "⏱️", category: "transformation",
     description: "30 days of 16:8. Eat in an 8-hour window, fast for 16. Simple, effective.",
+    identity: "I am someone who eats on purpose, not on autopilot.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"if-fast",     title:"16-hour fast completed",     emoji:"⏱️", quip:"The window is the whole game.",          type:"binary", points:5 },
@@ -810,6 +835,7 @@ const TEMPLATES = [
   {
     id: "core-abs", name: "Core & Abs", emoji: "🔥", category: "movement",
     description: "30 days of core work. Planks, crunches, leg raises — build real strength. Rest days are welcome; muscles grow during recovery, not just during training.",
+    identity: "I am someone who builds real strength, not just the look of it.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"ca-core",     title:"Core workout (15 min)",      emoji:"💪", quip:"15 minutes. No excuses.",                type:"binary", points:5 },
@@ -822,6 +848,7 @@ const TEMPLATES = [
   {
     id: "journaling", name: "Daily Journaling", emoji: "✍️", category: "lifestyle",
     description: "30 days of daily writing. Process your thoughts, track your growth, find clarity.",
+    identity: "I am someone who processes life instead of just living through it.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"jn-write",  title:"Write in journal",         emoji:"📓", quip:"Even five minutes counts. Just start.",          type:"binary", points:4 },
@@ -833,6 +860,7 @@ const TEMPLATES = [
   {
     id: "monk-mode", name: "Monk Mode", emoji: "🧠", category: "transformation",
     description: "30 days of intense focus. No social media, no distractions — just deep work, learning, and execution.",
+    identity: "I am someone capable of real focus.",
     duration: 30, weeklyGoal: 100, defaultMode: "soft",
     habits: [
       { id:"mm-focus",   title:"Deep work — 2 hours",    emoji:"💻", quip:"Two hours. Zero distractions. Phone off.",        type:"binary", points:5 },
@@ -847,6 +875,7 @@ const TEMPLATES = [
   {
     id: "zone2", name: "Zone 2 Base Builder", emoji: "💚", category: "endurance",
     description: "30 days of low-intensity cardio at conversational pace. The aerobic foundation that makes every other fitness goal easier.",
+    identity: "I am someone who builds the base before chasing the peak.",
     duration: 30, weeklyGoal: 65, defaultMode: "soft",
     habits: [
       { id:"z2-session",  title:"Zone 2 session",            emoji:"💚", quip:"Conversational pace. Nasal breathing. 30–60 min.", type:"tiered", points:5,
@@ -858,6 +887,7 @@ const TEMPLATES = [
   {
     id: "hyrox", name: "HYROX Training", emoji: "⚡", category: "endurance",
     description: "12 weeks of race-ready functional fitness. 4 training days per week: strength, running, WOD circuits, and full race simulations.",
+    identity: "I am someone who trains for the whole event, not just the parts I like.",
     duration: 84, weeklyGoal: 70, defaultMode: "soft",
     weekSchedule: [
       { day:1, type:"strength",  label:"Strength",          emoji:"🏋️", desc:"Squats, deadlifts, overhead press. Build the base that powers every HYROX station." },
@@ -880,6 +910,7 @@ const TEMPLATES = [
   {
     id: "half-marathon-prep", name: "Half Marathon Prep", emoji: "🏃", category: "endurance",
     description: "12 weeks to race day. Built-in weekly schedule: easy runs, tempo, long run, cross-train, and 2 rest days.",
+    identity: "I am someone who follows through on what I signed up for.",
     duration: 84, weeklyGoal: 75, defaultMode: "soft",
     weekSchedule: [
       { day:1, type:"easy",  label:"Easy Run",    emoji:"🟢", desc:"30–40 min at conversational pace. RPE 3–4." },
@@ -902,6 +933,7 @@ const TEMPLATES = [
   {
     id: "marathon-training", name: "Marathon Training", emoji: "🏅", category: "endurance",
     description: "16 weeks to 42.2 km. Built-in schedule: easy runs, quality session, long run, cross-train, and 2 rest days.",
+    identity: "I am someone who can sustain effort over months, not just days.",
     duration: 112, weeklyGoal: 70, defaultMode: "soft",
     weekSchedule: [
       { day:1, type:"easy",     label:"Easy Run",      emoji:"🟢", desc:"45–60 min easy pace. Conversational. RPE 3–4." },
@@ -924,6 +956,7 @@ const TEMPLATES = [
   {
     id: "ironman-703", name: "Ironman 70.3", emoji: "🏊", category: "endurance",
     description: "20 weeks of swim, bike, run. Half the distance — all the glory.",
+    identity: "I am someone who trains across disciplines, not just one comfort zone.",
     duration: 140, weeklyGoal: 65, defaultMode: "soft",
     habits: [
       { id:"703-session",title:"Complete scheduled session", emoji:"🏊", quip:"Swim, bike, or run — log what the plan says.", type:"tiered", points:6,
@@ -935,6 +968,7 @@ const TEMPLATES = [
   {
     id: "ironman-full", name: "Full Ironman", emoji: "🏅", category: "endurance",
     description: "24 weeks to conquer 3.8 km swim, 180 km bike, and a full marathon. The ultimate endurance test.",
+    identity: "I am someone built for the long game.",
     duration: 168, weeklyGoal: 60, defaultMode: "soft",
     habits: [
       { id:"im-session", title:"Complete scheduled session", emoji:"🏊", quip:"Swim, bike, or run — log what the plan says.", type:"tiered", points:6,
@@ -946,6 +980,7 @@ const TEMPLATES = [
   {
     id: "tough-mudder", name: "Tough Mudder Prep", emoji: "🪖", category: "endurance",
     description: "8 weeks to become obstacle-ready. Mud, walls, electric shocks — bring it on.",
+    identity: "I am someone who trains for obstacles I haven't seen yet.",
     duration: 56, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"tm-cardio",  title:"Cardio session",       emoji:"🏃", quip:"You'll be running 16–19 km on race day.",  type:"binary", points:5 },
@@ -957,6 +992,7 @@ const TEMPLATES = [
   {
     id: "spartan-race", name: "Spartan Race Prep", emoji: "⚔️", category: "endurance",
     description: "12 weeks of OCR training. 30 burpees per missed obstacle — don't miss any.",
+    identity: "I am someone who pays the price of preparation, not the price of regret.",
     duration: 84, weeklyGoal: 65, defaultMode: "soft",
     habits: [
       { id:"sr-wod",     title:"Training session",     emoji:"⚔️", quip:"AROO!",                                   type:"binary", points:5 },
@@ -971,6 +1007,7 @@ const TEMPLATES = [
   {
     id: "weight-loss-30", name: "Weight Loss 30 — Track & Build", emoji: "⚖️", category: "health",
     description: "30 days, with daily weigh-ins and a deficit target. See the number move while you build the routine.",
+    identity: "I am someone who faces the number instead of avoiding it.",
     duration: 30, weeklyGoal: 80, defaultMode: "soft",
     habits: [
       { id:"wl-weight",   title:"Log weight",          emoji:"⚖️", quip:"Same time each morning.", type:"measurement", unit:"weight", decimals:1 },
@@ -983,6 +1020,7 @@ const TEMPLATES = [
   {
     id: "body-composition", name: "Body Composition", emoji: "📊", category: "health",
     description: "90 days tracking weight, body fat %, and lean muscle mass. Know your numbers.",
+    identity: "I am someone who knows my own numbers.",
     duration: 90, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"bc-weight",   title:"Log weight",          emoji:"⚖️", quip:"Weekly is fine — daily is better.",                  type:"measurement", unit:"weight", decimals:1 },
@@ -997,6 +1035,7 @@ const TEMPLATES = [
   {
     id: "blood-pressure", name: "Blood Pressure Monitor", emoji: "🩺", category: "health", deprecated: true,
     description: "30 days of daily blood pressure logging plus heart-healthy habits. Share the data with your doctor.",
+    identity: "I am someone who takes my own health seriously.",
     duration: 30, weeklyGoal: 75, defaultMode: "soft",
     habits: [
       { id:"bp-sys",     title:"Log systolic (top #)",   emoji:"❤️", quip:"Normal: below 120 mmHg.",                        type:"measurement", unit:"mmHg",    decimals:0 },
@@ -1009,6 +1048,7 @@ const TEMPLATES = [
   {
     id: "glucose-control", name: "Glucose Control", emoji: "🩸", category: "health",
     description: "60 days of fasting glucose tracking and blood-sugar-friendly habits. Export to share with your doctor.",
+    identity: "I am someone who manages my health instead of hoping about it.",
     duration: 60, weeklyGoal: 75, defaultMode: "soft",
     habits: [
       { id:"gc-glucose",title:"Log fasting glucose",    emoji:"🩸", quip:"Measure before eating, first thing in the morning.", type:"measurement", unit:"mg/dL",  decimals:0 },
@@ -1021,6 +1061,7 @@ const TEMPLATES = [
   {
     id: "sleep-tracker", name: "Sleep Tracker", emoji: "💤", category: "health",
     description: "30 days of sleep logging plus habits that actually improve sleep quality.",
+    identity: "I am someone who treats sleep as training, not an afterthought.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"st-hours",  title:"Log hours slept",       emoji:"😴", quip:"Aim for 7–9 hours. Log it honestly.",              type:"measurement", unit:"hrs",     decimals:1 },
@@ -1035,6 +1076,7 @@ const TEMPLATES = [
   {
     id: "recovery-reset", name: "Recovery Reset", emoji: "🌿", category: "health",
     description: "21 days of deliberate recovery. Sleep, mobility, easy movement, and stress reduction — the habits that let the hard work pay off.",
+    identity: "I am someone who lets the work pay off by actually recovering.",
     duration: 21, weeklyGoal: 65, defaultMode: "soft",
     habits: [
       { id:"rr-sleep",    title:"7+ hours sleep opportunity", emoji:"🌙", quip:"You can't out-train poor sleep.",              type:"binary",      points:4 },
@@ -1047,6 +1089,7 @@ const TEMPLATES = [
   {
     id: "c25k", name: "Couch to 5K", emoji: "🏃", category: "movement",
     description: "9 weeks of run/walk intervals that take beginners from the sofa to a 5K finish line. 3 sessions per week — rest days are part of the plan. Week 1–2: 60–90 sec run / 90 sec–2 min walk × 8. Week 3–5: intervals build to 5 then 20 min continuous. Week 6–9: run 25–30 min straight.",
+    identity: "I am becoming a runner, one interval at a time.",
     duration: 63, weeklyGoal: 50, defaultMode: "soft",
     habits: [
       { id:"c25k-run",     title:"Run/walk session",   emoji:"👟", quip:"Follow today's plan. Slow is fine — consistent is everything.",
@@ -1057,6 +1100,7 @@ const TEMPLATES = [
   {
     id: "5k-prep", name: "5K Prep", emoji: "🎽", category: "movement",
     description: "6 weeks to a faster 5K. Run 4× a week, add strides, and race-day yourself at the end.",
+    identity: "I am someone who chases a number I set for myself.",
     duration: 42, weeklyGoal: 65, defaultMode: "soft",
     habits: [
       { id:"5k-run",     title:"Run session",             emoji:"🏃", quip:"Shoes on. Door open. Go.",                       type:"tiered", points:3,
@@ -1068,6 +1112,7 @@ const TEMPLATES = [
   {
     id: "10k-prep", name: "10K Prep", emoji: "🏅", category: "endurance",
     description: "8 weeks to your best 10K. Build weekly mileage, sharpen with intervals, and trust the process.",
+    identity: "I am someone who trusts the process over the shortcut.",
     duration: 56, weeklyGoal: 65, defaultMode: "soft",
     habits: [
       { id:"10k-run",    title:"Run session",            emoji:"🏃", quip:"Every kilometre is a deposit.",                       type:"tiered", points:3,
@@ -1079,6 +1124,7 @@ const TEMPLATES = [
   {
     id: "pilates", name: "Pilates", emoji: "🌸", category: "movement",
     description: "30 days of mat Pilates — build deep core strength, improve posture, and move better every day.",
+    identity: "I am someone who moves with control, not just effort.",
     duration: 30, weeklyGoal: 55, defaultMode: "soft",
     habits: [
       { id:"pil-session", title:"Pilates session (20 min+)", emoji:"🌸", quip:"Mat out. Clothes on. Start the video.",           type:"binary", points:5 },
@@ -1089,6 +1135,7 @@ const TEMPLATES = [
   {
     id: "12-3-30", name: "12-3-30 Challenge", emoji: "🏔️", category: "movement",
     description: "Treadmill at 12% incline, 3 mph, for 30 minutes. The treadmill niche that actually works. Daily sessions are aspirational — rest days are fine and recommended to avoid overuse injuries.",
+    identity: "I am someone who does the unglamorous thing because it works.",
     duration: 30, weeklyGoal: 45, defaultMode: "soft",
     habits: [
       { id:"1230-walk",   title:"12-3-30 session",        emoji:"🏔️", quip:"12% incline. 3 mph. 30 minutes. No shortcuts.",    type:"binary", points:6 },
@@ -1100,6 +1147,7 @@ const TEMPLATES = [
   {
     id: "kettlebell", name: "Kettlebell Challenge", emoji: "🔔", category: "movement",
     description: "30 days of kettlebell training. Swings, presses, carries — full-body strength built the old way.",
+    identity: "I am someone who builds strength the honest way.",
     duration: 30, weeklyGoal: 60, defaultMode: "soft",
     habits: [
       { id:"kb-swing",   title:"KB swings",               emoji:"🔔", quip:"Hips drive the bell. Not the arms.",          type:"tiered", points:5,
@@ -1111,6 +1159,7 @@ const TEMPLATES = [
   {
     id: "calisthenics", name: "Calisthenics", emoji: "🤸", category: "movement",
     description: "30 days of bodyweight strength. Push, pull, and stabilise — no equipment needed.",
+    identity: "I am someone who needs no equipment to get strong.",
     duration: 30, weeklyGoal: 65, defaultMode: "soft",
     habits: [
       { id:"cal-push",   title:"Push-ups",                emoji:"💪", quip:"Chest to floor. Lock out at the top.",          type:"tiered", points:4,
@@ -1126,6 +1175,7 @@ const TEMPLATES = [
   {
     id: "protein-challenge", name: "Protein Challenge", emoji: "🥩", category: "health",
     description: "30 days of hitting your protein target every single day. Build muscle, cut cravings, and eat smarter.",
+    identity: "I am someone who eats with a purpose.",
     duration: 30, weeklyGoal: 65, defaultMode: "strict",
     habits: [
       { id:"pc-hit",     title:"Hit daily protein target", emoji:"🥩", quip:"0.8–1g per lb of bodyweight. Every day.",          type:"tiered", points:4,
@@ -1137,6 +1187,7 @@ const TEMPLATES = [
   {
     id: "fiber-challenge", name: "Fiber Challenge", emoji: "🥦", category: "health",
     description: "30 days of hitting your daily fiber target. Better gut health, lower blood sugar, steadier energy, and fewer cravings.",
+    identity: "I am someone who feeds my body, not just my appetite.",
     duration: 30, weeklyGoal: 60, defaultMode: "soft",
     habits: [
       { id:"fb-fiber",    title:"Hit fiber target",            emoji:"🥦", quip:"Most people eat 10–15g/day. Aim for 25–35g.", type:"tiered", points:4,
@@ -1149,6 +1200,7 @@ const TEMPLATES = [
   {
     id: "meal-prep", name: "Meal Prep Challenge", emoji: "🥡", category: "lifestyle",
     description: "30 days of cooking and eating real food you prepared yourself. Less takeout. Less guessing. More control.",
+    identity: "I am someone who controls what goes into my body.",
     duration: 30, weeklyGoal: 55, defaultMode: "soft",
     habits: [
       { id:"mp-home",    title:"Eat home-prepped food",   emoji:"🍽️", quip:"Food you cooked is food you control.",              type:"binary", points:4 },
@@ -1159,6 +1211,7 @@ const TEMPLATES = [
   {
     id: "hydration", name: "Hydration Challenge", emoji: "💧", category: "health",
     description: "30 days of hitting your water target every day. Better skin, energy, focus, and recovery.",
+    identity: "I am someone who doesn't run on empty.",
     duration: 30, weeklyGoal: 55, defaultMode: "soft",
     habits: [
       { id:"hy-water",   title:"Hit daily water target",  emoji:"💧", quip:"Personalise to your size and climate.",             type:"tiered", points:4,
@@ -1172,6 +1225,7 @@ const TEMPLATES = [
   {
     id: "project-50", name: "Project 50", emoji: "🚀", category: "transformation",
     description: "50 days of non-negotiable daily disciplines — exercise, reading, sobriety, and a morning routine. Less extreme than 75 Hard. More sustainable than nothing.",
+    identity: "I am someone who has non-negotiables.",
     duration: 50, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"p50-move",   title:"Exercise 30 min",         emoji:"🏋️", quip:"Any movement counts. Showing up is the whole job.", type:"binary", points:4 },
@@ -1184,6 +1238,7 @@ const TEMPLATES = [
   {
     id: "no-spend", name: "No-Spend Challenge", emoji: "💰", category: "lifestyle",
     description: "30 days of cutting non-essential spending. Buy only what you need. Cook at home. Build the savings habit.",
+    identity: "I am someone who spends on purpose.",
     duration: 30, weeklyGoal: 50, defaultMode: "soft",
     habits: [
       { id:"ns-nospend", title:"No non-essential purchases",emoji:"💰",quip:"Need vs want. Today it's want. Skip it.",          type:"binary", points:5 },
@@ -1195,6 +1250,7 @@ const TEMPLATES = [
   {
     id: "declutter", name: "Declutter Challenge", emoji: "📦", category: "lifestyle",
     description: "30 days of clearing the clutter. One area at a time, one day at a time. Less stuff, more clarity.",
+    identity: "I am someone who doesn't let clutter run my life.",
     duration: 30, weeklyGoal: 55, defaultMode: "soft",
     habits: [
       { id:"dc-clear",   title:"Clear one area today",              emoji:"📦", quip:"Drawer, shelf, bag, inbox — pick one. Do it.", type:"binary", points:4 },
@@ -1207,6 +1263,7 @@ const TEMPLATES = [
   {
     id: "everest-bc", name: "Everest Base Camp", emoji: "🏔️", category: "expedition", deprecated: true,
     description: "Trek 130 km through the Himalayas to the foot of the world's highest peak.",
+    identity: "I am someone who covers real distance.",
     duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 130,
     milestones: [
       { km: 10,  name: "Phakding",          emoji: "🏡" },
@@ -1224,6 +1281,7 @@ const TEMPLATES = [
   {
     id: "west-highland-way", name: "West Highland Way", emoji: "🌄", category: "expedition", deprecated: true,
     description: "Walk 154 km through the Scottish Highlands from Milngavie to Fort William — lochs, glens, and mountain passes.",
+    identity: "I am someone who walks the whole route, not just the easy parts.",
     duration: 30, weeklyGoal: 5, defaultMode: "soft", routeKm: 154,
     milestones: [
       { km: 20,  name: "Balmaha",        emoji: "🌊" },
@@ -1241,6 +1299,7 @@ const TEMPLATES = [
   {
     id: "tour-du-mont-blanc", name: "Tour du Mont Blanc", emoji: "🗻", category: "expedition", deprecated: true,
     description: "Circle the Mont Blanc massif across France, Italy and Switzerland — 170 km of alpine trail through 3 countries.",
+    identity: "I am someone who goes the distance, literally.",
     duration: 60, weeklyGoal: 5, defaultMode: "soft", routeKm: 170,
     milestones: [
       { km: 30,  name: "Les Contamines",  emoji: "🌲" },
@@ -1258,6 +1317,7 @@ const TEMPLATES = [
   {
     id: "john-muir-trail", name: "John Muir Trail", emoji: "🦅", category: "expedition", deprecated: true,
     description: "Hike 340 km through California's Sierra Nevada — from Yosemite Valley to the summit of Mount Whitney.",
+    identity: "I am someone who commits to the long trail.",
     duration: 90, weeklyGoal: 5, defaultMode: "soft", routeKm: 340,
     milestones: [
       { km: 50,  name: "Tuolumne Meadows",  emoji: "🌿" },
@@ -1275,6 +1335,7 @@ const TEMPLATES = [
   {
     id: "camino", name: "Camino de Santiago", emoji: "⛪", category: "expedition", deprecated: true,
     description: "Walk 790 km across Spain on the ancient pilgrimage route to Santiago de Compostela.",
+    identity: "I am someone who finishes what I set out to walk.",
     duration: 90, weeklyGoal: 5, defaultMode: "soft", routeKm: 790,
     milestones: [
       { km: 75,  name: "Pamplona",               emoji: "🏟️" },
@@ -1292,6 +1353,7 @@ const TEMPLATES = [
   {
     id: "appalachian", name: "Appalachian Trail", emoji: "🌲", category: "expedition", deprecated: true,
     description: "Hike the full 3,540 km from Georgia to Maine — one of the world's great long trails.",
+    identity: "I am someone who thinks in months, not days.",
     duration: 365, weeklyGoal: 5, defaultMode: "soft", routeKm: 3540,
     milestones: [
       { km: 300,  name: "Shenandoah Valley",    emoji: "🌿" },
@@ -1309,6 +1371,7 @@ const TEMPLATES = [
   {
     id: "tour-de-france", name: "Tour de France", emoji: "🚴", category: "expedition", deprecated: true,
     description: "Ride the full 3,490 km route of the world's most iconic cycling race.",
+    identity: "I am someone who rides the distance others only watch.",
     duration: 120, weeklyGoal: 5, defaultMode: "soft", routeKm: 3490,
     milestones: [
       { km: 400,  name: "Brittany Coast",     emoji: "🌊" },
@@ -1326,6 +1389,7 @@ const TEMPLATES = [
   {
     id: "route66", name: "Route 66", emoji: "🚗", category: "expedition", deprecated: true,
     description: "Travel the 3,940 km Mother Road from Chicago, Illinois to Santa Monica, California.",
+    identity: "I am someone who keeps going, mile after mile.",
     duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 3940,
     milestones: [
       { km: 500,  name: "Springfield, IL",   emoji: "🌽" },
@@ -1343,6 +1407,7 @@ const TEMPLATES = [
   {
     id: "amazon-river", name: "Amazon River", emoji: "🌿", category: "expedition", deprecated: true,
     description: "Navigate 6,437 km down the world's greatest river from the Andes to the Atlantic.",
+    identity: "I am someone who commits to the long haul.",
     duration: 365, weeklyGoal: 5, defaultMode: "soft", routeKm: 6437,
     milestones: [
       { km: 500,  name: "Iquitos, Peru",   emoji: "🐊" },
@@ -1360,6 +1425,7 @@ const TEMPLATES = [
   {
     id: "pct", name: "Pacific Crest Trail", emoji: "🌲", category: "expedition", deprecated: true,
     description: "Walk 4,286 km from the Mexican border to the Canadian border — through the Sierra Nevada and Cascades. 5 months. No shortcuts.",
+    identity: "I am someone who takes no shortcuts.",
     duration: 150, weeklyGoal: 5, defaultMode: "soft", routeKm: 4286,
     milestones: [
       { km:  160, name: "San Diego foothills", emoji: "🌵" },
@@ -1380,6 +1446,7 @@ const TEMPLATES = [
   {
     id: "everest-stairmaster", name: "Everest StairMaster", emoji: "🏋️", category: "expedition", deprecated: true,
     description: "Climb 2,903 floors — the StairMaster equivalent of summiting Mount Everest from sea level. No oxygen tank. No shortcuts.",
+    identity: "I am someone who climbs one floor at a time.",
     duration: 112, weeklyGoal: 5, defaultMode: "soft", routeKm: 2903.2,
     milestones: [
       { km: 100,  name: "Foothills",             emoji: "⛰️" },
@@ -1398,6 +1465,7 @@ const TEMPLATES = [
   {
     id: "kilimanjaro-stairmaster", name: "Kilimanjaro StairMaster", emoji: "🌋", category: "expedition", deprecated: true,
     description: "Climb 1,934 floors — the StairMaster equivalent of Africa's highest peak, Uhuru at 5,895 m. Less oxygen, less mercy than Everest, but still Africa's crown.",
+    identity: "I am someone who keeps climbing.",
     duration: 240, weeklyGoal: 5, defaultMode: "strict", routeKm: 1934,
     milestones: [
       { km: 100,  name: "Foothills",               emoji: "🌿" },
@@ -1416,6 +1484,7 @@ const TEMPLATES = [
   {
     id: "montblanc-stairmaster", name: "Mont Blanc StairMaster", emoji: "⛰️", category: "expedition", deprecated: true,
     description: "Climb 1,577 floors — the StairMaster equivalent of Mont Blanc, the highest peak in the Alps at 4,808 m. A serious mountain, but friendlier than the giants above.",
+    identity: "I am someone who takes on real mountains, one floor at a time.",
     duration: 180, weeklyGoal: 5, defaultMode: "strict", routeKm: 1577,
     milestones: [
       { km: 100,  name: "Chamonix Valley",           emoji: "🏘️" },
@@ -1435,6 +1504,7 @@ const TEMPLATES = [
   {
     id: "comrades-ultra", name: "Comrades Ultra", emoji: "🏃", category: "expedition", deprecated: true,
     description: "Run the legendary 89 km Comrades Marathon from Pietermaritzburg to Durban, South Africa.",
+    identity: "I am someone who runs farther than seems reasonable.",
     duration: 21, weeklyGoal: 5, defaultMode: "soft", routeKm: 89,
     milestones: [
       { km: 17,  name: "Drummond",     emoji: "🌿" },
@@ -1452,6 +1522,7 @@ const TEMPLATES = [
   {
     id: "utmb", name: "Ultra Trail du Mont Blanc", emoji: "⛰️", category: "expedition", deprecated: true,
     description: "Tackle the 171 km UTMB course circling Mont Blanc through France, Italy and Switzerland.",
+    identity: "I am someone who runs toward the mountains, not away from them.",
     duration: 40, weeklyGoal: 5, defaultMode: "soft", routeKm: 171,
     milestones: [
       { km: 22,  name: "Les Houches",  emoji: "🌲" },
@@ -1470,6 +1541,7 @@ const TEMPLATES = [
   {
     id: "run-5-marathons", name: "5 Marathon Challenge", emoji: "🏃", category: "expedition", deprecated: true,
     description: "Run the equivalent of 5 consecutive marathons — 211 km total. Pace doesn't matter. Showing up does.",
+    identity: "I am someone who shows up, regardless of pace.",
     duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 211,
     milestones: [
       { km: 42,  name: "Marathon 1", emoji: "🏅" },
@@ -1487,6 +1559,7 @@ const TEMPLATES = [
   {
     id: "run-jogle", name: "Land's End to John o'Groats", emoji: "🏃", category: "expedition", deprecated: true,
     description: "Run the entire length of Great Britain — 1,407 km from Land's End to John o'Groats. End to end.",
+    identity: "I am someone who finishes the whole route.",
     duration: 90, weeklyGoal: 5, defaultMode: "soft", routeKm: 1407,
     milestones: [
       { km: 1,    name: "Land's End",       emoji: "🌊" },
@@ -1504,6 +1577,7 @@ const TEMPLATES = [
   {
     id: "run-trans-america", name: "Trans-America Run", emoji: "🏃", category: "expedition", deprecated: true,
     description: "Run across the United States — 4,989 km from San Francisco to New York City.",
+    identity: "I am someone who thinks in coast-to-coast terms.",
     duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 4989,
     milestones: [
       { km: 1,    name: "San Francisco",     emoji: "🌉" },
@@ -1523,6 +1597,7 @@ const TEMPLATES = [
   {
     id: "raid-pyrenees", name: "Raid Pyrénéen", emoji: "🚴", category: "expedition", deprecated: true,
     description: "Cycle all 726 km of the legendary Pyrénées mountain route from the Atlantic coast to the Mediterranean.",
+    identity: "I am someone who climbs every pass on the way.",
     duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 726,
     milestones: [
       { km: 1,   name: "Hendaye — Atlantic",     emoji: "🌊" },
@@ -1540,6 +1615,7 @@ const TEMPLATES = [
   {
     id: "trans-am-bike", name: "Trans-America Bike", emoji: "🚴", category: "expedition", deprecated: true,
     description: "Ride the 6,771 km TransAm Bike Trail from Yorktown, Virginia to Astoria, Oregon.",
+    identity: "I am someone who pedals the whole way across.",
     duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 6771,
     milestones: [
       { km: 1,    name: "Yorktown, Virginia",  emoji: "🏛️" },
@@ -1559,6 +1635,7 @@ const TEMPLATES = [
   {
     id: "thames-row", name: "Thames Row", emoji: "🚣", category: "expedition", deprecated: true,
     description: "Row the full length of the Thames from its source in the Cotswolds to the open sea — 346 km.",
+    identity: "I am someone who pulls their own weight, literally.",
     duration: 30, weeklyGoal: 5, defaultMode: "soft", routeKm: 346,
     milestones: [
       { km: 1,   name: "The Source, Cotswolds", emoji: "🌿" },
@@ -1576,6 +1653,7 @@ const TEMPLATES = [
   {
     id: "danube-row", name: "Danube Row", emoji: "🚣", category: "expedition", deprecated: true,
     description: "Row 2,860 km down the Danube from Germany to the Black Sea — through 10 countries.",
+    identity: "I am someone who commits to the whole river.",
     duration: 120, weeklyGoal: 5, defaultMode: "soft", routeKm: 2860,
     milestones: [
       { km: 1,    name: "Donaueschingen, Germany", emoji: "🇩🇪" },
@@ -1593,6 +1671,7 @@ const TEMPLATES = [
   {
     id: "self-care-30", name: "Self-Care 30", emoji: "🌸", category: "lifestyle",
     description: "30 days of putting yourself first. Small rituals that add up to big change.",
+    identity: "I am someone who's worth taking care of.",
     duration: 30, weeklyGoal: 65, defaultMode: "soft",
     habits: [
       { id:"sc-skin",  title:"Skincare routine",            emoji:"✨", quip:"Morning or night — just show up for yourself.",   type:"binary", points:2 },
@@ -1604,6 +1683,7 @@ const TEMPLATES = [
   {
     id: "gratitude-reset", name: "Gratitude Reset", emoji: "🙏", category: "lifestyle",
     description: "21 days of daily gratitude practice. Simple, consistent, and quietly transformative.",
+    identity: "I am someone who notices what's good.",
     duration: 21, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"gr-morning", title:"3 gratitudes at breakfast",    emoji:"☀️", quip:"Name them before the day buries them.",    type:"binary", points:3 },
@@ -1615,6 +1695,7 @@ const TEMPLATES = [
   {
     id: "mental-health-30", name: "Mental Health Reset", emoji: "🧠", category: "lifestyle",
     description: "30 days of daily habits that protect your mind. No apps, no hacks — just consistency.",
+    identity: "I am someone who protects my own mind.",
     duration: 30, weeklyGoal: 65, defaultMode: "soft",
     habits: [
       { id:"mh-mind",   title:"10 min mindfulness or breathwork", emoji:"🧘", quip:"Sit. Breathe. Nothing else.",              type:"binary", points:3 },
@@ -1626,6 +1707,7 @@ const TEMPLATES = [
   {
     id: "morning-power-hour", name: "Morning Power Hour", emoji: "⚡", category: "transformation",
     description: "30 days of owning your mornings before anyone else can. The first hour sets everything.",
+    identity: "I am someone who owns my mornings before the world claims them.",
     duration: 30, weeklyGoal: 80, defaultMode: "soft",
     habits: [
       { id:"mph-wake",   title:"Wake before 6 AM (or target time)", emoji:"⏰", quip:"The alarm rings. You get up. That's it.",    type:"binary", points:3 },
@@ -1637,6 +1719,7 @@ const TEMPLATES = [
   {
     id: "posture-fix", name: "Posture Fix", emoji: "🦴", category: "health",
     description: "30 days of posture and mobility habits. Undo the damage from screens and sitting.",
+    identity: "I am someone who undoes the damage instead of ignoring it.",
     duration: 30, weeklyGoal: 65, defaultMode: "soft",
     habits: [
       { id:"pf-check",   title:"Posture check every hour",    emoji:"📐", quip:"Shoulders back. Screen at eye level. Repeat.", type:"binary", points:2 },
@@ -1650,6 +1733,7 @@ const TEMPLATES = [
   {
     id: "beginner-strength", name: "Beginner Strength 3×/Week", emoji: "🏋️", category: "movement",
     description: "6 weeks of structured lifting for beginners. Three sessions a week — upper, lower, and full body — plus mobility and protein to support recovery.",
+    identity: "I am becoming someone who lifts, consistently.",
     duration: 42, weeklyGoal: 45, defaultMode: "soft",
     habits: [
       { id:"bs-lift",    title:"Lift session",                emoji:"🏋️", quip:"Upper, lower, or full body — show up and lift.",
@@ -1661,6 +1745,7 @@ const TEMPLATES = [
   {
     id: "pushup-challenge", name: "Push-Up Challenge", emoji: "💪", category: "movement",
     description: "30 days of daily push-ups with progressive overload. Start where you are, build from there.",
+    identity: "I am someone who starts where I am and builds from there.",
     duration: 30, weeklyGoal: 40, defaultMode: "soft",
     habits: [
       { id:"pu-pushups",  title:"Push-ups",                   emoji:"💪", quip:"Chest to floor. Lock out at the top. Count every rep.",
@@ -1671,6 +1756,7 @@ const TEMPLATES = [
   {
     id: "pullup-progression", name: "Pull-Up & Row Progression", emoji: "🏋️", category: "movement",
     description: "6 weeks of progressive pulling strength — from rows to full pull-ups. Includes scapular health work to keep shoulders robust.",
+    identity: "I am someone who builds toward the hard version, not just the easy one.",
     duration: 42, weeklyGoal: 38, defaultMode: "soft",
     habits: [
       { id:"pp-pull",     title:"Pull / row session",         emoji:"🏋️", quip:"Rows build to pull-ups. Both count. Track your reps.",
@@ -1681,6 +1767,7 @@ const TEMPLATES = [
   {
     id: "language-learning", name: "Language Learning", emoji: "🌐", category: "lifestyle",
     description: "60 days of daily language practice. Consistency beats intensity — small daily sessions compound into real fluency.",
+    identity: "I am someone learning to think in another language.",
     duration: 60, weeklyGoal: 55, defaultMode: "soft",
     habits: [
       { id:"ll-practice",  title:"Daily practice (20+ min)",  emoji:"🌐", quip:"App, textbook, tutor, or conversation. 20 minutes every day.", type:"binary", points:4 },
@@ -1692,6 +1779,7 @@ const TEMPLATES = [
   {
     id: "budget-reset", name: "Budget Reset", emoji: "💰", category: "lifestyle",
     description: "30 days of intentional spending. Track every purchase, cut impulse buys, and build the foundation for financial control.",
+    identity: "I am someone in control of where my money goes.",
     duration: 30, weeklyGoal: 40, defaultMode: "soft",
     habits: [
       { id:"br-log",       title:"Log every expense",          emoji:"📊", quip:"You can't manage what you don't measure. Log it all.", type:"binary", points:4 },
@@ -1702,6 +1790,7 @@ const TEMPLATES = [
   {
     id: "mindful-eating", name: "Mindful Eating", emoji: "🍽️", category: "lifestyle",
     description: "21 days of eating with intention. No distractions, no rushing, no eating past the point of comfort. Simple rules that change your relationship with food.",
+    identity: "I am someone who eats with attention, not on autopilot.",
     duration: 21, weeklyGoal: 35, defaultMode: "soft",
     habits: [
       { id:"me-noscreen",  title:"No eating in front of screens", emoji:"📵", quip:"Screens double your portion size without you noticing.", type:"binary", points:3 },
@@ -1713,6 +1802,7 @@ const TEMPLATES = [
   {
     id: "nature-reset", name: "Nature Reset", emoji: "🌿", category: "lifestyle",
     description: "21 days of daily outdoor time and morning sunlight. Grounding, resetting, and starting each day on nature's terms.",
+    identity: "I am someone who starts the day outside, not just online.",
     duration: 21, weeklyGoal: 30, defaultMode: "soft",
     habits: [
       { id:"nr-outside",   title:"20+ min outside",                emoji:"🌳", quip:"Rain or shine. Outside is the goal.",                     type:"binary", points:3 },
@@ -1723,6 +1813,7 @@ const TEMPLATES = [
   {
     id: "start-small", name: "Start Small", emoji: "🎯", category: "lifestyle",
     description: "14 days of simple daily wins. Build momentum without overwhelm.",
+    identity: "I am someone who starts small and actually keeps going.",
     duration: 14, weeklyGoal: 45, defaultMode: "soft",
     habits: [
       { id:"ss-move",    title:"10 min movement",        emoji:"🚶", quip:"Walk, stretch, or move. Keep the promise small.", type:"binary", points:3 },
@@ -1734,6 +1825,7 @@ const TEMPLATES = [
   {
     id: "reset-week", name: "Reset Week", emoji: "↻", category: "lifestyle",
     description: "A 7-day reset for getting back in control after falling off track.",
+    identity: "I am someone who gets back on track without needing it to be perfect.",
     duration: 7, weeklyGoal: 45, defaultMode: "soft",
     habits: [
       { id:"rw-walk",  title:"Walk 10 minutes", emoji:"🚶", quip:"Move first. Momentum follows.",                 type:"binary", points:3 },
@@ -1745,6 +1837,7 @@ const TEMPLATES = [
   {
     id: "momentum-builder", name: "Momentum Builder", emoji: "⚡", category: "transformation",
     description: "30 days to build daily structure through routines, movement, reading, nutrition, and sleep.",
+    identity: "I am someone who builds structure I can rely on.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"mb-morning", title:"Morning routine", emoji:"🌅", quip:"Wake on time, no phone first 30 min, water before coffee.",                type:"binary", points:3 },
@@ -1757,6 +1850,7 @@ const TEMPLATES = [
   {
     id: "lean-start", name: "Lean Start — Simple Basics", emoji: "⚖️", category: "health",
     description: "30 days, no tracking required. Protein, steps, real food — the simplest starting point for fat loss.",
+    identity: "I am someone who keeps it simple and still shows up.",
     duration: 30, weeklyGoal: 60, defaultMode: "soft",
     habits: [
       { id:"ls-protein", title:"Protein goal",       emoji:"🥩", quip:"0.8–1g per lb bodyweight. Keep it simple.",             type:"binary", points:4 },
@@ -1768,6 +1862,7 @@ const TEMPLATES = [
   {
     id: "fat-loss-foundation", name: "Fat Loss Foundation — 42 Day Complete", emoji: "🔥", category: "health",
     description: "The full 6-week version — protein, fiber, movement, strength, and sleep, all in one.",
+    identity: "I am someone who builds the whole foundation, not just one piece.",
     duration: 42, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"fl-protein", title:"Protein goal",    emoji:"🥩", quip:"0.8–1g per lb bodyweight. The anchor habit.",                    type:"binary", points:4 },
@@ -1780,6 +1875,7 @@ const TEMPLATES = [
   {
     id: "stress-reset", name: "Stress Reset", emoji: "🧘", category: "lifestyle",
     description: "14 days of simple nervous-system habits for calmer days.",
+    identity: "I am someone who can calm my own nervous system.",
     duration: 14, weeklyGoal: 42, defaultMode: "soft",
     habits: [
       { id:"sr-light",  title:"Morning light",     emoji:"☀️", quip:"Get light early. Set the tone.",          type:"binary", points:3 },
@@ -1791,6 +1887,7 @@ const TEMPLATES = [
   {
     id: "deep-work-sprint", name: "Deep Work Sprint", emoji: "🎯", category: "transformation",
     description: "14 days of focused work. Fewer distractions, clearer priorities, better output.",
+    identity: "I am someone capable of real, undistracted work.",
     duration: 14, weeklyGoal: 38, defaultMode: "soft",
     habits: [
       { id:"dw-focus", title:"90 min focus block",       emoji:"🧠", quip:"One block. Phone away. Work deep.", type:"binary", points:5 },
@@ -1801,6 +1898,7 @@ const TEMPLATES = [
   {
     id: "strength-foundation", name: "Strength Foundation", emoji: "🏋️", category: "movement",
     description: "30 days of basic strength consistency. This is a habit challenge, not a performance program.",
+    identity: "I am someone who trains the pattern, not just the performance.",
     duration: 30, weeklyGoal: 50, defaultMode: "soft",
     habits: [
       { id:"sf-strength", title:"Strength session", emoji:"🏋️", quip:"Bodyweight or weights. Train the pattern.", type:"binary", points:4 },
@@ -2326,7 +2424,7 @@ let _shareModalDone      = false;   // true = challenge completion card, false =
 let _shareCardDataUrl    = null;    // cached base64 PNG of the last drawn share card
 let _notifNudgeDismissed = false;   // dismissal flag for the Day-3 notification nudge
 let builderQuizAnswers   = { goal: null, time: null, level: null };
-let onboardingAnswers    = { goal: null, intensity: null, time: null };
+let onboardingAnswers    = { goal: null, intensity: null, time: null, cue: null };
 let _badgeSheetQueue     = [];       // { label, desc, tier } — queued badge celebrations
 let _notifPromptVisible  = false;   // post-challenge-start notification prompt
 let _showThemePrompt     = false;   // post-Day-1 "how do you want to level up" sheet
@@ -2959,6 +3057,7 @@ function completionInfo(challenge, day) {
   const basePoints = active.reduce((s, h) => {
     if (!day.done.includes(h.id)) return s;
     if (h.type === "tiered") return s + tierPoints(h, day.tiers?.[h.id]);
+    if (day.minDone?.includes(h.id)) return s + Math.max(1, Math.round(h.points / 2));
     return s + h.points;
   }, 0);
   const baseMax = active.reduce((s, h) => {
@@ -3006,20 +3105,30 @@ function calcChallengeStreak(challenge) {
     ? diffDays(challenge.startDate, todayKey()) + 1
     : diffDays(challenge.startDate, challenge.endDate) + 1;
   const softMode  = challenge.mode === "soft";
-  let graceUsed   = false;
+  // Grace renews every 7 days (never-miss-twice spirit) instead of once per challenge.
+  // previousWasGraceMiss guards the boundary between two grace windows so two
+  // chronologically consecutive misses still always break the streak, even if
+  // they happen to fall in different windows.
+  let graceUsedThisWeek   = false;
+  let lastGraceWeek       = null;
+  let previousWasGraceMiss = false;
   for (let i = 0; i < totalDays; i++) {
     const k = toKey(d);
     if (k < challenge.startDate) break;
     const day = challenge.days[k];
+    const weekIdx = Math.floor(diffDays(challenge.startDate, k) / 7);
+    if (weekIdx !== lastGraceWeek) { graceUsedThisWeek = false; lastGraceWeek = weekIdx; }
     if (day?.mode === "rest") {
       // Rest day is streak-neutral: skip without consuming grace, don't count toward streak
       d.setDate(d.getDate()-1);
     } else if (dayLogged(day)) {
       streak++;
+      previousWasGraceMiss = false;
       d.setDate(d.getDate()-1);
-    } else if (softMode && !graceUsed) {
-      // Soft mode: one grace day — skip but don't break the streak
-      graceUsed = true;
+    } else if (softMode && !graceUsedThisWeek && !previousWasGraceMiss) {
+      // Soft mode: one grace day per week — skip but don't break the streak
+      graceUsedThisWeek = true;
+      previousWasGraceMiss = true;
       d.setDate(d.getDate()-1);
     } else {
       break;
@@ -3916,13 +4025,6 @@ function renderToday() {
       <span class="xmb-hint">${xpToNext ? xpToNext + " XP to next · XP never resets" : `Max ${term('level')} <i class="ti ti-trophy"></i>`}</span>
     </div>
     ${active.length > 1 ? renderChallengePills(active) : ""}
-    ${renderWeeklyRecap(challenge)}
-    ${_newWeekBanner ? `
-    <div class="new-week-banner${_viewChanged ? " new-week-banner--anim" : ""}">
-      <h3><i class="ti ti-calendar"></i> New week. Clean slate.</h3>
-      <p>Last week: <strong>${_newWeekBanner.pts} pts</strong>. Come back stronger.</p>
-      <button class="new-week-dismiss" data-dismiss-newweek aria-label="Dismiss">×</button>
-    </div>` : ""}
     ${missedStreak >= 2 ? `
     <div class="comeback-banner${_viewChanged ? " comeback-banner--anim" : ""}">
       ${copy('comebackHard', missedStreak)}
@@ -3975,12 +4077,6 @@ function renderToday() {
       </div>`;
     })()}
 
-    <section class="today-stage panel">
-      ${renderRing(info, day, streak, challenge)}
-      ${isToday ? renderStreakFreezeUI(challenge) : ""}
-      ${renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToday)}
-    </section>
-
     <section>
       <div class="section-head">
         ${challenge.habits.some(h => h.type === "distance")
@@ -3992,6 +4088,20 @@ function renderToday() {
         ${challenge.habits.map(h => renderHabit(h, day, challenge)).join("")}
       </div>
     </section>
+
+    <section class="today-stage panel">
+      ${renderRing(info, day, streak, challenge)}
+      ${isToday ? renderStreakFreezeUI(challenge) : ""}
+      ${renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToday)}
+    </section>
+
+    ${renderWeeklyRecap(challenge)}
+    ${_newWeekBanner ? `
+    <div class="new-week-banner${_viewChanged ? " new-week-banner--anim" : ""}">
+      <h3><i class="ti ti-calendar"></i> New week. Clean slate.</h3>
+      <p>Last week: <strong>${_newWeekBanner.pts} pts</strong>. Come back stronger.</p>
+      <button class="new-week-dismiss" data-dismiss-newweek aria-label="Dismiss">×</button>
+    </div>` : ""}
     ${renderChallengeMetricChart(challenge)}
     ${(() => {
       if (!isToday) return "";
@@ -4299,16 +4409,18 @@ function renderHabit(habit, day, challenge) {
     </div>
   </div>`;
   }
+  const minLogged = day.minDone?.includes(habit.id);
   return `
-  <button class="habit-card ${checked?"checked":""} ${locked?"locked":""} ${popping?"habit-pop":""}" data-habit="${habit.id}" ${locked?`aria-disabled="true"`:""}>
+  <div class="habit-card ${checked?"checked":""} ${locked?"locked":""} ${popping?"habit-pop":""}">
     <span class="accent"></span>
     <span class="habit-emoji">${locked?"🔒":esc(habit.emoji)}</span>
     <span class="habit-info">
       <span class="habit-title">${esc(habit.title)}</span>
-      <span class="habit-quip">${locked?`${term('restDay')} — recover well.`:esc(habit.quip)}</span>
+      <span class="habit-quip">${locked?`${term('restDay')} — recover well.`:minLogged?"Small version logged ✓":esc(habit.quip)}</span>
+      ${!locked && !checked ? `<button class="habit-min-btn" data-habit-min="${habit.id}">Log the small version</button>` : ""}
     </span>
-    <span class="check-circle">${checked?"✓":""}</span>
-  </button>`;
+    <button class="check-circle" data-habit="${habit.id}" ${locked?`aria-disabled="true"`:""} aria-label="Mark done">${checked?"✓":""}</button>
+  </div>`;
 }
 
 function renderTieredHabit(habit, day, challenge) {
@@ -4648,7 +4760,12 @@ function renderWeeklyRecap(challenge) {
   const goalMetLast  = lastWeekGoal != null && pts >= lastWeekGoal;
   const thisWeekGoal = isExpedition ? null : goalForWeek(challenge, curWeekIdx);
   const msgs = ["Progress compounds. Keep stacking.", "New week, fresh start. Let's go.", "Every logged day is a win.", "Last week was strong. Build on it.", "Momentum is real — keep it going."];
-  const msg = msgs[new Date().getDate() % msgs.length];
+  const recapTpl = challenge.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
+  // Alternate weeks between the challenge's identity line and the generic rotating message,
+  // so the identity statement reads as a periodic reminder rather than wallpaper.
+  const msg = (recapTpl?.identity && lastWeek.num % 2 === 1)
+    ? recapTpl.identity
+    : msgs[new Date().getDate() % msgs.length];
   return `
   <div class="weekly-recap-card">
     <div class="wrc-top">
@@ -4666,7 +4783,16 @@ function renderWeeklyRecap(challenge) {
     </div>
     ${lastWeekGoal ? `<div class="wrc-goal-row${goalMetLast ? " wrc-goal-met" : ""}"><i class="ti ti-target"></i> ${goalMetLast ? "Weekly goal hit!" : `${pts}/${lastWeekGoal} XP — ${Math.round(pts/lastWeekGoal*100)}% of goal`}${thisWeekGoal && thisWeekGoal !== lastWeekGoal ? ` · Week ${curWeekIdx + 1} target: ${thisWeekGoal} XP` : ""}</div>` : ""}
     ${deltaStr ? `<div class="wrc-delta-row">${deltaStr}</div>` : ""}
-    <div class="wrc-msg">${msg}</div>
+    ${!challenge.reflections?.[lastWeek.num] ? `
+    <div class="wrc-reflect">
+      <div class="wrc-reflect-q">What made this week easier?</div>
+      <div class="wrc-reflect-chips">
+        <button class="wrc-chip" data-reflect="${challenge.id}" data-reflect-week="${lastWeek.num}" data-reflect-val="Mornings">Mornings</button>
+        <button class="wrc-chip" data-reflect="${challenge.id}" data-reflect-week="${lastWeek.num}" data-reflect-val="Having it planned">Having it planned</button>
+        <button class="wrc-chip" data-reflect="${challenge.id}" data-reflect-week="${lastWeek.num}" data-reflect-val="Lower target">Lower target</button>
+        <button class="wrc-chip" data-reflect="${challenge.id}" data-reflect-week="${lastWeek.num}" data-reflect-val="Nothing really">Nothing really</button>
+      </div>
+    </div>` : `<div class="wrc-msg">${msg}</div>`}
   </div>`;
 }
 
@@ -4897,6 +5023,7 @@ function renderCompletionModal(c) {
     ? `${mTotalD.toFixed(mIsFloors?0:1)} ${mDUnit} covered · ${totalDays} days · ${finalStreak}-day ${term('streak')}.<br>${routeFinished ? "You finished the route. Legendary." : "You stayed the course. That's what commitment looks like."}`
     : `${totalDays} days · ${totalPts} XP · ${finalStreak}-day ${term('streak')}.<br>That's what commitment looks like.`;
   const bonusXP = c.completionBonus || 0;
+  const finishedTpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
   return `
   <div class="sheet-backdrop" data-close-completion>
     <section class="sheet completion-modal" role="dialog">
@@ -4904,6 +5031,7 @@ function renderCompletionModal(c) {
       <div class="completion-title">${isExpedition && routeFinished ? "Route Complete!" : `${term('challenge')} Complete!`}</div>
       <div class="completion-name">${esc(c.name)}</div>
       <div class="completion-sub">${completionSub}</div>
+      ${finishedTpl?.identity ? `<div class="cc-identity" style="text-align:center;border-top:none;padding-top:4px">${esc(finishedTpl.identity)}</div>` : ""}
       ${bonusXP ? `<div class="completion-bonus-row"><i class="ti ti-bolt"></i> Challenge Complete Bonus: <strong>+${bonusXP} XP</strong></div>` : ""}
       ${nextT ? `
       <button class="chain-cta" data-start-suggested="${nextT.id}">
@@ -6372,6 +6500,16 @@ function renderObTime() {
   return renderObChoice("How much time per day?", "This keeps the recommendation realistic.", options, "time");
 }
 
+function renderObCue() {
+  const options = [
+    { id:"right after I wake up",  icon:"ti-sunrise",       label:"Right after I wake up", desc:"Before the day gets a say" },
+    { id:"after my coffee",        icon:"ti-cup",           label:"After my coffee",       desc:"Already a ritual — easy to add to" },
+    { id:"after work",             icon:"ti-briefcase",     label:"After work",            desc:"The transition out of the day job" },
+    { id:"before bed",             icon:"ti-moon",          label:"Before bed",            desc:"Winding down, not winding up" },
+  ];
+  return renderObChoice("When will this usually happen?", "Pick a moment already in your day — reminders will point to it.", options, "cue");
+}
+
 function renderObChoice(title, body, options, key) {
   return `
   <div class="ob-screen ob-screen--slide" role="main">
@@ -6450,6 +6588,7 @@ function renderObRecommendation() {
         </div>
       </div>
       <div class="cc-desc">${esc(t.description)}</div>
+      ${t.identity ? `<div class="cc-identity">${esc(t.identity)}</div>` : ""}
       <div class="habit-preview-list" style="margin-top:12px">
         ${habits.map(h => `<div class="habit-preview-item">${esc(h.title)}</div>`).join("")}
       </div>
@@ -6541,8 +6680,9 @@ function renderOnboarding() {
   if (onboardingStep === 2) return renderObGoal();
   if (onboardingStep === 3) return renderObIntensity();
   if (onboardingStep === 4) return renderObTime();
-  if (onboardingStep === 5) return renderObRecommendation();
-  if (onboardingStep === 6) return renderObName();
+  if (onboardingStep === 5) return renderObCue();
+  if (onboardingStep === 6) return renderObRecommendation();
+  if (onboardingStep === 7) return renderObName();
   return renderObAccount();
 }
 
@@ -6786,6 +6926,7 @@ function bindEvents() {
       showPtsAnim(_ptsDelta, rect);
     }
   });
+  on("[data-habit-min]",    el => { toggleHabit(el.dataset.habitMin, true); });
   on("[data-tier]",         el => selectTier(el.dataset.tier, el.dataset.tierVal));
   on("[data-chart]",        el => { activeChartTab=el.dataset.chart; render(); });
   on("[data-today-challenge]", el => { todayChallengeId=el.dataset.todayChallenge; render(); });
@@ -7186,13 +7327,13 @@ function bindEvents() {
     render();
   });
   on("[data-ob-skip]", () => {
-    onboardingStep = 6;
+    onboardingStep = 7;
     _obAuthError = "";
     render();
   });
   on("[data-ob-to-signin]", () => {
     _obAuthMode = "signin";
-    onboardingStep = 7; // skip name step for returning users
+    onboardingStep = 8; // skip name step for returning users
     _obAuthError = "";
     render();
   });
@@ -7200,6 +7341,7 @@ function bindEvents() {
     const key = el.dataset.obAnswer;
     const value = el.dataset.obValue;
     if (key && value && key in onboardingAnswers) onboardingAnswers[key] = value;
+    if (key === "cue" && value) { state.settings.dailyCuePhrase = value; saveState(); }
     onboardingStep++;
     render();
   });
@@ -7369,6 +7511,12 @@ function bindEvents() {
     state.weeklyRecapDismissed[cid] = todayKey();
     saveState(); render();
   });
+  on("[data-reflect]", el => {
+    const c = getChallenge(el.dataset.reflect); if (!c) return;
+    if (!c.reflections) c.reflections = {};
+    c.reflections[el.dataset.reflectWeek] = el.dataset.reflectVal;
+    saveState(); render();
+  });
   on("[data-start-suggested]", el => {
     const t = TEMPLATES.find(t2 => t2.id === el.dataset.startSuggested);
     if (!t) return;
@@ -7476,7 +7624,7 @@ function applyMode(c, day, mode) {
   render();
 }
 
-function toggleHabit(id) {
+function toggleHabit(id, minimum = false) {
   const c = currentChallenge(); if (!c) return;
   const habit = c.habits.find(h=>h.id===id); if (!habit) return;
   const day = getChallengeDay(c, effectiveDate());
@@ -7484,14 +7632,22 @@ function toggleHabit(id) {
   const xpBefore    = state.xp;
   const levelBefore = getLevelInfo(state.xp).level;
   const checking    = !day.done.includes(id);
+  if (!checking && minimum) return; // the small-version link only logs; unchecking happens via the normal tap
   if (checking && effectiveDate() === todayKey() && day.streakMult === undefined) {
     day.streakMult = getStreakMultiplier(c);
   }
   if (checking && effectiveDate() === todayKey() && day.comebackBonus === undefined) {
     if (getConsecutiveMisses(c) >= 3) day.comebackBonus = true;
   }
-  if (checking) { day.done.push(id); _animHabitId = id; }
-  else          { day.done = day.done.filter(x=>x!==id); _animHabitId = null; }
+  if (checking) {
+    day.done.push(id);
+    _animHabitId = id;
+    if (minimum) { if (!day.minDone) day.minDone = []; day.minDone.push(id); }
+  } else {
+    day.done = day.done.filter(x=>x!==id);
+    if (day.minDone) day.minDone = day.minDone.filter(x=>x!==id);
+    _animHabitId = null;
+  }
   if (effectiveDate() === todayKey()) {
     const _perfRun = getPerfectRunLength(c, todayKey());
     day.weeklyBonus = (_perfRun > 0 && _perfRun % 7 === 0);
@@ -7510,7 +7666,7 @@ function toggleHabit(id) {
   } else if (xpGain > 0) {
     const mult = day.streakMult || 1;
     const multStr = mult > 1 ? ` 🔥×${mult.toFixed(2)}` : "";
-    showToast(`+${xpGain} XP${multStr}`);
+    showToast(minimum ? `+${xpGain} XP${multStr} · small version counts` : `+${xpGain} XP${multStr}`);
   }
   saveState(); navigator.vibrate?.(10);
   _savedFlash = true;
@@ -7771,7 +7927,7 @@ function startChallenge(safetyConfirmed = false, multiConfirmed = false) {
     _skipAccountAfterStart = false;
     _obAuthMode = "signup";
     _obAuthError = "";
-    onboardingStep = 7;
+    onboardingStep = 8;
     render(); return;
   }
   _skipAccountAfterStart = false;
@@ -8114,8 +8270,12 @@ function fireReminder() {
   const names = incomplete.length === 1
     ? incomplete[0].name
     : `${incomplete.length} ${term('challengePlural')}`;
+  const cue = state.settings.dailyCuePhrase;
+  const body = cue
+    ? `${cue.charAt(0).toUpperCase()}${cue.slice(1)}? ${names} still needs today's ${term('habitPlural')}.`
+    : `${names}: you still have ${term('habitPlural')} left for today.`;
   new Notification(`Conqur — Protect your ${term('streak')}`, {
-    body: `${names}: you still have ${term('habitPlural')} left for today.`,
+    body,
     icon: "/icons/icon-192.svg",
     tag: "conqur-daily",
     renotify: true,

@@ -484,6 +484,21 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   color: var(--text);
 }
 
+.habit-min-btn {
+  align-self: flex-start;
+  margin-top: 1px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.habit-min-btn:hover { color: var(--primary); }
+
 /* ── Run habit ───────────────────────────────────── */
 
 .run-habit { cursor: default; }
@@ -2257,6 +2272,17 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   max-width: 320px;
 }
 
+/* Identity line — shared across onboarding recommendation, completion modal, and weekly recap */
+.cc-identity {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--primary);
+}
+
 .ob-dots {
   display: flex;
   justify-content: center;
@@ -2563,6 +2589,31 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   color: var(--text-dim);
   text-align: center;
 }
+
+.wrc-reflect { text-align: center; }
+.wrc-reflect-q {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.wrc-reflect-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+.wrc-chip {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.wrc-chip:hover { border-color: var(--primary); color: var(--text); }
 
 /* ── Day Note ───────────────────────────────────────────────────────────── */
 
