@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.27.21";
+const APP_VERSION = "2026.06.27.26";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -111,13 +111,6 @@ const COMPLETE_COPY = {
 };
 
 // ── Journey themes — pick how you level up ─────────────────────────────────
-const THEME_SWATCHES = {
-  frostborn: ["#38BDF8","#7DD3FC"],
-  phoenix:   ["#F97316","#FBBF24"],
-  everest:   ["#94A3B8","#CBD5E1"],
-  cosmos:    ["#A855F7","#E879F9"],
-  martial:   ["#D97706","#FCD34D"],
-};
 const JOURNEY_THEMES = {
   frostborn: {
     label: "Frostborn", icon: "ti-axe", tagline: "Rise as a Viking",
@@ -215,8 +208,8 @@ function term(key) {
 // ── Per-theme flavor text — metaphor-heavy prose that can't be a simple word swap ──
 const THEME_COPY = {
   frostborn: {
-    comebackHard: (missed) => `<strong>Welcome back.</strong> Your Fire went out ${missed} days ago — that's okay. <span class="cb-alive">Your Quest is still running.</span> Begin again. Stronger.`,
-    comebackSoft: (streak) => `Your Fire weakened at ${streak} days. Keep today's Oaths to relight it. <span class="cb-alive">Your Quest is still running.</span>`,
+    comebackHard: (s) => `<strong>Time's getting tight.</strong> ${s.logged} of ${s.elapsed} days done this week — ${s.daysLeft} left to keep your Fire alive. <span class="cb-alive">You can still win this week.</span>`,
+    comebackSoft: (s) => `${s.logged} of ${s.elapsed} days done this week. Keep today's Oaths to stay on pace. <span class="cb-alive">You can still win this week.</span>`,
     welcomeFallback: "Keep your Oaths. Protect your Fire. Rise in Rank.",
     emptyTitle: "No Quest Active",
     emptySub: "Choose your next Quest and enter the Hall.",
@@ -224,8 +217,8 @@ const THEME_COPY = {
     fireBullet: "<strong>Keep your Fire</strong> — your streak burns as long as you show up",
   },
   phoenix: {
-    comebackHard: (missed) => `<strong>Welcome back.</strong> Your Flame went out ${missed} days ago — that's okay. <span class="cb-alive">Your Ascent is still running.</span> Rise again. Stronger.`,
-    comebackSoft: (streak) => `Your Flame dimmed at ${streak} days. Keep today's Embers to reignite it. <span class="cb-alive">Your Ascent is still running.</span>`,
+    comebackHard: (s) => `<strong>Time's getting tight.</strong> ${s.logged} of ${s.elapsed} days done this week — ${s.daysLeft} left to keep your Flame alive. <span class="cb-alive">You can still win this week.</span>`,
+    comebackSoft: (s) => `${s.logged} of ${s.elapsed} days done this week. Keep today's Embers to stay on pace. <span class="cb-alive">You can still win this week.</span>`,
     welcomeFallback: "Keep your Embers. Guard your Flame. Take Flight.",
     emptyTitle: "No Ascent Active",
     emptySub: "Choose your next Ascent and begin your rise.",
@@ -233,8 +226,8 @@ const THEME_COPY = {
     fireBullet: "<strong>Keep your Flame</strong> — it burns as long as you show up",
   },
   everest: {
-    comebackHard: (missed) => `<strong>Welcome back.</strong> Your Push stalled ${missed} days ago — that's okay. <span class="cb-alive">Your Climb is still running.</span> Begin again. Stronger.`,
-    comebackSoft: (streak) => `Your Push slowed at ${streak} days. Keep today's Steps to get moving again. <span class="cb-alive">Your Climb is still running.</span>`,
+    comebackHard: (s) => `<strong>Time's getting tight.</strong> ${s.logged} of ${s.elapsed} days done this week — ${s.daysLeft} left to keep your Push going. <span class="cb-alive">You can still win this week.</span>`,
+    comebackSoft: (s) => `${s.logged} of ${s.elapsed} days done this week. Keep today's Steps to stay on pace. <span class="cb-alive">You can still win this week.</span>`,
     welcomeFallback: "Keep your Steps. Protect your Push. Rise in Camp.",
     emptyTitle: "No Climb Active",
     emptySub: "Choose your next Climb and start the ascent.",
@@ -242,8 +235,8 @@ const THEME_COPY = {
     fireBullet: "<strong>Keep your Push</strong> — momentum holds as long as you show up",
   },
   cosmos: {
-    comebackHard: (missed) => `<strong>Welcome back.</strong> Your Orbit decayed ${missed} days ago — that's okay. <span class="cb-alive">Your Mission is still running.</span> Relaunch. Stronger.`,
-    comebackSoft: (streak) => `Your Orbit slipped at ${streak} days. Keep today's Tasks to stabilize it. <span class="cb-alive">Your Mission is still running.</span>`,
+    comebackHard: (s) => `<strong>Time's getting tight.</strong> ${s.logged} of ${s.elapsed} days done this week — ${s.daysLeft} left to keep your Orbit stable. <span class="cb-alive">You can still win this week.</span>`,
+    comebackSoft: (s) => `${s.logged} of ${s.elapsed} days done this week. Keep today's Tasks to stay on pace. <span class="cb-alive">You can still win this week.</span>`,
     welcomeFallback: "Keep your Tasks. Hold your Orbit. Earn Clearance.",
     emptyTitle: "No Mission Active",
     emptySub: "Choose your next Mission and start the countdown.",
@@ -251,8 +244,8 @@ const THEME_COPY = {
     fireBullet: "<strong>Keep your Orbit</strong> — it holds as long as you show up",
   },
   martial: {
-    comebackHard: (missed) => `<strong>Welcome back.</strong> Your Chain broke ${missed} days ago — that's okay. <span class="cb-alive">Your Discipline is still running.</span> Begin again. Stronger.`,
-    comebackSoft: (streak) => `Your Chain weakened at ${streak} days. Keep today's Drills to reforge it. <span class="cb-alive">Your Discipline is still running.</span>`,
+    comebackHard: (s) => `<strong>Time's getting tight.</strong> ${s.logged} of ${s.elapsed} days done this week — ${s.daysLeft} left to keep your Chain unbroken. <span class="cb-alive">You can still win this week.</span>`,
+    comebackSoft: (s) => `${s.logged} of ${s.elapsed} days done this week. Keep today's Drills to stay on pace. <span class="cb-alive">You can still win this week.</span>`,
     welcomeFallback: "Keep your Drills. Protect your Chain. Earn your Belt.",
     emptyTitle: "No Discipline Active",
     emptySub: "Choose your next Discipline and step onto the mat.",
@@ -2427,8 +2420,6 @@ let builderQuizAnswers   = { goal: null, time: null, level: null };
 let onboardingAnswers    = { goal: null, intensity: null, time: null, cue: null };
 let _badgeSheetQueue     = [];       // { label, desc, tier } — queued badge celebrations
 let _notifPromptVisible  = false;   // post-challenge-start notification prompt
-let _showThemePrompt     = false;   // post-Day-1 "how do you want to level up" sheet
-let _themePromptShown    = false;   // shown-once guard, separate from themeChosen (dismissing != choosing)
 let _templateFilter      = "all";   // "all" | "short" | "medium" | "long"
 let _difficultyFilter    = "all";   // "all" | "beginner" | "intermediate" | "advanced" | "extreme"
 let _statsCollapsed      = null;    // kept for legacy reads — accordion removed
@@ -2623,6 +2614,7 @@ let _viewChanged   = false;    // true on the render immediately after a tab/vie
 let _animHabitId = null;     // habit that just got checked (for pop animation)
 let _eventsBound = false;        // event listeners are added once — not re-added on every render
 let viewingDate       = null;     // null = today; set to a past dateKey to backfill habits
+let _showDailyLog     = false;    // false = show "This Week" home view; true = show the daily checklist
 let calendarViewMonth   = null;    // null = auto; or "YYYY-MM-DD" (first of month)
 
 function defaultBuilderForm() {
@@ -3163,6 +3155,69 @@ function challengeWeeks(challenge) {
   return weeks;
 }
 
+// ── Win the Week helpers ─────────────────────────────────────────────────
+
+// First day of the calendar week containing today, within this challenge —
+// used as the flexible-completion backfill floor (any elapsed day this week).
+function currentWeekStartKey(challenge) {
+  const weeks = challengeWeeks(challenge);
+  const todayK = todayKey();
+  const w = weeks.find(w => w.allDays.includes(todayK));
+  return w ? w.allDays[0] : challenge.startDate;
+}
+
+// How many of this week's elapsed days have the given habit logged.
+function habitWeeklyTally(challenge, habitId, week) {
+  return week.days.filter(k => challenge.days[k]?.done?.includes(habitId)).length;
+}
+
+// Live status of the in-progress week: pace vs weeklyGoal, days logged/left.
+// Returns null if today doesn't fall in any week (shouldn't normally happen).
+function weeklyStatusMessage(challenge) {
+  const weeks = challengeWeeks(challenge);
+  const todayK = todayKey();
+  const curWeekIdx = weeks.findIndex(w => w.allDays.includes(todayK));
+  if (curWeekIdx < 0) return null;
+  const week = weeks[curWeekIdx];
+  const elapsed = week.days.length;
+  const daysLeft = week.allDays.length - elapsed;
+  const logged = week.days.filter(k => dayLogged(challenge.days[k])).length;
+  const pts = week.days.reduce((s,k) => { const d = challenge.days[k]; return s + (d ? completionInfo(challenge, d).points : 0); }, 0);
+  const goal = goalForWeek(challenge, curWeekIdx);
+  const expectedPace = goal * (elapsed / 7) * 0.85; // 15% slack before flagging as behind
+  const onPace = goal <= 0 || pts >= expectedPace;
+  return { elapsed, daysLeft, logged, pts, goal, onPace, weekNum: week.num, curWeekIdx };
+}
+
+// Consecutive PAST weeks (excluding the in-progress one) where points earned
+// met that week's goalForWeek. Additive alongside the existing day-based
+// calcChallengeStreak — not a replacement (see Phase 2 in the plan).
+function calcWeeklySuccessStreak(challenge) {
+  const weeks = challengeWeeks(challenge);
+  const todayK = todayKey();
+  const curWeekIdx = weeks.findIndex(w => w.allDays.includes(todayK));
+  const pastWeeks = curWeekIdx > 0 ? weeks.slice(0, curWeekIdx) : (curWeekIdx === -1 ? weeks : []);
+  let streak = 0;
+  for (let i = pastWeeks.length - 1; i >= 0; i--) {
+    const w = pastWeeks[i];
+    const pts = w.days.reduce((s,k) => { const d = challenge.days[k]; return s + (d ? completionInfo(challenge, d).points : 0); }, 0);
+    if (pts >= goalForWeek(challenge, i)) streak++;
+    else break;
+  }
+  return streak;
+}
+
+// Shared comeback-banner renderer, reused by both the This Week view and the
+// daily log view. Triggers on weekly pace being at risk, not on a single
+// missed day — a miss with time left to recover doesn't show anything.
+function renderComebackBanner(challenge) {
+  const s = weeklyStatusMessage(challenge);
+  if (!s || s.onPace || s.logged >= s.elapsed) return "";
+  const cls = s.daysLeft <= 2 ? "comeback-banner" : "comeback-banner comeback-banner--soft";
+  const msg = s.daysLeft <= 2 ? copy('comebackHard', s) : copy('comebackSoft', s);
+  return `<div class="${cls}${_viewChanged ? " comeback-banner--anim" : ""}">${msg}</div>`;
+}
+
 function createChallenge(form) {
   const template = form.templateId ? TEMPLATES.find(t => t.id === form.templateId) : null;
   const habits = template ? JSON.parse(JSON.stringify(template.habits)) : JSON.parse(JSON.stringify(form.habits));
@@ -3625,19 +3680,27 @@ function showBigToast(emoji, title, sub, duration = 4000) {
   setTimeout(() => el.remove(), duration);
 }
 
-function renderLevelUpOverlay() {
-  const o = _levelUpOverlay;
-  return `
-  <div class="luo-backdrop" data-close-levelup>
+// Standalone modal appended directly to document.body — not part of the
+// render() HTML string, so an unrelated re-render (there are many scheduled
+// via setTimeout right after a level-up: badge toasts, milestone toasts, the
+// _savedFlash reset) can't recreate the DOM node and replay its entrance
+// animation. Same fix as the badge-toast system earlier this session.
+function showLevelUpModal(o) {
+  if (document.getElementById('level-up-modal')) return;
+  const el = document.createElement('div');
+  el.id = 'level-up-modal';
+  el.className = 'luo-backdrop';
+  el.setAttribute('data-close-levelup-modal', '');
+  el.innerHTML = `
     <div class="luo-card" role="dialog" aria-modal="true" aria-label="Level up!">
       <div class="luo-burst"><i class="ti ${o.icon}"></i></div>
       <div class="luo-badge">LEVEL UP</div>
       <div class="luo-level">${o.level}</div>
-      <div class="luo-name">${o.name}</div>
+      <div class="luo-name">${esc(o.name)}</div>
       <div class="luo-total">${o.total.toLocaleString()} XP total</div>
-      <button class="primary-button luo-cta" data-close-levelup>Keep going</button>
-    </div>
-  </div>`;
+      <button class="primary-button luo-cta" data-close-levelup-modal>Keep going</button>
+    </div>`;
+  document.body.appendChild(el);
 }
 
 // Count consecutive missed days immediately before today for a challenge
@@ -3700,10 +3763,6 @@ function checkMilestones(challenge) {
       if ("Notification" in window && Notification.permission === "default" && !localStorage.getItem("conqur_notif_asked")) {
         localStorage.setItem("conqur_notif_asked", "1");
         setTimeout(() => { _notifPromptVisible = true; render(); }, 2500);
-      }
-      if (!state.settings.themeChosen && !_themePromptShown) {
-        _themePromptShown = true;
-        setTimeout(() => { _showThemePrompt = true; render(); }, 4000);
       }
     }, 500);
   }
@@ -3848,31 +3907,30 @@ function _renderInner() {
     if (_cc) html += renderCompletionModal(_cc);
   }
   html += renderShareModal();
-  // Badge unlocks are non-blocking stacked toasts (see flushBadgeToasts) — they're
-  // appended straight to document.body, outside the render() HTML string, so an
-  // unrelated re-render can't recreate and replay their entrance animation.
+  // Badge unlocks, level-ups, and chapter milestones are all standalone modals/toasts
+  // appended straight to document.body, outside this HTML string — immune to an
+  // unrelated re-render recreating the DOM and replaying the entrance animation
+  // (this is what caused the level-up modal to visibly "replay" multiple times).
   if (_badgeSheetQueue.length > 0) {
     flushBadgeToasts(_badgeSheetQueue);
     _badgeSheetQueue = [];
   }
-  // Level-up / chapter overlays are mutually exclusive — show at most one per render
-  // so dismissing one doesn't immediately reveal another stacked behind it.
-  if (_levelUpOverlay) {
-    html += renderLevelUpOverlay();
-  } else {
-    // Chapter milestone check (show once per threshold, guarded by state.lastChapterSeen)
-    if (!_chapterOverlay) {
-      const _curLevel = getLevelInfo(state.xp).level;
-      const _chapterDue = [5, 10, 15, 20, 25].find(l => l <= _curLevel && l > (state.lastChapterSeen ?? 0));
-      if (_chapterDue) { _chapterOverlay = _chapterDue; state.lastChapterSeen = _chapterDue; saveState(); }
+  // Chapter milestones stay mutually exclusive with level-up — checked/shown only
+  // once, right when they become due, never re-triggered on later renders.
+  if (!_levelUpOverlay && !_chapterOverlay) {
+    const _curLevel = getLevelInfo(state.xp).level;
+    const _chapterDue = [5, 10, 15, 20, 25].find(l => l <= _curLevel && l > (state.lastChapterSeen ?? 0));
+    if (_chapterDue) {
+      _chapterOverlay = _chapterDue;
+      state.lastChapterSeen = _chapterDue;
+      saveState();
+      showChapterModal(_chapterDue);
     }
-    if (_chapterOverlay) html += renderChapterOverlay();
   }
   if (_notifPromptVisible) html += renderNotifPrompt();
   html += renderConfirmModal();
   html += renderPromptModal();
   if (_safetyPendingTemplateId) html += renderSafetyModal();
-  if (_showThemePrompt) html += renderThemePromptSheet();
   if (_showInstallBanner && _pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
     html += `
     <div class="install-banner">
@@ -3964,7 +4022,7 @@ const NAV_ICONS = {
 };
 
 function renderNav() {
-  const tabs = [["today","Today"],["challenges",term('challengePlural')],["badges",term('badgePlural')]];
+  const tabs = [["today","This Week"],["challenges",term('challengePlural')],["badges",term('badgePlural')]];
   return `
   <nav class="bottom-nav" aria-label="Conqur sections">
     ${tabs.map(([id,label]) => `
@@ -3972,6 +4030,91 @@ function renderNav() {
         ${NAV_ICONS[id]}${label}
       </button>`).join("")}
   </nav>`;
+}
+
+// ── This Week (Win the Week home view) ──────────────────────────────────
+
+const DOW_LABELS = ["S","M","T","W","T","F","S"];
+
+// One row per habit: a box per day of the current week. Binary habits toggle
+// directly from the box; tiered/measurement habits jump into that day's log
+// (a single tap can't capture a tier pick or a numeric value).
+function renderHabitWeekGrid(challenge, week) {
+  const todayK = todayKey();
+  const rows = challenge.habits.map(h => {
+    const boxes = week.allDays.map(k => {
+      const d = challenge.days[k];
+      const done = !!d?.done?.includes(h.id);
+      const isFuture = k > todayK;
+      const isToday = k === todayK;
+      const dow = parseDate(k).getDay();
+      const inner = done ? `<i class="ti ti-check"></i>` : DOW_LABELS[dow];
+      const cls = ["hwk-box", done ? "hwk-done" : "", isFuture ? "hwk-future" : "", isToday ? "hwk-today" : ""].filter(Boolean).join(" ");
+      const dataAttr = h.type === "binary"
+        ? `data-week-toggle-habit="${h.id}" data-week-toggle-day="${k}"`
+        : `data-week-day-jump="${k}"`;
+      return `<button class="${cls}" ${isFuture ? "disabled" : dataAttr} aria-label="${formatDate(parseDate(k),{weekday:"long",month:"short",day:"numeric"})}${done?" — done":""}">${inner}</button>`;
+    }).join("");
+    return `<div class="habit-week-row">
+      <div class="hwk-label"><span class="habit-emoji" style="width:28px;height:28px;font-size:15px">${esc(h.emoji)}</span> ${esc(h.title)}</div>
+      <div class="hwk-boxes">${boxes}</div>
+    </div>`;
+  }).join("");
+  return `<div class="habit-week-grid">${rows}</div>`;
+}
+
+function renderThisWeek(challenge, active, xpInfo, xpTheme, xpToNext) {
+  const weeks = challengeWeeks(challenge);
+  const todayK = todayKey();
+  const curWeekIdx = weeks.findIndex(w => w.allDays.includes(todayK));
+  const week = curWeekIdx >= 0 ? weeks[curWeekIdx] : weeks[weeks.length - 1];
+  const goal = goalForWeek(challenge, curWeekIdx >= 0 ? curWeekIdx : weeks.length - 1);
+  const ptsThisWeek = week.days.reduce((s,k) => { const d = challenge.days[k]; return s + (d ? completionInfo(challenge, d).points : 0); }, 0);
+  const pct = goal > 0 ? clamp(Math.round((ptsThisWeek / goal) * 100), 0, 100) : 0;
+  const loggedDays = week.days.filter(k => dayLogged(challenge.days[k])).length;
+  const weekStreak = calcWeeklySuccessStreak(challenge);
+  const heroTpl = challenge.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
+
+  return `
+  <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
+    <div class="xp-mini-bar">
+      <span class="xmb-badge"><i class="ti ${xpTheme.icon}"></i> ${term('level')} ${xpInfo.level}</span>
+      <span class="xmb-name">${xpInfo.name}</span>
+      <span class="xmb-track"><span class="xmb-fill" style="width:${xpInfo.pct}%"></span></span>
+      <span class="xmb-hint">${xpToNext ? xpToNext + " XP to next · XP never resets" : `Max ${term('level')} <i class="ti ti-trophy"></i>`}</span>
+    </div>
+    ${active.length > 1 ? renderChallengePills(active) : ""}
+    ${renderComebackBanner(challenge)}
+    <section class="hero">
+      <div class="hero-daycount">Week ${week.num}${week.label ? ` · ${week.label}` : ""}</div>
+      <div class="hero-titlebar">
+        <i class="ti ${challengeIcon(heroTpl)} hero-ic" aria-hidden="true"></i>
+        <h1 class="hero-name">${esc(challenge.name)}</h1>
+      </div>
+    </section>
+    <section class="today-stage panel">
+      <div class="week-progress-label">
+        <span>${ptsThisWeek}<span class="ring-stat-sub">/${goal} XP this week</span></span>
+        <span>${pct}%</span>
+      </div>
+      <div class="journey-track"><div class="journey-fill" style="width:${pct}%"></div></div>
+      <div class="ring-stats" style="margin-top:14px">
+        <div class="ring-stat">
+          <div class="ring-stat-value">${loggedDays}<span class="ring-stat-sub">/${week.days.length}</span></div>
+          <div class="ring-stat-label">days this week</div>
+        </div>
+        <div class="ring-stat">
+          <div class="ring-stat-value${weekStreak>=2?' streak-hero':''}">${weekStreak}${weekStreak>=2?` <i class="ti ti-flame"></i>`:""}</div>
+          <div class="ring-stat-label">week ${term('streak')}</div>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="section-label">This week's ${term('habitPlural')}</div>
+      ${renderHabitWeekGrid(challenge, week)}
+    </section>
+    <button class="secondary-button" data-show-daily-log style="margin-top:16px;width:100%">Log today's ${term('habitPlural')} <i class="ti ti-arrow-right"></i></button>
+  </main>`;
 }
 
 // ── Today Tab ─────────────────────────────────────────────────────────────
@@ -3990,12 +4133,22 @@ function renderToday() {
   const challenge = active.find(c => c.id === todayChallengeId);
   const today    = todayKey();
   const effDate  = effectiveDate();
-  // Clamp viewingDate within challenge bounds and no further back than 3 days
-  const minBack  = addDays(today, -3);
+  // Flexible completion: backfill floor is the start of the current week, not a fixed lookback.
+  const minBack  = currentWeekStartKey(challenge);
   const minDate  = challenge.startDate > minBack ? challenge.startDate : minBack;
   if (viewingDate && viewingDate < minDate) viewingDate = minDate;
   if (viewingDate && viewingDate > today)  viewingDate = null;
   const isToday  = effDate === today;
+
+  const xpInfo  = getLevelInfo(state.xp);
+  const xpTheme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
+  const xpToNext = xpInfo.next ? (xpInfo.next.xp - state.xp).toLocaleString() : null;
+
+  // Win the Week: default to the weekly overview; the daily checklist is one
+  // tap away via "Log today", or reached directly when backfilling a past day.
+  if (!_showDailyLog && !viewingDate) {
+    return renderThisWeek(challenge, active, xpInfo, xpTheme, xpToNext);
+  }
 
   const day  = getChallengeDay(challenge, effDate);
   const info = completionInfo(challenge, day);
@@ -4010,12 +4163,6 @@ function renderToday() {
   const canGoBack  = addDays(effDate, -1) >= minDate;
   const canGoFwd   = !isToday;
 
-  // Comeback: consecutive missed days before today
-  const missedStreak = isToday ? getConsecutiveMisses(challenge) : 0;
-  const xpInfo  = getLevelInfo(state.xp);
-  const xpTheme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
-  const xpToNext = xpInfo.next ? (xpInfo.next.xp - state.xp).toLocaleString() : null;
-
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     <div class="xp-mini-bar">
@@ -4025,24 +4172,19 @@ function renderToday() {
       <span class="xmb-hint">${xpToNext ? xpToNext + " XP to next · XP never resets" : `Max ${term('level')} <i class="ti ti-trophy"></i>`}</span>
     </div>
     ${active.length > 1 ? renderChallengePills(active) : ""}
-    ${missedStreak >= 2 ? `
-    <div class="comeback-banner${_viewChanged ? " comeback-banner--anim" : ""}">
-      ${copy('comebackHard', missedStreak)}
-    </div>` : missedStreak === 1 ? `
-    <div class="comeback-banner comeback-banner--soft${_viewChanged ? " comeback-banner--anim" : ""}">
-      ${copy('comebackSoft', streak)}
-    </div>` : ""}
+    <button class="link-btn" data-back-to-week style="margin-bottom:10px">← This Week</button>
+    ${renderComebackBanner(challenge)}
     <div class="date-nav">
-      <button class="date-nav-arrow ${canGoBack?"":"disabled"}" data-date-back ${canGoBack?"":"disabled"} aria-label="Previous day" ${!canGoBack ? 'title="Only the last 3 days can be logged"' : ""}>‹</button>
+      <button class="date-nav-arrow ${canGoBack?"":"disabled"}" data-date-back ${canGoBack?"":"disabled"} aria-label="Previous day" ${!canGoBack ? 'title="Any day this week can be logged"' : ""}>‹</button>
       <div class="date-nav-center">
         <span class="date-nav-label ${!isToday?"date-nav-past":""}">
           ${isToday ? "Today" : formatDate(parseDate(effDate), {weekday:"short", month:"short", day:"numeric"})}
         </span>
-        ${isToday && canGoBack ? `<span class="date-nav-hint">‹ tap to log a past day</span>` : ""}
+        ${isToday && canGoBack ? `<span class="date-nav-hint">‹ tap to log a day from this week</span>` : ""}
       </div>
       <button class="date-nav-arrow ${canGoFwd?"":"disabled"}" data-date-fwd ${canGoFwd?"":"disabled"} aria-label="Next day">›</button>
     </div>
-    ${!canGoBack && minDate === addDays(today, -3) && challenge.startDate < minDate ? `<div class="backfill-limit-hint">Logging is limited to the last 3 days</div>` : ""}
+    ${!canGoBack && minDate === currentWeekStartKey(challenge) && challenge.startDate < minDate ? `<div class="backfill-limit-hint">Logging is limited to the current week</div>` : ""}
     ${!isToday ? `<div class="backfill-banner"><i class="ti ti-pencil"></i> Editing ${formatDate(parseDate(effDate),{weekday:"long"})} — changes save immediately.</div>` : ""}
     <section class="hero">
       <div class="hero-daycount">Day ${dayNumber}${totalDays ? ` / ${totalDays}` : ""}</div>
@@ -5097,6 +5239,10 @@ function renderChallengeCard(c) {
   const pct          = totalDays ? clamp(Math.round((dayNumber/totalDays)*100), 0, 100) : 0;
   const streak       = (c.status==="completed"||c.status==="failed") && c.finalStreak!=null
     ? c.finalStreak : calcChallengeStreak(c);
+  // Win the Week: active-challenge cards headline the week-streak; completed/failed
+  // cards keep the historical day-streak as a frozen record of how it ended.
+  const cardStreak   = c.status === "active" ? calcWeeklySuccessStreak(c) : streak;
+  const cardStreakUnit = c.status === "active" ? "wk" : "d";
   const day          = c.days[today];
   const todayInfo    = day ? completionInfo(c, day) : null;
   const statusColor  = c.status==="completed"?"var(--success)":c.status==="failed"?"var(--secondary)":c.status==="paused"?"var(--text-dim)":"";
@@ -5131,7 +5277,7 @@ function renderChallengeCard(c) {
             : isExpedition
               ? `<div class="cc-today">${todayNativeKm !== null && todayNativeKm > 0 ? (Math.round(todayNativeKm*factor*10)/10)+" "+dUnit : "—"}</div>`
               : `<div class="cc-today">${todayInfo?todayInfo.percent+"%":"—"}</div>`}
-          <div class="cc-streak"><i class="ti ti-flame"></i> ${streak}</div>
+          <div class="cc-streak"><i class="ti ti-flame"></i> ${cardStreak}${cardStreakUnit === "wk" ? "wk" : ""}</div>
         </div>
       </div>
       <div class="cc-track">
@@ -6023,23 +6169,27 @@ function renderTrophyCase() {
   </div>`;
 }
 
-function renderChapterOverlay() {
-  const level = _chapterOverlay;
-  const data  = level ? CHAPTER_LEVELS[level] : null;
-  if (!data) return "";
+// Standalone modal — same rationale as showLevelUpModal above.
+function showChapterModal(level) {
+  if (document.getElementById('chapter-modal')) return;
+  const data = CHAPTER_LEVELS[level];
+  if (!data) return;
   const chapterIcon = level >= 25 ? "ti-trophy" : level >= 20 ? "ti-star" : level >= 15 ? "ti-flame" : level >= 10 ? "ti-bolt" : "ti-seedling";
   const levelName = getThemedLevelName(level, state.settings.journeyTheme);
-  return `
-  <div class="luo-backdrop" data-close-chapter>
+  const el = document.createElement('div');
+  el.id = 'chapter-modal';
+  el.className = 'luo-backdrop';
+  el.setAttribute('data-close-chapter-modal', '');
+  el.innerHTML = `
     <div class="luo-card" role="dialog" aria-modal="true">
       <div class="luo-burst"><i class="ti ${chapterIcon}"></i></div>
-      <div class="luo-badge">CHAPTER ${data.title.toUpperCase()}</div>
+      <div class="luo-badge">CHAPTER ${esc(data.title.toUpperCase())}</div>
       <div class="luo-level">${term('level')} ${level}</div>
-      <div class="luo-name">${levelName}</div>
-      <div class="luo-total">${data.msg}</div>
-      <button class="primary-button luo-cta" data-close-chapter>Begin again. Stronger. →</button>
-    </div>
-  </div>`;
+      <div class="luo-name">${esc(levelName)}</div>
+      <div class="luo-total">${esc(data.msg)}</div>
+      <button class="primary-button luo-cta" data-close-chapter-modal>Begin again. Stronger. →</button>
+    </div>`;
+  document.body.appendChild(el);
 }
 
 function renderBadges() {
@@ -6419,34 +6569,6 @@ function renderObExplainer() {
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-trophy"></i></span><span><strong>XP levels you up</strong> — your level never resets, no matter what</span></li>
     </ul>
     <button class="primary-button ob-cta" data-ob-next>Choose how you level up →</button>
-  </div>`;
-}
-
-function renderThemeCardsGrid() {
-  return `
-    <div class="ob-goal-grid">
-      ${Object.entries(JOURNEY_THEMES).map(([id, t]) => `
-      <button class="ob-goal-btn ob-theme-btn" data-ob-theme="${id}" style="--theme-swatch:${THEME_SWATCHES[id][0]}">
-        <span class="ob-goal-emoji"><i class="ti ${t.icon}"></i></span>
-        <div class="ob-goal-info">
-          <div class="ob-goal-label">${t.label}</div>
-          <div class="ob-goal-desc">${t.tagline}</div>
-        </div>
-        <span class="ob-goal-arrow">→</span>
-      </button>`).join("")}
-    </div>`;
-}
-
-function renderThemePromptSheet() {
-  return `
-  <div class="sheet-backdrop" data-theme-prompt-backdrop>
-    <section class="sheet" role="dialog" style="max-width:400px">
-      <div class="ob-emoji" aria-hidden="true" style="margin-bottom:6px"><i class="ti ti-sparkles"></i></div>
-      <div style="font-size:18px;font-weight:700;text-align:center;margin-bottom:6px">Day 1 done. Nice.</div>
-      <div style="font-size:13px;color:var(--text-dim);text-align:center;margin-bottom:16px">How do you want to level up from here? You can change this anytime in Settings.</div>
-      ${renderThemeCardsGrid()}
-      <button class="link-btn" data-theme-prompt-dismiss style="display:block;margin:4px auto 0;font-size:12px">Maybe later</button>
-    </section>
   </div>`;
 }
 
@@ -6870,18 +6992,6 @@ function renderSettings() {
         </div>
       </div>
     </div>
-    <div class="section-label" style="margin-top:20px">Theme</div>
-    <div class="more-card">
-      <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">Choose how you level up. Changes your colors and ranks throughout the app.</div>
-      <div class="theme-switch-grid">
-        ${Object.entries(JOURNEY_THEMES).map(([id, t]) => `
-        <button class="theme-switch-btn ${state.settings.journeyTheme === id ? "active" : ""}" data-set-theme="${id}" style="--theme-swatch:${THEME_SWATCHES[id][0]}">
-          <span class="theme-switch-ic"><i class="ti ${t.icon}"></i></span>
-          <span class="theme-switch-label">${t.label}</span>
-          ${state.settings.journeyTheme === id ? `<i class="ti ti-check theme-switch-check"></i>` : ""}
-        </button>`).join("")}
-      </div>
-    </div>
     <div class="section-label" style="margin-top:20px">How Conqur Works</div>
     <div class="more-card" style="font-size:13px;line-height:1.65;color:var(--text-dim)">
       <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-target"></i> ${term('challengePlural')}</strong> — Pick a challenge: a routine, a health reset, or a discipline test. Each one gives you daily ${term('habitPlural')} to keep.</div>
@@ -6910,7 +7020,7 @@ function updateRingVisuals() {
 // ── Events ────────────────────────────────────────────────────────────────
 
 function bindEvents() {
-  on("[data-tab]",          el => { activeTab=el.dataset.tab; challengeSubTab="habits"; builderOpen=false; settingsOpen=false; viewChallengeId=null; editChallengeId=null; editForm=null; viewingDate=null; render(); });
+  on("[data-tab]",          el => { activeTab=el.dataset.tab; challengeSubTab="habits"; builderOpen=false; settingsOpen=false; viewChallengeId=null; editChallengeId=null; editForm=null; viewingDate=null; _showDailyLog=false; render(); });
   on("[data-challenge-sub]",el => { challengeSubTab=el.dataset.challengeSub; render(); });
   on("[data-mode]",         el => setMode(el.dataset.mode));
   on("[data-habit]",        el => {
@@ -6934,7 +7044,7 @@ function bindEvents() {
     const cur = effectiveDate();
     const prev = addDays(cur, -1);
     const challenge = getActiveChallenges().find(c => c.id === todayChallengeId);
-    const minBack = addDays(todayKey(), -3);
+    const minBack = challenge ? currentWeekStartKey(challenge) : addDays(todayKey(), -6);
     const minDate = challenge && challenge.startDate > minBack ? challenge.startDate : minBack;
     if (prev >= minDate) { viewingDate = prev; render(); }
   });
@@ -6942,6 +7052,23 @@ function bindEvents() {
     if (!viewingDate) return;
     const next = addDays(viewingDate, 1);
     viewingDate = next >= todayKey() ? null : next;
+    render();
+  });
+  on("[data-show-daily-log]", () => { _showDailyLog = true; render(); });
+  on("[data-back-to-week]", () => { _showDailyLog = false; viewingDate = null; render(); });
+  on("[data-week-toggle-habit]", el => {
+    const dayKey = el.dataset.weekToggleDay;
+    const habitId = el.dataset.weekToggleHabit;
+    const prevViewingDate = viewingDate;
+    viewingDate = dayKey === todayKey() ? null : dayKey;
+    toggleHabit(habitId);
+    viewingDate = prevViewingDate;
+    render();
+  });
+  on("[data-week-day-jump]", el => {
+    const dayKey = el.dataset.weekDayJump;
+    viewingDate = dayKey === todayKey() ? null : dayKey;
+    _showDailyLog = true;
     render();
   });
   on("[data-open-builder]", () => { builderOpen=true; builderStep="template"; builderForm=defaultBuilderForm(); render(); });
@@ -7037,8 +7164,8 @@ function bindEvents() {
     localStorage.setItem("conqur_email_capture","submitted");
     render();
   });
-  on("[data-close-levelup]",        () => { _levelUpOverlay = null; render(); });
-  on("[data-close-chapter]",        () => { _chapterOverlay = null; render(); });
+  on("[data-close-levelup-modal]",  () => { document.getElementById('level-up-modal')?.remove(); _levelUpOverlay = null; render(); });
+  on("[data-close-chapter-modal]",  () => { document.getElementById('chapter-modal')?.remove(); _chapterOverlay = null; render(); });
   on("[data-notif-prompt-enable]",  async () => { _notifPromptVisible = false; await requestNotificationPermission(); render(); });
   on("[data-notif-prompt-skip]",    () => { _notifPromptVisible = false; render(); });
   on("[data-start-challenge]",() => startChallenge());
@@ -7345,24 +7472,6 @@ function bindEvents() {
     onboardingStep++;
     render();
   });
-  on("[data-ob-theme]", el => {
-    const themeId = el.dataset.obTheme;
-    if (JOURNEY_THEMES[themeId]) { state.settings.journeyTheme = themeId; state.settings.themeChosen = true; saveState(); }
-    if (_showThemePrompt) { _showThemePrompt = false; render(); }
-    else { onboardingStep++; render(); }
-  });
-  on("[data-theme-prompt-dismiss]", () => { _showThemePrompt = false; render(); });
-  on("[data-theme-prompt-backdrop]", (el, e) => { if (e.target === el) { _showThemePrompt = false; render(); } });
-  on("[data-set-theme]", el => {
-    const themeId = el.dataset.setTheme;
-    if (JOURNEY_THEMES[themeId] && themeId !== state.settings.journeyTheme) {
-      state.settings.journeyTheme = themeId;
-      state.settings.themeChosen = true;
-      saveState();
-      render();
-      showToast(`Theme changed to ${JOURNEY_THEMES[themeId].label}.`);
-    }
-  });
   on("[data-ob-browse]", () => {
     onboardingStep = null;
     activeTab = "challenges";
@@ -7662,7 +7771,7 @@ function toggleHabit(id, minimum = false) {
   }
   if (lvlInfo.level > levelBefore) {
     const _luT = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
-    setTimeout(() => { _levelUpOverlay = { level: lvlInfo.level, name: lvlInfo.name, icon: _luT.icon, total: state.xp }; render(); }, 600);
+    setTimeout(() => { const o = { level: lvlInfo.level, name: lvlInfo.name, icon: _luT.icon, total: state.xp }; _levelUpOverlay = o; showLevelUpModal(o); }, 600);
   } else if (xpGain > 0) {
     const mult = day.streakMult || 1;
     const multStr = mult > 1 ? ` 🔥×${mult.toFixed(2)}` : "";
@@ -7757,7 +7866,7 @@ function selectTier(habitId, rawVal) {
   }
   if (lvlInfo2.level > levelBefore2) {
     const _luT2 = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
-    setTimeout(() => { _levelUpOverlay = { level: lvlInfo2.level, name: lvlInfo2.name, icon: _luT2.icon, total: state.xp }; render(); }, 600);
+    setTimeout(() => { const o = { level: lvlInfo2.level, name: lvlInfo2.name, icon: _luT2.icon, total: state.xp }; _levelUpOverlay = o; showLevelUpModal(o); }, 600);
   } else if (xpGain2 > 0) {
     const mult2 = day.streakMult || 1;
     const multStr2 = mult2 > 1 ? ` 🔥×${mult2.toFixed(2)}` : "";

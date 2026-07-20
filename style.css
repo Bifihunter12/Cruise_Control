@@ -47,48 +47,6 @@
   --nebula: rgba(56, 189, 248, 0.08);
 }
 
-/* ── Journey themes — palette overrides ─────────────────────────────────── */
-[data-theme="phoenix"] {
-  --bg: #120a04; --surface: #1e1008; --surface-2: #271508; --surface-3: #311b0a;
-  --primary: #F97316; --secondary: #FBBF24;
-  --gradient: linear-gradient(135deg, #F97316, #FBBF24);
-  --text-dim: #c08060; --text-faint: #6b4020; --track: #1e1008;
-  --border: rgba(251,191,36,0.14); --border-active: rgba(251,191,36,0.28);
-  --primary-glow: rgba(249,115,22,0.28); --primary-haze: rgba(249,115,22,0.10);
-  --primary-pulse: rgba(249,115,22,0.40); --primary-clear: rgba(249,115,22,0);
-  --secondary-soft: rgba(251,191,36,0.15); --nebula: rgba(249,115,22,0.10);
-}
-[data-theme="everest"] {
-  --bg: #0A0A0B; --surface: #141416; --surface-2: #1C1C1F; --surface-3: #26262A;
-  --primary: #9CA3AF; --secondary: #E5E7EB;
-  --gradient: linear-gradient(135deg, #9CA3AF, #E5E7EB);
-  --text-dim: #9B9BA0; --text-faint: #55555C; --track: #18181B;
-  --border: rgba(229,231,235,0.14); --border-active: rgba(229,231,235,0.28);
-  --primary-glow: rgba(156,163,175,0.28); --primary-haze: rgba(156,163,175,0.10);
-  --primary-pulse: rgba(156,163,175,0.40); --primary-clear: rgba(156,163,175,0);
-  --secondary-soft: rgba(229,231,235,0.15); --nebula: rgba(156,163,175,0.08);
-}
-[data-theme="cosmos"] {
-  --bg: #07030e; --surface: #110822; --surface-2: #180d2e; --surface-3: #1f1040;
-  --primary: #A855F7; --secondary: #E879F9;
-  --gradient: linear-gradient(135deg, #A855F7, #E879F9);
-  --text-dim: #9060c0; --text-faint: #3d1a6e; --track: #110822;
-  --border: rgba(232,121,249,0.14); --border-active: rgba(232,121,249,0.28);
-  --primary-glow: rgba(168,85,247,0.30); --primary-haze: rgba(168,85,247,0.10);
-  --primary-pulse: rgba(168,85,247,0.42); --primary-clear: rgba(168,85,247,0);
-  --secondary-soft: rgba(232,121,249,0.15); --nebula: rgba(168,85,247,0.12);
-}
-[data-theme="martial"] {
-  --bg: #0a0800; --surface: #160f00; --surface-2: #1e1500; --surface-3: #261c00;
-  --primary: #D97706; --secondary: #FCD34D;
-  --gradient: linear-gradient(135deg, #D97706, #FCD34D);
-  --text-dim: #a07030; --text-faint: #5a3e10; --track: #160f00;
-  --border: rgba(252,211,77,0.14); --border-active: rgba(252,211,77,0.28);
-  --primary-glow: rgba(217,119,6,0.28); --primary-haze: rgba(217,119,6,0.10);
-  --primary-pulse: rgba(217,119,6,0.40); --primary-clear: rgba(217,119,6,0);
-  --secondary-soft: rgba(252,211,77,0.15); --nebula: rgba(217,119,6,0.10);
-}
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
@@ -176,6 +134,20 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   font-size: 12px;
   font-weight: 500;
   color: var(--text-dim);
+}
+
+.week-progress-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 700;
+}
+.week-progress-label .ring-stat-sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dim);
+  margin-left: 2px;
 }
 
 .journey-track {
@@ -498,6 +470,68 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   cursor: pointer;
 }
 .habit-min-btn:hover { color: var(--primary); }
+
+/* ── Weekly per-habit checkbox grid (This Week view) ──────────────────── */
+
+.habit-week-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.habit-week-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hwk-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  flex: 1;
+  min-width: 120px;
+}
+
+.hwk-boxes {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.hwk-box {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-active);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  transition: all 180ms ease;
+}
+
+.hwk-box:not(:disabled) { cursor: pointer; }
+
+.hwk-box.hwk-done {
+  border-color: var(--primary);
+  background: rgba(56,189,248,0.22);
+  color: var(--text);
+}
+
+.hwk-box.hwk-today:not(.hwk-done) { border-color: var(--primary); border-style: dashed; }
+
+.hwk-box.hwk-future {
+  opacity: 0.35;
+  border-style: dashed;
+  cursor: default;
+}
 
 /* ── Run habit ───────────────────────────────────── */
 
@@ -1623,9 +1657,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   text-align: left;
   padding: 14px 16px;
   border-radius: var(--radius);
-  background: rgba(16, 32, 51, 0.62);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  background: var(--surface);
   border: 1px solid var(--border);
   margin-bottom: 10px;
   cursor: pointer;
@@ -3431,7 +3463,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   z-index: 300; padding: 24px;
 }
 .confirm-modal {
-  background: var(--surface-1); border-radius: 18px;
+  background: var(--surface-2); border-radius: 18px;
   padding: 24px 20px 20px; max-width: 360px; width: 100%;
   box-shadow: 0 8px 40px rgba(0,0,0,0.5);
 }
@@ -3446,7 +3478,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .confirm-danger-btn {
   flex: 1;
   background: var(--secondary) !important;
-  color: #fff !important;
+  color: #07111F !important; /* dark navy, not white — light/pastel secondary colors fail WCAG AA with white text */
 }
 .prompt-input {
   width: 100%; box-sizing: border-box;
@@ -4099,7 +4131,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 .share-modal-inner {
   position: relative;
   width: min(100%, 400px);
-  background: var(--surface-1);
+  background: var(--surface-2);
   border-radius: var(--radius);
   border: 1px solid var(--border);
   padding: 20px;
@@ -4223,28 +4255,6 @@ details[open] .badge-locked-summary::before {
   color: var(--text-dim);
   flex-shrink: 0;
 }
-
-.ob-theme-btn { border-left: 3px solid var(--theme-swatch, var(--border)); }
-.ob-theme-btn .ob-goal-emoji { color: var(--theme-swatch, var(--text)); }
-
-.theme-switch-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-.theme-switch-btn {
-  position: relative;
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 12px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--theme-swatch, var(--border));
-  border-radius: var(--radius-sm);
-  color: var(--text-dim);
-  cursor: pointer;
-  text-align: left;
-  transition: background 150ms, border-color 150ms;
-}
-.theme-switch-btn.active { background: var(--surface-3); border-color: var(--theme-swatch); color: var(--text); }
-.theme-switch-ic { font-size: 16px; color: var(--theme-swatch, var(--text-dim)); flex-shrink: 0; }
-.theme-switch-label { font-size: 12.5px; font-weight: 600; flex: 1; min-width: 0; }
-.theme-switch-check { font-size: 14px; color: var(--theme-swatch); flex-shrink: 0; }
 
 /* ── All-challenges today view ───────────────────────────────────────────── */
 
@@ -5054,3 +5064,24 @@ details[open] .badge-locked-summary::before {
   border-color:var(--accent) !important; background:var(--accent) !important; color:#07111F !important;
 }
 .run-habit .check-circle { width:auto; min-width:24px; padding:0 6px; }
+
+/* ── Conqur · Field — strip gradient/glow from highest-visibility spots ──── */
+.ring-stat-value.streak-hero {
+  background: none !important;
+  -webkit-text-fill-color: var(--text) !important;
+  color: var(--text) !important;
+  filter: none !important;
+}
+.badge.earned {
+  background: color-mix(in srgb, var(--accent) 7%, transparent) !important;
+  border-color: color-mix(in srgb, var(--accent) 32%, transparent) !important;
+  box-shadow: none !important;
+}
+.primary-button, .primary-button:active {
+  box-shadow: none !important;
+}
+.xp-bar-fill, .ring-value {
+  background: var(--accent) !important;
+  stroke: var(--accent) !important;
+}
+.section-label { font-weight: 500; letter-spacing: 0.16em; }
