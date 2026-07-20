@@ -4994,7 +4994,7 @@ details[open] .badge-locked-summary::before {
 .ob-journey-check { color: var(--primary); font-size: 16px; line-height: 1; }
 
 /* ── Conqur · Field — hide per-habit content emoji in checklists (matches Endur precedent) ── */
-.habit-card .habit-emoji { display: none !important; }
+.habit-card .habit-emoji, .hwk-label .habit-emoji { display: none !important; }
 
 /* ── Conqur · Field — challenge cards ─────────────────────────────────────── */
 .cc-emoji i { color: var(--text-dim); }
