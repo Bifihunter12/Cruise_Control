@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.27.27";
+const APP_VERSION = "2026.06.27.28";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -90,13 +90,30 @@ const COMPLETION_BONUS = {
   60: 125, 75: 200, 84: 150, 90: 150, 120: 250, 365: 1000,
 };
 
-// Level chapter milestones shown once as an overlay
+// Stages — a calmer, coarser progression than the raw 1-25 level count. Boundaries
+// match the chapter-milestone trigger points below (5/10/15/20/25), so the two
+// systems always agree on where one stage ends and the next begins.
+const STAGE_BANDS = [
+  { max: 4,  num: 1, name: "Begin" },
+  { max: 9,  num: 2, name: "Show Up" },
+  { max: 14, num: 3, name: "Build Trust" },
+  { max: 19, num: 4, name: "Find Your Rhythm" },
+  { max: 24, num: 5, name: "Become Consistent" },
+  { max: 25, num: 6, name: "Lead Yourself" },
+];
+function getStage(levelNum) {
+  return STAGE_BANDS.find(b => levelNum <= b.max) || STAGE_BANDS[STAGE_BANDS.length - 1];
+}
+function getStageNumber(levelNum) { return getStage(levelNum).num; }
+
+// Level chapter milestones shown once as an overlay — each one announces arrival
+// at the next Stage (see STAGE_BANDS above).
 const CHAPTER_LEVELS = {
-  5:  { title:"Building",  msg:"You're no longer a beginner." },
-  10: { title:"Proving",   msg:"You've shown up more than most people ever will." },
-  15: { title:"Elite",     msg:"You're in the top 10% of anyone who keeps going." },
-  20: { title:"Legend",    msg:"This is who you are now." },
-  25: { title:"Conqueror", msg:"You made it." },
+  5:  { title:"Show Up",             msg:"You're no longer just starting — you're showing up." },
+  10: { title:"Build Trust",         msg:"You've given yourself real reasons to trust you again." },
+  15: { title:"Find Your Rhythm",    msg:"This is starting to feel less like effort and more like who you are." },
+  20: { title:"Become Consistent",   msg:"Consistency isn't something you're chasing anymore — it's something you have." },
+  25: { title:"Lead Yourself",       msg:"You don't need anyone to tell you to show up. You made it." },
 };
 
 // Per-category completion headline copy (deterministic pick via date seed)
@@ -168,16 +185,15 @@ const JOURNEY_THEMES = {
 const OB_FEATURE_ICONS = ["ti-trophy", "ti-bolt", "ti-shield", "ti-lock"];
 
 function getThemedLevelName(levelNum) {
-  const theme = JOURNEY_THEMES[state?.settings?.journeyTheme] || JOURNEY_THEMES.frostborn;
-  return theme.levels[levelNum - 1] || "";
+  return getStage(levelNum).name;
 }
 
 // ── Per-theme vocabulary — each theme has its own words for the same concepts ──
 const THEME_TERMS = {
   frostborn: {
-    challenge:"Quest", challengePlural:"Quests", habit:"Oath", habitPlural:"Oaths",
-    streak:"Fire", badge:"Rune", badgePlural:"Runes", level:"Rank",
-    restDay:"Recovery Day", bossDay:"Raid Day", progressPhoto:"Proof", weeklyReview:"Saga Review",
+    challenge:"Quest", challengePlural:"Quests", habit:"Promise", habitPlural:"Promises",
+    streak:"Rhythm", badge:"Milestone", badgePlural:"Milestones", level:"Stage",
+    restDay:"Recovery Day", bossDay:"Peak Day", progressPhoto:"Proof", weeklyReview:"Weekly Review",
   },
   phoenix: {
     challenge:"Ascent", challengePlural:"Ascents", habit:"Ember", habitPlural:"Embers",
@@ -208,13 +224,13 @@ function term(key) {
 // ── Per-theme flavor text — metaphor-heavy prose that can't be a simple word swap ──
 const THEME_COPY = {
   frostborn: {
-    comebackHard: (s) => `<strong>Time's getting tight.</strong> ${s.logged} of ${s.elapsed} days done this week — ${s.daysLeft} left to keep your Fire alive. <span class="cb-alive">You can still win this week.</span>`,
-    comebackSoft: (s) => `${s.logged} of ${s.elapsed} days done this week. Keep today's Oaths to stay on pace. <span class="cb-alive">You can still win this week.</span>`,
-    welcomeFallback: "Keep your Oaths. Protect your Fire. Rise in Rank.",
+    comebackHard: (s) => `<strong>Time's getting tight.</strong> ${s.logged} of ${s.elapsed} days done this week — ${s.daysLeft} left to keep your Rhythm alive. <span class="cb-alive">You can still win this week.</span>`,
+    comebackSoft: (s) => `${s.logged} of ${s.elapsed} days done this week. Keep today's Promises to stay on pace. <span class="cb-alive">You can still win this week.</span>`,
+    welcomeFallback: "Keep your Promises. Protect your Rhythm. Grow through the Stages.",
     emptyTitle: "No Quest Active",
     emptySub: "Choose your next Quest and enter the Hall.",
     heroTagline: "Enter the Hall.<br>Build who you're becoming.",
-    fireBullet: "<strong>Keep your Fire</strong> — your streak burns as long as you show up",
+    fireBullet: "<strong>Build your Rhythm</strong> — consistency compounds as long as you show up",
   },
   phoenix: {
     comebackHard: (s) => `<strong>Time's getting tight.</strong> ${s.logged} of ${s.elapsed} days done this week — ${s.daysLeft} left to keep your Flame alive. <span class="cb-alive">You can still win this week.</span>`,
@@ -259,7 +275,9 @@ function rethemeBadgeText(text) {
   return String(text || "")
     .replace(/\bOaths\b/g, term('habitPlural')).replace(/\bOath\b/g, term('habit'))
     .replace(/\bFire\b/g, term('streak'))
-    .replace(/\bQuests\b/g, term('challengePlural')).replace(/\bQuest\b/g, term('challenge'));
+    .replace(/\bQuests\b/g, term('challengePlural')).replace(/\bQuest\b/g, term('challenge'))
+    .replace(/\bRunes\b/g, term('badgePlural')).replace(/\bRune\b/g, term('badge'))
+    .replace(/\bRank\b/g, term('level'));
 }
 function rethemeBadges(defs) {
   return defs.map(b => ({ ...b, label: rethemeBadgeText(b.label), desc: rethemeBadgeText(b.desc) }));
@@ -831,7 +849,7 @@ const TEMPLATES = [
     identity: "I am someone who builds real strength, not just the look of it.",
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
-      { id:"ca-core",     title:"Core workout (15 min)",      emoji:"💪", quip:"15 minutes. No excuses.",                type:"binary", points:5 },
+      { id:"ca-core",     title:"Core workout (15 min)",      emoji:"💪", quip:"15 minutes. Show up, then it's done.",                type:"binary", points:5 },
       { id:"ca-plank",    title:"Plank hold",                 emoji:"⏱️", quip:"The plank is honest.",                   type:"tiered", points:2,
         tiers:[{label:"Under 1 min",pts:2},{label:"1–2 min",pts:4},{label:"2+ min",pts:6}] },
       { id:"ca-stretch",  title:"Hip flexor stretch",         emoji:"🦵", quip:"Core work tightens everything. Stretch.", type:"binary", points:1 },
@@ -1766,7 +1784,7 @@ const TEMPLATES = [
       { id:"ll-practice",  title:"Daily practice (20+ min)",  emoji:"🌐", quip:"App, textbook, tutor, or conversation. 20 minutes every day.", type:"binary", points:4 },
       { id:"ll-vocab",     title:"Learn 10 new words",        emoji:"📖", quip:"Vocabulary is the building block of everything else.",           type:"binary", points:2 },
       { id:"ll-listen",    title:"Listen or watch native content", emoji:"🎧", quip:"Podcasts, shows, or music in the target language.",         type:"binary", points:2 },
-      { id:"ll-streak",    title:"No-skip streak",            emoji:"🔥", quip:"The streak is the discipline. Don't break it.",                  type:"binary", points:1 },
+      { id:"ll-streak",    title:"No-skip streak",            emoji:"🗣️", quip:"Rhythm builds fluency. Keep it going.",                  type:"binary", points:1 },
     ]
   },
   {
@@ -1908,17 +1926,17 @@ const TEMPLATES = [
 const UNIVERSAL_BADGES = [
   // Streak milestones (best streak across any challenge)
   { id:"u-3d",     label:"✨ Getting Started",   desc:"Reach a 3-day Fire in any Quest.",                    test: u => u.longestStreak >= 3 },
-  { id:"u-7d",     label:"🔥 On Fire",            desc:"7-day Fire.",                                         test: u => u.longestStreak >= 7 },
+  { id:"u-7d",     label:"📈 In Rhythm",          desc:"7-day Fire.",                                         test: u => u.longestStreak >= 7 },
   { id:"u-14d",    label:"🦾 Iron Week",          desc:"14-day Fire.",                                        test: u => u.longestStreak >= 14 },
   { id:"u-21d",    label:"🧠 Oath Locked",        desc:"21-day Fire. You've built a powerful routine.",       test: u => u.longestStreak >= 21 },
   { id:"u-30d",    label:"💪 Locked In",          desc:"30-day Fire.",                                        test: u => u.longestStreak >= 30 },
   { id:"u-60d",    label:"📆 Two Months",         desc:"60-day Fire.",                                        test: u => u.longestStreak >= 60 },
   { id:"u-75d",    label:"🏆 75 Fire",            desc:"75 consecutive days. Legendary.",                     test: u => u.longestStreak >= 75 },
   // XP (all-time total across all challenges)
-  { id:"u-p10",    label:"⚡ First XP",           desc:"Earn your first 10 XP.",                              test: u => u.totalPts >= 10 },
-  { id:"u-p100",   label:"💯 Century",            desc:"100 XP total.",                                       test: u => u.totalPts >= 100 },
-  { id:"u-p500",   label:"🏅 XP Collector",       desc:"500 total XP.",                                       test: u => u.totalPts >= 500 },
-  { id:"u-p1k",    label:"💜 Elite",              desc:"1,000 total XP. Rare.",                               test: u => u.totalPts >= 1000 },
+  { id:"u-p10",    label:"⚡ First Progress",     desc:"Reach your first 10 total.",                          test: u => u.totalPts >= 10 },
+  { id:"u-p100",   label:"💯 Century",            desc:"100 total.",                                          test: u => u.totalPts >= 100 },
+  { id:"u-p500",   label:"🏅 Progress Collector", desc:"500 total.",                                          test: u => u.totalPts >= 500 },
+  { id:"u-p1k",    label:"💜 Elite",              desc:"1,000 total. Rare.",                                  test: u => u.totalPts >= 1000 },
   // Body tracking (global)
   { id:"u-scale",  label:"⚖️ On The Scale",       desc:"Log your first weight check-in.",                    test: u => u.weighIns >= 1 },
   { id:"u-1lb",    label:"📉 First Pound",        desc:"Lose 1 lb from your starting weight.",               test: u => u.weightLost >= 1 },
@@ -1941,7 +1959,7 @@ const UNIVERSAL_BADGES = [
 // Lifetime achievements — cross-challenge milestones earned once (tracked in state.globalBadges)
 const LIFETIME_BADGES = [
   { id:"lt-100h",   label:"📦 100 Habits",         desc:"Log 100 individual habits across all challenges.",  test: l => l.totalHabitsLogged >= 100 },
-  { id:"lt-500h",   label:"🔥 500 Habits",         desc:"Log 500 habits total. You're built different.",    test: l => l.totalHabitsLogged >= 500 },
+  { id:"lt-500h",   label:"🏋️ 500 Habits",         desc:"Log 500 habits total. You're built different.",    test: l => l.totalHabitsLogged >= 500 },
   { id:"lt-5c",     label:"🎖️ Serial Challenger",  desc:"Complete 5 challenges.",                            test: l => l.completedChallenges >= 5 },
   { id:"lt-cats",   label:"🌍 Well Rounded",        desc:"Complete a challenge in all 3 categories.",        test: l => l.allCategoriesDone },
   { id:"lt-perf",   label:"💎 Perfect Run",         desc:"Complete a challenge without a single missed day.", test: l => l.perfectChallenge },
@@ -1952,11 +1970,11 @@ const LIFETIME_BADGES = [
 // Tracked in state.globalBadges like Universal/Lifetime runes. Sticky once earned.
 const THEME_BADGES = {
   frostborn: [
-    { id:"theme-frostborn-5",  label:"❄️ Ice-Tempered",   desc:"Reach Rank 5. The cold no longer bothers you.",         levelReq:5,  tier:"uncommon" },
-    { id:"theme-frostborn-10", label:"🛡️ Shield-Wall",    desc:"Reach Rank 10. You hold the line.",                     levelReq:10, tier:"rare" },
-    { id:"theme-frostborn-15", label:"⚡ Jarl",            desc:"Reach Rank 15. You lead now.",                          levelReq:15, tier:"rare" },
-    { id:"theme-frostborn-20", label:"🔥 Frostborn",      desc:"Reach Rank 20. Ice and fire, both yours to command.",   levelReq:20, tier:"epic" },
-    { id:"theme-frostborn-25", label:"👑 Conqueror",       desc:"Reach Rank 25 — the top of the Frostborn path.",        levelReq:25, tier:"legendary" },
+    { id:"theme-frostborn-5",  label:"❄️ Ice-Tempered",   desc:"Reach the Show Up stage. The cold no longer bothers you.",         levelReq:5,  tier:"uncommon" },
+    { id:"theme-frostborn-10", label:"🛡️ Shield-Wall",    desc:"Reach the Build Trust stage. You hold the line.",                   levelReq:10, tier:"rare" },
+    { id:"theme-frostborn-15", label:"⚡ Jarl",            desc:"Reach the Find Your Rhythm stage. You lead now.",                   levelReq:15, tier:"rare" },
+    { id:"theme-frostborn-20", label:"🔥 Frostborn",      desc:"Reach the Become Consistent stage. Ice and fire, both yours to command.", levelReq:20, tier:"epic" },
+    { id:"theme-frostborn-25", label:"👑 Conqueror",       desc:"Reach the Lead Yourself stage — the top of the Frostborn path.",   levelReq:25, tier:"legendary" },
   ],
   phoenix: [
     { id:"theme-phoenix-5",  label:"🔥 First Ember",     desc:"Reach Flight 5. You've survived the fall.",             levelReq:5,  tier:"uncommon" },
@@ -2015,7 +2033,7 @@ const TEMPLATE_BADGES = {
     { id:"pu-first",    label:"💥 First Rep",            desc:"Log your first push-up session.",                  test: c => c.daysLogged >= 1 },
     { id:"pu-week",     label:"📅 Push-Up Week",         desc:"7 consecutive push-up days.",                      test: c => c.streak >= 7 },
     { id:"pu-halfway",  label:"💪 Halfway",              desc:"15 days logged.",                                  test: c => c.daysLogged >= 15 },
-    { id:"pu-boss",     label:"💪 Beast Mode",           desc:"Log 25 push-up sessions.",                         test: c => c.daysLogged >= 25 },
+    { id:"pu-boss",     label:"💪 25 Strong",            desc:"Log 25 push-up sessions.",                         test: c => c.daysLogged >= 25 },
     { id:"pu-done",     label:"💥 30 Days Strong",       desc:"Complete the full 30-day challenge.",               test: c => c.pctDone >= 99 && c.complete },
   ],
   "dry-month": [
@@ -3695,9 +3713,9 @@ function showLevelUpModal(o) {
     <div class="luo-card" role="dialog" aria-modal="true" aria-label="Level up!">
       <div class="luo-burst"><i class="ti ${o.icon}"></i></div>
       <div class="luo-badge">LEVEL UP</div>
-      <div class="luo-level">${o.level}</div>
+      <div class="luo-level">${getStageNumber(o.level)}</div>
       <div class="luo-name">${esc(o.name)}</div>
-      <div class="luo-total">${o.total.toLocaleString()} XP total</div>
+      <div class="luo-total">${o.total.toLocaleString()} total</div>
       <button class="primary-button luo-cta" data-close-levelup-modal>Keep going</button>
     </div>`;
   document.body.appendChild(el);
@@ -3778,7 +3796,7 @@ function checkMilestones(challenge) {
     { n:21, icon:"⚡", title:`21-day ${term('streak')}!`, sub:"Three weeks in. This is who you are now." },
     { n:30, icon:"🏆", title:"30 days!",        sub:"One month. Elite 1% territory." },
     { n:50, icon:"🌟", title:`50-day ${term('streak')}!`, sub:"Fifty days of showing up. Unbelievable." },
-    { n:75,  icon:"👑", title:"75 days!",         sub:"The full distance. You are unstoppable." },
+    { n:75,  icon:"👑", title:"75 days!",         sub:"The full distance. That's real consistency." },
     { n:100, icon:"💎", title:`100-day ${term('streak')}!`, sub:"Triple digits. You are an absolute legend." },
   ];
   for (const ms of STREAK_MILESTONES) {
@@ -4078,10 +4096,10 @@ function renderThisWeek(challenge, active, xpInfo, xpTheme, xpToNext) {
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     <div class="xp-mini-bar">
-      <span class="xmb-badge"><i class="ti ${xpTheme.icon}"></i> ${term('level')} ${xpInfo.level}</span>
+      <span class="xmb-badge"><i class="ti ${xpTheme.icon}"></i> ${term('level')} ${getStageNumber(xpInfo.level)}</span>
       <span class="xmb-name">${xpInfo.name}</span>
       <span class="xmb-track"><span class="xmb-fill" style="width:${xpInfo.pct}%"></span></span>
-      <span class="xmb-hint">${xpToNext ? xpToNext + " XP to next · XP never resets" : `Max ${term('level')} <i class="ti ti-trophy"></i>`}</span>
+      <span class="xmb-hint">${xpToNext ? xpToNext + " to next " + term('level') + " · Progress never resets" : `Max ${term('level')} <i class="ti ti-trophy"></i>`}</span>
     </div>
     ${active.length > 1 ? renderChallengePills(active) : ""}
     ${renderComebackBanner(challenge)}
@@ -4094,7 +4112,7 @@ function renderThisWeek(challenge, active, xpInfo, xpTheme, xpToNext) {
     </section>
     <section class="today-stage panel">
       <div class="week-progress-label">
-        <span>${ptsThisWeek}<span class="ring-stat-sub">/${goal} XP this week</span></span>
+        <span>${ptsThisWeek}<span class="ring-stat-sub">/${goal} this week</span></span>
         <span>${pct}%</span>
       </div>
       <div class="journey-track"><div class="journey-fill" style="width:${pct}%"></div></div>
@@ -4104,7 +4122,7 @@ function renderThisWeek(challenge, active, xpInfo, xpTheme, xpToNext) {
           <div class="ring-stat-label">days this week</div>
         </div>
         <div class="ring-stat">
-          <div class="ring-stat-value${weekStreak>=2?' streak-hero':''}">${weekStreak}${weekStreak>=2?` <i class="ti ti-flame"></i>`:""}</div>
+          <div class="ring-stat-value${weekStreak>=2?' streak-hero':''}">${weekStreak}${weekStreak>=2?` <i class="ti ti-activity"></i>`:""}</div>
           <div class="ring-stat-label">week ${term('streak')}</div>
         </div>
       </div>
@@ -4166,10 +4184,10 @@ function renderToday() {
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     <div class="xp-mini-bar">
-      <span class="xmb-badge"><i class="ti ${xpTheme.icon}"></i> ${term('level')} ${xpInfo.level}</span>
+      <span class="xmb-badge"><i class="ti ${xpTheme.icon}"></i> ${term('level')} ${getStageNumber(xpInfo.level)}</span>
       <span class="xmb-name">${xpInfo.name}</span>
       <span class="xmb-track"><span class="xmb-fill" style="width:${xpInfo.pct}%"></span></span>
-      <span class="xmb-hint">${xpToNext ? xpToNext + " XP to next · XP never resets" : `Max ${term('level')} <i class="ti ti-trophy"></i>`}</span>
+      <span class="xmb-hint">${xpToNext ? xpToNext + " to next " + term('level') + " · Progress never resets" : `Max ${term('level')} <i class="ti ti-trophy"></i>`}</span>
     </div>
     ${active.length > 1 ? renderChallengePills(active) : ""}
     <button class="link-btn" data-back-to-week style="margin-bottom:10px">← This Week</button>
@@ -4195,7 +4213,7 @@ function renderToday() {
       ${journeyPct !== null ? `<div class="journey-track"><div class="journey-fill" style="width:${journeyPct}%"></div></div>` : ""}
       <div class="hero-stats">
         ${journeyPct !== null ? `<span>${journeyPct}%</span><span class="hero-stat-dot">·</span>` : ""}
-        ${streak > 0 && isToday ? `<span><i class="ti ti-flame"></i> ${streak} day ${term('streak')}</span><span class="hero-stat-dot">·</span>` : ""}
+        ${streak > 0 && isToday ? `<span><i class="ti ti-activity"></i> ${streak} day ${term('streak')}</span><span class="hero-stat-dot">·</span>` : ""}
         <span>${challenge.noEndDate ? "Ongoing" : daysLeft > 0 ? daysLeft+" days left" : "Final day!"}</span>
         ${phaseInfo ? `<span class="hero-stat-dot">·</span><span>${esc(phaseInfo.phase.name)}</span>` : ""}
         ${isToday ? `<button class="link-btn hero-settings-link" data-view-challenge="${challenge.id}">Edit</button>` : ""}
@@ -4257,7 +4275,7 @@ function renderToday() {
       if (dayNumber >= 3 && !_notifNudgeDismissed && ("Notification" in window) && Notification.permission === "default") {
         return `<div class="notif-nudge" data-notif-nudge>
           <span class="notif-nudge-icon"><i class="ti ti-bell"></i></span>
-          <span class="notif-nudge-text">Never miss a day — <button class="notif-nudge-link" data-request-notif-permission>enable reminders</button></span>
+          <span class="notif-nudge-text">Get a nudge when it's time — <button class="notif-nudge-link" data-request-notif-permission>enable reminders</button></span>
           <button class="notif-nudge-close" data-dismiss-notif-nudge aria-label="Dismiss">×</button>
         </div>`;
       }
@@ -4442,7 +4460,7 @@ function renderRing(info, day, streak, challenge) {
         ? `<div class="percent" style="font-size:2.2rem"><i class="ti ti-moon"></i></div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">recovery day</div>`
         : isExpedition
           ? `<div class="percent" style="font-size:${todayKmD > 0 ? "1.6rem" : "2rem"}">${todayKmD > 0 ? todayKmD.toFixed(ringIsFloors?0:1) : "—"}</div><div class="ring-pts" style="font-size:11px;color:var(--text-dim)">${todayKmD > 0 ? ringDUnit+" today" : "log "+ringDUnit}</div>`
-          : `<div class="percent">${info.percent}%</div><div class="ring-pts">${info.points}<span class="ring-pts-max">/${info.maxPoints}</span><span class="ring-pts-label"> XP</span></div>`
+          : `<div class="percent">${info.percent}%</div><div class="ring-pts">${info.points}<span class="ring-pts-max">/${info.maxPoints}</span><span class="ring-pts-label"> progress</span></div>`
       }
     </div>
   </div>
@@ -4462,16 +4480,16 @@ function renderRing(info, day, streak, challenge) {
     </div>
     <div class="ring-stat">
       <div class="ring-stat-value">${challengePts}</div>
-      <div class="ring-stat-label">XP</div>
+      <div class="ring-stat-label">progress</div>
     </div>`}
     <div class="ring-stat">
-      <div class="ring-stat-value${streak>=7?' streak-hero':''}">${streak}${gracePip?`<span style="font-size:10px;color:var(--warning);margin-left:2px" title="Grace day used yesterday — don't miss today!"><i class="ti ti-lifebuoy"></i></span>`:""}${streak>=7?` <i class="ti ti-flame"></i>`:""}</div>
+      <div class="ring-stat-value${streak>=7?' streak-hero':''}">${streak}${gracePip?`<span style="font-size:10px;color:var(--warning);margin-left:2px" title="Grace day used yesterday — don't miss today!"><i class="ti ti-lifebuoy"></i></span>`:""}${streak>=7?` <i class="ti ti-activity"></i>`:""}</div>
       <div class="ring-stat-label">day ${term('streak')}${gracePip?`<span style="display:block;font-size:9px;color:var(--warning)">grace used</span>`:""}</div>
-      ${challenge && getStreakMultiplier(challenge) > 1.0 ? `<div class="ring-mult-chip">${getStreakMultiplier(challenge).toFixed(2).replace(/\.?0+$/,"")}× XP</div>` : ""}
+      ${challenge && getStreakMultiplier(challenge) > 1.0 ? `<div class="ring-mult-chip">${getStreakMultiplier(challenge).toFixed(2).replace(/\.?0+$/,"")}× progress</div>` : ""}
     </div>
   </div>
   ${isPerfect ? `<div class="perfect-day-chip"><i class="ti ti-circle-check"></i> PERFECT DAY</div>` : ""}
-  ${day.comebackBonus ? `<div class="perfect-day-chip comeback-chip"><i class="ti ti-flame"></i> COMEBACK DAY</div>` : ""}`;
+  ${day.comebackBonus ? `<div class="perfect-day-chip comeback-chip"><i class="ti ti-activity"></i> COMEBACK DAY</div>` : ""}`;
 }
 
 function renderStreakFreezeUI(challenge) {
@@ -4559,7 +4577,7 @@ function renderHabit(habit, day, challenge) {
     <span class="habit-info">
       <span class="habit-title">${esc(habit.title)}</span>
       <span class="habit-quip">${locked?`${term('restDay')} — recover well.`:minLogged?"Small version logged ✓":esc(habit.quip)}</span>
-      ${!locked && !checked ? `<button class="habit-min-btn" data-habit-min="${habit.id}">Log the small version</button>` : ""}
+      ${!locked && !checked ? `<button class="habit-min-btn" data-habit-min="${habit.id}" title="A smaller version still counts — it protects your ${term('habit').toLowerCase()}.">Log the small version</button>` : ""}
     </span>
     <button class="check-circle" data-habit="${habit.id}" ${locked?`aria-disabled="true"`:""} aria-label="Mark done">${checked?"✓":""}</button>
   </div>`;
@@ -4825,17 +4843,17 @@ function renderCompleteBanner(day, info, challenge, dayNumber, totalDays, isToda
   const streakShare = currentStreak >= 2 ? `<button class="cb-share-btn" data-share-streak><i class="ti ti-share"></i> Share streak</button>` : "";
   const firstHabit = challenge?.habits[0];
   const tomorrowHook = isToday && dayNumber && totalDays && dayNumber < totalDays
-    ? `<div class="cb-tomorrow">Tomorrow: ${firstHabit ? esc(firstHabit.title) : "Day "+(dayNumber+1)} · ${currentStreak+1}-day ${term('streak')} <i class="ti ti-flame"></i></div>`
+    ? `<div class="cb-tomorrow">Tomorrow: ${firstHabit ? esc(firstHabit.title) : "Day "+(dayNumber+1)} · ${currentStreak+1}-day ${term('streak')} <i class="ti ti-activity"></i></div>`
     : "";
   if (day.comebackBonus) {
-    return `<div class="complete-banner"><span class="cb-icon"><i class="ti ti-flame"></i></span><div class="cb-body"><div class="cb-title">Comeback. Day ${dayNumber||""} is done.</div><div class="cb-sub">That's what resilience looks like · ${info.points} XP</div>${tomorrowHook}${streakShare}</div></div>`;
+    return `<div class="complete-banner"><span class="cb-icon"><i class="ti ti-activity"></i></span><div class="cb-body"><div class="cb-title">Comeback. Day ${dayNumber||""} is done.</div><div class="cb-sub">That's what resilience looks like · +${info.points}</div>${tomorrowHook}${streakShare}</div></div>`;
   }
   const tpl = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
   const cat = tpl?.category || "transformation";
   const copyLines = COMPLETE_COPY[cat] || COMPLETE_COPY.transformation;
   const seed = parseInt((day.date || todayKey()).replace(/-/g,"")) || 0;
   const copy = copyLines[seed % copyLines.length];
-  return `<div class="complete-banner"><span class="cb-icon"><i class="ti ti-flame"></i></span><div class="cb-body"><div class="cb-title">${copy}${dayNumber ? ` Day ${dayNumber} done.` : ""}</div><div class="cb-sub">All ${term('habitPlural')} kept · ${info.points} XP</div>${tomorrowHook}${streakShare}</div></div>`;
+  return `<div class="complete-banner"><span class="cb-icon"><i class="ti ti-activity"></i></span><div class="cb-body"><div class="cb-title">${copy}${dayNumber ? ` Day ${dayNumber} done.` : ""}</div><div class="cb-sub">All ${term('habitPlural')} kept · +${info.points}</div>${tomorrowHook}${streakShare}</div></div>`;
 }
 
 function renderXPBar() {
@@ -4846,20 +4864,20 @@ function renderXPBar() {
   const freezes = c ? (c.streakFreezes || 0) : 0;
   const todayDay = c?.days[todayKey()];
   const mult     = todayDay?.streakMult ?? (c ? getStreakMultiplier(c) : 1);
-  const multLabel = mult >= 1.40 ? `<i class="ti ti-flame"></i> +40% ${term('streak')} bonus active` : mult >= 1.25 ? `<i class="ti ti-flame"></i> +25% ${term('streak')} bonus active` : mult >= 1.15 ? `<i class="ti ti-flame"></i> +15% ${term('streak')} bonus active` : mult >= 1.10 ? `<i class="ti ti-flame"></i> +10% ${term('streak')} bonus active` : null;
+  const multLabel = mult >= 1.40 ? `<i class="ti ti-activity"></i> +40% ${term('streak')} bonus active` : mult >= 1.25 ? `<i class="ti ti-activity"></i> +25% ${term('streak')} bonus active` : mult >= 1.15 ? `<i class="ti ti-activity"></i> +15% ${term('streak')} bonus active` : mult >= 1.10 ? `<i class="ti ti-activity"></i> +10% ${term('streak')} bonus active` : null;
   return `
   <div class="xp-bar-wrap">
     <div class="xp-bar-header">
-      <span class="xp-level-badge"><i class="ti ti-bolt"></i> ${term('level')} ${info.level} <span class="xp-level-name">${info.name}</span></span>
+      <span class="xp-level-badge"><i class="ti ti-bolt"></i> ${term('level')} ${getStageNumber(info.level)} <span class="xp-level-name">${info.name}</span></span>
       <div style="display:flex;align-items:center;gap:8px">
         ${freezes > 0 ? `<span class="xp-freeze-badge" title="Streak freezes — use one to protect a missed day"><i class="ti ti-snowflake"></i> ${freezes}</span>` : ""}
-        <span class="xp-bar-to-next">${isMax ? `Max ${term('level')}` : (() => { const avg = avgDailyXP(); const d = avg ? `~${Math.ceil(toNext/avg)}d` : null; return `${toNext.toLocaleString()} XP to ${term('level')} ${info.next.level}${d?` · ${d}`:""}` })()}</span>
+        <span class="xp-bar-to-next">${isMax ? `Max ${term('level')}` : (() => { const avg = avgDailyXP(); const d = avg ? `~${Math.ceil(toNext/avg)}d` : null; return `${toNext.toLocaleString()} to next ${term('level')}${d?` · ${d}`:""}` })()}</span>
       </div>
     </div>
     <div class="xp-bar-track" role="progressbar" aria-valuenow="${info.pct}" aria-valuemin="0" aria-valuemax="100">
       <div class="xp-bar-fill" style="width:${info.pct}%"></div>
     </div>
-    <div class="xp-bar-explainer">${multLabel || `XP builds your ${term('level')} forever`}</div>
+    <div class="xp-bar-explainer">${multLabel || `Progress builds your ${term('level')} forever`}</div>
   </div>`;
 }
 
@@ -4917,13 +4935,13 @@ function renderWeeklyRecap(challenge) {
     <div class="wrc-stats">
       ${isExpedition
         ? `<div class="wrc-stat"><span class="wrc-val">${weekDistLabel}</span><span class="wrc-lbl">${weekDistUnit}</span></div>`
-        : `<div class="wrc-stat"><span class="wrc-val">${pts}${lastWeekGoal ? `<span class="wrc-goal-sub">/${lastWeekGoal}</span>` : ""}</span><span class="wrc-lbl">XP</span></div>`}
+        : `<div class="wrc-stat"><span class="wrc-val">${pts}${lastWeekGoal ? `<span class="wrc-goal-sub">/${lastWeekGoal}</span>` : ""}</span><span class="wrc-lbl">progress</span></div>`}
       <div class="wrc-sep"></div>
       <div class="wrc-stat"><span class="wrc-val">${logged}/${lastWeek.allDays.length}</span><span class="wrc-lbl">days</span></div>
       <div class="wrc-sep"></div>
       <div class="wrc-stat"><span class="wrc-val">${streak}</span><span class="wrc-lbl">${term('streak')}</span></div>
     </div>
-    ${lastWeekGoal ? `<div class="wrc-goal-row${goalMetLast ? " wrc-goal-met" : ""}"><i class="ti ti-target"></i> ${goalMetLast ? "Weekly goal hit!" : `${pts}/${lastWeekGoal} XP — ${Math.round(pts/lastWeekGoal*100)}% of goal`}${thisWeekGoal && thisWeekGoal !== lastWeekGoal ? ` · Week ${curWeekIdx + 1} target: ${thisWeekGoal} XP` : ""}</div>` : ""}
+    ${lastWeekGoal ? `<div class="wrc-goal-row${goalMetLast ? " wrc-goal-met" : ""}"><i class="ti ti-target"></i> ${goalMetLast ? "Weekly goal hit!" : `${pts}/${lastWeekGoal} — ${Math.round(pts/lastWeekGoal*100)}% of goal`}${thisWeekGoal && thisWeekGoal !== lastWeekGoal ? ` · Week ${curWeekIdx + 1} target: ${thisWeekGoal}` : ""}</div>` : ""}
     ${deltaStr ? `<div class="wrc-delta-row">${deltaStr}</div>` : ""}
     ${!challenge.reflections?.[lastWeek.num] ? `
     <div class="wrc-reflect">
@@ -5003,8 +5021,8 @@ function renderPersonalBests() {
   return `
   <div class="section-label" style="margin-top:8px">Personal Bests</div>
   <div class="pb-grid">
-    ${pbCard(`<i class="ti ti-flame"></i> Longest ${term('streak')}`,   pb.longestStreak, "days")}
-    ${pbCard('<i class="ti ti-bolt"></i> Best Week',       pb.bestWeekPts,   "XP")}
+    ${pbCard(`<i class="ti ti-activity"></i> Longest ${term('streak')}`,   pb.longestStreak, "days")}
+    ${pbCard('<i class="ti ti-bolt"></i> Best Week',       pb.bestWeekPts,   "")}
     ${pbCard(`<i class="ti ti-check"></i> ${term('habitPlural')} Kept`,     pb.totalHabits,   "")}
     ${pbCard('<i class="ti ti-calendar"></i> Days Shown Up', pb.totalDays,   "")}
   </div>`;
@@ -5069,8 +5087,8 @@ function drawShareCard(challenge, isDone) {
   const totalDays  = diffDays(challenge.startDate, challenge.endDate) + 1;
 
   const statLine = isDone
-    ? `${totalDays} days · ${totalPts} XP · ${streak}-day ${term('streak')}`
-    : `Day ${dayNum} · ${streak}-day ${term('streak')} · ${totalPts} XP`;
+    ? `${totalDays} days · ${totalPts} total · ${streak}-day ${term('streak')}`
+    : `Day ${dayNum} · ${streak}-day ${term('streak')} · ${totalPts} total`;
 
   // Pill background
   const pillW = s * 0.78, pillH = s * 0.085, pillX = (s - pillW) / 2, pillY = s * 0.44;
@@ -5111,7 +5129,7 @@ function drawShareCard(challenge, isDone) {
   const _scTheme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
   ctx.fillStyle = "rgba(203,213,225,0.55)";
   ctx.font      = `400 ${Math.round(s * 0.03)}px 'Arial', sans-serif`;
-  ctx.fillText(`${_scTheme.label} · ${term('level')} ${_scLevel.level} ${_scLevel.name}`, s / 2, s * 0.81);
+  ctx.fillText(`${_scTheme.label} · ${term('level')} ${getStageNumber(_scLevel.level)} ${_scLevel.name}`, s / 2, s * 0.81);
 
   // Watermark
   ctx.fillStyle = "rgba(203,213,225,0.4)";
@@ -5128,7 +5146,7 @@ function renderShareModal() {
   const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate) + 1;
   const dayNum    = challengeDayNumber(_shareModalChallenge);
   const shareText = _shareModalDone
-    ? `I just completed the ${_shareModalChallenge.name} ${term('challenge')} on Conqur! 🏆\n${totalDays} days · ${totalPts} XP · ${streak}-day ${term('streak')}.\nKeeping my ${term('habitPlural')}. 💪\n${SHARE_URL}`
+    ? `I just completed the ${_shareModalChallenge.name} ${term('challenge')} on Conqur! 🏆\n${totalDays} days · ${totalPts} total · ${streak}-day ${term('streak')}.\nKeeping my ${term('habitPlural')}. 💪\n${SHARE_URL}`
     : `Day ${dayNum} of my ${_shareModalChallenge.name} ${term('challenge')} — ${streak}-day ${term('streak')}. 🔥\nKeeping my ${term('habitPlural')}, one day at a time.\n${SHARE_URL}`;
 
   return `
@@ -5163,7 +5181,7 @@ function renderCompletionModal(c) {
   const mTotalD       = isExpedition ? Math.round(totalKmNativeM * mFactor * 10) / 10 : null;
   const completionSub = isExpedition
     ? `${mTotalD.toFixed(mIsFloors?0:1)} ${mDUnit} covered · ${totalDays} days · ${finalStreak}-day ${term('streak')}.<br>${routeFinished ? "You finished the route. Legendary." : "You stayed the course. That's what commitment looks like."}`
-    : `${totalDays} days · ${totalPts} XP · ${finalStreak}-day ${term('streak')}.<br>That's what commitment looks like.`;
+    : `${totalDays} days · ${totalPts} total · ${finalStreak}-day ${term('streak')}.<br>That's what commitment looks like.`;
   const bonusXP = c.completionBonus || 0;
   const finishedTpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
   return `
@@ -5174,7 +5192,7 @@ function renderCompletionModal(c) {
       <div class="completion-name">${esc(c.name)}</div>
       <div class="completion-sub">${completionSub}</div>
       ${finishedTpl?.identity ? `<div class="cc-identity" style="text-align:center;border-top:none;padding-top:4px">${esc(finishedTpl.identity)}</div>` : ""}
-      ${bonusXP ? `<div class="completion-bonus-row"><i class="ti ti-bolt"></i> Challenge Complete Bonus: <strong>+${bonusXP} XP</strong></div>` : ""}
+      ${bonusXP ? `<div class="completion-bonus-row"><i class="ti ti-bolt"></i> Challenge Complete Bonus: <strong>+${bonusXP}</strong></div>` : ""}
       ${nextT ? `
       <button class="chain-cta" data-start-suggested="${nextT.id}">
         <span class="chain-cta-pre">Continue your journey</span>
@@ -5190,6 +5208,16 @@ function renderCompletionModal(c) {
           <div style="font-size:13px;color:var(--text);line-height:1.55">Take <strong>${restDays} days to recover</strong> — sleep, eat well, reflect on what you built. Your next challenge can start <strong>${nextStartLabel}</strong>.</div>
         </div>`;
       })()}
+      ${!c.completionReflection ? `
+      <div class="wrc-reflect" style="margin-top:16px">
+        <div class="wrc-reflect-q">What are you taking with you from this?</div>
+        <div class="wrc-reflect-chips">
+          <button class="wrc-chip" data-completion-reflect="${c.id}" data-reflect-val="A stronger routine">A stronger routine</button>
+          <button class="wrc-chip" data-completion-reflect="${c.id}" data-reflect-val="Proof I can follow through">Proof I can follow through</button>
+          <button class="wrc-chip" data-completion-reflect="${c.id}" data-reflect-val="A habit I'll keep">A habit I'll keep</button>
+          <button class="wrc-chip" data-completion-reflect="${c.id}" data-reflect-val="Something to adjust next time">Something to adjust next time</button>
+        </div>
+      </div>` : `<div class="wrc-msg" style="margin-top:16px">${esc(c.completionReflection)}</div>`}
       <button class="${nextT?"secondary-button":"primary-button"}" data-close-completion style="margin-top:${nextT?"8":"16"}px">Hell yeah!</button>
       ${canShare ? `<button class="secondary-button" data-share-completion style="margin-top:8px"><i class="ti ti-share"></i> Share your achievement</button>` : ""}
       <button class="secondary-button" data-completion-new-challenge style="margin-top:8px">Browse all challenges →</button>
@@ -5277,7 +5305,7 @@ function renderChallengeCard(c) {
             : isExpedition
               ? `<div class="cc-today">${todayNativeKm !== null && todayNativeKm > 0 ? (Math.round(todayNativeKm*factor*10)/10)+" "+dUnit : "—"}</div>`
               : `<div class="cc-today">${todayInfo?todayInfo.percent+"%":"—"}</div>`}
-          <div class="cc-streak"><i class="ti ti-flame"></i> ${cardStreak}${cardStreakUnit === "wk" ? "wk" : ""}</div>
+          <div class="cc-streak"><i class="ti ti-activity"></i> ${cardStreak}${cardStreakUnit === "wk" ? "wk" : ""}</div>
         </div>
       </div>
       <div class="cc-track">
@@ -5351,10 +5379,10 @@ function renderChallengeDetail(c) {
       </div>
     </div>
     <div class="stats-grid" style="margin-bottom:14px">
-      ${statCard(`<i class="ti ti-flame"></i> ${term('streak')}`, streak, "days")}
+      ${statCard(`<i class="ti ti-activity"></i> ${term('streak')}`, streak, "days")}
       ${isExpedition
         ? statCard('<i class="ti ti-map-2"></i> Distance', totalKmDisplay.toFixed(isFloorsDet?0:1), dUnitDet)
-        : statCard('<i class="ti ti-bolt"></i> Total XP', totalPts, "")}
+        : statCard('<i class="ti ti-bolt"></i> Total Progress', totalPts, "")}
       ${statCard('<i class="ti ti-check"></i> Active days', `${activeDaysDone}/${activeTotal}`, "")}
       ${statCard(`<i class="ti ti-medal"></i> ${term('badgePlural')}`, c.badges.length, "")}
     </div>
@@ -5891,7 +5919,7 @@ function renderBuilderCustomize() {
       }, 0);
       const bonus = habits.length >= 3 ? 3 : 0;
       const ptsPerWeek = (maxPtsPerDay + bonus) * 7;
-      return ptsPerWeek > 0 ? `<p class="mode-desc" style="margin-bottom:16px">~${ptsPerWeek} XP/week if all ${term('habitPlural')} kept daily${bonus ? " (incl. +3 completion bonus)" : ""}</p>` : `<p style="margin-bottom:16px"></p>`;
+      return ptsPerWeek > 0 ? `<p class="mode-desc" style="margin-bottom:16px">~${ptsPerWeek}/week if all ${term('habitPlural')} kept daily${bonus ? " (incl. +3 completion bonus)" : ""}</p>` : `<p style="margin-bottom:16px"></p>`;
     })()}
     ${template?.routeKm ? `
     <div class="route-info-card">
@@ -5949,8 +5977,8 @@ function renderBuilderCustomize() {
       </div>`}
     `}
     <div class="pts-explainer">
-      <div class="pts-explainer-title"><i class="ti ti-bolt"></i> How XP works</div>
-      <div class="pts-explainer-body">Check off ${term('habitPlural')} to earn XP. XP builds your ${term('level')} and never resets. Log 5 days in a week to earn a ${term('streak')} freeze.</div>
+      <div class="pts-explainer-title"><i class="ti ti-bolt"></i> How Progress works</div>
+      <div class="pts-explainer-body">Check off ${term('habitPlural')} to build Progress. Progress moves you through your ${term('level')}s and never resets. Log 5 days in a week to earn a ${term('streak')} freeze.</div>
     </div>
     ${("Notification" in window) && Notification.permission === "default" ? `
     <div class="builder-notif-request">
@@ -6112,22 +6140,22 @@ function renderLevelProfile() {
   return `
   <div class="level-profile-card">
     <div class="lp-top">
-      <div class="lp-level-num"><i class="ti ${theme.icon}"></i> ${term('level')} ${info.level}</div>
+      <div class="lp-level-num"><i class="ti ${theme.icon}"></i> ${term('level')} ${getStageNumber(info.level)}</div>
       <div class="lp-level-name">${info.name}</div>
     </div>
     <div class="xp-bar-track lp-track">
       <div class="xp-bar-fill" style="width:${info.pct}%"></div>
     </div>
     <div class="lp-xp-row">
-      <span>${state.xp.toLocaleString()} XP total</span>
-      <span>${isMax ? `Max ${term('level')} <i class="ti ti-trophy"></i>` : `${toNext.toLocaleString()} XP to ${term('level')} ${info.next.level}`}</span>
+      <span>${state.xp.toLocaleString()} total</span>
+      <span>${isMax ? `Max ${term('level')} <i class="ti ti-trophy"></i>` : `${toNext.toLocaleString()} to next ${term('level')}`}</span>
     </div>
     <div class="level-road">
       ${XP_LEVELS.map(lvl => {
         const unlocked = state.xp >= lvl.xp;
         const isCurrent = info.level === lvl.level;
         const showNum = isCurrent || lvl.level % 5 === 0;
-        return `<div class="lvl-node ${unlocked ? "unlocked" : ""} ${isCurrent ? "current" : ""}" title="${term('level')} ${lvl.level} ${getThemedLevelName(lvl.level)}">
+        return `<div class="lvl-node ${unlocked ? "unlocked" : ""} ${isCurrent ? "current" : ""}" title="${term('level')} ${getStageNumber(lvl.level)} ${getThemedLevelName(lvl.level)}">
           <div class="lvl-node-dot"></div>
           ${showNum ? `<div class="lvl-node-num">${lvl.level}</div>` : ""}
         </div>`;
@@ -6159,7 +6187,7 @@ function renderTrophyCase() {
           <span class="tc-emoji"><i class="ti ${challengeIcon(tcTpl)}"></i></span>
           <div class="tc-info">
             <div class="tc-name">${esc(c.name)}</div>
-            <div class="tc-meta">${streak}-day ${term('streak')} · ${totalPts} XP${dateStr ? ` · ${dateStr}` : ""}</div>
+            <div class="tc-meta">${streak}-day ${term('streak')} · ${totalPts} total${dateStr ? ` · ${dateStr}` : ""}</div>
           </div>
         </div>
         ${perfectDays > 0 ? `<div class="tc-sub">${perfectDays} perfect day${perfectDays!==1?"s":""}</div>` : ""}
@@ -6174,7 +6202,7 @@ function showChapterModal(level) {
   if (document.getElementById('chapter-modal')) return;
   const data = CHAPTER_LEVELS[level];
   if (!data) return;
-  const chapterIcon = level >= 25 ? "ti-trophy" : level >= 20 ? "ti-star" : level >= 15 ? "ti-flame" : level >= 10 ? "ti-bolt" : "ti-seedling";
+  const chapterIcon = level >= 25 ? "ti-trophy" : level >= 20 ? "ti-star" : level >= 15 ? "ti-diamond" : level >= 10 ? "ti-bolt" : "ti-seedling";
   const levelName = getThemedLevelName(level, state.settings.journeyTheme);
   const el = document.createElement('div');
   el.id = 'chapter-modal';
@@ -6184,7 +6212,7 @@ function showChapterModal(level) {
     <div class="luo-card" role="dialog" aria-modal="true">
       <div class="luo-burst"><i class="ti ${chapterIcon}"></i></div>
       <div class="luo-badge">CHAPTER ${esc(data.title.toUpperCase())}</div>
-      <div class="luo-level">${term('level')} ${level}</div>
+      <div class="luo-level">${term('level')} ${getStageNumber(level)}</div>
       <div class="luo-name">${esc(levelName)}</div>
       <div class="luo-total">${esc(data.msg)}</div>
       <button class="primary-button luo-cta" data-close-chapter-modal>Begin again. Stronger. →</button>
@@ -6221,7 +6249,7 @@ function renderBadges() {
       <div class="badge-overall-track"><div class="badge-overall-fill" style="width:${pct}%"></div></div>
       ${earned === 0 ? `<div class="badges-new-hint">Keep your first ${term('habit')} to unlock your first ${term('badge')} — most people earn 3–5 in their first week.</div>` : ""}
       ${renderBadgeCat('<i class="ti ti-world"></i> Universal', rethemeBadges(UNIVERSAL_BADGES), state.globalBadges, null, { xp: state.xp, maxStreak: Math.max(0, ...getAllChallenges().map(c => calcChallengeStreak(c))) })}
-      ${renderBadgeCat('<i class="ti ti-diamond"></i> Lifetime Achievements', LIFETIME_BADGES, state.globalBadges, null, null)}
+      ${renderBadgeCat('<i class="ti ti-diamond"></i> Lifetime Achievements', rethemeBadges(LIFETIME_BADGES), state.globalBadges, null, null)}
       ${Object.entries(THEME_BADGES).map(([themeId, defs]) => {
         const theme = JOURNEY_THEMES[themeId];
         const isActiveTheme = state.settings.journeyTheme === themeId;
@@ -6232,7 +6260,7 @@ function renderBadges() {
         const tBadges = TEMPLATE_BADGES[c.templateId];
         if (!tBadges) return "";
         const tpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
-        return renderBadgeCat(`<i class="ti ${challengeIcon(tpl)}"></i> ${esc(c.name)}`, tBadges, c.badges, c.templateId, null);
+        return renderBadgeCat(`<i class="ti ${challengeIcon(tpl)}"></i> ${esc(c.name)}`, rethemeBadges(tBadges), c.badges, c.templateId, null);
       }).join("")}
     </div>
     ${renderPersonalBests()}
@@ -6304,11 +6332,11 @@ function renderBadgeCat(label, defs, earned, templateId, progressCtx) {
     if (XP_BADGES[b.id] !== undefined) {
       const need = XP_BADGES[b.id];
       const have = Math.min(progressCtx.xp, need);
-      return `<div class="badge-hint">${have} / ${need} XP</div>`;
+      return `<div class="badge-hint">${have} / ${need}</div>`;
     }
     if (b.levelReq !== undefined && progressCtx.level !== undefined) {
       const have = Math.min(progressCtx.level, b.levelReq);
-      return `<div class="badge-hint">${term('level')} ${have} / ${b.levelReq}</div>`;
+      return `<div class="badge-hint">${term('level')} ${getStageNumber(have)} / ${getStageNumber(b.levelReq)}</div>`;
     }
     return "";
   }
@@ -6528,7 +6556,7 @@ function renderRankProgressHint() {
   const info = getLevelInfo(state.xp);
   if (!info.next || info.pct < 70) return "";
   const xpToNext = (info.next.xp - state.xp).toLocaleString();
-  return `<div class="almost-badge-chip"><i class="ti ti-bolt"></i> ${xpToNext} XP to ${term('level')} ${info.next.level}!</div>`;
+  return `<div class="almost-badge-chip"><i class="ti ti-bolt"></i> ${xpToNext} to next ${term('level')}!</div>`;
 }
 
 // ── Settings ──────────────────────────────────────────────────────────────
@@ -6547,7 +6575,7 @@ function renderObHero() {
     <ul class="ob-features" aria-label="App features">
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[0]}"></i></span><span><strong>Daily ${term('challengePlural')}</strong> — pick a challenge and complete daily ${term('habitPlural')}</span></li>
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[1]}"></i></span><span>${copy('fireBullet')}</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[2]}"></i></span><span><strong>Earn ${term('badgePlural')}, rise in ${term('level')}</strong> — real progress for real consistency</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[2]}"></i></span><span><strong>Earn ${term('badgePlural')}, grow through the ${term('level')}s</strong> — real progress for real consistency</span></li>
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ${OB_FEATURE_ICONS[3]}"></i></span><span>Works offline — no account required</span></li>
     </ul>
     <button class="primary-button ob-cta" data-ob-next>Let's go →</button>
@@ -6565,8 +6593,8 @@ function renderObExplainer() {
     </div>
     <ul class="ob-features" aria-label="How it works">
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-list-check"></i></span><span><strong>Pick a challenge</strong> — a set of daily habits to keep for a set number of days</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-bolt"></i></span><span><strong>Keep your habits, earn XP</strong> — every day you show up adds up</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-trophy"></i></span><span><strong>XP levels you up</strong> — your level never resets, no matter what</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-bolt"></i></span><span><strong>Keep your ${term('habitPlural').toLowerCase()}, build Progress</strong> — every day you show up adds up</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-trophy"></i></span><span><strong>Progress moves you forward</strong> — it never resets, no matter what</span></li>
     </ul>
     <button class="primary-button ob-cta" data-ob-next>Choose how you level up →</button>
   </div>`;
@@ -6841,7 +6869,7 @@ function renderDataSettings() {
     ${_resetConfirm ? `
       <div style="background:color-mix(in srgb,var(--error) 8%,transparent);border:1px solid color-mix(in srgb,var(--error) 30%,transparent);border-radius:10px;padding:14px">
         <div style="font-size:13px;font-weight:700;color:var(--error);margin-bottom:6px">Delete account?</div>
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">All ${term('challengePlural')}, XP, ${term('badgePlural')}, ${term('streak')}, and settings will be permanently deleted and your account removed. This cannot be undone.</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">All ${term('challengePlural')}, Progress, ${term('badgePlural')}, ${term('streak')}, and settings will be permanently deleted and your account removed. This cannot be undone.</div>
         <div style="display:flex;gap:8px">
           <button class="secondary-button" data-reset-cancel style="flex:1">Cancel</button>
           <button class="primary-button" data-reset-confirm style="flex:1;background:var(--error);border-color:var(--error)">Yes, delete account</button>
@@ -6995,10 +7023,10 @@ function renderSettings() {
     <div class="section-label" style="margin-top:20px">How Conqur Works</div>
     <div class="more-card" style="font-size:13px;line-height:1.65;color:var(--text-dim)">
       <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-target"></i> ${term('challengePlural')}</strong> — Pick a challenge: a routine, a health reset, or a discipline test. Each one gives you daily ${term('habitPlural')} to keep.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-bolt"></i> XP &amp; ${term('level')}</strong> — Each ${term('habit')} you keep is worth XP. XP builds your ${term('level')} and never resets, so every small win becomes part of your record.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-flame"></i> ${term('streak')}</strong> — Your ${term('streak')} grows every day you keep your ${term('habitPlural')}. Soft mode gives you one grace day before it resets.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-bolt"></i> Progress &amp; ${term('level')}</strong> — Each ${term('habit')} you keep builds Progress. Progress moves you through your ${term('level')} and never resets, so every small win becomes part of your record.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-activity"></i> ${term('streak')}</strong> — Your ${term('streak')} grows every day you keep your ${term('habitPlural')}. Soft mode gives you one grace day before it resets.</div>
       <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-shield"></i> ${term('restDay')}s</strong> — ${term('restDay')}s are planned rest, reflection, and reset time. They do not erase your progress.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-flag"></i> Phases &amp; ${term('bossDay')}s</strong> — Longer ${term('challengePlural')} are split into phases, each ending in a ${term('bossDay')} — a harder push with bonus XP.</div>
+      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-flag"></i> Phases &amp; ${term('bossDay')}s</strong> — Longer ${term('challengePlural')} are split into phases, each ending in a ${term('bossDay')} — a harder push with a bonus.</div>
       <div><strong style="color:var(--text)"><i class="ti ti-medal"></i> ${term('badgePlural')}</strong> — Earn ${term('badgePlural')} for ${term('streak')}, consistency, and completions. Proof of who you're becoming.</div>
     </div>
     ${renderProSection()}
@@ -7196,7 +7224,7 @@ function bindEvents() {
     const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate)+1;
     const dayNum    = challengeDayNumber(_shareModalChallenge);
     const text = _shareModalDone
-      ? `I just completed the ${_shareModalChallenge.name} ${term('challenge')} on Conqur! 🏆\n${totalDays} days · ${totalPts} XP · ${streak}-day ${term('streak')}.\nKeeping my ${term('habitPlural')}. 💪\n${SHARE_URL}`
+      ? `I just completed the ${_shareModalChallenge.name} ${term('challenge')} on Conqur! 🏆\n${totalDays} days · ${totalPts} total · ${streak}-day ${term('streak')}.\nKeeping my ${term('habitPlural')}. 💪\n${SHARE_URL}`
       : `Day ${dayNum} of my ${_shareModalChallenge.name} ${term('challenge')} — ${streak}-day ${term('streak')}. 🔥\nKeeping my ${term('habitPlural')}, one day at a time.\n${SHARE_URL}`;
     if (navigator.share) {
       fetch(_shareCardDataUrl).then(r=>r.blob()).then(blob => {
@@ -7223,7 +7251,7 @@ function bindEvents() {
     const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate)+1;
     const dayNum    = challengeDayNumber(_shareModalChallenge);
     const text = _shareModalDone
-      ? `I just completed the ${_shareModalChallenge.name} ${term('challenge')} on Conqur! 🏆\n${totalDays} days · ${totalPts} XP · ${streak}-day ${term('streak')}.\nKeeping my ${term('habitPlural')}. 💪\n${SHARE_URL}`
+      ? `I just completed the ${_shareModalChallenge.name} ${term('challenge')} on Conqur! 🏆\n${totalDays} days · ${totalPts} total · ${streak}-day ${term('streak')}.\nKeeping my ${term('habitPlural')}. 💪\n${SHARE_URL}`
       : `Day ${dayNum} of my ${_shareModalChallenge.name} ${term('challenge')} — ${streak}-day ${term('streak')}. 🔥\nKeeping my ${term('habitPlural')}, one day at a time.\n${SHARE_URL}`;
     navigator.clipboard?.writeText(text).then(() => showToast("Copied!")).catch(() => showToast(text));
   });
@@ -7626,6 +7654,11 @@ function bindEvents() {
     c.reflections[el.dataset.reflectWeek] = el.dataset.reflectVal;
     saveState(); render();
   });
+  on("[data-completion-reflect]", el => {
+    const c = getChallenge(el.dataset.completionReflect); if (!c) return;
+    c.completionReflection = el.dataset.reflectVal;
+    saveState(); render();
+  });
   on("[data-start-suggested]", el => {
     const t = TEMPLATES.find(t2 => t2.id === el.dataset.startSuggested);
     if (!t) return;
@@ -7775,7 +7808,7 @@ function toggleHabit(id, minimum = false) {
   } else if (xpGain > 0) {
     const mult = day.streakMult || 1;
     const multStr = mult > 1 ? ` 🔥×${mult.toFixed(2)}` : "";
-    showToast(minimum ? `+${xpGain} XP${multStr} · small version counts` : `+${xpGain} XP${multStr}`);
+    showToast(minimum ? `+${xpGain}${multStr} · small version counts` : `+${xpGain}${multStr}`);
   }
   saveState(); navigator.vibrate?.(10);
   _savedFlash = true;
@@ -7870,7 +7903,7 @@ function selectTier(habitId, rawVal) {
   } else if (xpGain2 > 0) {
     const mult2 = day.streakMult || 1;
     const multStr2 = mult2 > 1 ? ` 🔥×${mult2.toFixed(2)}` : "";
-    showToast(`+${xpGain2} XP${multStr2}`);
+    showToast(`+${xpGain2}${multStr2}`);
   }
   saveState(); navigator.vibrate?.(10);
   checkBadges(c); checkMilestones(c); render();
@@ -7978,7 +8011,7 @@ function renderBuilderQuickstart() {
     <div class="bqs-desc">${esc(template.description)}</div>
     ${TEMPLATE_SAFETY[template.id] ? `<div class="bqs-safety-warning"><span class="bqs-safety-icon"><i class="ti ti-alert-triangle"></i></span><span>${TEMPLATE_SAFETY[template.id]}</span></div>` : ""}
     <div class="bqs-xp-row">
-      <i class="ti ${xpTheme.icon}"></i> Earn ~<strong>${weeklyXP.toLocaleString()} XP</strong> per week logging every ${term('habit')}
+      <i class="ti ${xpTheme.icon}"></i> Earn ~<strong>${weeklyXP.toLocaleString()}</strong> per week logging every ${term('habit')}
     </div>
     <div class="bqs-mode-note">
       ${template.defaultMode === "soft"
@@ -8328,12 +8361,12 @@ function currentGreeting(challenge, dayNumber, streak) {
   const h = new Date().getHours();
   const t = h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
   // Streak-based (highest priority — most motivating)
-  if (streak >= 50) return `<i class="ti ti-flame"></i> ${streak}-day ${term('streak')}. You are in the 1%.`;
+  if (streak >= 50) return `<i class="ti ti-activity"></i> ${streak}-day ${term('streak')}. You are in the 1%.`;
   if (streak >= 30) return `<i class="ti ti-bolt"></i> ${streak} days straight. Most people never get here.`;
   if (streak >= 21) return `<i class="ti ti-trophy"></i> ${streak} days. The average person quits at day 12. You didn't.`;
-  if (streak >= 14) return `<i class="ti ti-flame"></i> ${streak} in a row. The week-one graveyard is behind you.`;
+  if (streak >= 14) return `<i class="ti ti-activity"></i> ${streak} in a row. The week-one graveyard is behind you.`;
   if (streak >= 7)  return `<i class="ti ti-bolt"></i> ${streak}-day ${term('streak')}. Discipline is forming. Don't stop now.`;
-  if (streak >= 3)  return `<i class="ti ti-flame"></i> ${streak} days in a row. The ${term('streak')} is real.`;
+  if (streak >= 3)  return `<i class="ti ti-activity"></i> ${streak} days in a row. The ${term('streak')} is real.`;
   // Data-driven on total habits logged
   if (totalHabits >= 200) return `${totalHabits} ${term('habitPlural')} kept. You're not the same person you were.`;
   if (totalHabits >= 100) return `${totalHabits} ${term('habitPlural')} kept. 100 small decisions that add up.`;
