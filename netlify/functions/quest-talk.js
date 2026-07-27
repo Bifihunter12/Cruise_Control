@@ -52,7 +52,13 @@ async function checkAndConsumeRateLimit(ip) {
   // failure mode actually seen in testing; this remains as a safety net for
   // anything else, e.g. a genuine Blobs outage.)
   try {
-    const store = getStore("conqur-ratelimit");
+    // Strong consistency, deliberately — Blobs defaults to eventual (up to
+    // 60s to propagate), which is fine for most uses but wrong for a rate
+    // limiter: a rapid burst (exactly the abuse pattern this exists to
+    // catch) would have every request read a stale pre-burst count and
+    // never actually accumulate. Confirmed live: a 21-request burst never
+    // tripped the limit under eventual consistency.
+    const store = getStore("conqur-ratelimit", { consistency: "strong" });
     const today = new Date().toISOString().slice(0, 10);
     const key = `${ip}:${today}`;
     const raw = await store.get(key, { type: "text" });
