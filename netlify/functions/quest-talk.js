@@ -72,9 +72,15 @@ const SAFETY_PATTERNS = [
   // Self-harm
   /\bself[\s-]?harm(ing)?\b/i, /\bself[\s-]?injur(e|y|ing)\b/i, /\bcutting myself\b/i,
   /\bhurt(ing)? myself\b/i, /\bharming myself\b/i, /\bburning myself\b/i, /\bpunishing myself\b/i,
-  // Substance dependence
-  /\boverdos(e|ing|ed)\b/i, /\bcan'?t stop (drinking|using)\b/i, /\bwithdrawal\b/i, /\bdetox(ing)?\b/i,
-  /\baddict(ed|ion)\b/i, /\brelapse(d)?\b/i, /\bblackout drink(ing)?\b/i,
+  // Substance dependence — "addicted"/"detox" alone are too broad for this app
+  // specifically (users will routinely say "addicted to my phone" or "digital
+  // detox" about the exact behavior Conqur is meant to help with, not a
+  // substance crisis) — these require a substance word nearby.
+  /\boverdos(e|ing|ed)\b/i, /\bcan'?t stop (drinking|using drugs)\b/i, /\bwithdrawal\b/i,
+  /\b(alcohol|drug|substance)s? detox(ing)?\b/i, /\bdetox(ing)? from (alcohol|drugs)\b/i,
+  /\baddict(ed|ion)\b.{0,25}\b(alcohol|drink(ing)?|drug|pills?|substance|opioid|cocaine|heroin|meth)\b/i,
+  /\b(alcohol|drink(ing)?|drug|pills?|substance|opioid|cocaine|heroin|meth)\b.{0,25}\baddict(ed|ion)\b/i,
+  /\brelapse(d)?\b/i, /\bblackout drink(ing)?\b/i,
   // Disordered eating
   /\bpurg(e|ing)\b/i, /\bbing(e|ing)\b/i, /\bstarv(e|ing) myself\b/i, /\bnot eating\b/i,
   /\bthrowing up after eating\b/i, /\blaxatives\b/i,
