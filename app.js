@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.27.30";
+const APP_VERSION = "2026.06.27.32";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -572,7 +572,7 @@ const QUEST_LIBRARY = {
     id: "evening-work",
     title: "Stop Working Through the Evening",
     emoji: "🌇",
-    pattern: { description: "Continuing to work after the intended stopping point, even when the user wants to transition into personal life.", category: "work" },
+    pattern: { description: "Continuing to work after the intended stopping point, even when you want to transition into personal life.", category: "work" },
     cuePrompt: "What time do you want to stop?",
     cueDefault: "18:30",
     promiseTemplate: (cueLabel) => `At ${cueLabel}, I will close work and begin one intentional transition.`,
@@ -2503,7 +2503,9 @@ let _confirmDialog   = null;   // { msg, onConfirm } — replaces window.confirm
 let _promptDialog    = null;   // { msg, defaultVal, onConfirm } — replaces window.prompt()
 let _questSetupDefId   = null; // QUEST_LIBRARY id currently being set up (cue time / replacement)
 let _questSwitchPending = null; // { defId, cueTime, replacementText } — pending create, waiting on switch-confirm
-let _letsTalkOpen = false;      // Main Quest "Let's Talk" sheet open state
+let _letsTalkOpen = false;      // Main Quest "Let's Talk" sheet open state — false | true | "time" | "chat"
+let _questChatMessages = [];    // { role: "user"|"assistant", content } — in-memory only, never persisted/synced
+let _questChatLoading = false;  // true while waiting on an AIService.talk() response
 let _cloudAuthError   = "";    // error message for cloud auth form (settings)
 let _cloudAuthLoading = false; // loading spinner for cloud auth (settings)
 let _shareModalChallenge = null;    // challenge shown in share card modal
@@ -2605,6 +2607,28 @@ function trackEvent(name, props) {
     }
   } catch(e) { /* silent */ }
 }
+
+// ── AI Service (Phase 3) — provider-agnostic wrapper. The rest of the app
+// only ever talks to this object, never to a specific vendor/model directly,
+// so the backend can change without touching any UI code. Currently backed
+// by a Netlify Function (netlify/functions/quest-talk.js) calling OpenAI.
+const AIService = {
+  async talk(messages, context, escalate = false) {
+    try {
+      const res = await fetch("/.netlify/functions/quest-talk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages, context, escalate }),
+      });
+      if (!res.ok) return { error: true, message: "Something went wrong reaching support. Try again in a moment." };
+      const data = await res.json();
+      if (!data.message) return { error: true, message: "Something went wrong reaching support. Try again in a moment." };
+      return { error: false, message: data.message, safetyRouted: !!data.safetyRouted };
+    } catch {
+      return { error: true, message: "Couldn't reach support right now — check your connection and try again." };
+    }
+  },
+};
 
 // ── Cloud Sync (Supabase) ──────────────────────────────────────────────────
 const SUPABASE_URL = "https://rmyvpndnwpgrxosqrqff.supabase.co";
@@ -4451,6 +4475,7 @@ function renderQuestReplacementOptions(quest, promise) {
 // this later; it does not replace it.
 function renderLetsTalkSheet(quest) {
   if (!_letsTalkOpen) return "";
+  if (_letsTalkOpen === "chat") return renderQuestChatSheet(quest);
   return `
   <div class="sheet-backdrop" data-lets-talk-close>
     <section class="sheet lets-talk-sheet" role="dialog">
@@ -4459,6 +4484,7 @@ function renderLetsTalkSheet(quest) {
         <button class="wrc-chip" data-quest-adjust-smaller="${quest.id}">Make today's step smaller</button>
         <button class="wrc-chip" data-quest-adjust-alt="${quest.id}">Choose another replacement</button>
         <button class="wrc-chip" data-quest-adjust-time="${quest.id}">Move it to another time</button>
+        <button class="wrc-chip" data-quest-open-chat="${quest.id}">Talk it through</button>
         <button class="wrc-chip" data-lets-talk-close>Keep the original plan</button>
         <button class="wrc-chip" data-quest-adjust-pause="${quest.id}">Pause the Quest</button>
       </div>
@@ -4470,6 +4496,37 @@ function renderLetsTalkSheet(quest) {
       </div>` : ""}
     </section>
   </div>`;
+}
+
+// "Talk it through" — a real AI conversation, additive to the five rules-based
+// options above (never a replacement for them). Grounded only in the Quest's
+// own real data (pattern/promise/replacements) — see quest-talk.js for the
+// safety pre-filter and system prompt this actually talks to.
+function renderQuestChatSheet(quest) {
+  return `
+  <div class="sheet-backdrop" data-lets-talk-close>
+    <section class="sheet lets-talk-sheet quest-chat-sheet" role="dialog">
+      <button class="link-btn" data-quest-chat-back style="margin-bottom:8px">← Back</button>
+      <div class="section-label" style="margin-top:0">Talk it through</div>
+      <div class="quest-chat-disclaimer">Conqur only knows what you share here. This isn't a substitute for professional care.</div>
+      <div class="quest-chat-thread" id="quest-chat-thread">
+        ${_questChatMessages.length === 0 ? `<div class="quest-chat-empty">What's making today's Promise hard right now?</div>` : ""}
+        ${_questChatMessages.map(m => `<div class="quest-chat-msg quest-chat-msg--${m.role}">${esc(m.content)}</div>`).join("")}
+        ${_questChatLoading ? `<div class="quest-chat-msg quest-chat-msg--assistant quest-chat-typing">···</div>` : ""}
+      </div>
+      <div class="quest-chat-input-row">
+        <input type="text" id="quest-chat-input" class="quest-setup-input" placeholder="Type here…" ${_questChatLoading ? "disabled" : ""}>
+        <button class="primary-button quest-chat-send-btn" data-quest-chat-send="${quest.id}" ${_questChatLoading ? "disabled" : ""}>Send</button>
+      </div>
+      ${_questChatMessages.length >= 2 ? `<button class="link-btn" data-quest-chat-deeper="${quest.id}" style="margin-top:8px">Go deeper</button>` : ""}
+    </section>
+  </div>`;
+}
+function scrollQuestChatToBottom() {
+  requestAnimationFrame(() => {
+    const el = document.getElementById("quest-chat-thread");
+    if (el) el.scrollTop = el.scrollHeight;
+  });
 }
 
 // ── Today Tab (legacy multi-habit view — preserved, not reachable from nav) ─
@@ -7578,6 +7635,7 @@ function bindEvents() {
   on("[data-dismiss-email-capture]", () => { localStorage.setItem("conqur_email_capture","dismissed"); render(); });
   document.addEventListener("keydown", e => {
     if (e.key === "Enter" && e.target.id === "email-cap-input") document.querySelector("[data-email-capture-submit]")?.click();
+    if (e.key === "Enter" && e.target.id === "quest-chat-input") document.querySelector(".quest-chat-send-btn")?.click();
   });
   on("[data-email-capture-submit]",  () => {
     const input = document.getElementById("email-cap-input");
@@ -8154,6 +8212,57 @@ function bindEvents() {
     demoteMainQuest();
     _letsTalkOpen = false;
     render();
+  });
+  on("[data-quest-open-chat]", () => {
+    _letsTalkOpen = "chat";
+    render();
+    scrollQuestChatToBottom();
+  });
+  on("[data-quest-chat-back]", () => {
+    _letsTalkOpen = true;
+    render();
+  });
+  on("[data-quest-chat-send]", async el => {
+    const c = getChallenge(el.dataset.questChatSend); if (!c || _questChatLoading) return;
+    const input = document.getElementById("quest-chat-input");
+    const text = (input?.value || "").trim();
+    if (!text) return;
+    _questChatMessages.push({ role: "user", content: text });
+    _questChatLoading = true;
+    render();
+    scrollQuestChatToBottom();
+    const promise = c.habits[0];
+    const context = {
+      questTitle: c.name,
+      pattern: c.pattern?.description || "",
+      promise: promise?.title || "",
+      defaultReplacement: promise?.defaultReplacement || "",
+      alternatives: (promise?.alternatives || []).map(a => a.label),
+    };
+    const result = await AIService.talk(_questChatMessages, context, false);
+    _questChatLoading = false;
+    _questChatMessages.push({ role: "assistant", content: result.message });
+    render();
+    scrollQuestChatToBottom();
+  });
+  on("[data-quest-chat-deeper]", async el => {
+    const c = getChallenge(el.dataset.questChatDeeper); if (!c || _questChatLoading) return;
+    _questChatLoading = true;
+    render();
+    scrollQuestChatToBottom();
+    const promise = c.habits[0];
+    const context = {
+      questTitle: c.name,
+      pattern: c.pattern?.description || "",
+      promise: promise?.title || "",
+      defaultReplacement: promise?.defaultReplacement || "",
+      alternatives: (promise?.alternatives || []).map(a => a.label),
+    };
+    const result = await AIService.talk(_questChatMessages, context, true);
+    _questChatLoading = false;
+    _questChatMessages.push({ role: "assistant", content: result.message });
+    render();
+    scrollQuestChatToBottom();
   });
   on("[data-start-suggested]", el => {
     const t = TEMPLATES.find(t2 => t2.id === el.dataset.startSuggested);

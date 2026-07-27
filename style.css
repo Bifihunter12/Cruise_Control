@@ -5117,3 +5117,27 @@ details[open] .badge-locked-summary::before {
 }
 .lets-talk-sheet .lets-talk-options { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
 .lets-talk-sheet .wrc-chip { width:100%; text-align:left; border-radius:var(--radius-sm); padding:12px 14px; font-size:13px; }
+
+/* ── Quest chat (Phase 3, "Talk it through") ─────────────────────────────── */
+.quest-chat-sheet { display:flex; flex-direction:column; max-height:80vh; }
+.quest-chat-disclaimer { font-size:11px; color:var(--text-faint); margin-bottom:10px; line-height:1.4; }
+.quest-chat-thread {
+  flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px;
+  min-height:120px; max-height:44vh; padding:2px 2px 6px;
+}
+.quest-chat-empty { font-size:13px; color:var(--text-dim); text-align:center; padding:20px 10px; }
+.quest-chat-msg {
+  max-width:82%; padding:9px 12px; border-radius:var(--radius-sm); font-size:13.5px; line-height:1.45;
+  white-space:pre-wrap; word-break:break-word;
+}
+.quest-chat-msg--user {
+  align-self:flex-end; background:var(--accent); color:#07111F; border-bottom-right-radius:4px;
+}
+.quest-chat-msg--assistant {
+  align-self:flex-start; background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+  border-bottom-left-radius:4px;
+}
+.quest-chat-typing { color:var(--text-faint); letter-spacing:2px; }
+.quest-chat-input-row { display:flex; gap:8px; margin-top:10px; }
+.quest-chat-input-row .quest-setup-input { flex:1; }
+.quest-chat-input-row .quest-chat-send-btn { width:auto; min-height:auto; padding:0 18px; border-radius:var(--radius-sm); }
