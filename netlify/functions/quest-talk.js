@@ -47,11 +47,13 @@ async function checkAndConsumeRateLimit(ip) {
     const key = `${ip}:${today}`;
     const raw = await store.get(key, { type: "text" });
     const count = raw ? parseInt(raw, 10) || 0 : 0;
-    if (count >= DAILY_MESSAGE_LIMIT) return false;
+    if (count >= DAILY_MESSAGE_LIMIT) return { ok: false };
     await store.set(key, String(count + 1));
-    return true;
-  } catch {
-    return true;
+    return { ok: true };
+  } catch (err) {
+    // TEMPORARY diagnostic — remove _debugError once root-caused (see
+    // CONQUR_REBUILD_ROADMAP.md Section 10 known issue #2 investigation).
+    return { ok: true, _debugError: String((err && err.message) || err) };
   }
 }
 
@@ -116,14 +118,16 @@ exports.handler = async (event) => {
   }
 
   const clientIp = getClientIp(event);
-  const withinLimit = await checkAndConsumeRateLimit(clientIp);
-  if (!withinLimit) {
+  const rateLimitResult = await checkAndConsumeRateLimit(clientIp);
+  if (!rateLimitResult.ok) {
     return {
       statusCode: 200,
       headers: { ...CORS, "Content-Type": "application/json" },
       body: JSON.stringify({ message: RATE_LIMIT_RESPONSE, safetyRouted: false, rateLimited: true }),
     };
   }
+  // TEMPORARY diagnostic passthrough — see comment at the catch block above.
+  const _debugRateLimitError = rateLimitResult._debugError || null;
 
   let payload;
   try {
@@ -147,7 +151,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       headers: { ...CORS, "Content-Type": "application/json" },
-      body: JSON.stringify({ message: SAFETY_RESPONSE, safetyRouted: true }),
+      body: JSON.stringify({ message: SAFETY_RESPONSE, safetyRouted: true, _debugRateLimitError, _debugIp: clientIp }),
     };
   }
 
