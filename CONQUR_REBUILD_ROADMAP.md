@@ -1,6 +1,6 @@
 # Conqur Rebuild Roadmap — Single-Quest Habit-Replacement Model
 
-**Status:** Phase 1 and Phase 2 (onboarding rebuild) both built and verified live (Section 6, Section 8). Do not proceed to Phase 3 (AI support layer) without a fresh approval — per the checkpoint requirement in Section 2.6, and note Phase 3 was explicitly scoped to require its own provider/architecture sign-off regardless.
+**Status:** Phase 1, Phase 2, and a first slice of Phase 3 (real AI via "Talk it through") are built and verified live against real OpenAI responses (Section 6, 7, 10). Phase 3 is not fully complete — personality/intensity picker and AI-interpreted onboarding free text are still deferred. See Section 10 for exact scope and known issues before expanding it further.
 
 **Context:** the master rebuild prompt asks Conqur to move from "pick several unrelated habits and check them off" to "one Main Quest built around replacing a single automatic behavior pattern, with an optional AI coaching layer." This is a core product/architecture pivot, not a styling or copy change. Conqur has zero real users yet, so there's no live-data migration risk.
 
@@ -193,3 +193,32 @@ Before any Phase 3 code gets written, Conqur needs its own OpenAI API key, separ
 3. **Confirm**: once set, a Netlify Function can read it via `process.env.OPENAI_API_KEY` — matches exactly how Runner's `netlify/functions/*.js` do it.
 
 Once this is done, Phase 3 implementation can actually start (writing the first Netlify Function + the `AIService` interface). Not blocking Phases 1/2, which are already complete and don't touch this.
+
+**Done 2026-07-27** — `conqur`-style key created, `OPENAI_API_KEY` set on the Habits/Conqur Netlify site. See Section 10.
+
+## 10. Phase 3 (first slice) — build report, complete, verified against real OpenAI responses
+
+**Scope of this slice** (not the full Phase 3): a real AI conversation added as a 6th option — "Talk it through" — on the existing Let's Talk sheet, additive to the five working non-AI options, none of which were touched. Deliberately deferred from the full Phase 3 scope: the personality/intensity picker (ships with one default voice), and AI-interpreted onboarding free text (no input field exists for that yet — would need its own slice).
+
+**Files changed:**
+- `netlify/functions/quest-talk.js` (new) — the proxy function. Mirrors the safety/validation rigor of Runner's `coach.js` (input sanitization, hard server-side checks) but with one structural difference: a **hard-coded keyword/pattern safety pre-filter runs on every message before any OpenAI call** — a match short-circuits straight to a fixed crisis-resource response (US 988 line) with the model never seeing the message at all. This is stricter than Runner's approach (which relies on the model's own risk-level classification) and was a deliberate, explicit requirement from this project's approved decisions, not copied from Runner.
+- `app.js` — `AIService` object (provider-agnostic wrapper — the rest of the app only ever calls `AIService.talk()`, never a vendor name), `_questChatMessages`/`_questChatLoading` state (in-memory only, never persisted or synced, same reasoning as Runner's `coachHistory`), `renderQuestChatSheet()`, ~6 new handlers, Enter-to-send wired into the existing keydown pattern.
+- `style.css` — new `.quest-chat-*` rules (message bubbles, thread scroll area, input row), reusing the existing sheet/chip visual language.
+- Version bumped to `2026.06.27.32`.
+
+**Data-model changes:** none. Chat state is transient/in-memory, never written to `state`/localStorage/Supabase.
+
+**Verified live, against the real deployed function (not mocks) — could not be tested locally, no Netlify CLI in this environment:**
+1. Safety filter: sent explicit crisis language via curl directly to the deployed function — correctly returned the fixed 988-resource response with `safetyRouted:true`, confirmed via response inspection that OpenAI was never called for this path (the filter runs before the fetch to OpenAI in the function's own control flow).
+2. Normal conversation via curl: real `gpt-4o-mini` response, correctly grounded in the actual Quest's real `defaultReplacement`/`alternatives` (never invented a new suggestion), asked exactly one clarifying question, matched the intended warm/non-hype voice.
+3. Escalation via curl (`escalate:true`): confirmed `model:"gpt-4o"` in the response, appropriately handled a more complex multi-issue message.
+4. Full UI walkthrough on the live site with real clicks: created a Quest → Let's Talk → Talk it through → typed and sent a real message → got a real grounded response referencing the Quest's actual cue time (18:30) → "Go deeper" appeared after 2 messages as designed. No console errors at any point.
+5. Graceful degradation (verified in the dev preview before deploying, where the function genuinely isn't reachable): a failed/unreachable call shows a friendly in-thread error message, never a crash, never an unhandled rejection in console.
+
+**Known issues / needs your attention:**
+1. ~~Safety pattern list is a first pass~~ — **expanded 2026-07-27** (suicide/self-harm/substance/eating-disorder/abuse categories all broadened with more phrasings — e.g. indirect suicidal ideation like "don't want to be here anymore," more self-harm verbs, "addicted"/"relapse," "domestic violence"/"afraid of"). Still calibrated to unambiguous risk language, not generic distress/venting words, so ordinary hard days still get real conversation rather than being redirected. **Still not a clinically reviewed list** — that qualifier doesn't go away just because coverage improved; worth real expert review before wide traffic.
+2. ~~No rate limiting or per-user cost cap~~ — **fixed 2026-07-27.** `quest-talk.js` now checks a per-IP daily cap (20 messages/day) via Netlify Blobs (`conqur-ratelimit` store — reuses the same `@netlify/blobs` dependency `sync.js` already uses, no new infra) before doing any work. Over the cap returns a warm, non-punitive message ("thanks for using it so much today, resets tomorrow") rather than an error. Deliberately fails open (allows the request) if Blobs itself is unreachable — this is a cost guardrail, not a security boundary, so an infra hiccup shouldn't block real users. **Not yet live-verified** — needs deployment first (no Netlify CLI in this environment), same limitation noted for the original slice.
+3. **`gpt-4o-mini`/`gpt-4o` model strings should be re-verified before relying on them long-term** — same caution already noted in Runner's memory for the identical models; OpenAI's naming/pricing can change.
+4. **Conversation history resets on page reload** (by design, matching Runner's `coachHistory` precedent) — if a user closes the app mid-conversation and reopens later, the AI has no memory of the earlier exchange. Acceptable for a "quick check-in" framing; would need real persistence if this becomes a longer-running relationship feature.
+5. **The "one default voice" simplification** means the doc's three-personality/three-intensity concept (Calm Coach / Supportive Companion / Practical Assistant × Gentle/Balanced/Firm) isn't implemented yet — current voice reads closest to "Supportive Companion, Balanced." Building the picker is a real follow-up slice, not done here.
+6. **Rate limit is IP-based, not per-user** — on shared/NAT'd networks (offices, some mobile carriers), multiple real people could share one IP and hit the cap together. Acceptable tradeoff for a no-accounts-required app; a real per-user limit would need to key off the optional Supabase sign-in instead, only covering signed-in users.
