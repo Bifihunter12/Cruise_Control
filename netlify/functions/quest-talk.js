@@ -37,25 +37,22 @@ function getClientIp(event) {
 }
 
 async function checkAndConsumeRateLimit(ip) {
-  const store = getStore("conqur-ratelimit");
-  const today = new Date().toISOString().slice(0, 10);
-  const key = `${ip}:${today}`;
-  let count = 0;
+  // Whole thing wrapped, including getStore() itself — it can throw
+  // synchronously (e.g. Blobs not configured for this context), and this is
+  // a cost guardrail, not a security boundary, so any failure here should
+  // fail OPEN rather than take the whole endpoint down.
   try {
+    const store = getStore("conqur-ratelimit");
+    const today = new Date().toISOString().slice(0, 10);
+    const key = `${ip}:${today}`;
     const raw = await store.get(key, { type: "text" });
-    count = raw ? parseInt(raw, 10) || 0 : 0;
+    const count = raw ? parseInt(raw, 10) || 0 : 0;
+    if (count >= DAILY_MESSAGE_LIMIT) return false;
+    await store.set(key, String(count + 1));
+    return true;
   } catch {
-    // Blobs unreachable — fail open rather than blocking real users over an
-    // infra hiccup; this is a cost guardrail, not a security boundary.
     return true;
   }
-  if (count >= DAILY_MESSAGE_LIMIT) return false;
-  try {
-    await store.set(key, String(count + 1));
-  } catch {
-    // Same fail-open reasoning as above.
-  }
-  return true;
 }
 
 // Deliberately broad/over-inclusive within unambiguous risk language — a
