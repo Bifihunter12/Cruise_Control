@@ -9,7 +9,16 @@
 // a more capable model is not the safety system, a hard gate is (see
 // CONQUR_REBUILD_ROADMAP.md, Section 2 item 2 and Section 5 Phase 3).
 
-const { getStore } = require("@netlify/blobs");
+const { getStore, connectLambda } = require("@netlify/blobs");
+// This function uses the classic `exports.handler = async (event) => {...}`
+// (Lambda compatibility mode) style, matching sync.js/auth.js elsewhere in
+// this repo. In that mode Netlify does NOT auto-configure the Blobs
+// environment — connectLambda(event) must be called first, every
+// invocation, immediately before any getStore() call. Confirmed via
+// Netlify's own docs (github.com/netlify/blobs#lambda-compatibility-mode)
+// after live testing showed the rate limit was silently failing open on
+// every single request (MissingBlobsEnvironmentError, caught but never
+// actually root-caused until now).
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 const MODEL_DEFAULT = "gpt-4o-mini";
@@ -37,10 +46,11 @@ function getClientIp(event) {
 }
 
 async function checkAndConsumeRateLimit(ip) {
-  // Whole thing wrapped, including getStore() itself — it can throw
-  // synchronously (e.g. Blobs not configured for this context), and this is
-  // a cost guardrail, not a security boundary, so any failure here should
-  // fail OPEN rather than take the whole endpoint down.
+  // Wrapped end-to-end — this is a cost guardrail, not a security boundary,
+  // so any unexpected failure here should fail OPEN rather than take the
+  // whole endpoint down. (The connectLambda fix above addresses the one
+  // failure mode actually seen in testing; this remains as a safety net for
+  // anything else, e.g. a genuine Blobs outage.)
   try {
     const store = getStore("conqur-ratelimit");
     const today = new Date().toISOString().slice(0, 10);
@@ -50,10 +60,8 @@ async function checkAndConsumeRateLimit(ip) {
     if (count >= DAILY_MESSAGE_LIMIT) return { ok: false };
     await store.set(key, String(count + 1));
     return { ok: true };
-  } catch (err) {
-    // TEMPORARY diagnostic — remove _debugError once root-caused (see
-    // CONQUR_REBUILD_ROADMAP.md Section 10 known issue #2 investigation).
-    return { ok: true, _debugError: String((err && err.message) || err) };
+  } catch {
+    return { ok: true };
   }
 }
 
@@ -107,6 +115,8 @@ const SYSTEM_PROMPT = [
 ].join(" ");
 
 exports.handler = async (event) => {
+  connectLambda(event); // must run before any getStore() call — see comment at the top of this file
+
   if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers: CORS, body: "" };
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: "Method not allowed" }) };
@@ -126,8 +136,6 @@ exports.handler = async (event) => {
       body: JSON.stringify({ message: RATE_LIMIT_RESPONSE, safetyRouted: false, rateLimited: true }),
     };
   }
-  // TEMPORARY diagnostic passthrough — see comment at the catch block above.
-  const _debugRateLimitError = rateLimitResult._debugError || null;
 
   let payload;
   try {
@@ -151,7 +159,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       headers: { ...CORS, "Content-Type": "application/json" },
-      body: JSON.stringify({ message: SAFETY_RESPONSE, safetyRouted: true, _debugRateLimitError, _debugIp: clientIp }),
+      body: JSON.stringify({ message: SAFETY_RESPONSE, safetyRouted: true }),
     };
   }
 
