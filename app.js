@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.06.27.28";
+const APP_VERSION = "2026.06.27.30";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -547,6 +547,79 @@ const BADGE_TIERS = {
   "lt-100h":"uncommon","lt-500h":"rare","lt-5c":"epic","lt-cats":"rare",
   "lt-wk10":"uncommon","lt-perf":"legendary","lt-freeze":"uncommon",
 };
+
+// ── Main Quest library — Phase 1 validation set (2 curated Quests only) ────
+// Each entry seeds a single-Promise Quest challenge. The Promise stays stable
+// regardless of which replacement the user picks — see day.replacementUsed.
+const QUEST_LIBRARY = {
+  "doomscroll": {
+    id: "doomscroll",
+    title: "Stop Doomscrolling",
+    emoji: "📵",
+    pattern: { description: "Scrolling automatically at night and losing time, rest, or connection.", category: "digital" },
+    cuePrompt: "What time does this usually happen?",
+    cueDefault: "21:30",
+    promiseTemplate: (cueLabel) => `At ${cueLabel}, I will interrupt scrolling for ten minutes and choose something that gives me more.`,
+    defaultReplacement: "Write down three things that were good today.",
+    alternatives: [
+      { label: "Connect with someone you care about.", prompt: "Send a genuine message · Call someone · Make a real-life plan" },
+      { label: "Create something to look forward to.", prompt: "Plan a walk · Arrange coffee · Choose something enjoyable for tomorrow" },
+    ],
+    homeScreenPrompt: "What would feel better than scrolling tonight?",
+    allowPersonalizeReplacement: false,
+  },
+  "evening-work": {
+    id: "evening-work",
+    title: "Stop Working Through the Evening",
+    emoji: "🌇",
+    pattern: { description: "Continuing to work after the intended stopping point, even when the user wants to transition into personal life.", category: "work" },
+    cuePrompt: "What time do you want to stop?",
+    cueDefault: "18:30",
+    promiseTemplate: (cueLabel) => `At ${cueLabel}, I will close work and begin one intentional transition.`,
+    defaultReplacement: "Close work and take a ten-minute walk.",
+    alternatives: [
+      { label: "Spend ten phone-free minutes with someone you care about.", prompt: "" },
+      { label: "Change clothes, play one song, and begin your evening.", prompt: "" },
+    ],
+    homeScreenPrompt: "Work can stop here. What would help you return to your life?",
+    allowPersonalizeReplacement: true,
+  },
+};
+
+// Onboarding assessment (Phase 2) — rules-based reflect-understanding-back,
+// no AI required. See buildReflectBack() / renderObReflect().
+const OBSTACLE_OPTIONS = [
+  { id: "too_much",        label: "I take on too much" },
+  { id: "schedule_changes",label: "My schedule changes" },
+  { id: "lose_motivation", label: "I lose motivation" },
+  { id: "miss_and_stop",   label: "I miss one day and stop" },
+  { id: "dont_know_start", label: "I don't know where to start" },
+  { id: "too_difficult",   label: "The plan becomes too difficult" },
+  { id: "forget",          label: "I forget" },
+  { id: "bored",           label: "I get bored" },
+];
+const OBSTACLE_PHRASES = {
+  too_much:         "taking on too much at once",
+  schedule_changes: "your schedule shifting under you",
+  lose_motivation:  "motivation fading after the first few days",
+  miss_and_stop:    "one missed day turning into giving up entirely",
+  dont_know_start:  "not knowing where to start",
+  too_difficult:    "the plan getting too hard to keep up with",
+  forget:           "simply forgetting",
+  bored:            "losing interest partway through",
+};
+function buildReflectBack() {
+  const def = QUEST_LIBRARY[onboardingAnswers.pattern];
+  const obstaclePhrase = OBSTACLE_PHRASES[onboardingAnswers.obstacle] || "life getting in the way";
+  const capacityPhrase = onboardingAnswers.capacity === "low" ? "we'll keep today's step small"
+    : onboardingAnswers.capacity === "good" ? "you're ready to really commit"
+    : "we'll keep this realistic for your week";
+  if (!def) {
+    return `It sounds like something's been feeling automatic, and ${obstaclePhrase} has made it hard to change before. We're still building out a Quest for that exact pattern — for now, take a look at what's ready today.`;
+  }
+  const desc = def.pattern.description.replace(/\.$/, "");
+  return `It sounds like ${desc.charAt(0).toLowerCase()}${desc.slice(1)} — and ${obstaclePhrase} has made it hard to change before. Let's start small: ${def.title}, and ${capacityPhrase}. Does this feel right?`;
+}
 
 // ── Built-in Templates ─────────────────────────────────────────────────────
 
@@ -2428,6 +2501,9 @@ let justCompletedId  = null;   // challenge shown in completion modal right now
 let justCompletedIds = [];     // queue of IDs waiting to be shown after the current one
 let _confirmDialog   = null;   // { msg, onConfirm } — replaces window.confirm()
 let _promptDialog    = null;   // { msg, defaultVal, onConfirm } — replaces window.prompt()
+let _questSetupDefId   = null; // QUEST_LIBRARY id currently being set up (cue time / replacement)
+let _questSwitchPending = null; // { defId, cueTime, replacementText } — pending create, waiting on switch-confirm
+let _letsTalkOpen = false;      // Main Quest "Let's Talk" sheet open state
 let _cloudAuthError   = "";    // error message for cloud auth form (settings)
 let _cloudAuthLoading = false; // loading spinner for cloud auth (settings)
 let _shareModalChallenge = null;    // challenge shown in share card modal
@@ -2435,7 +2511,7 @@ let _shareModalDone      = false;   // true = challenge completion card, false =
 let _shareCardDataUrl    = null;    // cached base64 PNG of the last drawn share card
 let _notifNudgeDismissed = false;   // dismissal flag for the Day-3 notification nudge
 let builderQuizAnswers   = { goal: null, time: null, level: null };
-let onboardingAnswers    = { goal: null, intensity: null, time: null, cue: null };
+let onboardingAnswers    = { goal: null, intensity: null, time: null, cue: null, pattern: null, obstacle: null, capacity: null };
 let _badgeSheetQueue     = [];       // { label, desc, tier } — queued badge celebrations
 let _notifPromptVisible  = false;   // post-challenge-start notification prompt
 let _templateFilter      = "all";   // "all" | "short" | "medium" | "long"
@@ -2704,6 +2780,12 @@ function normalizeDay(raw) {
     note:         typeof raw.note === "string" ? raw.note : "",
     freezeUsed:   raw.freezeUsed   === true,
     scheduledRest: raw.scheduledRest === true,
+    // Quest daily-outcome fields (Main Quest model) — additive, unrelated to the
+    // multi-habit `done` array above except that the Promise habit id still gets
+    // pushed into `done` when marked Done, so streak/badge logic needs no changes.
+    notToday:         raw.notToday         === true,
+    supportRequested: raw.supportRequested === true,
+    replacementUsed:  ["default","alt1","alt2"].includes(raw.replacementUsed) ? raw.replacementUsed : null,
   };
 }
 
@@ -2720,6 +2802,17 @@ function normalizeHabit(raw) {
   if (typeof raw.unit     === "string") habit.unit     = raw.unit;
   if (typeof raw.decimals === "number") habit.decimals = raw.decimals;
   if (Array.isArray(raw.tiers))         habit.tiers    = raw.tiers;
+  // Main Quest model: the Promise habit (habits[0] on a Quest challenge) carries a
+  // stable commitment (title/quip) plus a default + alternative ways to fulfill it.
+  // Choosing an alternative never creates a second habit — see day.replacementUsed.
+  habit.isSideMission = raw.isSideMission === true;
+  if (typeof raw.defaultReplacement === "string") habit.defaultReplacement = raw.defaultReplacement;
+  if (Array.isArray(raw.alternatives)) {
+    habit.alternatives = raw.alternatives
+      .filter(a => a && typeof a.label === "string")
+      .map(a => ({ label: a.label, prompt: typeof a.prompt === "string" ? a.prompt : "" }))
+      .slice(0, 2);
+  }
   return habit;
 }
 
@@ -2766,6 +2859,12 @@ function normalizeChallenge(raw) {
     resumeReminderDate:       raw.resumeReminderDate || null,
     goalWeight:               raw.goalWeight ?? null,
     routeKm:                  typeof raw.routeKm === "number" ? raw.routeKm : null,
+    // Main Quest model — additive fields, only present on Quest-created challenges.
+    isMainQuest:  raw.isMainQuest === true,
+    questDefId:   typeof raw.questDefId === "string" ? raw.questDefId : null,
+    pattern:      (raw.pattern && typeof raw.pattern === "object") ? { description: raw.pattern.description || "", category: raw.pattern.category || "custom" } : null,
+    cue:          (raw.cue && typeof raw.cue === "object") ? { trigger: raw.cue.trigger || "", timeOfDay: raw.cue.timeOfDay || null } : null,
+    need:         typeof raw.need === "string" ? raw.need : null,
   };
 }
 
@@ -3264,6 +3363,80 @@ function createChallenge(form) {
   return c;
 }
 
+// ── Main Quest helpers ──────────────────────────────────────────────────────
+function getMainQuest() {
+  return Object.values(state.challenges).find(c => c.isMainQuest && c.status === "active") || null;
+}
+function getMainQuestOwnerLabel() {
+  const name = (state.settings.name || "").trim();
+  return name ? `${name}'s Quest` : "Your Quest";
+}
+// Pauses the current Main Quest (if any) without deleting it — its data stays
+// fully intact and it can be resumed later via promoteToMainQuest().
+function demoteMainQuest() {
+  const current = getMainQuest();
+  if (!current) return null;
+  current.isMainQuest = false;
+  current.status = "paused";
+  current.pausedOn = todayKey();
+  saveState();
+  return current;
+}
+function promoteToMainQuest(id) {
+  const c = getChallenge(id);
+  if (!c) return null;
+  demoteMainQuest();
+  c.isMainQuest = true;
+  c.status = "active";
+  c.pausedOn = null;
+  saveState();
+  return c;
+}
+// Creates a new Main Quest from QUEST_LIBRARY. Demotes any currently-active
+// Main Quest first — call sites must confirm the switch with the user before
+// calling this (see _questSwitchPending / renderQuestSwitchConfirm).
+function createQuest(defId, cueTime, replacementText) {
+  const def = QUEST_LIBRARY[defId];
+  if (!def) return null;
+  demoteMainQuest();
+  const cueLabel = (cueTime || def.cueDefault || "").trim() || def.cueDefault;
+  const promiseHabit = {
+    id: "promise",
+    title: def.promiseTemplate(cueLabel),
+    emoji: def.emoji,
+    quip: "",
+    type: "binary",
+    points: 5,
+    defaultReplacement: (def.allowPersonalizeReplacement && replacementText && replacementText.trim())
+      ? replacementText.trim() : def.defaultReplacement,
+    alternatives: def.alternatives,
+  };
+  const c = normalizeChallenge({
+    id: uid(),
+    name: def.title,
+    emoji: def.emoji,
+    description: def.pattern.description,
+    startDate: todayKey(),
+    endDate: addDays(todayKey(), 29),
+    noEndDate: true, // an ongoing practice, not a fixed-duration challenge — also avoids the old completion-modal/"browse challenges" path
+    mode: "soft",
+    status: "active",
+    weeklyGoal: promiseHabit.points * 7, // a single Promise can only earn points/day × 7 in a week — the old 100 default assumed several habits and was unreachable here
+    habits: [promiseHabit],
+    days: {},
+    badges: [],
+    createdAt: todayKey(),
+    isMainQuest: true,
+    questDefId: def.id,
+    pattern: def.pattern,
+    cue: { trigger: def.cuePrompt, timeOfDay: cueLabel },
+    need: null,
+  });
+  state.challenges[c.id] = c;
+  saveState();
+  return c;
+}
+
 // Real completion % — counts every calendar day of the challenge (not just days the
 // user happened to open the app on), so days never visited don't just vanish from the
 // denominator. Rest days are only excluded if the user actually took them (visited and
@@ -3637,6 +3810,21 @@ function renderConfirmModal() {
   </div>`;
 }
 
+function renderQuestSwitchConfirm() {
+  if (!_questSwitchPending) return "";
+  return `
+  <div class="confirm-overlay" data-quest-switch-overlay>
+    <div class="confirm-modal panel">
+      <p class="confirm-msg" style="font-weight:700;font-size:16px;margin-bottom:6px">Start a new Main Quest?</p>
+      <p class="confirm-msg">Your current Quest will pause.<br>Everything you have done will stay saved, and you can return whenever you are ready.</p>
+      <div class="confirm-btns" style="flex-direction:column;gap:8px">
+        <button class="primary-button" style="width:100%" data-quest-switch-confirm>Pause and start the new Quest</button>
+        <button class="secondary-button" style="width:100%" data-quest-switch-cancel>Keep my current Quest</button>
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderPromptModal() {
   if (!_promptDialog) return "";
   return `
@@ -3914,8 +4102,8 @@ function _renderInner() {
   } else if (viewChallengeId) {
     html += renderChallengeDetail(getChallenge(viewChallengeId));
   } else {
-    html += activeTab === "today"      ? renderToday()      : "";
-    html += activeTab === "challenges" ? renderChallenges() : "";
+    html += activeTab === "today"      ? renderMainQuestTab() : "";
+    html += activeTab === "challenges" ? renderQuestPicker()  : "";
 
     html += activeTab === "badges"     ? renderBadges()     : "";
   }
@@ -3947,6 +4135,7 @@ function _renderInner() {
   }
   if (_notifPromptVisible) html += renderNotifPrompt();
   html += renderConfirmModal();
+  html += renderQuestSwitchConfirm();
   html += renderPromptModal();
   if (_safetyPendingTemplateId) html += renderSafetyModal();
   if (_showInstallBanner && _pwaInstallPrompt && !localStorage.getItem("conqur_install_shown")) {
@@ -4040,7 +4229,7 @@ const NAV_ICONS = {
 };
 
 function renderNav() {
-  const tabs = [["today","This Week"],["challenges",term('challengePlural')],["badges",term('badgePlural')]];
+  const tabs = [["today","Quest"],["challenges","Explore"],["badges",term('badgePlural')]];
   return `
   <nav class="bottom-nav" aria-label="Conqur sections">
     ${tabs.map(([id,label]) => `
@@ -4135,7 +4324,155 @@ function renderThisWeek(challenge, active, xpInfo, xpTheme, xpToNext) {
   </main>`;
 }
 
-// ── Today Tab ─────────────────────────────────────────────────────────────
+// ── Main Quest (Phase 1 primary home experience) ────────────────────────────
+// This is the only entry point into starting or running something in Conqur
+// during Phase 1 — the older multi-habit renderToday()/renderChallenges() paths
+// below are preserved but no longer reachable from the nav or dispatcher.
+
+function renderMainQuestTab() {
+  const quest = getMainQuest();
+  if (quest) { todayChallengeId = quest.id; return renderMainQuestHome(quest); }
+  return renderQuestPicker();
+}
+
+function renderQuestPicker() {
+  if (_questSetupDefId && QUEST_LIBRARY[_questSetupDefId]) return renderQuestSetup(QUEST_LIBRARY[_questSetupDefId]);
+  const paused = Object.values(state.challenges).filter(c => !c.isMainQuest && c.questDefId && c.status === "paused");
+  return `
+  <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
+    <div class="section-label" style="margin-top:4px">Choose Your Quest</div>
+    <div class="quest-picker-list">
+      ${Object.values(QUEST_LIBRARY).map(def => `
+      <button class="challenge-card" data-quest-pick="${def.id}">
+        <div class="cc-top">
+          <span class="cc-emoji"><i class="ti ti-target"></i></span>
+          <div class="cc-info">
+            <div class="cc-name">${esc(def.title)}</div>
+            <div class="cc-meta">${esc(def.pattern.description)}</div>
+          </div>
+        </div>
+      </button>`).join("")}
+    </div>
+    ${paused.length ? `
+    <div class="section-label" style="margin-top:24px">Paused Quests</div>
+    <div class="quest-picker-list">
+      ${paused.map(c => `
+      <button class="challenge-card" data-quest-resume="${c.id}">
+        <div class="cc-top">
+          <span class="cc-emoji"><i class="ti ${c.emoji === "📵" ? "ti-device-mobile-off" : "ti-target"}"></i></span>
+          <div class="cc-info">
+            <div class="cc-name">${esc(c.name)}</div>
+            <div class="cc-meta">Paused · progress saved</div>
+          </div>
+        </div>
+      </button>`).join("")}
+    </div>` : ""}
+  </main>`;
+}
+
+function renderQuestSetup(def) {
+  return `
+  <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
+    <button class="link-btn" data-quest-setup-back style="margin-bottom:10px">← Back</button>
+    <div class="section-label" style="margin-top:0">${esc(def.title)}</div>
+    <div class="more-card">
+      <label class="quest-setup-label" for="quest-cue-time">${esc(def.cuePrompt)}</label>
+      <input type="time" id="quest-cue-time" class="quest-setup-input" value="${def.cueDefault}">
+      ${def.allowPersonalizeReplacement ? `
+      <label class="quest-setup-label" for="quest-replacement-text" style="margin-top:14px">Your default replacement (optional — leave as is or make it yours)</label>
+      <input type="text" id="quest-replacement-text" class="quest-setup-input" value="${esc(def.defaultReplacement)}">` : ""}
+    </div>
+    <button class="primary-button" data-quest-start="${def.id}" style="margin-top:16px">Start This Quest</button>
+  </main>`;
+}
+
+function renderMainQuestHome(quest) {
+  const effDate = effectiveDate();
+  const today = todayKey();
+  const isToday = effDate === today;
+  const day = getChallengeDay(quest, effDate);
+  const promise = quest.habits[0];
+  const done = day.done.includes(promise.id);
+  const def = QUEST_LIBRARY[quest.questDefId];
+  const streak = calcChallengeStreak(quest);
+  const stage = getLevelInfo(state.xp);
+  return `
+  <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
+    <div class="quest-owner-label">${esc(getMainQuestOwnerLabel())}</div>
+    <div class="quest-title">${esc(quest.name)}</div>
+    ${quest.startDate < today ? renderComebackBanner(quest) : ""}
+    <section class="panel" style="margin-top:14px">
+      <div class="quest-promise-label">Your Promise</div>
+      <div class="quest-promise-text">${esc(promise.title)}</div>
+    </section>
+    ${done ? `
+    <section class="panel quest-done-state" style="margin-top:12px">
+      <div class="quest-done-check"><i class="ti ti-circle-check"></i> Done for today</div>
+      <div class="quest-done-sub">${day.replacementUsed === "alt1" ? esc(promise.alternatives?.[0]?.label || "") : day.replacementUsed === "alt2" ? esc(promise.alternatives?.[1]?.label || "") : esc(promise.defaultReplacement)}</div>
+    </section>` : day.notToday ? `
+    <section class="panel" style="margin-top:12px">
+      <div class="quest-done-sub">That's okay. Your Quest continues.</div>
+    </section>
+    <div class="quest-prompt" style="margin-top:14px">${esc(def?.homeScreenPrompt || "")}</div>
+    ${renderQuestReplacementOptions(quest, promise)}
+    ` : `
+    <div class="quest-prompt" style="margin-top:14px">${esc(def?.homeScreenPrompt || "")}</div>
+    ${renderQuestReplacementOptions(quest, promise)}
+    `}
+    <div class="quest-secondary-actions">
+      ${!done ? `<button class="link-btn" data-quest-not-today="${quest.id}">Not today</button>` : ""}
+      <button class="link-btn" data-quest-lets-talk="${quest.id}">Let's talk</button>
+    </div>
+    <div class="quest-stats-row">
+      <div class="ring-stat"><div class="ring-stat-value">${streak}</div><div class="ring-stat-label">day ${term('streak')}</div></div>
+      <div class="ring-stat"><div class="ring-stat-value">${getStageNumber(stage.level)}</div><div class="ring-stat-label">${term('level')}</div></div>
+    </div>
+    ${renderLetsTalkSheet(quest)}
+  </main>`;
+}
+
+function renderQuestReplacementOptions(quest, promise) {
+  return `
+  <div class="quest-replacement-list">
+    <button class="quest-replacement-option quest-replacement-option--default" data-quest-done="${quest.id}" data-quest-replacement="default">
+      <span class="quest-replacement-tag">Recommended</span>
+      <span class="quest-replacement-text">${esc(promise.defaultReplacement)}</span>
+    </button>
+    ${(promise.alternatives || []).map((alt, i) => `
+    <button class="quest-replacement-option" data-quest-done="${quest.id}" data-quest-replacement="alt${i+1}">
+      <span class="quest-replacement-text">${esc(alt.label)}</span>
+      ${alt.prompt ? `<span class="quest-replacement-hint">${esc(alt.prompt)}</span>` : ""}
+    </button>`).join("")}
+  </div>`;
+}
+
+// Non-AI "Let's Talk" support sheet (Phase 1). Every option here does something
+// real immediately — none of these require a model call. AI (Phase 3) upgrades
+// this later; it does not replace it.
+function renderLetsTalkSheet(quest) {
+  if (!_letsTalkOpen) return "";
+  return `
+  <div class="sheet-backdrop" data-lets-talk-close>
+    <section class="sheet lets-talk-sheet" role="dialog">
+      <div class="section-label" style="margin-top:0">What would help right now?</div>
+      <div class="lets-talk-options">
+        <button class="wrc-chip" data-quest-adjust-smaller="${quest.id}">Make today's step smaller</button>
+        <button class="wrc-chip" data-quest-adjust-alt="${quest.id}">Choose another replacement</button>
+        <button class="wrc-chip" data-quest-adjust-time="${quest.id}">Move it to another time</button>
+        <button class="wrc-chip" data-lets-talk-close>Keep the original plan</button>
+        <button class="wrc-chip" data-quest-adjust-pause="${quest.id}">Pause the Quest</button>
+      </div>
+      ${_letsTalkOpen === "time" ? `
+      <div class="more-card" style="margin-top:12px">
+        <label class="quest-setup-label" for="quest-time-adjust">New time</label>
+        <input type="time" id="quest-time-adjust" class="quest-setup-input" value="${esc(quest.cue?.timeOfDay || "")}">
+        <button class="primary-button" data-quest-adjust-time-save="${quest.id}" style="margin-top:10px">Save new time</button>
+      </div>` : ""}
+    </section>
+  </div>`;
+}
+
+// ── Today Tab (legacy multi-habit view — preserved, not reachable from nav) ─
 
 function renderToday() {
   const active = getActiveChallenges();
@@ -6588,18 +6925,76 @@ function renderObExplainer() {
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
       <div class="ob-emoji" aria-hidden="true"><i class="ti ti-trending-up"></i></div>
-      <div class="ob-title">Habits become a game</div>
-      <div class="ob-body">Here's the whole system in three steps.</div>
+      <div class="ob-title">One pattern at a time</div>
+      <div class="ob-body">Here's how it works.</div>
     </div>
     <ul class="ob-features" aria-label="How it works">
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-list-check"></i></span><span><strong>Pick a challenge</strong> — a set of daily habits to keep for a set number of days</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-bolt"></i></span><span><strong>Keep your ${term('habitPlural').toLowerCase()}, build Progress</strong> — every day you show up adds up</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-eye"></i></span><span><strong>Notice what's automatic</strong> — one meaningful pattern, not five habits</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-bolt"></i></span><span><strong>Keep your ${term('habit').toLowerCase()}, build Progress</strong> — every day you show up adds up</span></li>
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-trophy"></i></span><span><strong>Progress moves you forward</strong> — it never resets, no matter what</span></li>
     </ul>
     <button class="primary-button ob-cta" data-ob-next>Choose how you level up →</button>
   </div>`;
 }
 
+// ── Onboarding assessment (Phase 2) — replaces goal/intensity/time/cue below,
+// which are preserved but no longer reachable from the dispatcher. ──────────
+function renderObPattern() {
+  const options = [
+    { id: "doomscroll",   icon: "ti-device-mobile-off", label: "Scrolling at night, even when I don't mean to" },
+    { id: "evening-work", icon: "ti-briefcase",          label: "Staying at my desk long after I meant to stop" },
+    { id: "other",        icon: "ti-dots",               label: "Something else" },
+  ];
+  return `
+  <div class="ob-screen ob-screen--slide" role="main">
+    <div class="ob-slide-inner">
+      <div class="ob-emoji" aria-hidden="true"><i class="ti ti-eye"></i></div>
+      <div class="ob-title">What's been feeling most automatic lately?</div>
+      <div class="ob-body">Not something to fix today — just something to notice.</div>
+    </div>
+    <div class="ob-goal-grid">
+      ${options.map(o => `
+      <button class="ob-goal-btn" data-ob-answer="pattern" data-ob-value="${o.id}">
+        <span class="ob-goal-emoji"><i class="ti ${o.icon}"></i></span>
+        <div class="ob-goal-info">
+          <div class="ob-goal-label">${o.label}</div>
+        </div>
+        <span class="ob-goal-arrow">→</span>
+      </button>`).join("")}
+    </div>
+  </div>`;
+}
+function renderObObstacle() {
+  return renderObChoice("What's made this hard to change before?", "Pick whatever's closest — there's no wrong answer.",
+    OBSTACLE_OPTIONS.map(o => ({ id: o.id, icon: "ti-point", label: o.label, desc: "" })), "obstacle");
+}
+function renderObCapacity() {
+  const options = [
+    { id: "low",  icon: "ti-battery-1", label: "Not much right now", desc: "Keep today's step tiny" },
+    { id: "some", icon: "ti-battery-3", label: "Some", desc: "I can commit a little each day" },
+    { id: "good", icon: "ti-battery-4", label: "Good", desc: "I'm ready to really commit" },
+  ];
+  return renderObChoice("How much capacity do you have right now?", "Be honest — this just helps us pace things right.", options, "capacity");
+}
+function renderObReflect() {
+  const def = QUEST_LIBRARY[onboardingAnswers.pattern];
+  return `
+  <div class="ob-screen ob-screen--slide" role="main">
+    <div class="ob-slide-inner">
+      <div class="ob-emoji" aria-hidden="true"><i class="ti ti-message-circle"></i></div>
+      <div class="ob-title">Here's what we heard</div>
+      <div class="ob-body">${esc(buildReflectBack())}</div>
+    </div>
+    ${def ? `
+    <button class="primary-button ob-cta" data-ob-confirm-quest="${def.id}">Yes, let's start</button>
+    <button class="link-btn ob-link" data-ob-redo>Show me something else</button>` : `
+    <button class="primary-button ob-cta" data-ob-see-available>See what's ready today</button>
+    <button class="link-btn ob-link" data-ob-redo>Go back</button>`}
+  </div>`;
+}
+
+// ── Legacy onboarding screens (goal/intensity/time/cue/recommendation) ──────
+// Preserved, no longer reachable — superseded by the assessment above.
 function renderObGoal() {
   const goals = [
     { id:"lose_weight",  icon:"ti-scale", label:"Lose weight",        desc:"Protein, steps, whole foods" },
@@ -6827,10 +7222,10 @@ function renderOnboarding() {
   if (onboardingStep === null) return "";
   if (onboardingStep === 0) return renderObHero();
   if (onboardingStep === 1) return renderObExplainer();
-  if (onboardingStep === 2) return renderObGoal();
-  if (onboardingStep === 3) return renderObIntensity();
-  if (onboardingStep === 4) return renderObTime();
-  if (onboardingStep === 5) return renderObCue();
+  if (onboardingStep === 2) return renderObPattern();
+  if (onboardingStep === 3) return renderObObstacle();
+  if (onboardingStep === 4) return renderObCapacity();
+  if (onboardingStep === 5) return renderObReflect();
   if (onboardingStep === 6) return renderObRecommendation();
   if (onboardingStep === 7) return renderObName();
   return renderObAccount();
@@ -7500,6 +7895,22 @@ function bindEvents() {
     onboardingStep++;
     render();
   });
+  on("[data-ob-confirm-quest]", el => {
+    _questSetupDefId = el.dataset.obConfirmQuest;
+    onboardingStep = null;
+    activeTab = "today";
+    render();
+  });
+  on("[data-ob-see-available]", () => {
+    _questSetupDefId = null;
+    onboardingStep = null;
+    activeTab = "today";
+    render();
+  });
+  on("[data-ob-redo]", () => {
+    onboardingStep = 2;
+    render();
+  });
   on("[data-ob-browse]", () => {
     onboardingStep = null;
     activeTab = "challenges";
@@ -7658,6 +8069,91 @@ function bindEvents() {
     const c = getChallenge(el.dataset.completionReflect); if (!c) return;
     c.completionReflection = el.dataset.reflectVal;
     saveState(); render();
+  });
+
+  // ── Main Quest (Phase 1) ────────────────────────────────────────────────
+  on("[data-quest-pick]", el => {
+    _questSetupDefId = el.dataset.questPick;
+    render();
+  });
+  on("[data-quest-setup-back]", () => {
+    _questSetupDefId = null;
+    render();
+  });
+  on("[data-quest-start]", el => {
+    const defId = el.dataset.questStart;
+    const cueTime = document.getElementById("quest-cue-time")?.value || "";
+    const replacementText = document.getElementById("quest-replacement-text")?.value || "";
+    if (getMainQuest()) {
+      _questSwitchPending = { defId, cueTime, replacementText };
+    } else {
+      createQuest(defId, cueTime, replacementText);
+      _questSetupDefId = null;
+    }
+    render();
+  });
+  on("[data-quest-resume]", el => {
+    const id = el.dataset.questResume;
+    const current = getMainQuest();
+    if (current && current.id !== id) {
+      _questSwitchPending = { resumeId: id };
+    } else if (!current) {
+      promoteToMainQuest(id);
+    }
+    render();
+  });
+  on("[data-quest-switch-confirm]", () => {
+    const pending = _questSwitchPending;
+    if (!pending) return;
+    if (pending.resumeId) promoteToMainQuest(pending.resumeId);
+    else createQuest(pending.defId, pending.cueTime, pending.replacementText);
+    _questSwitchPending = null;
+    _questSetupDefId = null;
+    render();
+  });
+  on("[data-quest-switch-cancel]", () => { _questSwitchPending = null; render(); });
+  on("[data-quest-switch-overlay]", (el, e) => { if (e.target === el) { _questSwitchPending = null; render(); } });
+
+  on("[data-quest-done]", el => {
+    const c = getChallenge(el.dataset.questDone); if (!c) return;
+    todayChallengeId = c.id;
+    const day = getChallengeDay(c, effectiveDate());
+    day.replacementUsed = el.dataset.questReplacement || "default";
+    day.notToday = false;
+    toggleHabit("promise", false);
+  });
+  on("[data-quest-not-today]", el => {
+    const c = getChallenge(el.dataset.questNotToday); if (!c) return;
+    const day = getChallengeDay(c, effectiveDate());
+    if (day.done.includes("promise")) return;
+    day.notToday = true;
+    saveState(); render();
+  });
+  on("[data-quest-lets-talk]", () => { _letsTalkOpen = true; render(); });
+  on("[data-lets-talk-close]", (el, e) => { if (e.target === el) { _letsTalkOpen = false; render(); } });
+  on("[data-quest-adjust-smaller]", el => {
+    const c = getChallenge(el.dataset.questAdjustSmaller); if (!c) return;
+    todayChallengeId = c.id;
+    _letsTalkOpen = false;
+    toggleHabit("promise", true); // "make it smaller" reuses the existing minimum-version mechanic
+  });
+  on("[data-quest-adjust-alt]", () => { _letsTalkOpen = false; render(); });
+  on("[data-quest-adjust-time]", () => { _letsTalkOpen = "time"; render(); });
+  on("[data-quest-adjust-time-save]", el => {
+    const c = getChallenge(el.dataset.questAdjustTimeSave); if (!c) return;
+    const newTime = document.getElementById("quest-time-adjust")?.value;
+    if (!newTime) return;
+    const def = QUEST_LIBRARY[c.questDefId];
+    if (c.cue) c.cue.timeOfDay = newTime;
+    if (def && c.habits[0]) c.habits[0].title = def.promiseTemplate(newTime);
+    saveState();
+    _letsTalkOpen = false;
+    render();
+  });
+  on("[data-quest-adjust-pause]", () => {
+    demoteMainQuest();
+    _letsTalkOpen = false;
+    render();
   });
   on("[data-start-suggested]", el => {
     const t = TEMPLATES.find(t2 => t2.id === el.dataset.startSuggested);
