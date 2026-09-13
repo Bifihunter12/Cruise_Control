@@ -1,4 +1,4 @@
-const APP_VERSION = "2026.06.27.32";
+const APP_VERSION = "2026.09.13.09";
 const CACHE_NAME = `conqur-${APP_VERSION}`;
 const APP_FILES = [
   "/",
@@ -46,4 +46,3 @@ self.addEventListener("fetch", (event) => {
       .catch(() => caches.match(event.request))
   );
 });
-
