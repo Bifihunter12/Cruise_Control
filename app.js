@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.14.17";
+const APP_VERSION = "2026.09.14.18";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -4772,23 +4772,29 @@ function renderTrackerSidePlan(challenge) {
 }
 
 function renderSimpleTrackerStart() {
+  const starterPlans = [
+    { id: "fitter-starter", name: "Get Fitter", desc: "Strength, running, recovery, and a small morning anchor." },
+    { id: "walking", name: "Walking Plan", desc: "One walking habit with a step goal you choose." },
+    { id: "read-a-book", name: "Read a Book", desc: "Pick one book and keep reading it through the week." },
+    { id: "meditation", name: "Meditation Plan", desc: "A calm practice for sitting, breathing, and reflection." },
+  ];
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     <section class="tracker-empty">
-      <div class="tracker-kicker">Coach Setup</div>
-      <div class="tracker-title">Choose one plan to start.</div>
-      <div class="tracker-sub">You can adjust it after the first check-in.</div>
+      <div class="tracker-kicker">First Plan</div>
+      <div class="tracker-title">What do you want to keep consistent?</div>
+      <div class="tracker-sub">Start with one weekly checklist. You can add side plans later.</div>
       <div class="tracker-start-grid">
-        <button class="tracker-start-card" data-simple-start="fitter-starter">
-          <strong>Get Fitter</strong>
-          <span>Green tea 5/7 · strength 3/week · running 2/week</span>
-        </button>
-        <button class="tracker-start-card" data-simple-start="75-soft">
-          <strong>75 Soft</strong>
-          <span>Workout, meals, reading, hydration</span>
-        </button>
+        ${starterPlans.map(plan => `
+        <button class="tracker-start-card tracker-start-card--setup" data-simple-start="${plan.id}">
+          <strong>${esc(plan.name)}</strong>
+          <span>${esc(plan.desc)}</span>
+        </button>`).join("")}
       </div>
-      <button class="secondary-button" data-open-builder style="margin-top:12px">Browse plans</button>
+      <div class="setup-actions">
+        <button class="secondary-button" data-open-builder>See all plans</button>
+        <button class="link-btn" data-open-custom-plan>Build my own</button>
+      </div>
     </section>
   </main>`;
 }
