@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.13.09";
+const APP_VERSION = "2026.09.14.15";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -198,14 +198,14 @@ const JOURNEY_THEMES = {
 
 // Fixed line-icon set for the 4 onboarding/welcome feature bullets (challenges, points, rest days, privacy)
 const OB_FEATURE_ICONS = ["ti-trophy", "ti-bolt", "ti-shield", "ti-lock"];
-const FITNESS_STARTER_IDS = ["fitter-starter", "75-soft", "walking", "strength-foundation"];
+const FITNESS_STARTER_IDS = ["fitter-starter", "75-soft", "read-a-book", "walking", "strength-foundation", "meditation"];
 const FITNESS_TEMPLATE_IDS = new Set([
   ...FITNESS_STARTER_IDS,
-  "reset-week","momentum-builder","fat-loss-foundation","weight-loss-30","protein-challenge",
-  "hydration","recovery-reset","yoga-flexibility","posture-fix","beginner-strength","strength",
-  "core-abs","pilates","running","c25k","5k-prep","zone2","cycling","12-3-30","kettlebell",
-  "calisthenics","pushup-challenge","pullup-progression",
+  "start-small","momentum-builder","protein-challenge","hydration","recovery-reset",
+  "yoga-flexibility","posture-fix","beginner-strength","strength","core-abs","pilates",
+  "running","c25k","kettlebell","calisthenics","pushup-challenge","pullup-progression",
 ]);
+const CORE_HABIT_TEMPLATE_IDS = new Set([...FITNESS_TEMPLATE_IDS, "sleep-reset", "stress-reset", "journaling"]);
 const INTENSE_TEMPLATE_IDS = new Set(["cruise-control", "75-hard", "monk-mode", "project-50"]);
 
 function getThemedLevelName(levelNum) {
@@ -408,7 +408,7 @@ function tierTag(templateId) {
 // Challenge difficulty (independent of WoW rarity tier)
 const TEMPLATE_DIFFICULTY = {
   // Beginner — no fitness baseline required
-  "dog-walk":"beginner","walking":"beginner","reading":"beginner",
+  "dog-walk":"beginner","walking":"beginner","read-a-book":"beginner","reading":"beginner",
   "journaling":"beginner","meditation":"beginner","sleep-reset":"beginner",
   "morning-routine":"beginner","hydration":"beginner","meal-prep":"beginner",
   "no-spend":"beginner","dry-month":"beginner","creative":"beginner",
@@ -497,13 +497,13 @@ const ENDUR_TEMPLATE_IDS = new Set([
 ]);
 
 function isConqurTemplate(t) {
-  return !!t && !t.deprecated && t.category !== "expedition" && !ENDUR_TEMPLATE_IDS.has(t.id);
+  return !!t && !t.deprecated && CORE_HABIT_TEMPLATE_IDS.has(t.id);
 }
 
 // Challenge template → tier
 const TEMPLATE_TIERS = {
   // ── Common: 30-day-or-less lifestyle, beginner-friendly
-  "dry-month":"common","reading":"common","creative":"common",
+  "dry-month":"common","read-a-book":"common","reading":"common","creative":"common",
   "meditation":"common","sleep-reset":"common","yoga-flexibility":"common",
   "digital-detox":"common","walking":"common","journaling":"common",
   "sugar-reset-7":"common","caffeine-reset":"common","processed-food-reset":"common",
@@ -580,129 +580,9 @@ const BADGE_TIERS = {
   "lt-wk10":"uncommon","lt-perf":"legendary","lt-freeze":"uncommon",
 };
 
-// ── Main Quest library — Phase 1 validation set (2 curated Quests only) ────
-// Each entry seeds a single-Promise Quest challenge. The Promise stays stable
-// regardless of which replacement the user picks — see day.replacementUsed.
-const QUEST_LIBRARY = {
-  "doomscroll": {
-    id: "doomscroll",
-    title: "Stop Doomscrolling",
-    emoji: "📵",
-    pattern: { description: "Scrolling automatically at night and losing time, rest, or connection.", category: "digital" },
-    cuePrompt: "What time does this usually happen?",
-    cueDefault: "21:30",
-    promiseTemplate: (cueLabel) => `At ${cueLabel}, I will interrupt scrolling for ten minutes and choose something that gives me more.`,
-    defaultReplacement: "Write down three things that were good today.",
-    alternatives: [
-      { label: "Connect with someone you care about.", prompt: "Send a genuine message · Call someone · Make a real-life plan" },
-      { label: "Create something to look forward to.", prompt: "Plan a walk · Arrange coffee · Choose something enjoyable for tomorrow" },
-    ],
-    homeScreenPrompt: "What would feel better than scrolling tonight?",
-    allowPersonalizeReplacement: false,
-  },
-  "evening-work": {
-    id: "evening-work",
-    title: "Stop Working Through the Evening",
-    emoji: "🌇",
-    pattern: { description: "Continuing to work after the intended stopping point, even when you want to transition into personal life.", category: "work" },
-    cuePrompt: "What time do you want to stop?",
-    cueDefault: "18:30",
-    promiseTemplate: (cueLabel) => `At ${cueLabel}, I will close work and begin one intentional transition.`,
-    defaultReplacement: "Close work and take a ten-minute walk.",
-    alternatives: [
-      { label: "Spend ten phone-free minutes with someone you care about.", prompt: "" },
-      { label: "Change clothes, play one song, and begin your evening.", prompt: "" },
-    ],
-    homeScreenPrompt: "Work can stop here. What would help you return to your life?",
-    allowPersonalizeReplacement: true,
-  },
-  "procrastination": {
-    id: "procrastination",
-    title: "Stop Putting It Off",
-    emoji: "⏳",
-    pattern: { description: "Avoiding the one task that matters most, and filling the time with anything else instead.", category: "focus" },
-    cuePrompt: "What time do you want to have started by?",
-    cueDefault: "10:00",
-    promiseTemplate: (cueLabel) => `By ${cueLabel}, I will start the one task I've been avoiding for at least two minutes.`,
-    defaultReplacement: "Open the task and work on it for two minutes. That's the whole commitment.",
-    alternatives: [
-      { label: "Break it into one tiny next step and do just that.", prompt: "" },
-      { label: "Tell someone what you're about to start.", prompt: "Send a quick message · Say it out loud" },
-    ],
-    homeScreenPrompt: "What's the smallest real step you could take right now?",
-    allowPersonalizeReplacement: true,
-  },
-  "connection": {
-    id: "connection",
-    title: "Reach Out Instead of Withdrawing",
-    emoji: "📞",
-    pattern: { description: "Defaulting to alone time when things feel hard, instead of reaching out to someone.", category: "connection" },
-    cuePrompt: "What time of day does this usually happen?",
-    cueDefault: "19:00",
-    promiseTemplate: (cueLabel) => `At ${cueLabel}, I will reach out to one person instead of withdrawing.`,
-    defaultReplacement: "Send one real message to someone you care about.",
-    alternatives: [
-      { label: "Call or voice message someone instead of texting.", prompt: "" },
-      { label: "Make a specific plan to see someone this week.", prompt: "" },
-    ],
-    homeScreenPrompt: "Who's one person you could reach out to right now?",
-    allowPersonalizeReplacement: true,
-  },
-  "morning-caffeine": {
-    id: "morning-caffeine",
-    title: "Change How Mornings Start",
-    emoji: "☕",
-    pattern: { description: "Reaching for your phone or caffeine automatically, before you've decided how you actually want to start the day.", category: "morning" },
-    cuePrompt: "What time do you usually wake up?",
-    cueDefault: "07:00",
-    promiseTemplate: (cueLabel) => `At ${cueLabel}, I will wait ten minutes before my phone or first coffee, and choose how I start instead.`,
-    defaultReplacement: "Ten minutes of quiet before you reach for either — stretch, sit, or just look outside.",
-    alternatives: [
-      { label: "Drink a full glass of water first.", prompt: "" },
-      { label: "Write down one thing you want out of today.", prompt: "" },
-    ],
-    homeScreenPrompt: "What would help you start today on your own terms?",
-    allowPersonalizeReplacement: true,
-  },
-  "intentional-eating": {
-    id: "intentional-eating",
-    title: "Eat With Intention",
-    emoji: "🍽️",
-    pattern: { description: "Eating on autopilot — standing up, mid-scroll, or out of stress — without really noticing the meal.", category: "eating" },
-    cuePrompt: "What time does this usually happen?",
-    cueDefault: "12:30",
-    promiseTemplate: (cueLabel) => `At ${cueLabel}, I will sit down, put the phone away, and actually notice this meal.`,
-    defaultReplacement: "Sit down, no phone or screen, for the first five minutes of the meal.",
-    alternatives: [
-      { label: "Plate the food properly instead of eating from the container.", prompt: "" },
-      { label: "Pause halfway through and check in with how full you feel.", prompt: "" },
-    ],
-    homeScreenPrompt: "What would help you actually be present for this meal?",
-    allowPersonalizeReplacement: true,
-    // This Quest is about noticing automatic eating, not restriction or weight
-    // loss — deliberately no numbers, no "good/bad" food language, framed as
-    // presence rather than control. See CONQUR_REBUILD_ROADMAP.md Section 5,
-    // Phase 5 note: eating/drinking Quests get their own safety-copy pass.
-    safetyNote: "This Quest is about noticing automatic eating, not a diet or weight-loss plan. If eating feels genuinely out of your control, please talk to a doctor — Conqur isn't equipped for that.",
-  },
-  "drinking-less": {
-    id: "drinking-less",
-    title: "Drink With Intention",
-    emoji: "🌙",
-    pattern: { description: "Reaching for a drink as the automatic default to unwind, without deciding if that's actually what you want.", category: "drinking" },
-    cuePrompt: "What time does this usually happen?",
-    cueDefault: "18:00",
-    promiseTemplate: (cueLabel) => `At ${cueLabel}, I will pause before pouring a drink and choose on purpose.`,
-    defaultReplacement: "Wait fifteen minutes and see if you still want it — if you do, that's a real choice.",
-    alternatives: [
-      { label: "Make a non-alcoholic drink you actually enjoy instead.", prompt: "" },
-      { label: "Change your environment first — a walk, a shower, a different room.", prompt: "" },
-    ],
-    homeScreenPrompt: "What are you actually looking for right now — and is a drink the only way to get it?",
-    allowPersonalizeReplacement: true,
-    safetyNote: "This Quest is about noticing an automatic default, not managing dependence. If cutting back feels genuinely hard to control, please talk to a doctor or a real support line — Conqur isn't equipped for that.",
-  },
-};
+// Legacy single-promise plans are intentionally disabled while the app focuses
+// on simple weekly habit tracking.
+const QUEST_LIBRARY = {};
 
 // Onboarding assessment (Phase 2) — rules-based reflect-understanding-back,
 // no AI required. See buildReflectBack() / renderObReflect().
@@ -727,16 +607,8 @@ const OBSTACLE_PHRASES = {
   bored:            "losing interest partway through",
 };
 function buildReflectBack() {
-  const def = QUEST_LIBRARY[onboardingAnswers.pattern];
   const obstaclePhrase = OBSTACLE_PHRASES[onboardingAnswers.obstacle] || "life getting in the way";
-  const capacityPhrase = onboardingAnswers.capacity === "low" ? "we'll keep today's step small"
-    : onboardingAnswers.capacity === "good" ? "you're ready to really commit"
-    : "we'll keep this realistic for your week";
-  if (!def) {
-    return `It sounds like something's been feeling automatic, and ${obstaclePhrase} has made it hard to change before. We're still building out a Quest for that exact pattern — for now, take a look at what's ready today.`;
-  }
-  const desc = def.pattern.description.replace(/\.$/, "");
-  return `It sounds like ${desc.charAt(0).toLowerCase()}${desc.slice(1)} — and ${obstaclePhrase} has made it hard to change before. Let's start small: ${def.title}, and ${capacityPhrase}. Does this feel right?`;
+  return `It sounds like ${obstaclePhrase} has made consistency hard before. Let's keep this simple: pick a plan, check off today's habits, and use the week view to see what's still missing.`;
 }
 
 // ── Built-in Templates ─────────────────────────────────────────────────────
@@ -2134,6 +2006,147 @@ const TEMPLATES = [
   },
 ];
 
+const TEMPLATE_WEEKLY_TARGETS = {
+  "walking": { "wk-dist": 5 },
+  "running": { "rn-run": 3, "rn-log": 3, "rn-stretch": 3 },
+  "strength": { "st-lift": 3, "st-overload": 3, "st-stretch": 3 },
+  "meditation": { "med-sit": 5, "med-breath": 3, "med-journal": 2 },
+  "sleep-reset": { "sl-hours": 5, "sl-screen": 5, "sl-caffeine": 5, "sl-routine": 5 },
+  "yoga-flexibility": { "yf-yoga": 3, "yf-stretch": 3, "yf-breathe": 2 },
+  "core-abs": { "ca-core": 3, "ca-plank": 3, "ca-stretch": 3 },
+  "recovery-reset": { "rr-sleep": 5, "rr-walk": 3, "rr-mobility": 3, "rr-stress": 3 },
+  "c25k": { "c25k-run": 3, "c25k-stretch": 3 },
+  "pilates": { "pil-session": 3, "pil-breath": 2, "pil-stretch": 3 },
+  "kettlebell": { "kb-swing": 3, "kb-press": 3, "kb-mobility": 3 },
+  "calisthenics": { "cal-push": 3, "cal-pull": 3, "cal-dip": 3 },
+  "protein-challenge": { "pc-hit": 5, "pc-breakfast": 5, "pc-log": 3 },
+  "hydration": { "hy-water": 5, "hy-morning": 5, "hy-nosoda": 3 },
+  "posture-fix": { "pf-check": 5, "pf-stretch": 3, "pf-walk": 3, "pf-desk": 5 },
+  "beginner-strength": { "bs-lift": 3, "bs-mobility": 3, "bs-protein": 5 },
+  "pushup-challenge": { "pu-pushups": 3, "pu-stretch": 3 },
+  "pullup-progression": { "pp-pull": 3, "pp-scapular": 3 },
+  "journaling": { "jn-write": 5, "jn-prompt": 3, "jn-gratit": 3, "jn-review": 2 },
+  "start-small": { "ss-move": 5, "ss-water": 5, "ss-protein": 5, "ss-plan": 3 },
+  "momentum-builder": { "mb-morning": 5, "mb-steps": 5, "mb-read": 5, "mb-protein": 5, "mb-sleep": 5 },
+  "stress-reset": { "sr-light": 5, "sr-walk": 5, "sr-shutdown": 4, "sr-breathe": 3 },
+  "strength-foundation": { "sf-strength": 3, "sf-core": 2, "sf-mobility": 3, "sf-protein": 5 },
+};
+
+const TEMPLATE_COPY_OVERRIDES = {
+  "75-soft": {
+    name: "75 Soft Plan",
+    description: "A balanced 75-day plan with movement, reading, hydration, and simple meals.",
+    habits: {
+      "workout": { title: "Workout 45 min", quip: "Any solid session counts: gym, run, class, or home." },
+      "diet75s": { title: "Simple balanced meals", quip: "Aim for steady, nourishing choices. No perfection needed." },
+      "read10s": { title: "Read 10 pages", quip: "A few quiet pages keeps the thread alive." },
+      "hydrate75s": { title: "Hydration target", quip: "Hit your usual water target, especially on training days." },
+    },
+  },
+  "walking": {
+    name: "Walking Plan",
+    description: "One clear walking habit. Set your step goal and track it through the week.",
+    asksStepGoal: true,
+    habits: {
+      "wk-dist": { title: "Hit step goal", quip: "Choose the number that fits your current life. Then walk it." },
+    },
+  },
+  "running": {
+    name: "Running Plan",
+    description: "A steady run or walk-run plan with realistic recovery built in.",
+    identity: "I am someone who trains consistently and keeps the pace honest.",
+    habits: {
+      "rn-run": { title: "Run or walk-run session", quip: "Easy pace counts. Build the base first." },
+      "rn-log": { title: "Log distance or time", quip: "A quick note is enough to see the pattern." },
+      "rn-stretch": { title: "Post-run mobility", quip: "Give your legs five calm minutes." },
+    },
+  },
+  "strength": {
+    name: "Strength Plan",
+    description: "A straightforward strength plan for consistent lifting and recovery.",
+    habits: {
+      "st-lift": { title: "Strength session", quip: "Weights, machines, or bodyweight all count." },
+      "st-overload": { title: "Log one lift", quip: "Write down one thing you did so progress stays visible." },
+      "st-stretch": { title: "Post-session mobility", quip: "Small recovery work keeps the habit sustainable." },
+    },
+  },
+  "meditation": {
+    name: "Meditation Plan",
+    description: "A calm weekly meditation plan with optional breathwork and reflection.",
+    habits: {
+      "med-sit": { title: "Meditate 10 min", quip: "Sit, breathe, and let the session be simple." },
+      "med-breath": { title: "Breathing exercise", quip: "Box breathing, 4-7-8, or slow nasal breaths." },
+      "med-journal": { title: "Short reflection", quip: "One sentence about how you feel is enough." },
+    },
+  },
+  "sleep-reset": {
+    name: "Sleep Routine",
+    description: "A practical evening routine for more consistent sleep.",
+    habits: {
+      "sl-hours": { title: "7+ hour sleep window", quip: "Protect enough time in bed. Sleep follows the setup." },
+      "sl-screen": { title: "Screens off before bed", quip: "Give your evening a clearer ending." },
+      "sl-caffeine": { title: "Caffeine cutoff", quip: "Keep later energy from stealing sleep." },
+      "sl-routine": { title: "Same wake-up time", quip: "A steady wake time anchors the rhythm." },
+    },
+  },
+  "protein-challenge": {
+    name: "Protein Basics",
+    description: "A simple protein plan for supporting training and feeling steady.",
+    defaultMode: "soft",
+    habits: {
+      "pc-hit": { title: "Hit protein target", quip: "Use the target that fits your body and training." },
+      "pc-breakfast": { title: "Protein with first meal", quip: "Start the day with something steady." },
+      "pc-log": { title: "Log meals", quip: "A quick note keeps the week honest." },
+    },
+  },
+  "hydration": {
+    name: "Hydration Basics",
+    description: "A simple water plan that supports energy, training, and recovery.",
+    habits: {
+      "hy-water": { title: "Hit water target", quip: "Use a target that fits your day and climate." },
+      "hy-morning": { title: "Water in the morning", quip: "Start with water before the day speeds up." },
+      "hy-nosoda": { title: "Choose water over soda", quip: "Make the default easier to repeat." },
+    },
+  },
+  "momentum-builder": {
+    name: "Momentum Builder",
+    description: "A simple weekly structure for movement, reading, meals, and sleep.",
+    habits: {
+      "mb-morning": { title: "Morning: water + no phone 30 min", quip: "Wake on time, drink water, and give yourself 30 phone-free minutes." },
+      "mb-steps": { title: "8,000 steps", quip: "Move enough to feel awake and capable." },
+      "mb-read": { title: "Read 10 pages", quip: "Keep the book moving a few pages at a time." },
+      "mb-protein": { title: "Protein with two meals", quip: "Anchor two meals with a clear protein source." },
+      "mb-sleep": { title: "Evening: phone away before bed", quip: "Put the phone away 30 minutes before bed and keep the wake time steady." },
+    },
+  },
+  "strength-foundation": {
+    name: "Strength Foundation",
+    description: "A beginner-friendly strength plan with training, core, mobility, and recovery basics.",
+  },
+};
+
+Object.assign(TEMPLATE_DIFFICULTY, {
+  "75-soft": "intermediate",
+  "calisthenics": "intermediate",
+  "core-abs": "intermediate",
+  "protein-challenge": "beginner",
+  "recovery-reset": "beginner",
+  "posture-fix": "beginner",
+});
+
+TEMPLATES.forEach(template => {
+  const targets = TEMPLATE_WEEKLY_TARGETS[template.id];
+  const copy = TEMPLATE_COPY_OVERRIDES[template.id];
+  if (copy) {
+    Object.assign(template, Object.fromEntries(Object.entries(copy).filter(([key]) => key !== "habits")));
+  }
+  template.habits?.forEach(habit => {
+    if (targets?.[habit.id]) habit.weeklyTarget = targets[habit.id];
+    if (copy?.habits?.[habit.id]) Object.assign(habit, copy.habits[habit.id]);
+  });
+  if (template.id === "walking") template.habits = template.habits.filter(habit => habit.id === "wk-dist");
+});
+
 // ── Badge Definitions ──────────────────────────────────────────────────────
 
 // Universal badges — earned once across all challenges (tracked in state.globalBadges)
@@ -2890,6 +2903,7 @@ function defaultBuilderForm() {
     noEndDate: false,
     goalWeight: null,
     bookName: "",
+    stepGoal: null,
     habits: [],
     newHabitEmoji: "⭐",
     newHabitName: "",
@@ -2973,6 +2987,7 @@ function normalizeHabit(raw) {
   };
   if (typeof raw.unit     === "string") habit.unit     = raw.unit;
   if (typeof raw.decimals === "number") habit.decimals = raw.decimals;
+  if (typeof raw.weeklyTarget === "number") habit.weeklyTarget = Math.max(1, Math.min(7, Math.round(raw.weeklyTarget)));
   if (Array.isArray(raw.tiers))         habit.tiers    = raw.tiers;
   // Main Quest model: the Promise habit (habits[0] on a Quest challenge) carries a
   // stable commitment (title/quip) plus a default + alternative ways to fulfill it.
@@ -2995,7 +3010,7 @@ function normalizeChallenge(raw) {
   for (const [k, v] of Object.entries(rawDays)) days[k] = normalizeDay(v);
   // Back-fill habit fields (e.g. unit) that may be missing in older saved data
   const tpl = raw.templateId ? TEMPLATES.find(t => t.id === raw.templateId) : null;
-  const habits = (Array.isArray(raw.habits) ? raw.habits.map(normalizeHabit).filter(Boolean) : [])
+  let habits = (Array.isArray(raw.habits) ? raw.habits.map(normalizeHabit).filter(Boolean) : [])
     .map(h => {
       if (!h.unit && tpl) {
         const tplH = tpl.habits?.find(th => th.id === h.id);
@@ -3003,6 +3018,10 @@ function normalizeChallenge(raw) {
       }
       return h;
     });
+  if (raw.templateId === "walking") {
+    habits = habits.filter(h => h.id === "wk-dist");
+    if (!habits.length && tpl?.habits?.length) habits = JSON.parse(JSON.stringify(tpl.habits));
+  }
   return {
     id:         raw.id || uid(),
     name:       raw.name || "My Challenge",
@@ -3033,6 +3052,7 @@ function normalizeChallenge(raw) {
     resumeReminderDate:       raw.resumeReminderDate || null,
     goalWeight:               raw.goalWeight ?? null,
     bookName:                 typeof raw.bookName === "string" ? raw.bookName : "",
+    stepGoal:                 typeof raw.stepGoal === "number" ? raw.stepGoal : null,
     routeKm:                  typeof raw.routeKm === "number" ? raw.routeKm : null,
     // Main Quest model — additive fields, only present on Quest-created challenges.
     isMainQuest:  raw.isMainQuest === true,
@@ -3515,9 +3535,17 @@ function createChallenge(form) {
   const template = form.templateId ? TEMPLATES.find(t => t.id === form.templateId) : null;
   const habits = template ? JSON.parse(JSON.stringify(template.habits)) : JSON.parse(JSON.stringify(form.habits));
   const bookName = template?.asksBookName ? String(form.bookName || "").trim() : "";
+  const stepGoal = template?.asksStepGoal ? Math.max(1, Math.round(Number(form.stepGoal) || 8000)) : null;
   if (bookName) {
     const readHabit = habits.find(h => h.id === "book-read");
     if (readHabit) readHabit.title = `Read 10 pages of ${bookName}`;
+  }
+  if (stepGoal) {
+    const walkHabit = habits.find(h => h.id === "wk-dist");
+    if (walkHabit) {
+      walkHabit.title = `Hit ${stepGoal.toLocaleString()} steps`;
+      walkHabit.quip = "Check it off when your step goal is done.";
+    }
   }
   const c = normalizeChallenge({
     id: uid(),
@@ -3534,6 +3562,7 @@ function createChallenge(form) {
     noEndDate: form.noEndDate === true,
     goalWeight: form.goalWeight ?? null,
     bookName,
+    stepGoal,
     routeKm: form.routeKm || template?.routeKm || null,
     habits,
     days: {},
@@ -3569,6 +3598,16 @@ function startTemplateFromOnboarding(templateId, showAccountAfterStart = false) 
   _skipAccountAfterStart = !!showAccountAfterStart;
   startChallenge();
 }
+
+function openTemplateQuickstart(templateId) {
+  const tpl = TEMPLATES.find(t => t.id === templateId);
+  if (!tpl) return;
+  builderOpen = true;
+  builderStep = "template";
+  builderForm = defaultBuilderForm();
+  _safetyPendingTemplateId = null;
+  selectTemplate(tpl.id);
+}
 // Cumulative count of days the Quest's Promise was kept — a running total, not
 // the current streak, so a missed day never erases progress toward the next
 // chapter milestone (see QUEST_CHAPTER_LEVELS).
@@ -3598,9 +3637,8 @@ function promoteToMainQuest(id) {
   saveState();
   return c;
 }
-// Creates a new Main Quest from QUEST_LIBRARY. Demotes any currently-active
-// Main Quest first — call sites must confirm the switch with the user before
-// calling this (see _questSwitchPending / renderQuestSwitchConfirm).
+// Legacy single-promise creation path. Kept as a harmless fallback for older
+// saved state, but no legacy plan templates are exposed.
 function createQuest(defId, cueTime, replacementText) {
   const def = QUEST_LIBRARY[defId];
   if (!def) return null;
@@ -3997,8 +4035,8 @@ function showConfirm(msg, onConfirm) {
   render();
 }
 
-function showPrompt(msg, defaultVal, onConfirm) {
-  _promptDialog = { msg, defaultVal: defaultVal ?? "", onConfirm };
+function showPrompt(msg, defaultVal, onConfirm, options = {}) {
+  _promptDialog = { msg, defaultVal: defaultVal ?? "", onConfirm, ...options };
   render();
 }
 
@@ -4037,11 +4075,11 @@ function renderPromptModal() {
   <div class="confirm-overlay" data-prompt-overlay>
     <div class="confirm-modal panel">
       <p class="confirm-msg">${esc(_promptDialog.msg)}</p>
-      <input class="prompt-input" id="prompt-input-field" type="number" min="1" max="365"
-             value="${esc(String(_promptDialog.defaultVal))}" placeholder="days">
+      <input class="prompt-input" id="prompt-input-field" type="${esc(_promptDialog.type || "number")}" ${_promptDialog.inputAttrs || `min="1" max="365"`}
+             value="${esc(String(_promptDialog.defaultVal))}" placeholder="${esc(_promptDialog.placeholder || "days")}">
       <div class="confirm-btns">
-        <button class="secondary-button" data-prompt-cancel>Skip</button>
-        <button class="pill-btn" data-prompt-ok>Set reminder</button>
+        <button class="secondary-button" data-prompt-cancel>${esc(_promptDialog.cancelLabel || "Skip")}</button>
+        <button class="pill-btn" data-prompt-ok>${esc(_promptDialog.confirmLabel || "Set reminder")}</button>
       </div>
     </div>
   </div>`;
@@ -4069,16 +4107,8 @@ function checkNewWeekCeremony() {
   }
 }
 
-// Floating +pts animation
 function showPtsAnim(pts, rect) {
-  if (!pts || pts <= 0) return;
-  const el = document.createElement("div");
-  el.className = "pts-anim";
-  el.textContent = `+${pts} pts`;
-  el.style.left = `${rect.left + rect.width * 0.72}px`;
-  el.style.top  = `${rect.top + 12}px`;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 900);
+  return;
 }
 
 // Big toast for special moments (Day 1, halfway, etc.)
@@ -4451,7 +4481,7 @@ const NAV_ICONS = {
 };
 
 function renderNav() {
-  const tabs = [["today","Today"],["challenges","Plans"],["badges","Progress"]];
+  const tabs = [["today","Week"],["challenges","Plans"],["badges","History"]];
   return `
   <nav class="bottom-nav" aria-label="Conqur sections">
     ${tabs.map(([id,label]) => `
@@ -4595,6 +4625,7 @@ function habitDueLabel(challenge, habit, week, doneToday) {
 
 function habitMissingLabel(habit, missing) {
   if (missing <= 0) return "";
+  if (/^read\s+\d+\s+pages/i.test(habit.title)) return `${missing} reading`;
   const base = habit.title
     .replace(/^Start day with\s+/i, "")
     .replace(/\s+session$/i, "")
@@ -4637,8 +4668,6 @@ function renderHabitTrackerHome() {
   if (!plan) return renderSimpleTrackerStart();
   todayChallengeId = plan.id;
   viewingDate = null;
-  const today = todayKey();
-  const day = getChallengeDay(plan, today);
   const week = getCurrentTrackerWeek(plan);
   const totalTarget = plan.habits.reduce((s, h) => s + habitWeeklyTarget(h, plan), 0);
   const totalDone = plan.habits.reduce((s, h) => s + Math.min(habitWeekCount(plan, h, week), habitWeeklyTarget(h, plan)), 0);
@@ -4648,7 +4677,7 @@ function renderHabitTrackerHome() {
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     <section class="tracker-hero">
-      <div class="tracker-kicker">Main Plan</div>
+      <div class="tracker-kicker">Coach Plan</div>
       <div class="tracker-title">${esc(displayPlanName(plan.name))}</div>
       <div class="tracker-sub">${week.label} · ${remaining === 0 ? "all weekly targets complete" : `${remaining} check${remaining === 1 ? "" : "s"} left this week`}</div>
       <div class="tracker-progress">
@@ -4660,19 +4689,8 @@ function renderHabitTrackerHome() {
     ${renderWeeklyMissingSummary(plan, week)}
 
     <section class="tracker-section">
-      <div class="tracker-section-head">
-        <div>
-          <div class="section-label" style="margin:0">Today</div>
-          <div class="tracker-muted">Check off what you do today. Counts roll into the week.</div>
-        </div>
-      </div>
-      <div class="tracker-today-list">
-        ${plan.habits.map(h => renderTrackerTodayHabit(plan, h, day, week)).join("")}
-      </div>
-    </section>
-
-    <section class="tracker-section">
-      <div class="section-label" style="margin:0 0 10px">This Week</div>
+      <div class="section-label" style="margin:0">This Week</div>
+      <div class="tracker-muted" style="margin:4px 0 12px">Tap today or any past day to update the week.</div>
       <div class="tracker-week-list">
         ${plan.habits.map(h => renderTrackerWeekHabit(plan, h, week)).join("")}
       </div>
@@ -4688,7 +4706,7 @@ function renderHabitTrackerHome() {
 
     <div class="tracker-actions">
       <button class="secondary-button" data-open-custom-plan><i class="ti ti-plus"></i> Create side habit</button>
-      <button class="secondary-button" data-open-builder><i class="ti ti-list"></i> Add habit plan</button>
+      <button class="secondary-button" data-open-builder><i class="ti ti-list"></i> Add plan</button>
       <button class="link-btn" data-view-challenge="${plan.id}">Plan details</button>
     </div>
   </main>`;
@@ -4739,22 +4757,27 @@ function renderTrackerSidePlan(challenge) {
   const totalDone = challenge.habits.reduce((s, h) => s + Math.min(habitWeekCount(challenge, h, week), habitWeeklyTarget(h, challenge)), 0);
   const pct = totalTarget ? Math.round((totalDone / totalTarget) * 100) : 0;
   return `
-  <button class="tracker-side-card" data-set-main-plan="${challenge.id}">
-    <span>
-      <span class="tracker-side-name">${esc(displayPlanName(challenge.name))}</span>
-      <span class="tracker-side-meta">${totalDone}/${totalTarget} this week</span>
-    </span>
-    <strong>${pct}%</strong>
-  </button>`;
+  <div class="tracker-side-item">
+    <button class="tracker-side-card" data-set-main-plan="${challenge.id}">
+      <span>
+        <span class="tracker-side-name">${esc(displayPlanName(challenge.name))}</span>
+        <span class="tracker-side-meta">${totalDone}/${totalTarget} this week</span>
+      </span>
+      <strong>${pct}%</strong>
+    </button>
+    <button class="tracker-plan-delete" data-delete-challenge="${challenge.id}" title="Delete plan" aria-label="Delete ${esc(displayPlanName(challenge.name))}">
+      <i class="ti ti-trash"></i>
+    </button>
+  </div>`;
 }
 
 function renderSimpleTrackerStart() {
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     <section class="tracker-empty">
-      <div class="tracker-kicker">Habit Tracker</div>
-      <div class="tracker-title">Build your week.</div>
-      <div class="tracker-sub">Start with a main plan. You can add side habits later.</div>
+      <div class="tracker-kicker">Coach Setup</div>
+      <div class="tracker-title">Choose one plan to start.</div>
+      <div class="tracker-sub">You can adjust it after the first check-in.</div>
       <div class="tracker-start-grid">
         <button class="tracker-start-card" data-simple-start="fitter-starter">
           <strong>Get Fitter</strong>
@@ -4762,7 +4785,7 @@ function renderSimpleTrackerStart() {
         </button>
         <button class="tracker-start-card" data-simple-start="75-soft">
           <strong>75 Soft</strong>
-          <span>Workout, whole food, reading, hydration</span>
+          <span>Workout, meals, reading, hydration</span>
         </button>
       </div>
       <button class="secondary-button" data-open-builder style="margin-top:12px">Browse plans</button>
@@ -4774,15 +4797,15 @@ function renderQuestPicker() {
   _questSetupDefId = null;
   const activePlans = getActiveChallenges().filter(c => !c.questDefId);
   const pausedPlans = Object.values(state.challenges).filter(c => !c.questDefId && c.status === "paused");
-  const quickStarts = ["fitter-starter", "75-soft", "walking", "strength-foundation"]
+  const quickStarts = ["fitter-starter", "75-soft", "read-a-book", "meditation", "walking", "strength-foundation"]
     .map(id => TEMPLATES.find(t => t.id === id))
     .filter(Boolean);
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     <section class="tracker-hero">
-      <div class="tracker-kicker">Plans</div>
-      <div class="tracker-title">Choose a habit plan.</div>
-      <div class="tracker-sub">Pick one main plan, then add side habits when you want more structure.</div>
+      <div class="tracker-kicker">Plan Library</div>
+      <div class="tracker-title">Choose the work you want tracked.</div>
+      <div class="tracker-sub">Keep one main plan visible. Side plans stay available without clutter.</div>
       <button class="primary-button" data-open-builder style="margin-top:14px">Browse habit plans</button>
       <button class="secondary-button" data-open-custom-plan style="margin-top:8px">Create your own plan</button>
     </section>
@@ -4807,7 +4830,7 @@ function renderQuestPicker() {
       <div class="section-label" style="margin:0 0 10px">Quick Starts</div>
       <div class="tracker-start-grid">
         ${quickStarts.map(t => `
-        <button class="tracker-start-card" data-simple-start="${t.id}">
+          <button class="tracker-start-card" data-simple-start="${t.id}">
           <strong>${esc(displayPlanName(t.name))}</strong>
           <span>${esc(t.description || `${t.duration} days · weekly checkboxes`)}</span>
         </button>`).join("")}
@@ -4817,20 +4840,7 @@ function renderQuestPicker() {
 }
 
 function renderQuestSetup(def) {
-  return `
-  <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
-    <button class="link-btn" data-quest-setup-back style="margin-bottom:10px">← Back</button>
-    <div class="section-label" style="margin-top:0">${esc(def.title)}</div>
-    <div class="more-card">
-      <label class="quest-setup-label" for="quest-cue-time">${esc(def.cuePrompt)}</label>
-      <input type="time" id="quest-cue-time" class="quest-setup-input" value="${def.cueDefault}">
-      ${def.allowPersonalizeReplacement ? `
-      <label class="quest-setup-label" for="quest-replacement-text" style="margin-top:14px">Your default replacement (optional — leave as is or make it yours)</label>
-      <input type="text" id="quest-replacement-text" class="quest-setup-input" value="${esc(def.defaultReplacement)}">` : ""}
-    </div>
-    ${def.safetyNote ? `<div class="quest-chat-disclaimer" style="margin-top:10px">${esc(def.safetyNote)}</div>` : ""}
-    <button class="primary-button" data-quest-start="${def.id}" style="margin-top:16px">Start This Quest</button>
-  </main>`;
+  return renderQuestPicker();
 }
 
 function renderMainQuestHome(quest) {
@@ -5918,8 +5928,8 @@ function drawShareCard(challenge, isDone) {
   // Gradient accent bar top
   const cs = getComputedStyle(document.documentElement);
   const grad = ctx.createLinearGradient(0, 0, s, 0);
-  grad.addColorStop(0, cs.getPropertyValue("--primary").trim()   || "#38BDF8");
-  grad.addColorStop(1, cs.getPropertyValue("--secondary").trim() || "#7DD3FC");
+  grad.addColorStop(0, cs.getPropertyValue("--primary").trim()   || "#008080");
+  grad.addColorStop(1, cs.getPropertyValue("--secondary").trim() || "#4FB3B3");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, s, 10);
 
@@ -6033,24 +6043,24 @@ function renderCompletionModal(c) {
   const mFactor       = mDUnit === "mi" ? 0.621371 : 1;
   const mTotalD       = isExpedition ? Math.round(totalKmNativeM * mFactor * 10) / 10 : null;
   const completionSub = isExpedition
-    ? `${mTotalD.toFixed(mIsFloors?0:1)} ${mDUnit} covered · ${totalDays} days · ${finalStreak}-day ${term('streak')}.<br>${routeFinished ? "You finished the route. Legendary." : "You stayed the course. That's what commitment looks like."}`
-    : `${totalDays} days · ${totalPts} total · ${finalStreak}-day ${term('streak')}.<br>That's what commitment looks like.`;
+    ? `${mTotalD.toFixed(mIsFloors?0:1)} ${mDUnit} covered · ${totalDays} days · ${finalStreak} consistent days.<br>Good work. Review what helped, then choose the next plan deliberately.`
+    : `${totalDays} days · ${finalStreak} consistent days.<br>Good work. Review what helped, then choose the next plan deliberately.`;
   const bonusXP = c.completionBonus || 0;
   const finishedTpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
   return `
   <div class="sheet-backdrop" data-close-completion>
     <section class="sheet completion-modal" role="dialog">
-      <div class="completion-emoji"><i class="ti ti-trophy"></i></div>
-      <div class="completion-title">${isExpedition && routeFinished ? "Route Complete!" : `Challenge Complete!`}</div>
+      <div class="completion-emoji"><i class="ti ti-check"></i></div>
+      <div class="completion-title">${isExpedition && routeFinished ? "Route complete" : `Plan complete`}</div>
       <div class="completion-name">${esc(c.name)}</div>
       <div class="completion-sub">${completionSub}</div>
       ${finishedTpl?.identity ? `<div class="cc-identity" style="text-align:center;border-top:none;padding-top:4px">${esc(finishedTpl.identity)}</div>` : ""}
-      ${bonusXP ? `<div class="completion-bonus-row"><i class="ti ti-bolt"></i> Challenge Complete Bonus: <strong>+${bonusXP}</strong></div>` : ""}
+      ${bonusXP ? `<div class="completion-bonus-row"><i class="ti ti-check"></i> Completion recorded</div>` : ""}
       ${nextT ? `
       <button class="chain-cta" data-start-suggested="${nextT.id}">
-        <span class="chain-cta-pre">Continue your journey</span>
+        <span class="chain-cta-pre">Next suggested plan</span>
         <span class="chain-cta-main"><i class="ti ${challengeIcon(nextT)}"></i> ${nextT.name} →</span>
-        <span class="chain-cta-sub">${nextT.duration} days · Level up</span>
+        <span class="chain-cta-sub">${nextT.duration} days · starts when you are ready</span>
       </button>` : ""}
       ${(() => {
         const restDays = totalDays >= 75 ? 5 : totalDays >= 30 ? 3 : 2;
@@ -6071,9 +6081,9 @@ function renderCompletionModal(c) {
           <button class="wrc-chip" data-completion-reflect="${c.id}" data-reflect-val="Something to adjust next time">Something to adjust next time</button>
         </div>
       </div>` : `<div class="wrc-msg" style="margin-top:16px">${esc(c.completionReflection)}</div>`}
-      <button class="${nextT?"secondary-button":"primary-button"}" data-close-completion style="margin-top:${nextT?"8":"16"}px">Hell yeah!</button>
-      ${canShare ? `<button class="secondary-button" data-share-completion style="margin-top:8px"><i class="ti ti-share"></i> Share your achievement</button>` : ""}
-      <button class="secondary-button" data-completion-new-challenge style="margin-top:8px">Browse all challenges →</button>
+      <button class="${nextT?"secondary-button":"primary-button"}" data-close-completion style="margin-top:${nextT?"8":"16"}px">Close</button>
+      ${canShare ? `<button class="secondary-button" data-share-completion style="margin-top:8px"><i class="ti ti-share"></i> Share summary</button>` : ""}
+      <button class="secondary-button" data-completion-new-challenge style="margin-top:8px">Browse plans →</button>
       ${renderCompletionSuggestions(c)}
     </section>
   </div>`;
@@ -6168,6 +6178,9 @@ function renderChallengeCard(c) {
         ? `<i class="ti ti-map-2"></i> ${routePct}% dist · <i class="ti ti-check"></i> ${todayInfo ? todayInfo.percent : 0}% today · <i class="ti ti-clock"></i> ${pct}% time`
         : `${pct}% complete · ${c.badges.length} ${c.badges.length === 1 ? term('badge') : term('badgePlural')}`}</div>
     </button>
+    <button class="challenge-card-delete" data-delete-challenge="${c.id}" title="Delete plan" aria-label="Delete ${esc(displayPlanName(c.name))}">
+      <i class="ti ti-trash"></i>
+    </button>
     ${resumeNudge ? `<div class="resume-nudge"><i class="ti ti-bell"></i> Reminder to resume! <button class="link-btn" data-pause-challenge="${c.id}">Resume now →</button></div>` : ""}
   </div>`;
 }
@@ -6202,6 +6215,7 @@ function renderChallengeDetail(c) {
   const pct       = totalDays ? clamp(Math.round((dayNumber/totalDays)*100), 0, 100) : null;
   const streak    = calcChallengeStreak(c);
   const totalPts  = Object.values(c.days).reduce((s,d)=>s+(d.pts||0),0);
+  const totalChecks = Object.values(c.days).reduce((s,d)=>s+(d.done?.length||0),0);
   const compStats = challengeCompletionStats(c);
   const activeDaysDone = compStats.loggedDays;
   const activeTotal = compStats.eligibleDays;
@@ -6211,6 +6225,8 @@ function renderChallengeDetail(c) {
   const nextChainRaw  = nextChainId ? TEMPLATES.find(t => t.id === nextChainId) : null;
   const nextChainT    = isConqurTemplate(nextChainRaw) ? nextChainRaw : null;
   const tpl           = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
+  const startLabel    = formatDate(parseDate(c.startDate), { month:"short", day:"numeric" });
+  const endLabel      = c.noEndDate ? "Ongoing" : formatDate(parseDate(c.endDate), { month:"short", day:"numeric" });
   const isExpedition  = !!challengeRouteKm(c) || c.habits.some(h => h.type === "distance");
   const totalNativeKm = isExpedition ? challengeTotalKm(c) : null;
   const distHabitDet  = isExpedition ? c.habits.find(h => h.type === "distance") : null;
@@ -6228,18 +6244,18 @@ function renderChallengeDetail(c) {
       </button>
       <div>
         <div style="font-size:18px;font-weight:700"><i class="ti ${challengeIcon(tpl)}"></i> ${esc(displayPlanName(c.name))}${tierTag(c.templateId)}</div>
-        <div style="font-size:12px;color:var(--text-dim)">${c.startDate}${c.noEndDate ? " · Ongoing" : ` → ${c.endDate}`}</div>
+        <div style="font-size:12px;color:var(--text-dim)">${startLabel} → ${endLabel}</div>
       </div>
     </div>
     <div class="stats-grid" style="margin-bottom:14px">
-      ${statCard(`<i class="ti ti-activity"></i> ${term('streak')}`, streak, "days")}
+      ${statCard(`<i class="ti ti-activity"></i> Current run`, streak, "days")}
       ${isExpedition
         ? statCard('<i class="ti ti-map-2"></i> Distance', totalKmDisplay.toFixed(isFloorsDet?0:1), dUnitDet)
-        : statCard('<i class="ti ti-bolt"></i> Total Progress', totalPts, "")}
-      ${statCard('<i class="ti ti-check"></i> Active days', `${activeDaysDone}/${activeTotal}`, "")}
-      ${statCard(`<i class="ti ti-medal"></i> ${term('badgePlural')}`, c.badges.length, "")}
+        : statCard('<i class="ti ti-check"></i> Check-ins', totalChecks, "")}
+      ${statCard('<i class="ti ti-calendar-check"></i> Tracked days', `${activeDaysDone}/${activeTotal}`, "")}
+      ${statCard(`<i class="ti ti-list-check"></i> Habits`, c.habits.length, "")}
     </div>
-    ${pct !== null ? `<div class="detail-progress-bar" style="margin-bottom:26px"><div class="detail-progress-fill" style="width:${pct}%"></div><div class="detail-progress-label">${pct}% journey complete</div></div>` : `<div class="detail-progress-bar" style="margin-bottom:26px"><div class="detail-progress-label">Day ${dayNumber} · Ongoing</div></div>`}
+    ${pct !== null ? `<div class="detail-progress-bar" style="margin-bottom:26px"><div class="detail-progress-fill" style="width:${pct}%"></div><div class="detail-progress-label">${pct}% of plan window</div></div>` : `<div class="detail-progress-bar" style="margin-bottom:26px"><div class="detail-progress-label">Day ${dayNumber} · Ongoing</div></div>`}
     ${isExpedition ? renderRouteProgress(c, tpl) : ""}
 
 
@@ -6528,28 +6544,28 @@ function renderMonthCalendar(challenge) {
 
 function getQuizRecommendation(q) {
   const { goal, time, level } = q;
-  if (goal === "fitness" && level === "hardcore" && (time === "60" || time === "90")) return "75-hard";
-  if (goal === "fitness" && level === "hardcore") return "cruise-control";
+  if (goal === "fitness" && level === "hardcore" && (time === "60" || time === "90")) return "strength-foundation";
+  if (goal === "fitness" && level === "hardcore") return "beginner-strength";
   if (goal === "fitness" && level === "some" && (time === "60" || time === "90")) return "strength-foundation";
   if (goal === "fitness" && level === "some") return "strength-foundation";
   if (goal === "fitness" && level === "beginner") return "fitter-starter";
   if (goal === "fitness") return "momentum-builder";
-  if (goal === "discipline" && level === "hardcore") return "75-hard";
-  if (goal === "discipline" && level === "some") return "monk-mode";
-  if (goal === "discipline") return "digital-detox";
+  if (goal === "discipline" && level === "hardcore") return "momentum-builder";
+  if (goal === "discipline" && level === "some") return "start-small";
+  if (goal === "discipline") return "start-small";
   if (goal === "wellness") return "stress-reset";
-  if (goal === "routine") return "morning-routine";
-  return "morning-routine";
+  if (goal === "routine") return "start-small";
+  return "start-small";
 }
 
 function renderBuilderQuiz() {
   const q = builderQuizAnswers;
   const ready = q.goal && q.time && q.level;
   const goalOpts  = [
-    { id:"fitness",    label:"Build an active habit",         emoji:"💪" },
-    { id:"discipline", label:"Build daily discipline",        emoji:"🎯" },
-    { id:"wellness",   label:"Care for my mind",              emoji:"🧘" },
-    { id:"routine",    label:"Build better routines",         emoji:"🌅" },
+    { id:"fitness",    label:"Get fitter",                    emoji:"💪" },
+    { id:"discipline", label:"Stay consistent",               emoji:"🎯" },
+    { id:"wellness",   label:"Feel steadier",                 emoji:"🧘" },
+    { id:"routine",    label:"Build a simple routine",        emoji:"🌅" },
   ];
   const timeOpts  = [
     { id:"15", label:"15–30 min" },
@@ -6560,7 +6576,7 @@ function renderBuilderQuiz() {
   const levelOpts = [
     { id:"beginner", label:"Beginner — just starting out" },
     { id:"some",     label:"Some experience"              },
-    { id:"hardcore", label:"Experienced — I push hard"   },
+    { id:"hardcore", label:"Experienced — keep it structured" },
   ];
   return `
   <div class="builder-quiz">
@@ -6618,21 +6634,16 @@ function renderBuilder() {
 
 function renderBuilderTemplates() {
   const cats = [
-    { label:"Get Fitter", ids:["fitter-starter","75-soft","walking","lean-start","strength-foundation","beginner-strength","yoga-flexibility","running","c25k","zone2","cycling"] },
-    { label:"Start Here", ids:["start-small","reset-week","momentum-builder","morning-routine"] },
-    { label:"Transformation", ids:["cruise-control","75-soft","75-hard","project-50","morning-power-hour","cold-exposure"] },
-    { label:"Weight Loss", ids:["lean-start","fat-loss-foundation","weight-loss-30","mindful-eating"] },
-    { label:"Nutrition", ids:["no-sugar","sugar-reset-7","sugar-reset-strict","caffeine-reset","processed-food-reset","dry-month","dry-reset-14","intermittent-fasting","protein-challenge","fiber-challenge","hydration","meal-prep"] },
-    { label:"Mindset", ids:["stress-reset","mental-health-30","meditation","journaling","gratitude-reset","self-care-30","nature-reset"] },
-    { label:"Productivity", ids:["monk-mode","deep-work-sprint","digital-detox","budget-reset","reading","creative","language-learning","no-spend","declutter"] },
-    { label:"Sleep & Recovery", ids:["sleep-reset","sleep-tracker","recovery-reset","yoga-flexibility","posture-fix"] },
+    { label:"Get Fitter", ids:["fitter-starter","75-soft","walking","running","c25k","strength-foundation","beginner-strength","yoga-flexibility"] },
     { label:"Strength Basics", ids:["strength-foundation","beginner-strength","strength","calisthenics","kettlebell","pushup-challenge","pullup-progression","core-abs","pilates"] },
-    { label:"Daily Routines", ids:["morning-routine","sleep-reset","self-care-30","hydration","walking"] },
+    { label:"Mind & Focus", ids:["read-a-book","meditation","journaling","stress-reset"] },
+    { label:"Recovery", ids:["sleep-reset","recovery-reset","yoga-flexibility","posture-fix"] },
+    { label:"Simple Basics", ids:["start-small","momentum-builder","hydration","protein-challenge"] },
   ];
-  const fitnessCategoryLabels = new Set(["Get Fitter", "Start Here", "Nutrition", "Sleep & Recovery", "Strength Basics", "Daily Routines"]);
+  const fitnessCategoryLabels = new Set(["Get Fitter", "Strength Basics", "Recovery", "Simple Basics"]);
   const orderedCats = _templateFilter === "fitness" ? cats.filter(c => fitnessCategoryLabels.has(c.label)) : cats;
-  const POPULAR_IDS = ["fitter-starter","75-soft","start-small","momentum-builder","lean-start","digital-detox","sleep-reset","cruise-control","monk-mode","stress-reset","strength-foundation"];
-  const START_HERE_IDS = ["fitter-starter","75-soft","start-small","reset-week","momentum-builder","morning-routine","sleep-reset","digital-detox","lean-start","stress-reset"];
+  const POPULAR_IDS = ["fitter-starter","75-soft","read-a-book","meditation","walking","strength-foundation","start-small","hydration","sleep-reset","stress-reset"];
+  const START_HERE_IDS = ["fitter-starter","75-soft","read-a-book","meditation","walking","strength-foundation","start-small","sleep-reset","stress-reset"];
   const filterTabs = [
     { id:"all",      label:"All" },
     { id:"fitness",  label:"Fitness" },
@@ -6645,8 +6656,6 @@ function renderBuilderTemplates() {
     { id:"all",          label:"All levels" },
     { id:"beginner",     label:"Beginner" },
     { id:"intermediate", label:"Intermediate" },
-    { id:"advanced",     label:"Advanced" },
-    { id:"extreme",      label:"Extreme" },
   ];
   const passesFilter = t => {
     if (!isConqurTemplate(t)) return false;
@@ -6667,9 +6676,8 @@ function renderBuilderTemplates() {
   };
   const templateRow = t => {
     const diff = TEMPLATE_DIFFICULTY[t.id] || "intermediate";
-    const mins = estimateMinutesPerDay(t.habits);
-    const minsLabel = mins >= 60 ? `${(mins/60).toFixed(mins % 60 ? 1 : 0)}h/day` : `${mins} min/day`;
-    const meta = `${t.duration} days · ${t.defaultMode} · ${DIFF_LABEL[diff]} · ~${minsLabel}`;
+    const weeklyChecks = t.habits.reduce((sum, h) => sum + habitWeeklyTarget(h), 0);
+    const meta = `${t.duration} days · ${weeklyChecks} checks/week · ${DIFF_LABEL[diff]}`;
     const hasSafety = !!TEMPLATE_SAFETY[t.id];
     return `
     <button class="cl-row" data-select-template="${t.id}">
@@ -6686,7 +6694,7 @@ function renderBuilderTemplates() {
   const filterBar = `
   <div class="cl-filters">
     ${filterTabs.map(f => chip(_templateFilter===f.id, "data-template-filter", f.id, f.label)).join("")}
-    <button class="cl-chip cl-chip--ghost" data-surprise-me title="Pick a random challenge for me"><i class="ti ti-arrows-shuffle"></i> Surprise</button>
+    <button class="cl-chip cl-chip--ghost" data-surprise-me title="Pick a random plan for me"><i class="ti ti-arrows-shuffle"></i> Surprise</button>
   </div>
   <div class="cl-filters cl-filters--diff">
     ${diffTabs.map(f => chip(_difficultyFilter===f.id, "data-difficulty-filter", f.id, f.label)).join("")}
@@ -6701,7 +6709,7 @@ function renderBuilderTemplates() {
   })() : "";
   const renderedIds = new Set();
   const catSections = orderedCats.map(cat => {
-    const seen = _templateFilter === "fitness" ? renderedIds : new Set();
+    const seen = renderedIds;
     const group = cat.ids.map(id => TEMPLATES.find(t => t.id === id)).filter(t => {
       if (!t || seen.has(t.id) || !passesFilter(t)) return false;
       seen.add(t.id);
@@ -6736,6 +6744,11 @@ function renderBuilderCustomize() {
       Plan name
       <input id="bf-name" type="text" value="${esc(builderForm.name)}" placeholder="${template?template.name:"My Habit Plan"}" maxlength="40">
     </label>
+    ${template?.asksBookName ? `
+    <label class="field" style="margin-bottom:14px">
+      Book name
+      <input id="bf-book-name" type="text" value="${esc(builderForm.bookName || "")}" placeholder="e.g. Atomic Habits" maxlength="80">
+    </label>` : ""}
     <div class="field-grid" style="margin-bottom:6px">
       <label class="field">Start date<input id="bf-start" type="date" value="${builderForm.startDate}"></label>
       ${builderForm.noEndDate ? `<label class="field" style="opacity:.4">End date<input type="date" disabled value="—"></label>` : `<label class="field">End date<input id="bf-end" type="date" value="${builderForm.endDate}"></label>`}
@@ -7114,7 +7127,101 @@ function showQuestChapterModal(dayCount) {
   document.body.appendChild(el);
 }
 
+function renderCoachProgress() {
+  const plans = getActiveChallenges().filter(c => !c.questDefId);
+  const completedPlans = getAllChallenges().filter(c => c.status === "completed" && !c.questDefId);
+  const today = todayKey();
+  const last14 = Array.from({ length: 14 }, (_, i) => addDays(today, i - 13));
+  const checkedDays = last14.filter(k => plans.some(c => c.days[k]?.done?.length > 0)).length;
+  const weekRows = plans.map(c => {
+    const week = getCurrentTrackerWeek(c);
+    const target = c.habits.reduce((s, h) => s + habitWeeklyTarget(h, c), 0);
+    const done = c.habits.reduce((s, h) => s + Math.min(habitWeekCount(c, h, week), habitWeeklyTarget(h, c)), 0);
+    const pct = target ? Math.round((done / target) * 100) : 0;
+    return { c, week, target, done, pct };
+  });
+  const recent = [];
+  for (const k of [...last14].reverse()) {
+    for (const c of plans) {
+      const day = c.days[k];
+      if (!day?.done?.length) continue;
+      const titles = day.done
+        .map(id => c.habits.find(h => h.id === id)?.title)
+        .filter(Boolean)
+        .slice(0, 3);
+      recent.push({ date: k, plan: c.name, titles, count: day.done.length });
+    }
+  }
+  return `
+  <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
+    <section class="coach-history-hero">
+      <div>
+        <div class="tracker-kicker">History</div>
+        <div class="tracker-title">Your consistency record.</div>
+        <div class="tracker-sub">${plans.length ? `${checkedDays}/14 recent days include at least one check-in.` : "Start a plan to build your first week of data."}</div>
+      </div>
+      <div class="coach-history-score">
+        <strong>${plans.length ? Math.round((checkedDays / 14) * 100) : 0}%</strong>
+        <span>14-day rhythm</span>
+      </div>
+    </section>
+
+    <section class="tracker-section">
+      <div class="section-label" style="margin:0 0 10px">Current Plans</div>
+      ${weekRows.length ? `
+      <div class="coach-plan-stack">
+        ${weekRows.map(({ c, target, done, pct }) => `
+        <button class="coach-plan-row" data-view-challenge="${c.id}">
+          <span>
+            <strong>${esc(displayPlanName(c.name))}</strong>
+            <small>${done}/${target} checks this week</small>
+          </span>
+          <span class="coach-plan-meter"><span style="width:${pct}%"></span></span>
+          <b>${pct}%</b>
+        </button>`).join("")}
+      </div>` : `
+      <div class="coach-empty-panel">
+        <strong>No plan is active yet.</strong>
+        <span>Choose one plan first. The history view will start showing weekly progress after your first check-in.</span>
+        <button class="secondary-button" data-open-builder>Choose a plan</button>
+      </div>`}
+    </section>
+
+    <section class="tracker-section">
+      <div class="section-label" style="margin:0 0 10px">Recent Check-ins</div>
+      ${recent.length ? `
+      <div class="coach-recent-list">
+        ${recent.slice(0, 8).map(item => `
+        <div class="coach-recent-row">
+          <span class="coach-recent-date">${formatDate(parseDate(item.date), { weekday:"short", month:"short", day:"numeric" })}</span>
+          <span>
+            <strong>${esc(displayPlanName(item.plan))}</strong>
+            <small>${esc(item.titles.join(" · "))}${item.count > item.titles.length ? ` · +${item.count - item.titles.length} more` : ""}</small>
+          </span>
+        </div>`).join("")}
+      </div>` : `
+      <div class="coach-empty-panel">
+        <strong>No check-ins yet.</strong>
+        <span>Log one item this week. This becomes the simple record you can review over time.</span>
+      </div>`}
+    </section>
+
+    ${completedPlans.length ? `
+    <section class="tracker-section">
+      <div class="section-label" style="margin:0 0 10px">Completed Plans</div>
+      <div class="coach-recent-list">
+        ${completedPlans.slice(0, 5).map(c => `
+        <div class="coach-recent-row">
+          <span class="coach-recent-date">${c.completedAt ? formatDate(parseDate(c.completedAt), { month:"short", day:"numeric" }) : "Done"}</span>
+          <span><strong>${esc(displayPlanName(c.name))}</strong><small>${c.habits.length} tracked habits</small></span>
+        </div>`).join("")}
+      </div>
+    </section>` : ""}
+  </main>`;
+}
+
 function renderBadges() {
+  return renderCoachProgress();
   const allChallenges    = getAllChallenges();
   // Only show/count template badges for challenges that have been started
   const startedChallenges = allChallenges.filter(c => Object.keys(c.days).length > 0 || c.badges.length > 0);
@@ -7466,10 +7573,10 @@ function renderObHero() {
     <div class="ob-hero-top">
       <div class="ob-hero-icon" aria-hidden="true"><i class="ti ti-run"></i></div>
       <div class="ob-hero-logo">CONQUR</div>
-      <div class="ob-hero-tagline">Get fitter.<br>Start before release.</div>
+      <div class="ob-hero-tagline">Set the week.<br>Follow the plan.</div>
     </div>
-    <div class="ob-body ob-fitness-intro">Pick a simple plan and start logging today. Your progress stays on this device, and backup is optional when you are ready.</div>
-    <div class="ob-fitness-starts" aria-label="Fitness quick starts">
+    <div class="ob-body ob-fitness-intro">Pick one plan. Conqur will show what is due today, what is still missing this week, and where consistency is building.</div>
+    <div class="ob-fitness-starts" aria-label="Habit plan quick starts">
       ${fitnessStarts.map(t => `
       <button class="ob-fitness-card" data-ob-fitness-start="${t.id}">
         <span class="ob-fitness-icon"><i class="ti ${challengeIcon(t)}"></i></span>
@@ -7481,11 +7588,11 @@ function renderObHero() {
       </button>`).join("")}
     </div>
     <ul class="ob-features" aria-label="App features">
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-shield-check"></i></span><span><strong>Beginner-safe starts</strong> — movement and recovery before intensity</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-bolt"></i></span><span><strong>Daily check-ins</strong> — keep the streak alive with small wins</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-shield-check"></i></span><span><strong>Realistic starts</strong> — movement, recovery, and reading can sit in one week</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-check"></i></span><span><strong>Daily check-ins</strong> — a clear record of what you actually did</span></li>
       <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-lock"></i></span><span>Works offline — no account required</span></li>
     </ul>
-    <button class="primary-button ob-cta" data-ob-browse-fitness>Browse fitness plans</button>
+    <button class="primary-button ob-cta" data-ob-browse-fitness>Browse habit plans</button>
     <button class="link-btn ob-link" data-ob-to-signin>Already have an account? Sign in</button>
   </div>`;
 }
@@ -7495,15 +7602,15 @@ function renderObExplainer() {
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
       <div class="ob-emoji" aria-hidden="true"><i class="ti ti-trending-up"></i></div>
-      <div class="ob-title">One pattern at a time</div>
-      <div class="ob-body">Here's how it works.</div>
+      <div class="ob-title">One plan at a time</div>
+      <div class="ob-body">A useful week starts with a short list you can actually see.</div>
     </div>
     <ul class="ob-features" aria-label="How it works">
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-eye"></i></span><span><strong>Notice what's automatic</strong> — one meaningful pattern, not five habits</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-bolt"></i></span><span><strong>Keep your ${term('habit').toLowerCase()}, build Progress</strong> — every day you show up adds up</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-trophy"></i></span><span><strong>Progress moves you forward</strong> — it never resets, no matter what</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-calendar-week"></i></span><span><strong>Weekly targets</strong> — see exactly what is still missing</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-check"></i></span><span><strong>Daily check-ins</strong> — tap once when the work is done</span></li>
+      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-history"></i></span><span><strong>Simple history</strong> — review the pattern without noise</span></li>
     </ul>
-    <button class="primary-button ob-cta" data-ob-next>Choose how you level up →</button>
+    <button class="primary-button ob-cta" data-ob-browse-fitness>Choose a plan</button>
   </div>`;
 }
 
@@ -7552,7 +7659,6 @@ function renderObCapacity() {
   return renderObChoice("How much capacity do you have right now?", "Be honest — this just helps us pace things right.", options, "capacity");
 }
 function renderObReflect() {
-  const def = QUEST_LIBRARY[onboardingAnswers.pattern];
   return `
   <div class="ob-screen ob-screen--slide" role="main">
     <div class="ob-slide-inner">
@@ -7560,11 +7666,8 @@ function renderObReflect() {
       <div class="ob-title">Here's what we heard</div>
       <div class="ob-body">${esc(buildReflectBack())}</div>
     </div>
-    ${def ? `
-    <button class="primary-button ob-cta" data-ob-confirm-quest="${def.id}">Yes, let's start</button>
-    <button class="link-btn ob-link" data-ob-redo>Show me something else</button>` : `
     <button class="primary-button ob-cta" data-ob-see-available>See what's ready today</button>
-    <button class="link-btn ob-link" data-ob-redo>Go back</button>`}
+    <button class="link-btn ob-link" data-ob-redo>Go back</button>
   </div>`;
 }
 
@@ -7585,7 +7688,7 @@ function renderObGoal() {
     <div class="ob-slide-inner">
       <div class="ob-emoji" aria-hidden="true"><i class="ti ti-target"></i></div>
       <div class="ob-title">What do you want most right now?</div>
-      <div class="ob-body">Answer 3 questions. We'll recommend one challenge to start today.</div>
+      <div class="ob-body">Answer 3 questions. We'll recommend one plan to start today.</div>
     </div>
     <div class="ob-goal-grid">
       ${goals.map(g => `
@@ -7598,7 +7701,7 @@ function renderObGoal() {
         <span class="ob-goal-arrow">→</span>
       </button>`).join("")}
     </div>
-    <button class="link-btn ob-link" data-ob-browse>Browse all challenges</button>
+    <button class="link-btn ob-link" data-ob-browse>Browse all plans</button>
   </div>`;
 }
 
@@ -7661,28 +7764,28 @@ function recommendedOnboardingTemplateId() {
   if (goal === "start_small") return "start-small";
   if (goal === "lose_weight") {
     if (intensity === "easy" || time === "10") return "start-small";
-    if (intensity === "strict") return "fat-loss-foundation";
-    return "lean-start";
+    if (intensity === "strict") return "strength-foundation";
+    return "fitter-starter";
   }
   if (goal === "discipline") {
     if (intensity === "easy") return "momentum-builder";
-    if (intensity === "strict") return time === "60" ? "75-hard" : "cruise-control";
-    return "cruise-control";
+    if (intensity === "strict") return time === "60" ? "strength-foundation" : "momentum-builder";
+    return "start-small";
   }
   if (goal === "health") {
-    if (intensity === "easy") return "reset-week";
+    if (intensity === "easy") return "start-small";
     if (intensity === "strict") return "75-soft";
     return "momentum-builder";
   }
   if (goal === "productivity") {
-    if (intensity === "strict") return "monk-mode";
-    if (intensity === "easy") return "deep-work-sprint";
-    return "digital-detox";
+    if (intensity === "strict") return "momentum-builder";
+    if (intensity === "easy") return "read-a-book";
+    return "journaling";
   }
   if (goal === "stress") {
     if (intensity === "easy") return "stress-reset";
     if (intensity === "strict") return "sleep-reset";
-    return "mental-health-30";
+    return "meditation";
   }
   return "start-small";
 }
@@ -7697,7 +7800,7 @@ function renderObRecommendation() {
     <div class="ob-slide-inner">
       <div class="ob-emoji" aria-hidden="true"><i class="ti ${challengeIcon(t)}"></i></div>
       <div class="ob-title">Recommended for you</div>
-      <div class="ob-body">Start with one clear mission. You can browse the full library later.</div>
+      <div class="ob-body">Start with one clear plan. You can adjust it after your first check-in.</div>
     </div>
     <div class="challenge-card" style="text-align:left;width:100%;margin:0 auto 16px">
       <div class="cc-top">
@@ -7714,7 +7817,7 @@ function renderObRecommendation() {
       </div>
     </div>
     <button class="primary-button ob-cta" data-ob-start-rec="${t.id}">Start ${esc(t.name)}</button>
-    <button class="link-btn ob-link" data-ob-browse>Browse all challenges</button>
+    <button class="link-btn ob-link" data-ob-browse>Browse all plans</button>
   </div>`;
 }
 
@@ -7725,7 +7828,7 @@ function renderObName() {
     <div class="ob-slide-inner">
       <div class="ob-emoji" aria-hidden="true"><i class="ti ti-hand-stop"></i></div>
       <div class="ob-title">What should we call you?</div>
-      <div class="ob-body">We'll use your name to cheer you on along the way.</div>
+      <div class="ob-body">We'll use it for short coach notes inside the app.</div>
     </div>
     <div class="ob-form">
       <label class="field ob-field">
@@ -7938,7 +8041,7 @@ function renderProSection() {
   return `
   <div class="section-label"><i class="ti ti-cloud"></i> Cloud Backup</div>
   <div class="more-card" style="margin-bottom:14px">
-    <div style="font-size:13px;color:var(--text-dim);margin-bottom:14px">Back up your progress and sync across devices. Your ${term('streak')}, ${term('badgePlural')}, and ${term('challengePlural')} stay safe even if you clear your browser.</div>
+    <div style="font-size:13px;color:var(--text-dim);margin-bottom:14px">Back up your plan, weekly check-ins, and settings so they stay available if you switch devices or clear your browser.</div>
     ${_cloudAuthError ? `<div class="cloud-auth-error">${esc(_cloudAuthError)}</div>` : ""}
     ${_cloudAuthLoading ? `<div style="text-align:center;padding:12px;color:var(--text-dim);font-size:14px">Loading…</div>` : `
     <label class="field" style="margin-bottom:10px">
@@ -7969,7 +8072,7 @@ function renderSettings() {
       </button>
       <div style="font-size:16px;font-weight:700">Settings</div>
     </div>
-    <div class="section-label">Your Name</div>
+    <div class="section-label">Profile</div>
     <div class="log-card" style="margin-bottom:14px">
       <label class="field">Name<input id="s-name" type="text" value="${esc(state.settings.name)}" placeholder="Optional" data-autosave-name></label>
     </div>
@@ -7990,14 +8093,20 @@ function renderSettings() {
         </div>
       </div>
     </div>
-    <div class="section-label" style="margin-top:20px">How Conqur Works</div>
-    <div class="more-card" style="font-size:13px;line-height:1.65;color:var(--text-dim)">
-      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-target"></i> ${term('challengePlural')}</strong> — Pick a challenge: a routine, a health reset, or a discipline test. Each one gives you daily ${term('habitPlural')} to keep.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-bolt"></i> Progress &amp; ${term('level')}</strong> — Each ${term('habit')} you keep builds Progress. Progress moves you through your ${term('level')} and never resets, so every small win becomes part of your record.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-activity"></i> ${term('streak')}</strong> — Your ${term('streak')} grows every day you keep your ${term('habitPlural')}. Soft mode gives you one grace day before it resets.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-shield"></i> ${term('restDay')}s</strong> — ${term('restDay')}s are planned rest, reflection, and reset time. They do not erase your progress.</div>
-      <div style="margin-bottom:12px"><strong style="color:var(--text)"><i class="ti ti-flag"></i> Phases &amp; ${term('bossDay')}s</strong> — Longer ${term('challengePlural')} are split into phases, each ending in a ${term('bossDay')} — a harder push with a bonus.</div>
-      <div><strong style="color:var(--text)"><i class="ti ti-medal"></i> ${term('badgePlural')}</strong> — Earn ${term('badgePlural')} for ${term('streak')}, consistency, and completions. Proof of who you're becoming.</div>
+    <div class="section-label" style="margin-top:20px">Coach Style</div>
+    <div class="more-card coach-settings-card">
+      <div class="coach-settings-row">
+        <span><strong>Planning language</strong><small>Short, direct prompts focused on the week.</small></span>
+        <b>Practical</b>
+      </div>
+      <div class="coach-settings-row">
+        <span><strong>Data storage</strong><small>Your check-ins stay in this browser unless you choose backup.</small></span>
+        <b>Local</b>
+      </div>
+      <div class="coach-settings-row">
+        <span><strong>Beta feedback</strong><small>Tell us where the plan feels unclear, heavy, or missing something.</small></span>
+        <button class="link-btn" data-email-capture-submit>Send note</button>
+      </div>
     </div>
     ${renderProSection()}
     ${renderReminderSettings()}
@@ -8068,7 +8177,13 @@ function bindEvents() {
     _showDailyLog = true;
     render();
   });
-  on("[data-simple-start]", el => startTemplateFromOnboarding(el.dataset.simpleStart));
+  on("[data-simple-start]", el => openTemplateQuickstart(el.dataset.simpleStart));
+  on("[data-plan-setup]", el => {
+    builderOpen = true;
+    builderStep = "template";
+    builderForm = defaultBuilderForm();
+    selectTemplate(el.dataset.planSetup);
+  });
   on("[data-set-main-plan]", el => {
     todayChallengeId = el.dataset.setMainPlan;
     viewingDate = null;
@@ -8532,13 +8647,20 @@ function bindEvents() {
     builderOpen = true;
     builderStep = "template";
     builderForm = defaultBuilderForm();
-    _templateFilter = "fitness";
+    _templateFilter = "popular";
     _difficultyFilter = "all";
     render();
   });
-  on("[data-ob-fitness-start]", el => startTemplateFromOnboarding(el.dataset.obFitnessStart));
+  on("[data-ob-fitness-start]", el => {
+    onboardingStep = null;
+    activeTab = "challenges";
+    openTemplateQuickstart(el.dataset.obFitnessStart);
+  });
   on("[data-ob-start-rec]", el => {
-    startTemplateFromOnboarding(el.dataset.obStartRec, true);
+    onboardingStep = null;
+    activeTab = "challenges";
+    _skipAccountAfterStart = true;
+    openTemplateQuickstart(el.dataset.obStartRec);
   });
   on("[data-ob-save-name]", () => {
     const nameInput = document.getElementById("ob-name");
@@ -9127,25 +9249,21 @@ function selectTemplate(id) {
   builderForm.weeklyGoal = template ? template.weeklyGoal : 100;
   builderForm.endDate = addDays(builderForm.startDate, (template?template.duration:30)-1);
   builderForm.habits = [];
-  // Custom challenges always go straight to customize; templates get the quickstart screen
-  builderStep = (id === "custom") ? "customize" : "quickstart";
+  // Custom plans go straight to customize; templates always start with the quick preview.
+  builderStep = id === "custom" ? "customize" : "quickstart";
   render();
 }
 
 function renderBuilderQuickstart() {
   const template = TEMPLATES.find(t => t.id === builderForm.templateId);
   if (!template) { builderStep = "customize"; render(); return ""; }
-  const tier = TEMPLATE_TIERS[template.id] || "common";
-  const td   = TIERS[tier];
   const dur  = diffDays(builderForm.startDate, builderForm.endDate) + 1;
   const habits = template.habits.slice(0, 5);
-  const xpTheme  = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
-  const weeklyXP = template.habits.reduce((sum, h) => sum + (h.points || 2), 0) * 7;
   return `
   <div class="builder-quickstart">
     <div class="bqs-hero">
       <div class="bqs-emoji"><i class="ti ${challengeIcon(template)}"></i></div>
-      <div class="bqs-tier" style="color:${td.color}">${td.label}</div>
+      <div class="bqs-tier">Habit plan</div>
       <div class="bqs-name">${esc(displayPlanName(template.name))}</div>
       <div class="bqs-meta">${dur} days · starts today</div>
     </div>
@@ -9154,10 +9272,9 @@ function renderBuilderQuickstart() {
       ${template.habits.length > 5 ? `<div class="bqs-habit-row" style="color:var(--text-faint)">+ ${template.habits.length - 5} more ${term('habitPlural')}</div>` : ""}
     </div>
     <div class="bqs-desc">${esc(template.description)}</div>
+    ${template.asksBookName ? `<div class="builder-reminder-hint"><i class="ti ti-book-2"></i> The start button will ask for the book name.</div>` : ""}
+    ${template.asksStepGoal ? `<div class="builder-reminder-hint"><i class="ti ti-shoe"></i> The start button will ask for your step goal.</div>` : ""}
     ${TEMPLATE_SAFETY[template.id] ? `<div class="bqs-safety-warning"><span class="bqs-safety-icon"><i class="ti ti-alert-triangle"></i></span><span>${TEMPLATE_SAFETY[template.id]}</span></div>` : ""}
-    <div class="bqs-xp-row">
-      <i class="ti ${xpTheme.icon}"></i> Earn ~<strong>${weeklyXP.toLocaleString()}</strong> per week logging every ${term('habit')}
-    </div>
     <div class="bqs-mode-note">
       ${template.defaultMode === "soft"
         ? "<i class=\"ti ti-bulb\"></i> <strong>Soft mode</strong> — one grace day per week if life gets in the way."
@@ -9177,15 +9294,35 @@ function startChallenge(safetyConfirmed = false, multiConfirmed = false) {
   const endEl        = document.getElementById("bf-end");
   const ongoingEl    = document.getElementById("bf-ongoing");
   const goalWeightEl = document.getElementById("bf-goalweight");
+  const bookNameEl   = document.getElementById("bf-book-name");
   if (nameEl)       builderForm.name      = nameEl.value.trim();
   if (startEl)      builderForm.startDate = startEl.value;
   if (ongoingEl)    builderForm.noEndDate = ongoingEl.checked;
   if (endEl && !builderForm.noEndDate) builderForm.endDate = endEl.value;
   if (builderForm.noEndDate) builderForm.endDate = "9999-12-31";
   if (goalWeightEl?.value) builderForm.goalWeight = parseFloat(goalWeightEl.value) || null;
+  if (bookNameEl) builderForm.bookName = bookNameEl.value.trim();
   if (!builderForm.startDate) { showToast("Set a start date."); return; }
   if (!builderForm.noEndDate && !builderForm.endDate) { showToast("Set an end date or enable Ongoing."); return; }
   const template = builderForm.templateId ? TEMPLATES.find(t=>t.id===builderForm.templateId) : null;
+  if (template?.asksBookName && !String(builderForm.bookName || "").trim()) {
+    showPrompt("Which book are you reading?", "", (val) => {
+      const bookName = String(val || "").trim();
+      if (!bookName) { showToast("Enter the book name first."); return; }
+      builderForm.bookName = bookName;
+      startChallenge(safetyConfirmed, multiConfirmed);
+    }, { type: "text", inputAttrs: "", placeholder: "e.g. Atomic Habits", confirmLabel: "Continue", cancelLabel: "Cancel" });
+    return;
+  }
+  if (template?.asksStepGoal && !builderForm.stepGoal) {
+    showPrompt("What is your step goal?", "8000", (val) => {
+      const stepGoal = Math.max(1, Math.round(Number(String(val || "").replace(/,/g, "")) || 0));
+      if (!Number.isFinite(stepGoal) || stepGoal < 1000) { showToast("Enter a realistic step goal."); return; }
+      builderForm.stepGoal = stepGoal;
+      startChallenge(safetyConfirmed, multiConfirmed);
+    }, { type: "number", inputAttrs: `min="1000" max="50000" step="500" inputmode="numeric"`, placeholder: "8000", confirmLabel: "Continue", cancelLabel: "Cancel" });
+    return;
+  }
   const habitCount = template ? template.habits.length : builderForm.habits.length;
   if (habitCount === 0) { showToast(`Add at least one ${term('habit')} first.`); return; }
   if (!safetyConfirmed && template && TEMPLATE_SAFETY[template.id]) {
@@ -9194,7 +9331,7 @@ function startChallenge(safetyConfirmed = false, multiConfirmed = false) {
     return;
   }
   if (!multiConfirmed) {
-    const active = getActiveChallenges();
+    const active = getActiveChallenges().filter(c => !c.questDefId);
     if (active.length > 0) {
       const msg = active.length === 1
         ? `You already have "${displayPlanName(active[0].name)}" running. Start another plan as a side habit?`
@@ -9661,8 +9798,8 @@ function setDynamicIcon() {
   const link = document.querySelector("link[rel='icon']");
   if (!link) return;
   const cs = getComputedStyle(document.documentElement);
-  const c1 = cs.getPropertyValue("--primary").trim()   || "#38BDF8";
-  const c2 = cs.getPropertyValue("--secondary").trim() || "#7DD3FC";
+  const c1 = cs.getPropertyValue("--primary").trim()   || "#008080";
+  const c2 = cs.getPropertyValue("--secondary").trim() || "#4FB3B3";
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs><rect width="192" height="192" rx="42" fill="#000"/><circle cx="96" cy="96" r="76" fill="none" stroke="#111" stroke-width="11"/><circle cx="96" cy="96" r="76" fill="none" stroke="url(#g)" stroke-width="11" stroke-linecap="round" stroke-dasharray="358 120" transform="rotate(-90 96 96)"/><text x="96" y="96" text-anchor="middle" dominant-baseline="central" font-family="'Lato',system-ui,sans-serif" font-weight="900" font-size="88" fill="url(#g)">C</text></svg>`;
   link.href=`data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
@@ -9722,6 +9859,25 @@ if (!state.migrations["weeklyHabitTargetsV1"]) {
     }
   }
   state.migrations["weeklyHabitTargetsV1"] = true;
+  saveState();
+}
+// Migration: keep current saved plans aligned with the simplified weekly tracker.
+if (!state.migrations["simplePlanLibraryV1"]) {
+  for (const c of Object.values(state.challenges)) {
+    const tpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
+    if (!tpl) continue;
+    if (c.templateId === "walking") {
+      c.habits = (c.habits || []).filter(h => h.id === "wk-dist");
+      if (!c.habits.length) c.habits = JSON.parse(JSON.stringify(tpl.habits));
+      c.habits[0].title = c.stepGoal ? `Hit ${Number(c.stepGoal).toLocaleString()} steps` : "Hit step goal";
+      c.habits[0].quip = "Check it off when your step goal is done.";
+    }
+    for (const h of c.habits || []) {
+      const next = tpl.habits.find(th => th.id === h.id);
+      if (next?.weeklyTarget) h.weeklyTarget = next.weeklyTarget;
+    }
+  }
+  state.migrations["simplePlanLibraryV1"] = true;
   saveState();
 }
 // Show onboarding for truly new users (no challenges, never migrated)
