@@ -6037,6 +6037,31 @@ body {
   line-height: 1.35;
 }
 
+.plan-library-head {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.plan-library-title {
+  margin-top: 5px;
+  color: var(--text);
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.08;
+}
+
+.plan-library-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.plan-library-actions .primary-button,
+.plan-library-actions .secondary-button {
+  min-height: 44px;
+}
+
 .tracker-habit {
   min-height: 64px;
   grid-template-columns: 26px 1fr;
@@ -6204,6 +6229,11 @@ body {
   color: var(--text);
   font-size: 14px;
   font-weight: 650;
+}
+
+.tracker-start-copy {
+  display: grid;
+  gap: 3px;
 }
 
 .tracker-side-meta,

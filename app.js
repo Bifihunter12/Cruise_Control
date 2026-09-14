@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.14.15";
+const APP_VERSION = "2026.09.14.17";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -4802,12 +4802,16 @@ function renderQuestPicker() {
     .filter(Boolean);
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
-    <section class="tracker-hero">
-      <div class="tracker-kicker">Plan Library</div>
-      <div class="tracker-title">Choose the work you want tracked.</div>
-      <div class="tracker-sub">Keep one main plan visible. Side plans stay available without clutter.</div>
-      <button class="primary-button" data-open-builder style="margin-top:14px">Browse habit plans</button>
-      <button class="secondary-button" data-open-custom-plan style="margin-top:8px">Create your own plan</button>
+    <section class="plan-library-head">
+      <div>
+        <div class="tracker-kicker">Plans</div>
+        <div class="plan-library-title">Start from a weekly plan.</div>
+        <div class="tracker-sub">Pick a ready-made structure, or build your own checklist from scratch.</div>
+      </div>
+      <div class="plan-library-actions">
+        <button class="primary-button" data-open-builder>All plans</button>
+        <button class="secondary-button" data-open-custom-plan>Custom plan</button>
+      </div>
     </section>
 
     ${activePlans.length ? `
@@ -4827,12 +4831,14 @@ function renderQuestPicker() {
     </section>` : ""}
 
     <section class="tracker-section">
-      <div class="section-label" style="margin:0 0 10px">Quick Starts</div>
+      <div class="section-label" style="margin:0 0 10px">Recommended Starts</div>
       <div class="tracker-start-grid">
         ${quickStarts.map(t => `
           <button class="tracker-start-card" data-simple-start="${t.id}">
-          <strong>${esc(displayPlanName(t.name))}</strong>
-          <span>${esc(t.description || `${t.duration} days · weekly checkboxes`)}</span>
+          <span class="tracker-start-copy">
+            <strong>${esc(displayPlanName(t.name))}</strong>
+          </span>
+          <span>${esc(t.description || "Weekly checkboxes you can adjust.")}</span>
         </button>`).join("")}
       </div>
     </section>
