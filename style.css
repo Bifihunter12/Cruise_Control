@@ -4,9 +4,9 @@
   --surface: #0D1B2A;
   --surface-2: #102033;
   --surface-3: #15263A;
-  --primary: #008080;
-  --secondary: #4FB3B3;
-  --gradient: linear-gradient(135deg, #008080, #4FB3B3);
+  --primary: #d97742;
+  --secondary: #d97742;
+  --gradient: linear-gradient(135deg, #d97742, #d97742);
   --text: #F1F5F9;
   --text-dim: #CBD5E1;
   --text-faint: #64748B;
@@ -15,15 +15,15 @@
   --error: #991B1B;
   --danger: #7F1D1D;
   --track: #111827;
-  --border: rgba(79, 179, 179, 0.14);
-  --border-active: rgba(79, 179, 179, 0.28);
+  --border: rgba(217, 119, 66, 0.14);
+  --border-active: rgba(217, 119, 66, 0.28);
   --shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.6);
-  --primary-glow: rgba(0, 128, 128, 0.28);
-  --primary-haze: rgba(0, 128, 128, 0.10);
-  --primary-pulse: rgba(0, 128, 128, 0.40);
-  --primary-clear: rgba(0, 128, 128, 0);
-  --secondary-soft: rgba(79, 179, 179, 0.15);
+  --primary-glow: rgba(217, 119, 66, 0.28);
+  --primary-haze: rgba(217, 119, 66, 0.10);
+  --primary-pulse: rgba(217, 119, 66, 0.40);
+  --primary-clear: rgba(217, 119, 66, 0);
+  --secondary-soft: rgba(217, 119, 66, 0.15);
   /* Fire accent — reserved for streaks (Fire), rewards, runes, and celebration moments only */
   --fire: #F59E0B;
   --fire-alt: #EA580C;
@@ -44,7 +44,7 @@
   --font: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-num: "Inter", ui-sans-serif, system-ui, sans-serif;
   --accent: var(--primary);
-  --nebula: rgba(0, 128, 128, 0.08);
+  --nebula: rgba(217, 119, 66, 0.08);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -5451,20 +5451,20 @@ details[open] .badge-locked-summary::before {
   --shadow: none;
   --shadow-lg: none;
   --primary-glow: transparent;
-  --primary-haze: rgba(0, 128, 128, 0.08);
+  --primary-haze: rgba(217, 119, 66, 0.08);
   --primary-pulse: rgba(29, 143, 98, 0.18);
   --primary-clear: rgba(29, 143, 98, 0);
   --secondary-soft: rgba(42, 111, 90, 0.09);
-  --fire: #008080;
+  --fire: #d97742;
   --fire-alt: #2A6F5A;
   --fire-gold: #D69A1E;
   --fire-glow: transparent;
-  --epic: #008080;
+  --epic: #d97742;
   --epic-glow: transparent;
   --radius-sm: 6px;
   --radius: 8px;
   --radius-lg: 10px;
-  --accent: #008080;
+  --accent: #d97742;
   --accent-2: #1D8F62;
   --accent-warm: #D69A1E;
   --nebula: transparent;
@@ -5578,7 +5578,7 @@ body { background: var(--bg) !important; }
 
 .tracker-summary {
   border: 1px solid rgba(29, 143, 98, 0.16);
-  background: linear-gradient(135deg, rgba(29, 143, 98, 0.08), rgba(0, 128, 128, 0.05));
+  background: linear-gradient(135deg, rgba(29, 143, 98, 0.08), rgba(217, 119, 66, 0.05));
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 18px;
@@ -5659,12 +5659,12 @@ body { background: var(--bg) !important; }
 .tracker-day-box.today:not(.done) {
   border-color: var(--accent);
   color: var(--accent);
-  background: rgba(0, 128, 128, 0.07);
+  background: rgba(217, 119, 66, 0.07);
 }
 
 .tracker-side-card,
 .tracker-start-card {
-  border: 1px solid rgba(0, 128, 128, 0.14);
+  border: 1px solid rgba(217, 119, 66, 0.14);
   background: var(--surface);
   border-radius: 8px;
   padding: 12px;
@@ -5696,7 +5696,7 @@ body { background: var(--bg) !important; }
 .secondary-button {
   min-height: 42px;
   border-radius: 999px;
-  border: 1px solid rgba(0, 128, 128, 0.28);
+  border: 1px solid rgba(217, 119, 66, 0.28);
   background: transparent;
   color: var(--accent);
   font-size: 13px;
@@ -5736,7 +5736,7 @@ body { background: var(--bg) !important; }
 
 .nav-button.active { color: var(--text); }
 .nav-button.active {
-  background: rgba(0, 128, 128, 0.08);
+  background: rgba(217, 119, 66, 0.08);
   color: var(--accent);
 }
 
@@ -5756,9 +5756,9 @@ body { background: var(--bg) !important; }
 }
 
 .cl-chip.active {
-  border-color: rgba(0, 128, 128, 0.32);
+  border-color: rgba(217, 119, 66, 0.32);
   color: var(--accent);
-  background: rgba(0, 128, 128, 0.08);
+  background: rgba(217, 119, 66, 0.08);
 }
 
 .cl-row {
@@ -5841,42 +5841,42 @@ body { background: var(--bg) !important; }
   color: var(--text);
 }
 
-/* ── Zaera-inspired coach app skin — dark, practical, beta-ready ───────── */
+/* ── Zaera skin — Steel + Ember, matching Zaera Running Coach ──────────── */
 :root {
-  --bg: #080D0F;
-  --surface: #101719;
-  --surface-2: #151E21;
-  --surface-3: #1B282B;
-  --primary: #008080;
-  --secondary: #4FB3B3;
-  --gradient: linear-gradient(135deg, #008080, #4FB3B3);
-  --text: #F4F7F4;
-  --text-dim: #AAB6B0;
-  --text-faint: #65736D;
-  --success: #008080;
-  --warning: #E0B35A;
-  --error: #F26D6D;
-  --danger: #E05757;
-  --track: rgba(255, 255, 255, 0.08);
-  --border: rgba(255, 255, 255, 0.095);
-  --border-active: rgba(0, 128, 128, 0.34);
+  --bg: #0b0b0c;
+  --surface: #141416;
+  --surface-2: #1c1c1f;
+  --surface-3: #232326;
+  --primary: #d97742;
+  --secondary: #d97742;
+  --gradient: var(--accent);
+  --text: #f0efed;
+  --text-dim: #9a9a98;
+  --text-faint: #5a5a58;
+  --success: #6fae8a;
+  --warning: #d9a441;
+  --error: #d96a6a;
+  --danger: #d96a6a;
+  --track: #1c1c1f;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-active: rgba(255, 255, 255, 0.20);
   --shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
   --shadow-lg: 0 26px 72px rgba(0, 0, 0, 0.38);
-  --primary-glow: rgba(0, 128, 128, 0.16);
-  --primary-haze: rgba(0, 128, 128, 0.075);
-  --primary-pulse: rgba(0, 128, 128, 0.26);
-  --secondary-soft: rgba(79, 179, 179, 0.10);
-  --fire: #008080;
-  --fire-alt: #4FB3B3;
-  --fire-gold: #E0B35A;
-  --epic: #4FB3B3;
-  --radius-sm: 12px;
-  --radius: 18px;
-  --radius-lg: 24px;
-  --accent: #008080;
-  --accent-2: #4FB3B3;
-  --accent-warm: #E0B35A;
-  --nebula: rgba(0, 128, 128, 0.07);
+  --primary-glow: rgba(217, 119, 66, 0.16);
+  --primary-haze: rgba(217, 119, 66, 0.075);
+  --primary-pulse: rgba(217, 119, 66, 0.26);
+  --secondary-soft: rgba(217, 119, 66, 0.10);
+  --fire: #d97742;
+  --fire-alt: #d97742;
+  --fire-gold: #d9a441;
+  --epic: #d97742;
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 10px;
+  --accent: #d97742;
+  --accent-2: #d97742;
+  --accent-warm: #d9a441;
+  --nebula: rgba(217, 119, 66, 0.07);
 }
 
 html,
@@ -5886,9 +5886,7 @@ body {
 }
 
 body {
-  background:
-    radial-gradient(circle at 50% -12%, rgba(0, 128, 128, 0.20), transparent 36%),
-    linear-gradient(180deg, #0B1113 0%, #080D0F 52%, #070B0D 100%) !important;
+  background: var(--bg) !important;
 }
 
 .app-shell {
@@ -5909,7 +5907,7 @@ body {
 .brand-mark {
   width: 28px;
   height: 28px;
-  filter: drop-shadow(0 8px 18px rgba(0, 128, 128, 0.15));
+  filter: drop-shadow(0 8px 18px rgba(217, 119, 66, 0.15));
 }
 
 .brand-mark svg {
@@ -5937,10 +5935,10 @@ body {
 }
 
 .tracker-hero {
-  border: 1px solid rgba(79, 179, 179, 0.22);
-  border-radius: 24px;
+  border: 1px solid rgba(217, 119, 66, 0.22);
+  border-radius: var(--radius-lg);
   background:
-    linear-gradient(180deg, rgba(0, 128, 128, 0.10), transparent 46%),
+    linear-gradient(180deg, rgba(217, 119, 66, 0.10), transparent 46%),
     linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025)),
     var(--surface);
   padding: 18px;
@@ -5958,7 +5956,7 @@ body {
 
 .tracker-empty {
   border: 1px solid var(--border);
-  border-radius: 24px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
   padding: 18px;
   box-shadow: var(--shadow);
@@ -6016,18 +6014,18 @@ body {
 }
 
 .tracker-summary {
-  border: 1px solid rgba(0, 128, 128, 0.17);
+  border: 1px solid rgba(217, 119, 66, 0.17);
   background:
-    linear-gradient(135deg, rgba(0, 128, 128, 0.11), rgba(79, 179, 179, 0.045)),
+    linear-gradient(135deg, rgba(217, 119, 66, 0.11), rgba(217, 119, 66, 0.045)),
     rgba(16, 23, 25, 0.9);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   padding: 14px;
   margin-bottom: 20px;
 }
 
 .tracker-summary--done {
-  border-color: rgba(0, 128, 128, 0.3);
-  background: rgba(0, 128, 128, 0.105);
+  border-color: rgba(217, 119, 66, 0.3);
+  background: rgba(217, 119, 66, 0.105);
 }
 
 .tracker-summary-title {
@@ -6073,16 +6071,16 @@ body {
 .tracker-check {
   width: 24px;
   height: 24px;
-  border: 1.5px solid rgba(0, 128, 128, 0.62);
-  background: rgba(0, 128, 128, 0.04);
-  color: #06100D;
+  border: 1.5px solid rgba(217, 119, 66, 0.62);
+  background: rgba(217, 119, 66, 0.04);
+  color: #0b0b0c;
 }
 
 .tracker-habit--done .tracker-check,
 .tracker-day-box.done {
   background: var(--accent);
   border-color: var(--accent);
-  color: #06100D;
+  color: #0b0b0c;
 }
 
 .tracker-habit-title {
@@ -6099,7 +6097,7 @@ body {
 .tracker-week-row {
   padding: 14px;
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.035);
   margin-bottom: 10px;
 }
@@ -6130,9 +6128,9 @@ body {
 }
 
 .tracker-day-box.today:not(.done) {
-  border-color: rgba(0, 128, 128, 0.72);
+  border-color: rgba(217, 119, 66, 0.72);
   color: var(--accent);
-  background: rgba(0, 128, 128, 0.16);
+  background: rgba(217, 119, 66, 0.16);
 }
 
 .tracker-day-box:disabled {
@@ -6146,17 +6144,17 @@ body {
 .coach-recent-row,
 .coach-history-hero,
 .coach-settings-card {
-  border: 1px solid rgba(79, 179, 179, 0.16);
+  border: 1px solid rgba(217, 119, 66, 0.16);
   background: rgba(255, 255, 255, 0.04);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   box-shadow: none;
 }
 
 .tracker-side-card:active,
 .tracker-start-card:active,
 .coach-plan-row:active {
-  border-color: rgba(79, 179, 179, 0.34);
-  background: rgba(0, 128, 128, 0.09);
+  border-color: rgba(217, 119, 66, 0.34);
+  background: rgba(217, 119, 66, 0.09);
 }
 
 .tracker-side-card,
@@ -6180,7 +6178,7 @@ body {
   inset: 10px auto 10px 0;
   width: 3px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #4FB3B3, #008080);
+  background: linear-gradient(180deg, #d97742, #d97742);
   opacity: 0.82;
 }
 
@@ -6205,7 +6203,7 @@ body {
   min-width: 44px;
   min-height: 44px;
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.035);
   color: var(--accent-2);
 }
@@ -6213,7 +6211,7 @@ body {
 .tracker-plan-delete:active,
 .challenge-card-delete:active {
   color: var(--text);
-  background: rgba(0, 128, 128, 0.12);
+  background: rgba(217, 119, 66, 0.12);
 }
 
 .challenge-card-wrap {
@@ -6271,26 +6269,30 @@ body {
 
 .primary-button {
   min-height: 48px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #008080, #4FB3B3);
-  color: #06100D;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #0b0b0c;
   font-size: 13px;
-  font-weight: 800;
-  box-shadow: 0 12px 28px rgba(0, 128, 128, 0.28);
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.primary-button:active {
+  opacity: 0.92;
 }
 
 .secondary-button {
   min-height: 44px;
-  border-radius: 999px;
-  border: 1px solid rgba(79, 179, 179, 0.30);
-  background: rgba(0, 128, 128, 0.105);
+  border-radius: var(--radius);
+  border: 1px solid rgba(217, 119, 66, 0.30);
+  background: rgba(217, 119, 66, 0.105);
   color: var(--accent-2);
   font-size: 13px;
   font-weight: 650;
 }
 
 .secondary-button:active {
-  background: rgba(0, 128, 128, 0.1);
+  background: rgba(217, 119, 66, 0.1);
 }
 
 .link-btn {
@@ -6309,8 +6311,8 @@ body {
 
 .builder-reminder-hint,
 .bqs-mode-note {
-  border-color: rgba(79, 179, 179, 0.18);
-  background: rgba(0, 128, 128, 0.075);
+  border-color: rgba(217, 119, 66, 0.18);
+  background: rgba(217, 119, 66, 0.075);
 }
 
 .bqs-mode-note i,
@@ -6328,7 +6330,7 @@ body {
 
 .nav-button {
   min-height: 52px;
-  border-radius: 999px;
+  border-radius: var(--radius-lg);
   color: var(--text-faint);
   font-size: 10px;
   font-weight: 800;
@@ -6337,8 +6339,8 @@ body {
 
 .nav-button.active {
   color: var(--accent);
-  background: rgba(0, 128, 128, 0.16);
-  box-shadow: inset 0 0 0 1px rgba(79, 179, 179, 0.14);
+  background: rgba(217, 119, 66, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(217, 119, 66, 0.14);
 }
 
 .nav-button.active svg path,
@@ -6476,7 +6478,7 @@ body {
 .tier-inputs-simple input,
 .ech-edit-top input[type="text"],
 .ech-edit-top input[type="number"] {
-  border-radius: 14px;
+  border-radius: var(--radius);
   border-color: var(--border);
   background: rgba(255, 255, 255, 0.045);
   color: var(--text);
@@ -6493,7 +6495,7 @@ body {
 .mode-button,
 .joker-step-btn,
 .cl-chip {
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.035);
   border-color: var(--border);
   color: var(--text-dim);
@@ -6501,7 +6503,7 @@ body {
 
 .mode-button.active,
 .cl-chip.active {
-  background: rgba(0, 128, 128, 0.12);
+  background: rgba(217, 119, 66, 0.12);
   border-color: var(--border-active);
   color: var(--accent);
 }
@@ -6511,13 +6513,13 @@ body {
 .level-profile-card {
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.04);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   box-shadow: none;
 }
 
 .ob-screen {
   background:
-    radial-gradient(circle at 50% -12%, rgba(0, 128, 128, 0.12), transparent 34%),
+    radial-gradient(circle at 50% -12%, rgba(217, 119, 66, 0.12), transparent 34%),
     var(--bg);
   color: var(--text);
 }
@@ -6545,7 +6547,7 @@ body {
 
 .ob-fitness-card,
 .ob-feature {
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   border-color: var(--border);
   background: rgba(255, 255, 255, 0.04);
   box-shadow: none;
