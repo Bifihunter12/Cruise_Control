@@ -1,8 +1,10 @@
 "use strict";
 
-const APP_VERSION = "2026.09.16.08";
+const APP_VERSION = "2026.09.16.10";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
+// Support inbox for the Settings "Send note" feedback link.
+const SUPPORT_EMAIL = "PLACEHOLDER_SUPPORT_EMAIL";
 
 // ── Field icons (Tabler outline) ─────────────────────────────────────────────
 const TIER_ICON = { common:"ti-award", uncommon:"ti-award", rare:"ti-medal", epic:"ti-medal-2", legendary:"ti-trophy" };
@@ -83,12 +85,6 @@ const XP_LEVELS = [
   { level: 24, xp: 2760  },
   { level: 25, xp: 3000  },
 ];
-
-// One-time XP bonus when a challenge first completes (keyed by duration in days)
-const COMPLETION_BONUS = {
-  21: 50, 30: 75, 42: 100, 50: 100, 56: 100,
-  60: 125, 75: 200, 84: 150, 90: 150, 120: 250, 365: 1000,
-};
 
 // Stages — a calmer, coarser progression than the raw 1-25 level count. Boundaries
 // match the chapter-milestone trigger points below (5/10/15/20/25), so the two
@@ -616,7 +612,7 @@ function buildReflectBack() {
 const TEMPLATES = [
   {
     id: "fitter-starter", name: "Momentum", emoji: "🔥", category: "movement",
-    description: "The baseline habit plan for the whole app — steps, protein, gratitude, movement, and reading. Low friction, flexible, built to run for 30 days.",
+    description: "The baseline plan.",
     identity: "I am someone who shows up consistently and builds momentum every day.",
     duration: 30, weeklyGoal: 90, defaultMode: "soft", asksStepGoal: true,
     habits: [
@@ -664,9 +660,9 @@ const TEMPLATES = [
     duration: 75, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"workout",  title:"Workout 45 min",                  emoji:"🏃", quip:"Move your body.",               type:"binary", points:3, weeklyTarget:5 },
-      { id:"diet75s",  title:"Whole-food meals",                emoji:"🥗", quip:"Balanced and real. Not perfect.", type:"binary", points:2, weeklyTarget:5 },
+      { id:"diet75s",  title:"Balanced whole-food meals",       emoji:"🥗", quip:"Balanced and real. Not perfect.", type:"binary", points:2, weeklyTarget:5 },
       { id:"read10s",  title:"Read 10 pages",                   emoji:"📖", quip:"10 pages a day.",              type:"binary", points:2, weeklyTarget:5 },
-      { id:"hydrate75s",title:"Hydration target",               emoji:"💧", quip:"2L minimum. More on training days.",   type:"binary", points:1, weeklyTarget:5 },
+      { id:"hydrate75s",title:"Stay hydrated throughout the day",emoji:"💧", quip:"2L minimum. More on training days.",   type:"binary", points:1, weeklyTarget:5 },
     ]
   },
   {
@@ -727,15 +723,12 @@ const TEMPLATES = [
     ]
   },
   {
-    id: "walking", name: "Walking Challenge", emoji: "🚶", category: "movement",
+    id: "walking", name: "Walking Challenge", emoji: "🔥", category: "movement",
     description: "30 days of daily walking. The simplest habit with the biggest returns.",
     identity: "I am someone who moves every day, no matter how small the step.",
     duration: 30, weeklyGoal: 50, defaultMode: "soft",
     habits: [
-      { id:"wk-dist",    title:"Daily walk",                emoji:"👟", quip:"Every step counts.",                 type:"tiered", points:2,
-        tiers:[{value:2,label:"2 km",points:2},{value:5,label:"5 km",points:3},{value:8,label:"8 km",points:4},{value:10,label:"10 km+",points:6}] },
-      { id:"wk-phone",   title:"Phone-free walk",           emoji:"📵", quip:"Just you and your thoughts.",       type:"binary", points:2 },
-      { id:"wk-stairs",  title:"Take the stairs all day",   emoji:"🏢", quip:"Small choices add up.",             type:"binary", points:1 },
+      { id:"wk-dist", title:"Daily walk", emoji:"🔥", quip:"Every step counts.", type:"quantity", unit:"steps", dailyTarget:8000, weeklyTarget:7 },
     ]
   },
   {
@@ -2008,7 +2001,6 @@ const TEMPLATES = [
 ];
 
 const TEMPLATE_WEEKLY_TARGETS = {
-  "walking": { "wk-dist": 5 },
   "running": { "rn-run": 3, "rn-log": 3, "rn-stretch": 3 },
   "strength": { "st-lift": 3, "st-overload": 3, "st-stretch": 3 },
   "meditation": { "med-sit": 5, "med-breath": 3, "med-journal": 2 },
@@ -2039,15 +2031,16 @@ const TEMPLATE_COPY_OVERRIDES = {
     description: "A balanced 75-day plan with movement, reading, hydration, and simple meals.",
     habits: {
       "workout": { title: "Workout 45 min", quip: "Any solid session counts: gym, run, class, or home." },
-      "diet75s": { title: "Simple balanced meals", quip: "Aim for steady, nourishing choices. No perfection needed." },
+      "diet75s": { title: "Balanced whole-food meals", quip: "Aim for steady, nourishing choices. No perfection needed." },
       "read10s": { title: "Read 10 pages", quip: "A few quiet pages keeps the thread alive." },
-      "hydrate75s": { title: "Hydration target", quip: "Hit your usual water target, especially on training days." },
+      "hydrate75s": { title: "Stay hydrated throughout the day", quip: "Hit your usual water target, especially on training days." },
     },
   },
   "walking": {
     name: "Walking Plan",
     description: "One clear walking habit. Set your step goal and track it through the week.",
     asksStepGoal: true,
+    asksStepDays: true,
     habits: {
       "wk-dist": { title: "Hit step goal", quip: "Choose the number that fits your current life. Then walk it." },
     },
@@ -2905,6 +2898,7 @@ function defaultBuilderForm() {
     goalWeight: null,
     bookName: "",
     stepGoal: null,
+    stepDays: null,
     habits: [],
     newHabitEmoji: "⭐",
     newHabitName: "",
@@ -3539,6 +3533,7 @@ function createChallenge(form) {
   const habits = template ? JSON.parse(JSON.stringify(template.habits)) : JSON.parse(JSON.stringify(form.habits));
   const bookName = template?.asksBookName ? String(form.bookName || "").trim() : "";
   const stepGoal = template?.asksStepGoal ? Math.max(1, Math.round(Number(form.stepGoal) || 8000)) : null;
+  const stepDays = template?.asksStepDays ? Math.max(1, Math.min(7, Math.round(Number(form.stepDays) || 7))) : null;
   if (bookName) {
     const readHabit = habits.find(h => h.id === "book-read");
     if (readHabit) readHabit.title = `Read 10 pages of ${bookName}`;
@@ -3548,6 +3543,8 @@ function createChallenge(form) {
     if (walkHabit) {
       walkHabit.title = `Hit ${stepGoal.toLocaleString()} steps`;
       walkHabit.quip = "Check it off when your step goal is done.";
+      walkHabit.dailyTarget = stepGoal;
+      if (stepDays) walkHabit.weeklyTarget = stepDays;
     }
     const stepsHabit = habits.find(h => h.id === "mo-steps");
     if (stepsHabit) {
@@ -3717,13 +3714,6 @@ function updateChallengeStatuses() {
       if (!c.completedAt) c.completedAt = new Date().toISOString();
       if (c.finalCompletionPct >= 50) {
         c.status = "completed";
-        if (!c.flags.completionBonusPaid) {
-          const dur = Math.round((new Date(c.endDate) - new Date(c.startDate)) / 86400000);
-          const bonus = COMPLETION_BONUS[dur] ?? (dur >= 180 ? 300 : dur >= 90 ? 150 : 75);
-          state.xp = (state.xp || 0) + bonus;
-          c.flags.completionBonusPaid = true;
-          c.completionBonus = bonus;
-        }
         if (!c.personalBest) {
           c.personalBest = {
             streak: c.finalStreak,
@@ -3875,13 +3865,6 @@ function checkBadges(challenge) {
         challenge.finalStreak = calcChallengeStreak(challenge);
         challenge.status = "completed";
         if (!challenge.completedAt) challenge.completedAt = new Date().toISOString();
-        if (!challenge.flags.completionBonusPaid) {
-          const dur = Math.round((new Date(challenge.endDate) - new Date(challenge.startDate)) / 86400000);
-          const bonus = COMPLETION_BONUS[dur] ?? (dur >= 180 ? 300 : dur >= 90 ? 150 : 75);
-          state.xp = (state.xp || 0) + bonus;
-          challenge.flags.completionBonusPaid = true;
-          challenge.completionBonus = bonus;
-        }
         if (!challenge.personalBest) {
           challenge.personalBest = {
             streak: challenge.finalStreak,
@@ -6158,7 +6141,6 @@ function renderCompletionModal(c) {
   const completionSub = isExpedition
     ? `${mTotalD.toFixed(mIsFloors?0:1)} ${mDUnit} covered · ${totalDays} days · ${finalStreak} consistent days.<br>Good work. Review what helped, then choose the next plan deliberately.`
     : `${totalDays} days · ${finalStreak} consistent days.<br>Good work. Review what helped, then choose the next plan deliberately.`;
-  const bonusXP = c.completionBonus || 0;
   const finishedTpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
   return `
   <div class="sheet-backdrop" data-close-completion>
@@ -6168,7 +6150,7 @@ function renderCompletionModal(c) {
       <div class="completion-name">${esc(c.name)}</div>
       <div class="completion-sub">${completionSub}</div>
       ${finishedTpl?.identity ? `<div class="cc-identity" style="text-align:center;border-top:none;padding-top:4px">${esc(finishedTpl.identity)}</div>` : ""}
-      ${bonusXP ? `<div class="completion-bonus-row"><i class="ti ti-check"></i> Completion recorded</div>` : ""}
+      <div class="completion-bonus-row"><i class="ti ti-check"></i> Completion recorded</div>
       ${nextT ? `
       <button class="chain-cta" data-start-suggested="${nextT.id}">
         <span class="chain-cta-pre">Next suggested plan</span>
@@ -6506,10 +6488,11 @@ function renderEditChallenge(c) {
         <label class="field">End date<input id="ec-end" type="date" value="${c.endDate}"></label>
       </div>
       <div class="section-label" style="margin:0 0 8px">Plan Mode</div>
-      <div class="mode-selector" style="margin-bottom:14px">
-        <button class="mode-button ${(editForm?.mode||c.mode)==="soft"?"active":""}" data-ec-mode="soft">Soft</button>
+      <div class="mode-selector" style="margin-bottom:6px">
+        <button class="mode-button ${(editForm?.mode||c.mode)==="soft"?"active":""}" data-ec-mode="soft">Flexible</button>
         <button class="mode-button ${(editForm?.mode||c.mode)==="strict"?"active":""}" data-ec-mode="strict">Strict</button>
       </div>
+      <p class="mode-desc" style="margin-bottom:14px">${(editForm?.mode||c.mode)==="soft"?"Flexible — choose your own recovery days when life gets in the way.":"Strict — zero recovery days. Every day counts."}</p>
       <div class="section-label" style="margin:20px 0 8px">Habits</div>
       <div class="custom-habits-list">
         ${(editForm?.habits || []).map((h, i) => {
@@ -6925,10 +6908,10 @@ function renderBuilderCustomize() {
     </div>
     <div class="section-label" style="margin:0 0 8px">Plan Mode</div>
     <div class="mode-selector" style="margin-bottom:6px">
-      <button class="mode-button ${builderForm.mode==="soft"?"active":""}" data-bf-mode="soft">Soft</button>
+      <button class="mode-button ${builderForm.mode==="soft"?"active":""}" data-bf-mode="soft">Flexible</button>
       <button class="mode-button ${builderForm.mode==="strict"?"active":""}" data-bf-mode="strict">Strict</button>
     </div>
-    <p class="mode-desc" style="margin-bottom:14px">${builderForm.mode==="soft"?"One grace day allowed if you miss — streak stays alive.":"Zero misses. Every day counts. No exceptions."}</p>
+    <p class="mode-desc" style="margin-bottom:14px">${builderForm.mode==="soft"?"Flexible — choose your own recovery days when life gets in the way.":"Strict — zero recovery days. Every day counts."}</p>
     ${builderForm.mode === "strict" ? `
     <div class="joker-budget-row" style="margin-bottom:14px">
       <span class="field-label">${term('restDay')}s</span>
@@ -6957,13 +6940,8 @@ function renderBuilderCustomize() {
       const habits = builderForm.templateId
         ? (TEMPLATES.find(t=>t.id===builderForm.templateId)?.habits || [])
         : builderForm.habits;
-      const maxPtsPerDay = habits.reduce((s,h) => {
-        if (h.type === "tiered" && h.tiers?.length) return s + Math.max(...h.tiers.map(t => t.points ?? t.pts ?? 0));
-        return s + (h.points||0);
-      }, 0);
-      const bonus = habits.length >= 3 ? 3 : 0;
-      const ptsPerWeek = (maxPtsPerDay + bonus) * 7;
-      return ptsPerWeek > 0 ? `<p class="mode-desc" style="margin-bottom:16px">~${ptsPerWeek}/week if all habits are kept daily${bonus ? " (incl. +3 completion bonus)" : ""}</p>` : `<p style="margin-bottom:16px"></p>`;
+      const occurrencesPerWeek = habits.reduce((s,h) => s + habitWeeklyTarget(h), 0);
+      return occurrencesPerWeek > 0 ? `<p class="mode-desc" style="margin-bottom:16px">~${occurrencesPerWeek} XP/week if all habits are kept on schedule</p>` : `<p style="margin-bottom:16px"></p>`;
     })()}
     ${template?.routeKm ? `
     <div class="route-info-card">
@@ -8231,7 +8209,6 @@ function renderProSection() {
 function renderCloudSync() { return ""; }
 
 function renderSettings() {
-  const u = state.settings.units;
   return `
   <main${_viewChanged ? ` class="slide-in-right"` : ""}>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
@@ -8244,36 +8221,11 @@ function renderSettings() {
     <div class="log-card" style="margin-bottom:14px">
       <label class="field">Name<input id="s-name" type="text" value="${esc(state.settings.name)}" placeholder="Optional" data-autosave-name></label>
     </div>
-    <div class="section-label">Units</div>
-    <div class="more-card">
-      <div style="margin-bottom:14px">
-        <div style="font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:8px">Distance</div>
-        <div class="mode-selector">
-          <button class="mode-button ${u.distance==="km"?"active":""}" data-unit-distance="km">km</button>
-          <button class="mode-button ${u.distance==="miles"?"active":""}" data-unit-distance="miles">miles</button>
-        </div>
-      </div>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:8px">Weight</div>
-        <div class="mode-selector">
-          <button class="mode-button ${u.weight==="kg"?"active":""}" data-unit-weight="kg">kg</button>
-          <button class="mode-button ${u.weight==="lbs"?"active":""}" data-unit-weight="lbs">lbs</button>
-        </div>
-      </div>
-    </div>
-    <div class="section-label" style="margin-top:20px">Coach Style</div>
+    <div class="section-label" style="margin-top:20px">Feedback</div>
     <div class="more-card coach-settings-card">
       <div class="coach-settings-row">
-        <span><strong>Planning language</strong><small>Short, direct prompts focused on the week.</small></span>
-        <b>Practical</b>
-      </div>
-      <div class="coach-settings-row">
-        <span><strong>Data storage</strong><small>Your check-ins stay in this browser unless you choose backup.</small></span>
-        <b>Local</b>
-      </div>
-      <div class="coach-settings-row">
-        <span><strong>Beta feedback</strong><small>Tell us where the plan feels unclear, heavy, or missing something.</small></span>
-        <button class="link-btn" data-email-capture-submit>Send note</button>
+        <span><strong>Send feedback</strong><small>Tell us where the app feels unclear, heavy, or missing something.</small></span>
+        <a class="link-btn" href="mailto:${esc(SUPPORT_EMAIL)}?subject=${encodeURIComponent("Momentum feedback")}">Send note</a>
       </div>
     </div>
     ${renderProSection()}
@@ -9535,12 +9487,12 @@ function renderBuilderQuickstart() {
     </div>
     <div class="bqs-desc">${esc(template.description)}</div>
     ${template.asksBookName ? `<div class="builder-reminder-hint"><i class="ti ti-book-2"></i> The start button will ask for the book name.</div>` : ""}
-    ${template.asksStepGoal ? `<div class="builder-reminder-hint"><i class="ti ti-shoe"></i> The start button will ask for your step goal.</div>` : ""}
+    ${template.asksStepGoal ? `<div class="builder-reminder-hint"><i class="ti ti-shoe"></i> The start button will ask for your step goal${template.asksStepDays ? " and target days per week" : ""}.</div>` : ""}
     ${TEMPLATE_SAFETY[template.id] ? `<div class="bqs-safety-warning"><span class="bqs-safety-icon"><i class="ti ti-alert-triangle"></i></span><span>${TEMPLATE_SAFETY[template.id]}</span></div>` : ""}
     <div class="bqs-mode-note">
       ${template.defaultMode === "soft"
-        ? "<i class=\"ti ti-bulb\"></i> <strong>Soft mode</strong> — one grace day per week if life gets in the way."
-        : "<i class=\"ti ti-bolt\"></i> <strong>Strict mode</strong> — no missed days. Zero compromise."}
+        ? "<i class=\"ti ti-bulb\"></i> <strong>Flexible mode</strong> — choose your own recovery days when life gets in the way."
+        : "<i class=\"ti ti-bolt\"></i> <strong>Strict mode</strong> — zero recovery days. Every day counts."}
     </div>
     <div class="builder-cta-footer">
       <button class="primary-button" data-start-challenge>Start ${dur}-Day Plan</button>
@@ -9583,6 +9535,15 @@ function startChallenge(safetyConfirmed = false, multiConfirmed = false) {
       builderForm.stepGoal = stepGoal;
       startChallenge(safetyConfirmed, multiConfirmed);
     }, { type: "number", inputAttrs: `min="1000" max="50000" step="500" inputmode="numeric"`, placeholder: "8000", confirmLabel: "Continue", cancelLabel: "Cancel" });
+    return;
+  }
+  if (template?.asksStepDays && !builderForm.stepDays) {
+    showPrompt("How many days per week?", "7", (val) => {
+      const stepDays = Math.max(1, Math.min(7, Math.round(Number(val) || 0)));
+      if (!stepDays) { showToast("Enter a number between 1 and 7."); return; }
+      builderForm.stepDays = stepDays;
+      startChallenge(safetyConfirmed, multiConfirmed);
+    }, { type: "number", inputAttrs: `min="1" max="7" step="1" inputmode="numeric"`, placeholder: "7", confirmLabel: "Continue", cancelLabel: "Cancel" });
     return;
   }
   const habitCount = template ? template.habits.length : builderForm.habits.length;
