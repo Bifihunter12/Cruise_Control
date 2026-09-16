@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.16.02";
+const APP_VERSION = "2026.09.16.03";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -6723,12 +6723,24 @@ function renderBuilderTemplates() {
     { label:"Simple Basics", ids:["start-small","momentum-builder","hydration","protein-challenge"] },
   ];
   const fitnessCategoryLabels = new Set(["Get Fitter", "Strength Basics", "Recovery", "Simple Basics"]);
-  const orderedCats = _templateFilter === "fitness" ? cats.filter(c => fitnessCategoryLabels.has(c.label)) : cats;
+  // Category-based quick filters — each maps a filter chip id to the category
+  // section(s) it should narrow the list down to, so choosing e.g. "Recovery"
+  // shows only that section instead of everything.
+  const CATEGORY_FILTER_LABELS = {
+    fitness:  fitnessCategoryLabels,
+    mind:     new Set(["Mind & Focus"]),
+    recovery: new Set(["Recovery"]),
+  };
+  const orderedCats = CATEGORY_FILTER_LABELS[_templateFilter]
+    ? cats.filter(c => CATEGORY_FILTER_LABELS[_templateFilter].has(c.label))
+    : cats;
   const POPULAR_IDS = ["fitter-starter","75-soft","read-a-book","meditation","walking","strength-foundation","start-small","hydration","sleep-reset","stress-reset"];
   const START_HERE_IDS = ["fitter-starter","75-soft","read-a-book","meditation","walking","strength-foundation","start-small","sleep-reset","stress-reset"];
   const filterTabs = [
     { id:"all",      label:"All" },
     { id:"fitness",  label:"Fitness" },
+    { id:"mind",     label:"Mind & Focus" },
+    { id:"recovery", label:"Recovery" },
     { id:"popular",  label:"Popular" },
     { id:"short",    label:"≤30 days" },
     { id:"medium",   label:"31–60 days" },
@@ -6739,13 +6751,16 @@ function renderBuilderTemplates() {
     { id:"beginner",     label:"Beginner" },
     { id:"intermediate", label:"Intermediate" },
   ];
+  const categoryIds = label => cats.find(c => c.label === label)?.ids || [];
   const passesFilter = t => {
     if (!isConqurTemplate(t)) return false;
     if (t.deprecated) return false;
     if ((_templateFilter === "fitness" || _templateFilter === "popular") && INTENSE_TEMPLATE_IDS.has(t.id)) return false;
     const dur = _templateFilter;
     const diff = _difficultyFilter;
-    if (dur === "fitness" && !FITNESS_TEMPLATE_IDS.has(t.id)) return false;
+    if (dur === "fitness"  && !FITNESS_TEMPLATE_IDS.has(t.id))          return false;
+    if (dur === "mind"     && !categoryIds("Mind & Focus").includes(t.id)) return false;
+    if (dur === "recovery" && !categoryIds("Recovery").includes(t.id))     return false;
     if (dur === "popular" && !POPULAR_IDS.includes(t.id)) return false;
     if (dur === "short"   && t.duration > 30)             return false;
     if (dur === "medium"  && (t.duration <= 30 || t.duration > 60)) return false;

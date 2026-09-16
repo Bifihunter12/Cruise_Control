@@ -1595,7 +1595,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 
 .ob-fitness-name {
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 500;
   color: var(--text);
 }
 
@@ -5944,15 +5944,12 @@ body {
 }
 
 .tracker-hero {
-  border: 1px solid rgba(0, 128, 128, 0.22);
-  border-radius: var(--radius-lg);
-  background:
-    linear-gradient(180deg, rgba(0, 128, 128, 0.10), transparent 46%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025)),
-    var(--surface);
-  padding: 18px;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  padding: 0 0 18px;
   margin-bottom: 14px;
-  box-shadow: var(--shadow);
+  box-shadow: none;
 }
 
 .tracker-section {
@@ -5964,11 +5961,10 @@ body {
 }
 
 .tracker-empty {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  padding: 18px;
-  box-shadow: var(--shadow);
+  border: none;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
 }
 
 .tracker-kicker,
@@ -6023,24 +6019,22 @@ body {
 }
 
 .tracker-summary {
-  border: 1px solid rgba(0, 128, 128, 0.17);
-  background:
-    linear-gradient(135deg, rgba(0, 128, 128, 0.11), rgba(0, 128, 128, 0.045)),
-    rgba(16, 23, 25, 0.9);
-  border-radius: var(--radius-lg);
-  padding: 14px;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  padding: 0 0 14px;
   margin-bottom: 20px;
 }
 
 .tracker-summary--done {
-  border-color: rgba(0, 128, 128, 0.3);
-  background: rgba(0, 128, 128, 0.105);
+  border-bottom-color: rgba(0, 128, 128, 0.3);
 }
 
 .tracker-summary-title {
   color: var(--text);
-  font-size: 14px;
-  font-weight: 650;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
   line-height: 1.35;
 }
 
@@ -6095,7 +6089,8 @@ body {
 .tracker-habit-title {
   color: var(--text);
   font-size: 15px;
-  font-weight: 650;
+  font-weight: 500;
+  letter-spacing: -0.2px;
 }
 
 .tracker-habit-sub {
@@ -6104,17 +6099,19 @@ body {
 }
 
 .tracker-week-row {
-  padding: 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.035);
-  margin-bottom: 10px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.tracker-week-row:last-child {
+  border-bottom: none;
 }
 
 .tracker-week-top {
   color: var(--text);
-  font-size: 14px;
-  font-weight: 650;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
 }
 
 .tracker-week-track {
@@ -6151,26 +6148,31 @@ body {
 .coach-plan-row,
 .coach-empty-panel,
 .coach-recent-row,
-.coach-history-hero,
 .coach-settings-card {
-  border: 1px solid rgba(0, 128, 128, 0.16);
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: var(--radius-lg);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.coach-history-hero {
+  border: none;
+  background: transparent;
+  border-radius: 0;
   box-shadow: none;
 }
 
 .tracker-side-card:active,
 .tracker-start-card:active,
 .coach-plan-row:active {
-  border-color: rgba(0, 128, 128, 0.34);
-  background: rgba(0, 128, 128, 0.09);
+  background: rgba(0, 128, 128, 0.06);
 }
 
 .tracker-side-card,
 .tracker-start-card {
   position: relative;
-  overflow: hidden;
-  padding: 14px;
+  padding: 13px 0;
 }
 
 .tracker-start-card--setup {
@@ -6179,21 +6181,28 @@ body {
   text-align: left;
 }
 
-.tracker-side-card::before,
-.tracker-start-card::before,
-.coach-plan-row::before {
-  content: "";
-  position: absolute;
-  inset: 10px auto 10px 0;
-  width: 3px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #008080, #008080);
-  opacity: 0.82;
-}
-
 .tracker-start-card strong,
 .tracker-side-name {
-  padding-left: 4px;
+  padding-left: 0;
+}
+
+/* Flat list-row layout (matching the Choose a Habit Plan browse list) instead
+   of stacked cards with gaps — rows touch and are separated by their own
+   border-bottom, with the last row in each list left undivided. */
+.tracker-week-list,
+.tracker-side-list,
+.tracker-start-grid,
+.coach-plan-stack,
+.coach-recent-list {
+  gap: 0;
+}
+
+.tracker-side-card:last-child,
+.tracker-start-card:last-child,
+.coach-plan-row:last-child,
+.coach-recent-row:last-child,
+.coach-empty-panel:last-child {
+  border-bottom: none;
 }
 
 .tracker-side-item {
@@ -6240,8 +6249,9 @@ body {
 .tracker-side-name,
 .tracker-start-card strong {
   color: var(--text);
-  font-size: 14px;
-  font-weight: 650;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
 }
 
 .tracker-start-copy {
@@ -6413,8 +6423,9 @@ body {
 .coach-empty-panel strong,
 .coach-settings-row strong {
   color: var(--text);
-  font-size: 14px;
-  font-weight: 650;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
 }
 
 .coach-plan-meter {
@@ -6520,10 +6531,13 @@ body {
 .more-card,
 .log-card,
 .level-profile-card {
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: var(--radius-lg);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  border-radius: 0;
   box-shadow: none;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .ob-screen {
