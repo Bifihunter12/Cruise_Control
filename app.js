@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.16.06";
+const APP_VERSION = "2026.09.16.07";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -4825,7 +4825,7 @@ function renderTrackerWeekHabit(challenge, habit, week) {
   return `
   <div class="tracker-week-row">
     <div class="tracker-week-top">
-      <span>${esc(habit.title)}</span>
+      <span class="cl-name">${esc(habit.title)}</span>
       <strong>${badge}</strong>
     </div>
     <div class="tracker-week-track"><span style="width:${pct}%"></span></div>
@@ -4840,14 +4840,16 @@ function renderTrackerSidePlan(challenge) {
   const totalTarget = Math.round(rawTarget);
   const totalDone = Math.round(rawDone);
   const pct = rawTarget ? Math.round((rawDone / rawTarget) * 100) : 0;
+  const tpl = challenge.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
   return `
   <div class="tracker-side-item">
-    <button class="tracker-side-card" data-set-main-plan="${challenge.id}">
-      <span>
-        <span class="tracker-side-name">${esc(displayPlanName(challenge.name))}</span>
-        <span class="tracker-side-meta">${totalDone}/${totalTarget} this week</span>
+    <button class="cl-row" data-set-main-plan="${challenge.id}">
+      <i class="ti ${challengeIcon(tpl)} cl-ic" aria-hidden="true"></i>
+      <span class="cl-main">
+        <span class="cl-name">${esc(displayPlanName(challenge.name))}</span>
+        <span class="cl-meta">${totalDone}/${totalTarget} this week</span>
       </span>
-      <strong>${pct}%</strong>
+      <strong style="color:var(--text);font-weight:700">${pct}%</strong>
     </button>
     <button class="tracker-plan-delete" data-delete-challenge="${challenge.id}" title="Delete plan" aria-label="Delete ${esc(displayPlanName(challenge.name))}">
       <i class="ti ti-trash"></i>
@@ -4868,12 +4870,22 @@ function renderSimpleTrackerStart() {
       <div class="tracker-kicker">First Plan</div>
       <div class="tracker-title">What do you want to keep consistent?</div>
       <div class="tracker-sub">Start with one weekly checklist. You can add side plans later.</div>
-      <div class="tracker-start-grid">
-        ${starterPlans.map(plan => `
-        <button class="tracker-start-card tracker-start-card--setup" data-simple-start="${plan.id}">
-          <strong>${esc(plan.name)}</strong>
-          <span>${esc(plan.desc)}</span>
-        </button>`).join("")}
+      <div class="cl-list">
+        ${starterPlans.map(plan => {
+          const t = TEMPLATES.find(tt => tt.id === plan.id);
+          const diff = TEMPLATE_DIFFICULTY[plan.id] || "intermediate";
+          const weeklyChecks = t ? t.habits.reduce((sum, h) => sum + habitWeeklyTarget(h), 0) : null;
+          const meta = t ? `${t.duration} days · ${weeklyChecks} checks/week · ${DIFF_LABEL[diff]}` : plan.desc;
+          return `
+          <button class="cl-row" data-simple-start="${plan.id}">
+            <i class="ti ${challengeIcon(t)} cl-ic" aria-hidden="true"></i>
+            <span class="cl-main">
+              <span class="cl-name">${esc(plan.name)}</span>
+              <span class="cl-meta">${esc(meta)}</span>
+            </span>
+            <i class="ti ti-chevron-right cl-go" aria-hidden="true"></i>
+          </button>`;
+        }).join("")}
       </div>
       <div class="setup-actions">
         <button class="secondary-button" data-open-builder>See all plans</button>
@@ -4922,14 +4934,20 @@ function renderQuestPicker() {
 
     <section class="tracker-section">
       <div class="section-label" style="margin:0 0 10px">Recommended Starts</div>
-      <div class="tracker-start-grid">
-        ${quickStarts.map(t => `
-          <button class="tracker-start-card" data-simple-start="${t.id}">
-          <span class="tracker-start-copy">
-            <strong>${esc(displayPlanName(t.name))}</strong>
-          </span>
-          <span>${esc(t.description || "Weekly checkboxes you can adjust.")}</span>
-        </button>`).join("")}
+      <div class="cl-list">
+        ${quickStarts.map(t => {
+          const diff = TEMPLATE_DIFFICULTY[t.id] || "intermediate";
+          const weeklyChecks = t.habits.reduce((sum, h) => sum + habitWeeklyTarget(h), 0);
+          return `
+          <button class="cl-row" data-simple-start="${t.id}">
+            <i class="ti ${challengeIcon(t)} cl-ic" aria-hidden="true"></i>
+            <span class="cl-main">
+              <span class="cl-name">${esc(displayPlanName(t.name))}</span>
+              <span class="cl-meta">${t.duration} days · ${weeklyChecks} checks/week · ${DIFF_LABEL[diff]}</span>
+            </span>
+            <i class="ti ti-chevron-right cl-go" aria-hidden="true"></i>
+          </button>`;
+        }).join("")}
       </div>
     </section>
   </main>`;
@@ -7322,16 +7340,19 @@ function renderCoachProgress() {
     <section class="tracker-section">
       <div class="section-label" style="margin:0 0 10px">Current Plans</div>
       ${weekRows.length ? `
-      <div class="coach-plan-stack">
-        ${weekRows.map(({ c, pct, streak }) => `
-        <button class="coach-plan-row" data-view-challenge="${c.id}">
-          <span>
-            <strong>${esc(displayPlanName(c.name))}</strong>
-            <small>${pct}% this week${streak > 0 ? ` · ${streak}-day streak` : ""}</small>
+      <div class="cl-list">
+        ${weekRows.map(({ c, pct, streak }) => {
+          const tpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
+          return `
+        <button class="cl-row" data-view-challenge="${c.id}">
+          <i class="ti ${challengeIcon(tpl)} cl-ic" aria-hidden="true"></i>
+          <span class="cl-main">
+            <span class="cl-name">${esc(displayPlanName(c.name))}</span>
+            <span class="cl-meta">${pct}% this week${streak > 0 ? ` · ${streak}-day streak` : ""}</span>
           </span>
-          <span class="coach-plan-meter"><span style="width:${pct}%"></span></span>
-          <b>${pct}%</b>
-        </button>`).join("")}
+          <strong style="color:var(--text);font-weight:700">${pct}%</strong>
+        </button>`;
+        }).join("")}
       </div>` : `
       <div class="coach-empty-panel">
         <strong>No plan is active yet.</strong>
@@ -7343,12 +7364,19 @@ function renderCoachProgress() {
     ${completedPlans.length ? `
     <section class="tracker-section">
       <div class="section-label" style="margin:0 0 10px">Completed Plans</div>
-      <div class="coach-recent-list">
-        ${completedPlans.slice(0, 5).map(c => `
-        <div class="coach-recent-row">
-          <span class="coach-recent-date">${c.completedAt ? formatDate(parseDate(c.completedAt), { month:"short", day:"numeric" }) : "Done"}</span>
-          <span><strong>${esc(displayPlanName(c.name))}</strong><small>${c.habits.length} tracked habits</small></span>
-        </div>`).join("")}
+      <div class="cl-list">
+        ${completedPlans.slice(0, 5).map(c => {
+          const tpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
+          return `
+        <button class="cl-row" data-view-challenge="${c.id}">
+          <i class="ti ${challengeIcon(tpl)} cl-ic" aria-hidden="true"></i>
+          <span class="cl-main">
+            <span class="cl-name">${esc(displayPlanName(c.name))}</span>
+            <span class="cl-meta">${c.habits.length} tracked habits</span>
+          </span>
+          <span class="cl-meta" style="margin-top:0">${c.completedAt ? formatDate(parseDate(c.completedAt), { month:"short", day:"numeric" }) : "Done"}</span>
+        </button>`;
+        }).join("")}
       </div>
     </section>` : ""}
 

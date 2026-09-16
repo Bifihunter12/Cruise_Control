@@ -6127,12 +6127,8 @@ body {
   border-bottom: none;
 }
 
-.tracker-week-top {
-  color: var(--text);
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: -0.2px;
-}
+/* Title text now uses .cl-name directly (see .cl-row source-of-truth
+   typography) — .tracker-week-top stays layout-only. */
 
 .tracker-week-track {
   height: 4px;
