@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.16.03";
+const APP_VERSION = "2026.09.16.04";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -7246,12 +7246,22 @@ function renderCoachProgress() {
   const today = todayKey();
   const last14 = Array.from({ length: 14 }, (_, i) => addDays(today, i - 13));
   const checkedDays = last14.filter(k => plans.some(c => c.days[k]?.done?.length > 0)).length;
+  // Best current streak across active plans, and every habit check-off ever
+  // logged (across active, paused, and completed plans) — the two numbers
+  // the history view exists to answer: "am I still going" and "how much have
+  // I actually done."
+  const bestStreak = plans.length ? Math.max(0, ...plans.map(c => calcChallengeStreak(c))) : 0;
+  const totalCompleted = getAllChallenges().reduce(
+    (sum, c) => sum + Object.values(c.days).reduce((s, d) => s + (d.done?.length || 0), 0),
+    0
+  );
   const weekRows = plans.map(c => {
     const week = getCurrentTrackerWeek(c);
     const target = c.habits.reduce((s, h) => s + habitWeeklyTarget(h, c), 0);
     const done = c.habits.reduce((s, h) => s + Math.min(habitWeekCount(c, h, week), habitWeeklyTarget(h, c)), 0);
     const pct = target ? Math.round((done / target) * 100) : 0;
-    return { c, week, target, done, pct };
+    const streak = calcChallengeStreak(c);
+    return { c, week, target, done, pct, streak };
   });
   const recent = [];
   for (const k of [...last14].reverse()) {
@@ -7279,15 +7289,26 @@ function renderCoachProgress() {
       </div>
     </section>
 
+    <section class="coach-stats-row">
+      <div class="coach-stat">
+        <strong>${bestStreak}<i class="ti ti-flame"></i></strong>
+        <span>day streak</span>
+      </div>
+      <div class="coach-stat">
+        <strong>${totalCompleted}</strong>
+        <span>habit${totalCompleted === 1 ? "" : "s"} completed</span>
+      </div>
+    </section>
+
     <section class="tracker-section">
       <div class="section-label" style="margin:0 0 10px">Current Plans</div>
       ${weekRows.length ? `
       <div class="coach-plan-stack">
-        ${weekRows.map(({ c, target, done, pct }) => `
+        ${weekRows.map(({ c, target, done, pct, streak }) => `
         <button class="coach-plan-row" data-view-challenge="${c.id}">
           <span>
             <strong>${esc(displayPlanName(c.name))}</strong>
-            <small>${done}/${target} checks this week</small>
+            <small>${done}/${target} checks this week${streak > 0 ? ` · ${streak}-day streak` : ""}</small>
           </span>
           <span class="coach-plan-meter"><span style="width:${pct}%"></span></span>
           <b>${pct}%</b>

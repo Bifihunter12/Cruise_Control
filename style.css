@@ -6382,6 +6382,43 @@ body {
   text-align: right;
 }
 
+.coach-stats-row {
+  display: flex;
+  gap: 28px;
+  padding: 0 18px 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.coach-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.coach-stat strong {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.coach-stat strong i {
+  font-size: 16px;
+  color: var(--accent);
+}
+
+.coach-stat span {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
 .coach-history-score strong {
   display: block;
   color: var(--text);
