@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.16.05";
+const APP_VERSION = "2026.09.16.06";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -620,7 +620,7 @@ const TEMPLATES = [
     identity: "I am someone who shows up consistently and builds momentum every day.",
     duration: 30, weeklyGoal: 90, defaultMode: "soft", asksStepGoal: true,
     habits: [
-      { id:"mo-steps",     title:"Daily steps",           emoji:"👣", quip:"Adjust your goal any time — this just tracks the walk.", type:"quantity", points:2, unit:"steps", weeklyQty:56000 },
+      { id:"mo-steps",     title:"Daily steps",           emoji:"🔥", quip:"Adjust your goal any time — this just tracks the walk.", type:"quantity", points:2, unit:"steps", dailyTarget:8000, weeklyTarget:7 },
       { id:"mo-protein",   title:"Protein at every meal",  emoji:"🍗", quip:"Yes or no — no macro or gram tracking.", type:"binary", points:2, weeklyTarget:7 },
       { id:"mo-gratitude", title:"Gratitude note",         emoji:"🙏", quip:"One sentence, starting with \"I'm grateful for...\"", type:"text", points:2, weeklyTarget:7, placeholder:"I'm grateful for " },
       { id:"mo-workout",   title:"Workout (30+ min)",      emoji:"💪", quip:"Any intentional activity — strength, cardio, yoga, mobility. Steps don't count.", type:"binary", points:4, weeklyTarget:3 },
@@ -2895,7 +2895,7 @@ function defaultBuilderForm() {
   return {
     templateId: null,
     name: "",
-    emoji: "🎯",
+    emoji: "🔥",
     startDate: todayKey(),
     endDate: addDays(todayKey(), 29),
     mode: "soft",
@@ -2929,7 +2929,6 @@ function saveBuilderFormFromDOM() {
   const startEl = document.getElementById("bf-start");
   const endEl   = document.getElementById("bf-end");
   const goalEl  = document.getElementById("bf-goal");
-  const emojiEl = document.getElementById("bf-emoji");
   const ongoingEl    = document.getElementById("bf-ongoing");
   const goalWeightEl = document.getElementById("bf-goalweight");
   const bookNameEl   = document.getElementById("bf-book-name");
@@ -2938,17 +2937,12 @@ function saveBuilderFormFromDOM() {
   if (ongoingEl)             builderForm.noEndDate  = ongoingEl.checked;
   if (endEl?.value && !builderForm.noEndDate) builderForm.endDate = endEl.value;
   if (goalEl)                builderForm.weeklyGoal = Number(goalEl.value) || builderForm.weeklyGoal;
-  if (emojiEl?.value.trim()) builderForm.emoji      = emojiEl.value.trim();
   if (goalWeightEl?.value)   builderForm.goalWeight = parseFloat(goalWeightEl.value) || null;
   if (bookNameEl)            builderForm.bookName = bookNameEl.value.trim();
   // Persist new-habit input fields so they survive re-render
   const nhName  = document.getElementById("nh-name");
-  const nhEmoji = document.getElementById("nh-emoji");
-  const nhPts   = document.getElementById("nh-pts");
   const nhWeeklyTarget = document.getElementById("nh-weekly-target");
   if (nhName)  builderForm.newHabitName  = nhName.value;
-  if (nhEmoji) builderForm.newHabitEmoji = nhEmoji.value;
-  if (nhPts)   builderForm.newHabitPoints = Number(nhPts.value) || builderForm.newHabitPoints;
   if (nhWeeklyTarget) builderForm.newHabitWeeklyTarget = Math.max(1, Math.min(7, Number(nhWeeklyTarget.value) || builderForm.newHabitWeeklyTarget));
   const nhUnit = document.getElementById("nh-unit");
   const nhWeeklyQty = document.getElementById("nh-weekly-qty");
@@ -3004,6 +2998,10 @@ function normalizeHabit(raw) {
   // of counting how many days the habit was checked off. See habitWeeklyTarget()
   // and habitWeekCount().
   if (typeof raw.weeklyQty === "number") habit.weeklyQty = Math.max(1, Math.round(raw.weeklyQty));
+  // A per-day numeric threshold (e.g. steps) — makes a "quantity" habit
+  // occurrence-based (one occurrence per scheduled day, complete when that
+  // day's logged amount clears this bar) instead of a single weekly total.
+  if (typeof raw.dailyTarget === "number") habit.dailyTarget = Math.max(1, Math.round(raw.dailyTarget));
   if (Array.isArray(raw.tiers))         habit.tiers    = raw.tiers;
   // Main Quest model: the Promise habit (habits[0] on a Quest challenge) carries a
   // stable commitment (title/quip) plus a default + alternative ways to fulfill it.
@@ -3361,33 +3359,16 @@ function tierPoints(habit, tierValue) {
   return tier ? (tier.points ?? tier.pts ?? 0) : 0;
 }
 
+// Universal XP rule: every completed habit occurrence is worth exactly +1,
+// with no per-habit point values, streak multipliers, or completion bonuses.
+// `points`/`maxPoints` below are literally the completed/total habit counts.
 function completionInfo(challenge, day) {
   // Rest day: treat as 100% complete, 0 pts
   if (day.mode === "rest") return { done: 1, total: 1, percent: 100, points: 0, maxPoints: 0, multiplier: 1 };
   const active = activeHabits(challenge, day);
   const done = day.done.filter(id => active.some(h => h.id === id)).length;
   const total = active.length;
-  const multiplier = day.streakMult ?? 1;
-  // Comeback bonus: 1.5× on the first day back after 3+ missed days (flag set externally)
-  const effectiveMult = day.comebackBonus ? Math.max(multiplier, 1.5) : multiplier;
-  // Completion bonus fires for any challenge with 2+ habits
-  const bonusAmt = total >= 2 ? 5 : 0;
-  const completionBonus = (done === total && total > 0) ? bonusAmt : 0;
-  // Perfect week bonus: +15 pts on day 7, 14, 21... of a consecutive perfect run (flag set externally)
-  const weekBonus = (day.weeklyBonus && done === total && total > 0) ? 15 : 0;
-  const basePoints = active.reduce((s, h) => {
-    if (!day.done.includes(h.id)) return s;
-    if (h.type === "tiered") return s + tierPoints(h, day.tiers?.[h.id]);
-    if (day.minDone?.includes(h.id)) return s + Math.max(1, Math.round(h.points / 2));
-    return s + h.points;
-  }, 0);
-  const baseMax = active.reduce((s, h) => {
-    if (h.type === "tiered" && h.tiers?.length) return s + Math.max(...h.tiers.map(t => t.points ?? t.pts ?? 0));
-    return s + h.points;
-  }, 0);
-  const points    = Math.round((basePoints + completionBonus + weekBonus) * effectiveMult);
-  const maxPoints = Math.round((baseMax + bonusAmt + (day.weeklyBonus ? 15 : 0)) * effectiveMult);
-  return { done, total, percent: total ? Math.round((done/total)*100) : 0, points, maxPoints, multiplier };
+  return { done, total, percent: total ? Math.round((done/total)*100) : 0, points: done, maxPoints: total, multiplier: 1 };
 }
 
 function challengeTotalKm(challenge) {
@@ -3571,7 +3552,7 @@ function createChallenge(form) {
     const stepsHabit = habits.find(h => h.id === "mo-steps");
     if (stepsHabit) {
       stepsHabit.title = `Daily steps (goal ${stepGoal.toLocaleString()})`;
-      stepsHabit.weeklyQty = stepGoal * 7;
+      stepsHabit.dailyTarget = stepGoal;
     }
   }
   const c = normalizeChallenge({
@@ -3585,7 +3566,9 @@ function createChallenge(form) {
     mode: form.mode,
     status: "active",
     weeklyGoal: form.weeklyGoal || (template ? template.weeklyGoal : 100),
-    jokerBudget: template?.noRestDay ? 0 : (typeof form.jokerBudget === "number" ? form.jokerBudget : 3),
+    // Strict mode always means zero recovery days — a fixed rule of the mode
+    // itself, not something any individual template overrides.
+    jokerBudget: form.mode === "strict" ? 0 : (typeof form.jokerBudget === "number" ? form.jokerBudget : 3),
     noEndDate: form.noEndDate === true,
     goalWeight: form.goalWeight ?? null,
     bookName,
@@ -3620,7 +3603,7 @@ function startTemplateFromOnboarding(templateId, showAccountAfterStart = false) 
   builderForm.endDate    = addDays(todayKey(), tpl.duration - 1);
   builderForm.weeklyGoal = tpl.weeklyGoal;
   builderForm.mode       = tpl.defaultMode || "soft";
-  builderForm.jokerBudget = tpl.noRestDay ? 0 : 3;
+  builderForm.jokerBudget = builderForm.mode === "strict" ? 0 : 3;
   onboardingStep = null;
   _skipAccountAfterStart = !!showAccountAfterStart;
   startChallenge();
@@ -4102,8 +4085,14 @@ function renderPromptModal() {
   <div class="confirm-overlay" data-prompt-overlay>
     <div class="confirm-modal panel">
       <p class="confirm-msg">${esc(_promptDialog.msg)}</p>
+      ${_promptDialog.prefixLabel ? `
+      <div class="prompt-prefix-row">
+        <span class="prompt-prefix-label">${esc(_promptDialog.prefixLabel)}</span>
+        <input class="prompt-input" id="prompt-input-field" type="${esc(_promptDialog.type || "number")}" ${_promptDialog.inputAttrs || `min="1" max="365"`}
+               value="${esc(String(_promptDialog.defaultVal))}" placeholder="${esc(_promptDialog.placeholder || "")}">
+      </div>` : `
       <input class="prompt-input" id="prompt-input-field" type="${esc(_promptDialog.type || "number")}" ${_promptDialog.inputAttrs || `min="1" max="365"`}
-             value="${esc(String(_promptDialog.defaultVal))}" placeholder="${esc(_promptDialog.placeholder || "days")}">
+             value="${esc(String(_promptDialog.defaultVal))}" placeholder="${esc(_promptDialog.placeholder || "days")}">`}
       <div class="confirm-btns">
         <button class="secondary-button" data-prompt-cancel>${esc(_promptDialog.cancelLabel || "Skip")}</button>
         <button class="pill-btn" data-prompt-ok>${esc(_promptDialog.confirmLabel || "Set reminder")}</button>
@@ -4162,11 +4151,10 @@ function showLevelUpModal(o) {
   el.setAttribute('data-close-levelup-modal', '');
   el.innerHTML = `
     <div class="luo-card" role="dialog" aria-modal="true" aria-label="Level up!">
-      <div class="luo-burst"><i class="ti ${o.icon}"></i></div>
+      <div class="luo-burst"><i class="ti ti-flame"></i></div>
       <div class="luo-badge">LEVEL UP</div>
-      <div class="luo-level">${getStageNumber(o.level)}</div>
-      <div class="luo-name">${esc(o.name)}</div>
-      <div class="luo-total">${o.total.toLocaleString()} total</div>
+      <div class="luo-level">Level ${getStageNumber(o.level)}</div>
+      <div class="luo-total">${o.total.toLocaleString()} XP total</div>
       <button class="primary-button luo-cta" data-close-levelup-modal>Keep going</button>
     </div>`;
   document.body.appendChild(el);
@@ -4628,38 +4616,45 @@ function displayPlanName(name) {
   return String(name || "Habit Plan").replace(/\s+Challenge$/i, "").replace(/\s+Quest$/i, "");
 }
 
+// ── Universal occurrence-based progress ─────────────────────────────────────
+// Every habit, of any type, in any plan (built-in, custom, or future) reduces
+// to the same idea: a number of occurrences scheduled this week, and how many
+// of them were completed. habitWeeklyTarget() is always "occurrences
+// scheduled"; habitWeekCount() is always "occurrences completed" (capped at
+// the target by callers). No habit id, template id, or challenge is ever
+// special-cased here — only `type` and the habit's own fields matter.
+//
+// A "quantity" habit is either:
+//  - a daily target (habit.dailyTarget set, e.g. steps): one occurrence per
+//    scheduled day, completed when that day's logged amount clears the
+//    threshold — same shape as binary/tiered/text, just a numeric check.
+//  - a weekly total (no dailyTarget, e.g. "150 min/week"): the whole week is
+//    ONE occurrence, completed fractionally as the cumulative sum approaches
+//    habit.weeklyQty. Expressing it as a single 0..1 occurrence (rather than
+//    the raw sum) is what keeps it safe to add together with day-count habits
+//    in a multi-habit rollup without one habit's scale swamping another's.
 function habitWeeklyTarget(habit, challenge = null) {
   const tpl = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
   const templateHabit = tpl?.habits?.find(h => h.id === habit.id);
-  if (habit.type === "quantity") {
-    return Math.max(1, Number(habit.weeklyQty || templateHabit?.weeklyQty || 1));
-  }
+  if (habit.type === "quantity" && !habit.dailyTarget) return 1;
   return Math.max(1, Math.min(7, Number(habit.weeklyTarget || templateHabit?.weeklyTarget || 7)));
 }
 
-// For a "quantity" habit (weekly-total goal, e.g. "150 min/week") this sums the
-// amount logged each day instead of counting checked-off days, so it can be
-// compared directly against habitWeeklyTarget()'s numeric target.
 function habitWeekCount(challenge, habit, week) {
   if (habit.type === "quantity") {
-    return week.allDays.reduce((sum, k) => sum + (Number(challenge.days[k]?.distances?.[habit.id]) || 0), 0);
+    if (habit.dailyTarget) {
+      return week.allDays.filter(k => (Number(challenge.days[k]?.distances?.[habit.id]) || 0) >= habit.dailyTarget).length;
+    }
+    return Math.min(1, habitWeekRawSum(challenge, habit, week) / (habit.weeklyQty || 1));
   }
   return week.allDays.filter(k => challenge.days[k]?.done?.includes(habit.id)).length;
 }
 
-// Multi-habit aggregates ("N checks left this week" totals mixing several
-// habits) can't just sum habitWeekCount()/habitWeeklyTarget() directly — a
-// "quantity" habit's numbers are on a totally different scale (e.g. 56000
-// steps/week) and would swamp a plan's other habits. For that kind of rollup,
-// a quantity habit instead contributes like a daily check-in: 1 for each day
-// something was logged, out of a 7-day target.
-function habitWeeklyCheckContribution(challenge, habit, week) {
-  if (habit.type === "quantity") {
-    const done = week.allDays.filter(k => challenge.days[k]?.done?.includes(habit.id)).length;
-    return { done, target: 7 };
-  }
-  const target = habitWeeklyTarget(habit, challenge);
-  return { done: Math.min(habitWeekCount(challenge, habit, week), target), target };
+// The actual cumulative amount logged this week for a weekly-total quantity
+// habit — used only for that habit's own display ("83/150 min"), never for
+// cross-habit rollups (see habitWeekCount() above for that).
+function habitWeekRawSum(challenge, habit, week) {
+  return week.allDays.reduce((sum, k) => sum + (Number(challenge.days[k]?.distances?.[habit.id]) || 0), 0);
 }
 
 function habitDueLabel(challenge, habit, week, doneToday) {
@@ -4676,11 +4671,12 @@ function habitDueLabel(challenge, habit, week, doneToday) {
 
 function habitMissingLabel(habit, missing) {
   if (missing <= 0) return "";
-  if (habit.type === "quantity") return `${Math.round(missing).toLocaleString()} ${habit.unit || term('habit')}`;
+  if (habit.type === "quantity" && !habit.dailyTarget) return `${Math.round(missing).toLocaleString()} ${habit.unit || term('habit')}`;
   if (/^read\s+\d+\s+pages/i.test(habit.title)) return `${missing} reading`;
   const base = habit.title
     .replace(/^Start day with\s+/i, "")
     .replace(/\s+session$/i, "")
+    .replace(/\s*\(goal[^)]*\)/i, "")
     .trim()
     .toLowerCase();
   return `${missing} ${base}`;
@@ -4688,10 +4684,12 @@ function habitMissingLabel(habit, missing) {
 
 function getWeeklyMissingItems(challenge, week) {
   return challenge.habits
-    .map(h => ({
-      habit: h,
-      missing: Math.max(0, habitWeeklyTarget(h, challenge) - habitWeekCount(challenge, h, week)),
-    }))
+    .map(h => {
+      const missing = (h.type === "quantity" && !h.dailyTarget)
+        ? Math.max(0, (h.weeklyQty || 0) - habitWeekRawSum(challenge, h, week))
+        : Math.max(0, habitWeeklyTarget(h, challenge) - habitWeekCount(challenge, h, week));
+      return { habit: h, missing };
+    })
     .filter(item => item.missing > 0);
 }
 
@@ -4721,11 +4719,12 @@ function renderHabitTrackerHome() {
   todayChallengeId = plan.id;
   viewingDate = null;
   const week = getCurrentTrackerWeek(plan);
-  const contributions = plan.habits.map(h => habitWeeklyCheckContribution(plan, h, week));
-  const totalTarget = contributions.reduce((s, x) => s + x.target, 0);
-  const totalDone = contributions.reduce((s, x) => s + x.done, 0);
-  const weekPct = totalTarget ? Math.round((totalDone / totalTarget) * 100) : 0;
-  const remaining = contributions.reduce((sum, x) => sum + Math.max(0, x.target - x.done), 0);
+  const rawTarget = plan.habits.reduce((s, h) => s + habitWeeklyTarget(h, plan), 0);
+  const rawDone = plan.habits.reduce((s, h) => s + Math.min(habitWeekCount(plan, h, week), habitWeeklyTarget(h, plan)), 0);
+  const totalTarget = Math.round(rawTarget);
+  const totalDone = Math.round(rawDone);
+  const weekPct = rawTarget ? Math.round((rawDone / rawTarget) * 100) : 0;
+  const remaining = Math.max(0, totalTarget - totalDone);
   const sidePlans = getActiveChallenges().filter(c => c.id !== plan.id && !c.questDefId);
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
@@ -4783,18 +4782,38 @@ function renderTrackerTodayHabit(challenge, habit, day, week) {
 }
 
 function renderTrackerWeekHabit(challenge, habit, week) {
-  const isQty = habit.type === "quantity";
-  const count = habitWeekCount(challenge, habit, week);
-  const target = habitWeeklyTarget(habit, challenge);
-  const pct = Math.min(100, Math.round((Math.min(count, target) / target) * 100));
-  const unit = isQty ? (habit.unit ? ` ${habit.unit}` : "") : "";
+  const isDailyQty = habit.type === "quantity" && habit.dailyTarget;
+  const isWeeklyQty = habit.type === "quantity" && !habit.dailyTarget;
   const today = todayKey();
+  let badge, pct;
+  if (isWeeklyQty) {
+    // Weekly total (e.g. "150 min/week") — the one case that legitimately
+    // shows a cumulative raw number, since there's no single day to judge.
+    const sum = habitWeekRawSum(challenge, habit, week);
+    const target = habit.weeklyQty || 1;
+    const unit = habit.unit ? ` ${habit.unit}` : "";
+    pct = Math.min(100, Math.round((sum / target) * 100));
+    badge = `${Math.round(sum).toLocaleString()}${unit}/${target.toLocaleString()}${unit} this week`;
+  } else {
+    // Every other habit (binary, tiered, text, and a daily-target quantity
+    // like steps) is occurrence-based: how many of the scheduled days were
+    // completed, out of how many were scheduled.
+    const count = habitWeekCount(challenge, habit, week);
+    const target = habitWeeklyTarget(habit, challenge);
+    pct = Math.min(100, Math.round((count / target) * 100));
+    badge = `${count} of ${target} this week`;
+  }
   const boxes = week.allDays.map(k => {
     const isToday = k === today;
     const isFuture = k > today;
-    if (isQty) {
+    if (isDailyQty) {
       const amt = Number(challenge.days[k]?.distances?.[habit.id]) || 0;
-      return `<button class="tracker-day-box ${amt > 0 ? "done" : ""} ${isToday ? "today" : ""}" ${isFuture ? "disabled" : `data-week-qty-habit="${habit.id}" data-week-qty-day="${k}" data-week-qty-unit="${esc(habit.unit || "")}"`} aria-label="${esc(habit.title)} ${k}">${amt > 0 ? amt : formatDate(parseDate(k), { weekday:"short" }).slice(0,1)}</button>`;
+      const hit = amt >= habit.dailyTarget;
+      return `<button class="tracker-day-box ${hit ? "done" : ""} ${isToday ? "today" : ""}" ${isFuture ? "disabled" : `data-week-qty-habit="${habit.id}" data-week-qty-day="${k}" data-week-qty-unit="${esc(habit.unit || "")}"`} aria-label="${esc(habit.title)} ${k}">${amt > 0 ? amt.toLocaleString() : formatDate(parseDate(k), { weekday:"short" }).slice(0,1)}</button>`;
+    }
+    if (isWeeklyQty) {
+      const amt = Number(challenge.days[k]?.distances?.[habit.id]) || 0;
+      return `<button class="tracker-day-box ${amt > 0 ? "done" : ""} ${isToday ? "today" : ""}" ${isFuture ? "disabled" : `data-week-qty-habit="${habit.id}" data-week-qty-day="${k}" data-week-qty-unit="${esc(habit.unit || "")}"`} aria-label="${esc(habit.title)} ${k}">${amt > 0 ? amt.toLocaleString() : formatDate(parseDate(k), { weekday:"short" }).slice(0,1)}</button>`;
     }
     if (habit.type === "text") {
       const noteText = challenge.days[k]?.notes?.[habit.id] || "";
@@ -4807,7 +4826,7 @@ function renderTrackerWeekHabit(challenge, habit, week) {
   <div class="tracker-week-row">
     <div class="tracker-week-top">
       <span>${esc(habit.title)}</span>
-      <strong>${count}${unit}/${target}${unit} this week</strong>
+      <strong>${badge}</strong>
     </div>
     <div class="tracker-week-track"><span style="width:${pct}%"></span></div>
     <div class="tracker-week-days">${boxes}</div>
@@ -4816,10 +4835,11 @@ function renderTrackerWeekHabit(challenge, habit, week) {
 
 function renderTrackerSidePlan(challenge) {
   const week = getCurrentTrackerWeek(challenge);
-  const contributions = challenge.habits.map(h => habitWeeklyCheckContribution(challenge, h, week));
-  const totalTarget = contributions.reduce((s, x) => s + x.target, 0);
-  const totalDone = contributions.reduce((s, x) => s + x.done, 0);
-  const pct = totalTarget ? Math.round((totalDone / totalTarget) * 100) : 0;
+  const rawTarget = challenge.habits.reduce((s, h) => s + habitWeeklyTarget(h, challenge), 0);
+  const rawDone = challenge.habits.reduce((s, h) => s + Math.min(habitWeekCount(challenge, h, week), habitWeeklyTarget(h, challenge)), 0);
+  const totalTarget = Math.round(rawTarget);
+  const totalDone = Math.round(rawDone);
+  const pct = rawTarget ? Math.round((rawDone / rawTarget) * 100) : 0;
   return `
   <div class="tracker-side-item">
     <button class="tracker-side-card" data-set-main-plan="${challenge.id}">
@@ -5448,8 +5468,7 @@ function renderStreakFreezeUI(challenge) {
 }
 
 function renderModeSelector(day, challenge) {
-  const template        = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
-  const noRestDay       = !!(template?.noRestDay);
+  const noRestDay       = challenge?.mode === "strict";
   const schedule        = getDaySchedule(challenge, effectiveDate());
   const isScheduledRest = schedule?.type === "rest";
   const jokerBudget     = challenge?.jokerBudget ?? 3;
@@ -6068,7 +6087,7 @@ function drawShareCard(challenge, isDone) {
   const _scTheme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
   ctx.fillStyle = cs.getPropertyValue("--text-faint").trim() || "#5a5a58";
   ctx.font      = `400 ${Math.round(s * 0.03)}px 'Arial', sans-serif`;
-  ctx.fillText(`${_scTheme.label} · ${term('level')} ${getStageNumber(_scLevel.level)} ${_scLevel.name}`, s / 2, s * 0.81);
+  ctx.fillText(`${term('level')} ${getStageNumber(_scLevel.level)}`, s / 2, s * 0.81);
 
   // Watermark
   ctx.fillStyle = cs.getPropertyValue("--text-faint").trim() || "#5a5a58";
@@ -6366,14 +6385,23 @@ function renderChallengeDetail(c) {
         }
         if (h.type === "quantity") {
           const week = getCurrentTrackerWeek(c);
-          const count = habitWeekCount(c, h, week);
-          const target = habitWeeklyTarget(h, c);
-          const pct = Math.min(100, Math.round((count / target) * 100));
+          let label, pct;
+          if (h.dailyTarget) {
+            const count = habitWeekCount(c, h, week);
+            const target = habitWeeklyTarget(h, c);
+            pct = Math.min(100, Math.round((count / target) * 100));
+            label = `${count} of ${target} this week`;
+          } else {
+            const sum = Math.round(habitWeekRawSum(c, h, week));
+            const target = h.weeklyQty || 1;
+            const unit = h.unit ? ` ${h.unit}` : "";
+            pct = Math.min(100, Math.round((sum / target) * 100));
+            label = `${sum.toLocaleString()}${unit}/${target.toLocaleString()}${unit} this week`;
+          }
           const color = pct >= 80 ? "var(--success)" : pct >= 50 ? "var(--warning)" : "var(--secondary)";
-          const unit = h.unit ? ` ${h.unit}` : "";
           return `<div class="habit-preview-item">
             <span>${esc(h.title)}</span>
-            <span class="hpi-rate" style="color:${color}">${count}${unit}/${target}${unit} this week · ${pct}%</span>
+            <span class="hpi-rate" style="color:${color}">${label} · ${pct}%</span>
           </div>`;
         }
         if (h.type === "measurement") {
@@ -6474,11 +6502,8 @@ function renderEditChallenge(c) {
             return `
             <div class="ech-edit-row">
               <div class="ech-edit-top">
-                <input id="ech-emoji" class="emoji-input" type="text" value="${esc(h.emoji)}" maxlength="2" style="width:48px">
                 <input id="ech-title" type="text" value="${esc(h.title)}" placeholder="Habit name" style="flex:1">
-                ${isTiered
-                  ? `<span class="custom-habit-pts" style="font-size:11px">${h.tiers.map(t=>t.label||`Tier`).join(" / ")}</span>`
-                  : `<input id="ech-pts" type="number" value="${h.points}" min="1" max="20" style="width:52px">`}
+                ${isTiered ? `<span class="custom-habit-pts" style="font-size:11px">${h.tiers.map(t=>t.label||`Tier`).join(" / ")}</span>` : ""}
               </div>
               ${isQty ? `
               <div class="tier-inputs-simple">
@@ -6487,7 +6512,7 @@ function renderEditChallenge(c) {
               </div>
               <div class="tier-inputs-simple">
                 <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
-                <input id="ech-weekly-qty" type="number" value="${habitWeeklyTarget(h, c)}" min="1" max="9999" style="width:70px">
+                <input id="ech-weekly-qty" type="number" value="${h.weeklyQty || 1}" min="1" max="9999" style="width:70px">
               </div>` : `
               <div class="tier-inputs-simple">
                 <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
@@ -6517,7 +6542,6 @@ function renderEditChallenge(c) {
           return `
         <div class="add-habit-form">
           <div class="add-habit-top-row">
-            <input id="ech-new-emoji" class="emoji-input" type="text" value="${esc(ef.newHabitEmoji||"⭐")}" maxlength="2" placeholder="⭐" style="width:46px">
             <input id="ech-new-title" type="text" value="${esc(ef.newHabitTitle||"")}" placeholder="New habit name" style="flex:1">
           </div>
           <div class="habit-type-toggle" style="margin-top:8px;flex-wrap:wrap">
@@ -6527,11 +6551,10 @@ function renderEditChallenge(c) {
           </div>
           ${newType === "tiered" ? `
           <div class="tier-inputs">
-            <div class="tier-inputs-header"><span>Label</span><span>Pts</span>${newTiers.length>2?"<span></span>":""}</div>
+            <div class="tier-inputs-header"><span>Label</span>${newTiers.length>2?"<span></span>":""}</div>
             ${newTiers.map((t,i)=>`
             <div class="tier-row">
-              <input class="tier-label-input" id="ech-tier-${i}-label" type="text" value="${esc(t.label)}" placeholder="e.g. 3 km">
-              <input class="tier-pts-input" id="ech-tier-${i}-pts" type="number" value="${t.points}" min="1" max="20">
+              <input class="tier-label-input" id="ech-tier-${i}-label" type="text" value="${esc(t.label)}" placeholder="e.g. 3 km" style="flex:1">
               ${newTiers.length>2?`<button class="icon-btn" data-ech-remove-tier="${i}" style="font-size:11px"><i class="ti ti-x"></i></button>`:""}
             </div>`).join("")}
             ${newTiers.length<5?`<button class="link-btn" data-ech-add-tier style="font-size:12px;margin-top:2px">+ Add tier</button>`:""}
@@ -6545,16 +6568,12 @@ function renderEditChallenge(c) {
             <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
             <input id="ech-new-weekly-qty" type="number" value="${ef.newHabitWeeklyQty||150}" min="1" max="9999" style="width:70px">
           </div>
-          <div class="tier-inputs-simple">
-            <span style="font-size:12px;color:var(--text-dim)">Points per logged day</span>
-            <input id="ech-new-pts" type="number" value="${ef.newHabitPoints||2}" min="1" max="20" style="width:60px">
-          </div>
           ` : `
           <div class="tier-inputs-simple">
-            <span style="font-size:12px;color:var(--text-dim)">Points</span>
-            <input id="ech-new-pts" type="number" value="${ef.newHabitPoints||2}" min="1" max="20" style="width:60px">
+            <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
+            <input id="ech-new-weekly-target" type="number" value="${ef.newHabitWeeklyTarget||5}" min="1" max="7" style="width:60px">
           </div>`}
-          ${newType !== "quantity" ? `
+          ${newType === "tiered" ? `
           <div class="tier-inputs-simple">
             <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
             <input id="ech-new-weekly-target" type="number" value="${ef.newHabitWeeklyTarget||5}" min="1" max="7" style="width:60px">
@@ -6807,7 +6826,7 @@ function renderBuilderTemplates() {
     const diff = TEMPLATE_DIFFICULTY[t.id] || "intermediate";
     // "quantity" habits carry a numeric weekly total (e.g. 56000 steps), not a
     // check count — treat them as a daily log (7) for this summary instead.
-    const weeklyChecks = t.habits.reduce((sum, h) => sum + (h.type === "quantity" ? 7 : habitWeeklyTarget(h)), 0);
+    const weeklyChecks = t.habits.reduce((sum, h) => sum + habitWeeklyTarget(h), 0);
     const meta = `${t.duration} days · ${weeklyChecks} checks/week · ${DIFF_LABEL[diff]}`;
     const hasSafety = !!TEMPLATE_SAFETY[t.id];
     return `
@@ -6866,11 +6885,6 @@ function renderBuilderCustomize() {
   const template = builderForm.templateId ? TEMPLATES.find(t=>t.id===builderForm.templateId) : null;
   return `
   <div class="builder-form">
-    ${isCustom ? `
-    <label class="field" style="margin-bottom:14px">
-      Emoji
-      <input id="bf-emoji" type="text" value="${esc(builderForm.emoji)}" maxlength="2" class="emoji-input" style="width:64px" placeholder="🎯">
-    </label>` : ""}
     <label class="field" style="margin-bottom:14px">
       Plan name
       <input id="bf-name" type="text" value="${esc(builderForm.name)}" placeholder="${template?template.name:"My Habit Plan"}" maxlength="40">
@@ -6897,7 +6911,7 @@ function renderBuilderCustomize() {
       <button class="mode-button ${builderForm.mode==="strict"?"active":""}" data-bf-mode="strict">Strict</button>
     </div>
     <p class="mode-desc" style="margin-bottom:14px">${builderForm.mode==="soft"?"One grace day allowed if you miss — streak stays alive.":"Zero misses. Every day counts. No exceptions."}</p>
-    ${template?.noRestDay ? `
+    ${builderForm.mode === "strict" ? `
     <div class="joker-budget-row" style="margin-bottom:14px">
       <span class="field-label">${term('restDay')}s</span>
       <span class="mode-desc" style="margin:0">Zero — no recovery days on this plan.</span>
@@ -6955,15 +6969,13 @@ function renderBuilderCustomize() {
       <div class="custom-habits-list">
         ${builderForm.habits.map((h,i)=>`
           <div class="custom-habit-row">
-            <span class="custom-habit-emoji"><i class="ti ti-square"></i></span>
+            <span class="custom-habit-emoji"><i class="ti ti-flame"></i></span>
             <span class="custom-habit-name">${esc(h.title)}</span>
-            <span class="custom-habit-pts">${habitWeeklyTarget(h)}${h.type==="quantity"&&h.unit?` ${h.unit}`:""}/week</span>
-            <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points??h.tiers[0].pts??0}–${(t=>t.points??t.pts??0)(h.tiers[h.tiers.length-1])}pt` : h.points+"pt"}</span>
+            <span class="custom-habit-pts">${h.type==="quantity"&&h.unit?`${h.weeklyQty}${h.unit?` ${h.unit}`:""}/week`:`${habitWeeklyTarget(h)}/week`}</span>
             <button class="icon-btn" data-remove-habit="${i}"><i class="ti ti-x"></i></button>
           </div>`).join("")}
         <div class="add-habit-form">
           <div class="add-habit-top-row">
-            <input id="nh-emoji" class="emoji-input" type="text" value="${esc(builderForm.newHabitEmoji)}" maxlength="2" placeholder="⭐" style="width:46px">
             <input id="nh-name" type="text" value="${esc(builderForm.newHabitName)}" placeholder="Habit name" style="flex:1">
           </div>
           <div class="habit-type-toggle" style="margin-top:8px;flex-wrap:wrap">
@@ -6973,11 +6985,10 @@ function renderBuilderCustomize() {
           </div>
           ${builderForm.newHabitType === "tiered" ? `
           <div class="tier-inputs">
-            <div class="tier-inputs-header"><span>Label</span><span>Pts</span>${builderForm.newHabitTiers.length>2?"<span></span>":""}</div>
+            <div class="tier-inputs-header"><span>Label</span>${builderForm.newHabitTiers.length>2?"<span></span>":""}</div>
             ${builderForm.newHabitTiers.map((t,i)=>`
             <div class="tier-row">
-              <input class="tier-label-input" id="nh-tier-${i}-label" type="text" value="${esc(t.label)}" placeholder="e.g. 1 km">
-              <input class="tier-pts-input" id="nh-tier-${i}-pts" type="number" value="${t.points}" min="1" max="20">
+              <input class="tier-label-input" id="nh-tier-${i}-label" type="text" value="${esc(t.label)}" placeholder="e.g. 1 km" style="flex:1">
               ${builderForm.newHabitTiers.length>2?`<button class="icon-btn" data-nh-remove-tier="${i}" style="font-size:11px"><i class="ti ti-x"></i></button>`:""}
             </div>`).join("")}
             ${builderForm.newHabitTiers.length<5?`<button class="link-btn" data-nh-add-tier style="font-size:12px;margin-top:2px">+ Add tier</button>`:""}
@@ -6991,16 +7002,12 @@ function renderBuilderCustomize() {
             <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
             <input id="nh-weekly-qty" type="number" value="${builderForm.newHabitWeeklyQty}" min="1" max="9999" style="width:70px">
           </div>
-          <div class="tier-inputs-simple">
-            <span style="font-size:12px;color:var(--text-dim)">Points per logged day</span>
-            <input id="nh-pts" type="number" value="${builderForm.newHabitPoints}" min="1" max="20" style="width:60px">
-          </div>
           ` : `
           <div class="tier-inputs-simple">
-            <span style="font-size:12px;color:var(--text-dim)">Points</span>
-            <input id="nh-pts" type="number" value="${builderForm.newHabitPoints}" min="1" max="20" style="width:60px">
+            <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
+            <input id="nh-weekly-target" type="number" value="${builderForm.newHabitWeeklyTarget}" min="1" max="7" style="width:60px">
           </div>`}
-          ${builderForm.newHabitType !== "quantity" ? `
+          ${builderForm.newHabitType === "tiered" ? `
           <div class="tier-inputs-simple">
             <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
             <input id="nh-weekly-target" type="number" value="${builderForm.newHabitWeeklyTarget}" min="1" max="7" style="width:60px">
@@ -7173,8 +7180,7 @@ function renderLevelProfile() {
   return `
   <div class="level-profile-card">
     <div class="lp-top">
-      <div class="lp-level-num"><i class="ti ${theme.icon}"></i> ${term('level')} ${getStageNumber(info.level)}</div>
-      <div class="lp-level-name">${info.name}</div>
+      <div class="lp-level-num"><i class="ti ti-flame"></i> ${term('level')} ${getStageNumber(info.level)}</div>
     </div>
     <div class="xp-bar-track lp-track">
       <div class="xp-bar-fill" style="width:${info.pct}%"></div>
@@ -7188,7 +7194,7 @@ function renderLevelProfile() {
         const unlocked = state.xp >= lvl.xp;
         const isCurrent = info.level === lvl.level;
         const showNum = isCurrent || lvl.level % 5 === 0;
-        return `<div class="lvl-node ${unlocked ? "unlocked" : ""} ${isCurrent ? "current" : ""}" title="${term('level')} ${getStageNumber(lvl.level)} ${getThemedLevelName(lvl.level)}">
+        return `<div class="lvl-node ${unlocked ? "unlocked" : ""} ${isCurrent ? "current" : ""}" title="${term('level')} ${getStageNumber(lvl.level)}">
           <div class="lvl-node-dot"></div>
           ${showNum ? `<div class="lvl-node-num">${lvl.level}</div>` : ""}
         </div>`;
@@ -7274,42 +7280,24 @@ function showQuestChapterModal(dayCount) {
   document.body.appendChild(el);
 }
 
+// History answers exactly four questions: how consistent have I been, am I
+// still going, what's my progress on what I'm working on now, and what have
+// I finished — plus a subtle, explorable look at level/XP. No activity log.
 function renderCoachProgress() {
   const plans = getActiveChallenges().filter(c => !c.questDefId);
   const completedPlans = getAllChallenges().filter(c => c.status === "completed" && !c.questDefId);
   const today = todayKey();
   const last14 = Array.from({ length: 14 }, (_, i) => addDays(today, i - 13));
   const checkedDays = last14.filter(k => plans.some(c => c.days[k]?.done?.length > 0)).length;
-  // Best current streak across active plans, and every habit check-off ever
-  // logged (across active, paused, and completed plans) — the two numbers
-  // the history view exists to answer: "am I still going" and "how much have
-  // I actually done."
   const bestStreak = plans.length ? Math.max(0, ...plans.map(c => calcChallengeStreak(c))) : 0;
-  const totalCompleted = getAllChallenges().reduce(
-    (sum, c) => sum + Object.values(c.days).reduce((s, d) => s + (d.done?.length || 0), 0),
-    0
-  );
   const weekRows = plans.map(c => {
     const week = getCurrentTrackerWeek(c);
-    const contributions = c.habits.map(h => habitWeeklyCheckContribution(c, h, week));
-    const target = contributions.reduce((s, x) => s + x.target, 0);
-    const done = contributions.reduce((s, x) => s + x.done, 0);
-    const pct = target ? Math.round((done / target) * 100) : 0;
+    const rawTarget = c.habits.reduce((s, h) => s + habitWeeklyTarget(h, c), 0);
+    const rawDone = c.habits.reduce((s, h) => s + Math.min(habitWeekCount(c, h, week), habitWeeklyTarget(h, c)), 0);
+    const pct = rawTarget ? Math.round((rawDone / rawTarget) * 100) : 0;
     const streak = calcChallengeStreak(c);
-    return { c, week, target, done, pct, streak };
+    return { c, pct, streak };
   });
-  const recent = [];
-  for (const k of [...last14].reverse()) {
-    for (const c of plans) {
-      const day = c.days[k];
-      if (!day?.done?.length) continue;
-      const titles = day.done
-        .map(id => c.habits.find(h => h.id === id)?.title)
-        .filter(Boolean)
-        .slice(0, 3);
-      recent.push({ date: k, plan: c.name, titles, count: day.done.length });
-    }
-  }
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     <section class="coach-history-hero">
@@ -7329,21 +7317,17 @@ function renderCoachProgress() {
         <strong>${bestStreak}<i class="ti ti-flame"></i></strong>
         <span>day streak</span>
       </div>
-      <div class="coach-stat">
-        <strong>${totalCompleted}</strong>
-        <span>habit${totalCompleted === 1 ? "" : "s"} completed</span>
-      </div>
     </section>
 
     <section class="tracker-section">
       <div class="section-label" style="margin:0 0 10px">Current Plans</div>
       ${weekRows.length ? `
       <div class="coach-plan-stack">
-        ${weekRows.map(({ c, target, done, pct, streak }) => `
+        ${weekRows.map(({ c, pct, streak }) => `
         <button class="coach-plan-row" data-view-challenge="${c.id}">
           <span>
             <strong>${esc(displayPlanName(c.name))}</strong>
-            <small>${done}/${target} checks this week${streak > 0 ? ` · ${streak}-day streak` : ""}</small>
+            <small>${pct}% this week${streak > 0 ? ` · ${streak}-day streak` : ""}</small>
           </span>
           <span class="coach-plan-meter"><span style="width:${pct}%"></span></span>
           <b>${pct}%</b>
@@ -7353,25 +7337,6 @@ function renderCoachProgress() {
         <strong>No plan is active yet.</strong>
         <span>Choose one plan first. The history view will start showing weekly progress after your first check-in.</span>
         <button class="secondary-button" data-open-builder>Choose a plan</button>
-      </div>`}
-    </section>
-
-    <section class="tracker-section">
-      <div class="section-label" style="margin:0 0 10px">Recent Check-ins</div>
-      ${recent.length ? `
-      <div class="coach-recent-list">
-        ${recent.slice(0, 8).map(item => `
-        <div class="coach-recent-row">
-          <span class="coach-recent-date">${formatDate(parseDate(item.date), { weekday:"short", month:"short", day:"numeric" })}</span>
-          <span>
-            <strong>${esc(displayPlanName(item.plan))}</strong>
-            <small>${esc(item.titles.join(" · "))}${item.count > item.titles.length ? ` · +${item.count - item.titles.length} more` : ""}</small>
-          </span>
-        </div>`).join("")}
-      </div>` : `
-      <div class="coach-empty-panel">
-        <strong>No check-ins yet.</strong>
-        <span>Log one item this week. This becomes the simple record you can review over time.</span>
       </div>`}
     </section>
 
@@ -7386,6 +7351,11 @@ function renderCoachProgress() {
         </div>`).join("")}
       </div>
     </section>` : ""}
+
+    <section class="tracker-section">
+      <div class="section-label" style="margin:0 0 10px">Level</div>
+      ${renderLevelProfile()}
+    </section>
   </main>`;
 }
 
@@ -8365,18 +8335,25 @@ function bindEvents() {
     const habitId = el.dataset.weekTextHabit;
     const c = currentChallenge();
     const habit = c?.habits.find(h => h.id === habitId);
-    const current = c?.days?.[dayKey]?.notes?.[habitId] || habit?.placeholder || "";
+    const prefix = habit?.placeholder || "";
+    const saved = c?.days?.[dayKey]?.notes?.[habitId] || "";
+    // The static prefix (e.g. "I'm grateful for") is shown as its own label,
+    // not typed by the user — so only the phrase after it goes in the input.
+    const currentPhrase = prefix && saved.startsWith(prefix) ? saved.slice(prefix.length) : saved;
     showPrompt(
       `${habit ? habit.title : "Note"} — ${formatDate(parseDate(dayKey), { weekday: "short", month: "short", day: "numeric" })}`,
-      current,
+      currentPhrase,
       val => {
         const prevViewingDate = viewingDate;
         viewingDate = dayKey === todayKey() ? null : dayKey;
-        logHabitText(habitId, val);
+        const phrase = String(val || "").trim();
+        logHabitText(habitId, phrase ? `${prefix}${phrase}` : "");
         viewingDate = prevViewingDate;
         render();
       },
-      { type: "text", inputAttrs: `maxlength="140"`, placeholder: habit?.placeholder || "", confirmLabel: "Save" }
+      prefix
+        ? { type: "text", inputAttrs: `maxlength="120"`, placeholder: "e.g. a sunny walk", confirmLabel: "Save", prefixLabel: prefix.trim() }
+        : { type: "text", inputAttrs: `maxlength="140"`, placeholder: "", confirmLabel: "Save" }
     );
   });
   on("[data-week-day-jump]", el => {
@@ -8449,7 +8426,15 @@ function bindEvents() {
     render();
   });
   on("[data-select-template]", el => selectTemplate(el.dataset.selectTemplate));
-  on("[data-bf-mode]",      el => { saveBuilderFormFromDOM(); builderForm.mode=el.dataset.bfMode; render(); });
+  on("[data-bf-mode]",      el => {
+    saveBuilderFormFromDOM();
+    builderForm.mode = el.dataset.bfMode;
+    // Strict means zero recovery days, always — Soft restores an adjustable
+    // default rather than leaving it at whatever Strict had forced it to.
+    if (builderForm.mode === "strict") builderForm.jokerBudget = 0;
+    else if (!builderForm.jokerBudget) builderForm.jokerBudget = 3;
+    render();
+  });
   on("[data-pin-challenge]", el => { // kept for old data; no-op
     const c = getChallenge(el.dataset.pinChallenge); if (!c) return;
     c.pinned = !c.pinned;
@@ -8658,21 +8643,18 @@ function bindEvents() {
     if (!editForm || editForm.habitEditIdx == null) return;
     const i = editForm.habitEditIdx;
     const h = editForm.habits[i];
-    const emoji = (document.getElementById("ech-emoji")?.value || "⭐").trim() || "⭐";
     const title = (document.getElementById("ech-title")?.value || "").trim();
     if (!title) { showToast("Habit needs a name."); return; }
     if (h.type === "tiered") {
       const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-weekly-target")?.value) || habitWeeklyTarget(h)));
-      editForm.habits[i] = { ...h, emoji, title, weeklyTarget };
+      editForm.habits[i] = { ...h, title, weeklyTarget };
     } else if (h.type === "quantity") {
       const unit = (document.getElementById("ech-unit")?.value || h.unit || "").trim();
-      const weeklyQty = Math.max(1, Math.min(9999, Number(document.getElementById("ech-weekly-qty")?.value) || habitWeeklyTarget(h)));
-      const pts = Math.max(1, Math.min(20, Number(document.getElementById("ech-pts")?.value) || h.points || 2));
-      editForm.habits[i] = { ...h, emoji, title, points: pts, unit, weeklyQty };
+      const weeklyQty = Math.max(1, Math.min(9999, Number(document.getElementById("ech-weekly-qty")?.value) || h.weeklyQty || 1));
+      editForm.habits[i] = { ...h, title, unit, weeklyQty };
     } else {
       const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-weekly-target")?.value) || habitWeeklyTarget(h)));
-      const pts = Math.max(1, Math.min(20, Number(document.getElementById("ech-pts")?.value) || 2));
-      editForm.habits[i] = { ...h, emoji, title, points: pts, weeklyTarget };
+      editForm.habits[i] = { ...h, title, weeklyTarget };
     }
     editForm.habitEditIdx = null;
     render();
@@ -8693,7 +8675,7 @@ function bindEvents() {
   });
   on("[data-ec-add-habit]", () => {
     if (!editForm) return;
-    const emoji = (document.getElementById("ech-new-emoji")?.value || "⭐").trim() || "⭐";
+    const emoji = "🔥";
     const title = (document.getElementById("ech-new-title")?.value || "").trim();
     if (!title) { showToast(`Enter an ${term('habit')} name.`); return; }
     if (editForm.newHabitType === "tiered") {
@@ -8701,23 +8683,19 @@ function bindEvents() {
       const tiers = (editForm.newHabitTiers || []).map((t, i) => ({
         label:  (document.getElementById(`ech-tier-${i}-label`)?.value || t.label || `Tier ${i+1}`).trim() || `Tier ${i+1}`,
         value:  i,
-        points: Math.max(1, Math.min(20, Number(document.getElementById(`ech-tier-${i}-pts`)?.value) || t.points)),
+        points: 1,
       }));
       if (tiers.filter(t => t.label).length < 2) { showToast("Fill in at least 2 tier labels."); return; }
-      editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "tiered", points: tiers[0].points, weeklyTarget, tiers });
+      editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "tiered", points: 1, weeklyTarget, tiers });
     } else if (editForm.newHabitType === "quantity") {
       const unit = (document.getElementById("ech-new-unit")?.value || editForm.newHabitUnit || "").trim();
       const weeklyQty = Math.max(1, Math.min(9999, Number(document.getElementById("ech-new-weekly-qty")?.value) || editForm.newHabitWeeklyQty || 1));
-      const pts = Math.max(1, Math.min(20, Number(document.getElementById("ech-new-pts")?.value) || 2));
-      editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "quantity", points: pts, unit, weeklyQty });
+      editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "quantity", points: 1, unit, weeklyQty });
     } else {
       const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-new-weekly-target")?.value) || editForm.newHabitWeeklyTarget || 5));
-      const pts = Math.max(1, Math.min(20, Number(document.getElementById("ech-new-pts")?.value) || 2));
-      editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "binary", points: pts, weeklyTarget });
+      editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "binary", points: 1, weeklyTarget });
     }
-    editForm.newHabitEmoji  = "⭐";
     editForm.newHabitTitle  = "";
-    editForm.newHabitPoints = 2;
     editForm.newHabitWeeklyTarget = 5;
     editForm.newHabitUnit   = "min";
     editForm.newHabitWeeklyQty = 150;
@@ -9231,8 +9209,7 @@ function setMode(mode) {
   const dayKey = effectiveDate();
   const isScheduledRest = getDaySchedule(c, dayKey)?.type === "rest";
   if (mode === "rest") {
-    const tpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
-    if (tpl?.noRestDay) { showToast(`No ${term('restDay')}s on this Challenge — that's the point.`); return; }
+    if (c.mode === "strict") { showToast(`Strict mode allows no ${term('restDay')}s — that's the point.`); return; }
     const alreadyRest = c.days[dayKey]?.mode === "rest";
     if (!alreadyRest && !isScheduledRest) {
       const used = Object.values(c.days).filter(d => d.mode === "rest" && !d.scheduledRest).length;
@@ -9268,12 +9245,6 @@ function toggleHabit(id, minimum = false) {
   const levelBefore = getLevelInfo(state.xp).level;
   const checking    = !day.done.includes(id);
   if (!checking && minimum) return; // the small-version link only logs; unchecking happens via the normal tap
-  if (checking && effectiveDate() === todayKey() && day.streakMult === undefined) {
-    day.streakMult = getStreakMultiplier(c);
-  }
-  if (checking && effectiveDate() === todayKey() && day.comebackBonus === undefined) {
-    if (getConsecutiveMisses(c) >= 3) day.comebackBonus = true;
-  }
   if (checking) {
     day.done.push(id);
     _animHabitId = id;
@@ -9282,10 +9253,6 @@ function toggleHabit(id, minimum = false) {
     day.done = day.done.filter(x=>x!==id);
     if (day.minDone) day.minDone = day.minDone.filter(x=>x!==id);
     _animHabitId = null;
-  }
-  if (effectiveDate() === todayKey()) {
-    const _perfRun = getPerfectRunLength(c, todayKey());
-    day.weeklyBonus = (_perfRun > 0 && _perfRun % 7 === 0);
   }
   updateDayPoints(c, day);
   state.xp = recalcXP();
@@ -9296,12 +9263,9 @@ function toggleHabit(id, minimum = false) {
     setTimeout(launchConfetti, 250);
   }
   if (lvlInfo.level > levelBefore) {
-    const _luT = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
-    setTimeout(() => { const o = { level: lvlInfo.level, name: lvlInfo.name, icon: _luT.icon, total: state.xp }; _levelUpOverlay = o; showLevelUpModal(o); }, 600);
+    setTimeout(() => { const o = { level: lvlInfo.level, total: state.xp }; _levelUpOverlay = o; showLevelUpModal(o); }, 600);
   } else if (xpGain > 0) {
-    const mult = day.streakMult || 1;
-    const multStr = mult > 1 ? ` 🔥×${mult.toFixed(2)}` : "";
-    showToast(`+${xpGain}${multStr}`);
+    showToast(`+${xpGain} XP`);
   }
   saveState(); navigator.vibrate?.(10);
   _savedFlash = true;
@@ -9317,19 +9281,31 @@ function logMeasurement(habitId, value) {
   if (habit.type !== "measurement" && habit.type !== "quantity") return;
   const day = getChallengeDay(c, effectiveDate());
   if (day.mode === "rest") return;
+  const xpBefore = state.xp;
+  const levelBefore = getLevelInfo(state.xp).level;
   if (!day.distances) day.distances = {};
   day.distances[habitId] = value;
-  if (value > 0) {
-    if (effectiveDate() === todayKey() && day.streakMult === undefined) day.streakMult = getStreakMultiplier(c);
-    if (effectiveDate() === todayKey() && day.comebackBonus === undefined && getConsecutiveMisses(c) >= 3) day.comebackBonus = true;
+  // A habit with a dailyTarget (e.g. steps) is only "complete" for the day
+  // once it clears that threshold; a plain quantity/measurement habit just
+  // needs any positive amount logged.
+  const meetsTarget = habit.dailyTarget ? value >= habit.dailyTarget : value > 0;
+  if (meetsTarget) {
     if (!day.done.includes(habitId)) { day.done.push(habitId); _animHabitId = habitId; }
   } else {
     day.done = day.done.filter(id => id !== habitId);
     _animHabitId = null;
   }
-  if (effectiveDate() === todayKey()) { const _r = getPerfectRunLength(c, todayKey()); day.weeklyBonus = (_r > 0 && _r % 7 === 0); }
   updateDayPoints(c, day);
   state.xp = recalcXP();
+  const xpGain = state.xp - xpBefore;
+  const lvlInfo = getLevelInfo(state.xp);
+  if (lvlInfo.level > levelBefore) {
+    setTimeout(() => { const o = { level: lvlInfo.level, total: state.xp }; _levelUpOverlay = o; showLevelUpModal(o); }, 600);
+  } else if (xpGain > 0) {
+    showToast(`+${xpGain} XP`);
+  } else if (xpGain < 0) {
+    showToast(`${xpGain} XP`);
+  }
   saveState();
   checkBadges(c);
   render();
@@ -9344,20 +9320,28 @@ function logHabitText(habitId, text) {
   if (habit.type !== "text") return;
   const day = getChallengeDay(c, effectiveDate());
   if (day.mode === "rest") return;
+  const xpBefore = state.xp;
+  const levelBefore = getLevelInfo(state.xp).level;
   if (!day.notes) day.notes = {};
   const trimmed = String(text || "").trim();
   day.notes[habitId] = trimmed;
   if (trimmed) {
-    if (effectiveDate() === todayKey() && day.streakMult === undefined) day.streakMult = getStreakMultiplier(c);
-    if (effectiveDate() === todayKey() && day.comebackBonus === undefined && getConsecutiveMisses(c) >= 3) day.comebackBonus = true;
     if (!day.done.includes(habitId)) { day.done.push(habitId); _animHabitId = habitId; }
   } else {
     day.done = day.done.filter(id => id !== habitId);
     _animHabitId = null;
   }
-  if (effectiveDate() === todayKey()) { const _r = getPerfectRunLength(c, todayKey()); day.weeklyBonus = (_r > 0 && _r % 7 === 0); }
   updateDayPoints(c, day);
   state.xp = recalcXP();
+  const xpGain = state.xp - xpBefore;
+  const lvlInfo = getLevelInfo(state.xp);
+  if (lvlInfo.level > levelBefore) {
+    setTimeout(() => { const o = { level: lvlInfo.level, total: state.xp }; _levelUpOverlay = o; showLevelUpModal(o); }, 600);
+  } else if (xpGain > 0) {
+    showToast(`+${xpGain} XP`);
+  } else if (xpGain < 0) {
+    showToast(`${xpGain} XP`);
+  }
   saveState();
   checkBadges(c);
   render();
@@ -9396,9 +9380,6 @@ function selectTier(habitId, rawVal) {
   const val = isNaN(Number(rawVal)) ? rawVal : Number(rawVal);
   if (!day.tiers) day.tiers = {};
   const selecting = String(day.tiers[habitId]) !== String(val);
-  if (selecting && effectiveDate() === todayKey() && day.streakMult === undefined) {
-    day.streakMult = getStreakMultiplier(c);
-  }
   if (!selecting) {
     day.tiers[habitId] = null;
     day.done = day.done.filter(id=>id!==habitId);
@@ -9419,12 +9400,11 @@ function selectTier(habitId, rawVal) {
     setTimeout(launchConfetti, 250);
   }
   if (lvlInfo2.level > levelBefore2) {
-    const _luT2 = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
-    setTimeout(() => { const o = { level: lvlInfo2.level, name: lvlInfo2.name, icon: _luT2.icon, total: state.xp }; _levelUpOverlay = o; showLevelUpModal(o); }, 600);
+    setTimeout(() => { const o = { level: lvlInfo2.level, total: state.xp }; _levelUpOverlay = o; showLevelUpModal(o); }, 600);
   } else if (xpGain2 > 0) {
-    const mult2 = day.streakMult || 1;
-    const multStr2 = mult2 > 1 ? ` 🔥×${mult2.toFixed(2)}` : "";
-    showToast(`+${xpGain2}${multStr2}`);
+    showToast(`+${xpGain2} XP`);
+  } else if (xpGain2 < 0) {
+    showToast(`${xpGain2} XP`);
   }
   saveState(); navigator.vibrate?.(10);
   checkBadges(c); checkMilestones(c); render();
@@ -9614,8 +9594,11 @@ function startChallenge(safetyConfirmed = false, multiConfirmed = false) {
   render();
 }
 
+// Custom habits always use the flame as their icon (no emoji picker — one
+// less decision that doesn't change behavior) and a flat 1 point, since XP
+// is now a universal +1 per completed occurrence regardless of habit type.
 function addCustomHabit() {
-  const emoji = (document.getElementById("nh-emoji")?.value||"⭐").trim()||"⭐";
+  const emoji = "🔥";
   const name  = (document.getElementById("nh-name")?.value||"").trim();
   const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("nh-weekly-target")?.value) || builderForm.newHabitWeeklyTarget || 5));
   if (!name) { showToast(`Enter an ${term('habit')} name.`); return; }
@@ -9624,23 +9607,19 @@ function addCustomHabit() {
     const tiers = builderForm.newHabitTiers.map((t, i) => ({
       label:  (document.getElementById(`nh-tier-${i}-label`)?.value || t.label || `Tier ${i+1}`).trim() || `Tier ${i+1}`,
       value:  i,
-      points: Math.max(1, Math.min(20, Number(document.getElementById(`nh-tier-${i}-pts`)?.value) || t.points)),
+      points: 1,
     }));
     if (tiers.filter(t => t.label).length < 2) { showToast("Fill in at least 2 tier labels."); return; }
-    builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"tiered", points:tiers[0].points, weeklyTarget, tiers });
+    builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"tiered", points:1, weeklyTarget, tiers });
   } else if (builderForm.newHabitType === "quantity") {
     const unit = (document.getElementById("nh-unit")?.value || builderForm.newHabitUnit || "").trim();
     const weeklyQty = Math.max(1, Math.min(9999, Number(document.getElementById("nh-weekly-qty")?.value) || builderForm.newHabitWeeklyQty || 1));
-    const pts = Math.max(1, Math.min(20, Number(document.getElementById("nh-pts")?.value)||2));
-    builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"quantity", points:pts, unit, weeklyQty });
+    builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"quantity", points:1, unit, weeklyQty });
   } else {
-    const pts = Math.max(1, Math.min(20, Number(document.getElementById("nh-pts")?.value)||2));
-    builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"binary", points:pts, weeklyTarget });
+    builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"binary", points:1, weeklyTarget });
   }
 
-  builderForm.newHabitEmoji  = "⭐";
   builderForm.newHabitName   = "";
-  builderForm.newHabitPoints = 2;
   builderForm.newHabitWeeklyTarget = 5;
   builderForm.newHabitUnit   = "min";
   builderForm.newHabitWeeklyQty = 150;
@@ -10120,6 +10099,21 @@ if (!state.migrations["weeklyHabitTargetsV1"]) {
     }
   }
   state.migrations["weeklyHabitTargetsV1"] = true;
+  saveState();
+}
+// Migration: the "fitter-starter" template was completely redefined (green
+// tea/strength/running/mobility -> steps/protein/gratitude/workout/reading,
+// as "Momentum"). A plan someone already started under the old habit set is
+// incompatible with the new one — delete it outright rather than trying to
+// reconcile two unrelated habit lists, so re-starting "Momentum" is clean.
+if (!state.migrations["deleteLegacyFitterStarterV1"]) {
+  const legacyIds = new Set(["fs-tea", "fs-strength", "fs-run", "fs-recover"]);
+  for (const [id, c] of Object.entries(state.challenges)) {
+    if (c.templateId === "fitter-starter" && c.habits.some(h => legacyIds.has(h.id))) {
+      delete state.challenges[id];
+    }
+  }
+  state.migrations["deleteLegacyFitterStarterV1"] = true;
   saveState();
 }
 // Migration: keep current saved plans aligned with the simplified weekly tracker.

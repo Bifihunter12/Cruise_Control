@@ -3784,6 +3784,26 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
 }
 .confirm-btns .pill-btn { flex: 1; }
 
+.prompt-prefix-row {
+  margin-bottom: 16px;
+}
+.prompt-prefix-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 6px;
+  text-align: left;
+}
+.prompt-prefix-row .prompt-input {
+  margin-bottom: 0;
+  text-align: left;
+  font-weight: 500;
+  font-size: 16px;
+}
+
 /* ── Progress photo delete button ── */
 .pp-item { position: relative; }
 .pp-delete {
