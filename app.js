@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.16.04";
+const APP_VERSION = "2026.09.16.05";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -615,15 +615,16 @@ function buildReflectBack() {
 
 const TEMPLATES = [
   {
-    id: "fitter-starter", name: "Momentum", emoji: "👟", category: "movement",
-    description: "14 days of simple movement, strength, protein, and recovery. Built to start today, even if you are not in shape yet.",
-    identity: "I am someone who starts where I am and gets a little fitter every day.",
-    duration: 14, weeklyGoal: 42, defaultMode: "soft",
+    id: "fitter-starter", name: "Momentum", emoji: "🔥", category: "movement",
+    description: "The baseline habit plan for the whole app — steps, protein, gratitude, movement, and reading. Low friction, flexible, built to run for 30 days.",
+    identity: "I am someone who shows up consistently and builds momentum every day.",
+    duration: 30, weeklyGoal: 90, defaultMode: "soft", asksStepGoal: true,
     habits: [
-      { id:"fs-tea",      title:"Start day with green tea", emoji:"🍵", quip:"A calm cue before the day speeds up.", type:"binary", points:2, weeklyTarget:5 },
-      { id:"fs-strength", title:"Strength training",        emoji:"🏋️", quip:"Full session, gym, home, or bodyweight.", type:"binary", points:4, weeklyTarget:3 },
-      { id:"fs-run",      title:"Running session",          emoji:"🏃", quip:"Easy pace counts. Build the rhythm first.", type:"binary", points:4, weeklyTarget:2 },
-      { id:"fs-recover",  title:"Mobility or long walk",    emoji:"🧘", quip:"Recovery keeps the next session possible.", type:"binary", points:2, weeklyTarget:2 },
+      { id:"mo-steps",     title:"Daily steps",           emoji:"👣", quip:"Adjust your goal any time — this just tracks the walk.", type:"quantity", points:2, unit:"steps", weeklyQty:56000 },
+      { id:"mo-protein",   title:"Protein at every meal",  emoji:"🍗", quip:"Yes or no — no macro or gram tracking.", type:"binary", points:2, weeklyTarget:7 },
+      { id:"mo-gratitude", title:"Gratitude note",         emoji:"🙏", quip:"One sentence, starting with \"I'm grateful for...\"", type:"text", points:2, weeklyTarget:7, placeholder:"I'm grateful for " },
+      { id:"mo-workout",   title:"Workout (30+ min)",      emoji:"💪", quip:"Any intentional activity — strength, cardio, yoga, mobility. Steps don't count.", type:"binary", points:4, weeklyTarget:3 },
+      { id:"mo-read",      title:"Read 10 pages",          emoji:"📖", quip:"Any book. Keep the momentum on the page too.", type:"binary", points:2, weeklyTarget:7 },
     ]
   },
   {
@@ -2969,6 +2970,9 @@ function normalizeDay(raw) {
     pts:          typeof raw.pts === "number" ? raw.pts : 0,
     tiers:        (raw.tiers && typeof raw.tiers === "object") ? raw.tiers : {},
     distances:    (raw.distances && typeof raw.distances === "object") ? raw.distances : {},
+    // Per-habit free-text entries (e.g. a "text"-type gratitude habit) — distinct
+    // from `note` above, which is one whole-day note shared across the challenge.
+    notes:        (raw.notes && typeof raw.notes === "object") ? raw.notes : {},
     note:         typeof raw.note === "string" ? raw.note : "",
     freezeUsed:   raw.freezeUsed   === true,
     scheduledRest: raw.scheduledRest === true,
@@ -2988,9 +2992,10 @@ function normalizeHabit(raw) {
     title:       typeof raw.title === "string" ? raw.title : "Habit",
     emoji:       typeof raw.emoji === "string" ? raw.emoji : "⭐",
     quip:        typeof raw.quip  === "string" ? raw.quip  : "",
-    type:        ["binary","tiered","distance","measurement","quantity"].includes(raw.type) ? raw.type : "binary",
+    type:        ["binary","tiered","distance","measurement","quantity","text"].includes(raw.type) ? raw.type : "binary",
     points:      typeof raw.points === "number" && raw.points >= 1 ? Math.round(raw.points) : 2,
   };
+  if (typeof raw.placeholder === "string") habit.placeholder = raw.placeholder;
   if (typeof raw.unit     === "string") habit.unit     = raw.unit;
   if (typeof raw.decimals === "number") habit.decimals = raw.decimals;
   if (typeof raw.weeklyTarget === "number") habit.weeklyTarget = Math.max(1, Math.min(7, Math.round(raw.weeklyTarget)));
@@ -3337,7 +3342,7 @@ function effectiveDate() { return viewingDate || todayKey(); }
 
 function getChallengeDay(challenge, key = todayKey()) {
   if (!challenge.days[key]) {
-    challenge.days[key] = { mode:"standard", done:[], recovered:false, pts:0, tiers:{}, distances:{} };
+    challenge.days[key] = { mode:"standard", done:[], recovered:false, pts:0, tiers:{}, distances:{}, notes:{} };
     saveState();
   }
   return challenge.days[key];
@@ -3562,6 +3567,11 @@ function createChallenge(form) {
     if (walkHabit) {
       walkHabit.title = `Hit ${stepGoal.toLocaleString()} steps`;
       walkHabit.quip = "Check it off when your step goal is done.";
+    }
+    const stepsHabit = habits.find(h => h.id === "mo-steps");
+    if (stepsHabit) {
+      stepsHabit.title = `Daily steps (goal ${stepGoal.toLocaleString()})`;
+      stepsHabit.weeklyQty = stepGoal * 7;
     }
   }
   const c = normalizeChallenge({
@@ -4637,6 +4647,21 @@ function habitWeekCount(challenge, habit, week) {
   return week.allDays.filter(k => challenge.days[k]?.done?.includes(habit.id)).length;
 }
 
+// Multi-habit aggregates ("N checks left this week" totals mixing several
+// habits) can't just sum habitWeekCount()/habitWeeklyTarget() directly — a
+// "quantity" habit's numbers are on a totally different scale (e.g. 56000
+// steps/week) and would swamp a plan's other habits. For that kind of rollup,
+// a quantity habit instead contributes like a daily check-in: 1 for each day
+// something was logged, out of a 7-day target.
+function habitWeeklyCheckContribution(challenge, habit, week) {
+  if (habit.type === "quantity") {
+    const done = week.allDays.filter(k => challenge.days[k]?.done?.includes(habit.id)).length;
+    return { done, target: 7 };
+  }
+  const target = habitWeeklyTarget(habit, challenge);
+  return { done: Math.min(habitWeekCount(challenge, habit, week), target), target };
+}
+
 function habitDueLabel(challenge, habit, week, doneToday) {
   const target = habitWeeklyTarget(habit, challenge);
   const count = habitWeekCount(challenge, habit, week);
@@ -4651,6 +4676,7 @@ function habitDueLabel(challenge, habit, week, doneToday) {
 
 function habitMissingLabel(habit, missing) {
   if (missing <= 0) return "";
+  if (habit.type === "quantity") return `${Math.round(missing).toLocaleString()} ${habit.unit || term('habit')}`;
   if (/^read\s+\d+\s+pages/i.test(habit.title)) return `${missing} reading`;
   const base = habit.title
     .replace(/^Start day with\s+/i, "")
@@ -4695,10 +4721,11 @@ function renderHabitTrackerHome() {
   todayChallengeId = plan.id;
   viewingDate = null;
   const week = getCurrentTrackerWeek(plan);
-  const totalTarget = plan.habits.reduce((s, h) => s + habitWeeklyTarget(h, plan), 0);
-  const totalDone = plan.habits.reduce((s, h) => s + Math.min(habitWeekCount(plan, h, week), habitWeeklyTarget(h, plan)), 0);
+  const contributions = plan.habits.map(h => habitWeeklyCheckContribution(plan, h, week));
+  const totalTarget = contributions.reduce((s, x) => s + x.target, 0);
+  const totalDone = contributions.reduce((s, x) => s + x.done, 0);
   const weekPct = totalTarget ? Math.round((totalDone / totalTarget) * 100) : 0;
-  const remaining = plan.habits.reduce((sum, h) => sum + Math.max(0, habitWeeklyTarget(h, plan) - habitWeekCount(plan, h, week)), 0);
+  const remaining = contributions.reduce((sum, x) => sum + Math.max(0, x.target - x.done), 0);
   const sidePlans = getActiveChallenges().filter(c => c.id !== plan.id && !c.questDefId);
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
@@ -4769,6 +4796,10 @@ function renderTrackerWeekHabit(challenge, habit, week) {
       const amt = Number(challenge.days[k]?.distances?.[habit.id]) || 0;
       return `<button class="tracker-day-box ${amt > 0 ? "done" : ""} ${isToday ? "today" : ""}" ${isFuture ? "disabled" : `data-week-qty-habit="${habit.id}" data-week-qty-day="${k}" data-week-qty-unit="${esc(habit.unit || "")}"`} aria-label="${esc(habit.title)} ${k}">${amt > 0 ? amt : formatDate(parseDate(k), { weekday:"short" }).slice(0,1)}</button>`;
     }
+    if (habit.type === "text") {
+      const noteText = challenge.days[k]?.notes?.[habit.id] || "";
+      return `<button class="tracker-day-box ${noteText ? "done" : ""} ${isToday ? "today" : ""}" ${isFuture ? "disabled" : `data-week-text-habit="${habit.id}" data-week-text-day="${k}"`} aria-label="${esc(habit.title)} ${k}" title="${esc(noteText)}">${noteText ? `<i class="ti ti-check"></i>` : formatDate(parseDate(k), { weekday:"short" }).slice(0,1)}</button>`;
+    }
     const done = !!challenge.days[k]?.done?.includes(habit.id);
     return `<button class="tracker-day-box ${done ? "done" : ""} ${isToday ? "today" : ""}" ${isFuture ? "disabled" : `data-week-toggle-habit="${habit.id}" data-week-toggle-day="${k}"`} aria-label="${esc(habit.title)} ${k}">${done ? `<i class="ti ti-check"></i>` : formatDate(parseDate(k), { weekday:"short" }).slice(0,1)}</button>`;
   }).join("");
@@ -4785,8 +4816,9 @@ function renderTrackerWeekHabit(challenge, habit, week) {
 
 function renderTrackerSidePlan(challenge) {
   const week = getCurrentTrackerWeek(challenge);
-  const totalTarget = challenge.habits.reduce((s, h) => s + habitWeeklyTarget(h, challenge), 0);
-  const totalDone = challenge.habits.reduce((s, h) => s + Math.min(habitWeekCount(challenge, h, week), habitWeeklyTarget(h, challenge)), 0);
+  const contributions = challenge.habits.map(h => habitWeeklyCheckContribution(challenge, h, week));
+  const totalTarget = contributions.reduce((s, x) => s + x.target, 0);
+  const totalDone = contributions.reduce((s, x) => s + x.done, 0);
   const pct = totalTarget ? Math.round((totalDone / totalTarget) * 100) : 0;
   return `
   <div class="tracker-side-item">
@@ -6773,7 +6805,9 @@ function renderBuilderTemplates() {
   };
   const templateRow = t => {
     const diff = TEMPLATE_DIFFICULTY[t.id] || "intermediate";
-    const weeklyChecks = t.habits.reduce((sum, h) => sum + habitWeeklyTarget(h), 0);
+    // "quantity" habits carry a numeric weekly total (e.g. 56000 steps), not a
+    // check count — treat them as a daily log (7) for this summary instead.
+    const weeklyChecks = t.habits.reduce((sum, h) => sum + (h.type === "quantity" ? 7 : habitWeeklyTarget(h)), 0);
     const meta = `${t.duration} days · ${weeklyChecks} checks/week · ${DIFF_LABEL[diff]}`;
     const hasSafety = !!TEMPLATE_SAFETY[t.id];
     return `
@@ -7257,8 +7291,9 @@ function renderCoachProgress() {
   );
   const weekRows = plans.map(c => {
     const week = getCurrentTrackerWeek(c);
-    const target = c.habits.reduce((s, h) => s + habitWeeklyTarget(h, c), 0);
-    const done = c.habits.reduce((s, h) => s + Math.min(habitWeekCount(c, h, week), habitWeeklyTarget(h, c)), 0);
+    const contributions = c.habits.map(h => habitWeeklyCheckContribution(c, h, week));
+    const target = contributions.reduce((s, x) => s + x.target, 0);
+    const done = contributions.reduce((s, x) => s + x.done, 0);
     const pct = target ? Math.round((done / target) * 100) : 0;
     const streak = calcChallengeStreak(c);
     return { c, week, target, done, pct, streak };
@@ -8325,6 +8360,25 @@ function bindEvents() {
       { inputAttrs: `min="0" max="9999" step="any"`, placeholder: unit || "amount", confirmLabel: "Save" }
     );
   });
+  on("[data-week-text-habit]", el => {
+    const dayKey = el.dataset.weekTextDay;
+    const habitId = el.dataset.weekTextHabit;
+    const c = currentChallenge();
+    const habit = c?.habits.find(h => h.id === habitId);
+    const current = c?.days?.[dayKey]?.notes?.[habitId] || habit?.placeholder || "";
+    showPrompt(
+      `${habit ? habit.title : "Note"} — ${formatDate(parseDate(dayKey), { weekday: "short", month: "short", day: "numeric" })}`,
+      current,
+      val => {
+        const prevViewingDate = viewingDate;
+        viewingDate = dayKey === todayKey() ? null : dayKey;
+        logHabitText(habitId, val);
+        viewingDate = prevViewingDate;
+        render();
+      },
+      { type: "text", inputAttrs: `maxlength="140"`, placeholder: habit?.placeholder || "", confirmLabel: "Save" }
+    );
+  });
   on("[data-week-day-jump]", el => {
     const dayKey = el.dataset.weekDayJump;
     viewingDate = dayKey === todayKey() ? null : dayKey;
@@ -9266,6 +9320,34 @@ function logMeasurement(habitId, value) {
   if (!day.distances) day.distances = {};
   day.distances[habitId] = value;
   if (value > 0) {
+    if (effectiveDate() === todayKey() && day.streakMult === undefined) day.streakMult = getStreakMultiplier(c);
+    if (effectiveDate() === todayKey() && day.comebackBonus === undefined && getConsecutiveMisses(c) >= 3) day.comebackBonus = true;
+    if (!day.done.includes(habitId)) { day.done.push(habitId); _animHabitId = habitId; }
+  } else {
+    day.done = day.done.filter(id => id !== habitId);
+    _animHabitId = null;
+  }
+  if (effectiveDate() === todayKey()) { const _r = getPerfectRunLength(c, todayKey()); day.weeklyBonus = (_r > 0 && _r % 7 === 0); }
+  updateDayPoints(c, day);
+  state.xp = recalcXP();
+  saveState();
+  checkBadges(c);
+  render();
+}
+
+// For "text"-type habits (e.g. a one-sentence gratitude note) — same checked/
+// unchecked bookkeeping as logMeasurement, but keyed on non-empty text rather
+// than a positive number, and stored in day.notes instead of day.distances.
+function logHabitText(habitId, text) {
+  const c = currentChallenge(); if (!c) return;
+  const habit = c.habits.find(h => h.id === habitId); if (!habit) return;
+  if (habit.type !== "text") return;
+  const day = getChallengeDay(c, effectiveDate());
+  if (day.mode === "rest") return;
+  if (!day.notes) day.notes = {};
+  const trimmed = String(text || "").trim();
+  day.notes[habitId] = trimmed;
+  if (trimmed) {
     if (effectiveDate() === todayKey() && day.streakMult === undefined) day.streakMult = getStreakMultiplier(c);
     if (effectiveDate() === todayKey() && day.comebackBonus === undefined && getConsecutiveMisses(c) >= 3) day.comebackBonus = true;
     if (!day.done.includes(habitId)) { day.done.push(habitId); _animHabitId = habitId; }
