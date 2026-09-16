@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.15.01";
+const APP_VERSION = "2026.09.15.02";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -5934,14 +5934,14 @@ function drawShareCard(challenge, isDone) {
   const ctx = canvas.getContext("2d");
 
   // Background
-  ctx.fillStyle = "#07111F";
+  const cs = getComputedStyle(document.documentElement);
+  ctx.fillStyle = cs.getPropertyValue("--bg").trim() || "#0b0b0c";
   ctx.fillRect(0, 0, s, s);
 
   // Gradient accent bar top
-  const cs = getComputedStyle(document.documentElement);
   const grad = ctx.createLinearGradient(0, 0, s, 0);
   grad.addColorStop(0, cs.getPropertyValue("--primary").trim()   || "#008080");
-  grad.addColorStop(1, cs.getPropertyValue("--secondary").trim() || "#4FB3B3");
+  grad.addColorStop(1, cs.getPropertyValue("--secondary").trim() || "#008080");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, s, 10);
 
@@ -5951,7 +5951,7 @@ function drawShareCard(challenge, isDone) {
   ctx.fillText(challenge.emoji || "🏆", s / 2, s * 0.25);
 
   // Quest name
-  ctx.fillStyle = "#F1F5F9";
+  ctx.fillStyle = cs.getPropertyValue("--text").trim() || "#f0efed";
   ctx.font      = `700 ${Math.round(s * 0.065)}px 'Arial', sans-serif`;
   ctx.fillText(challenge.name, s / 2, s * 0.38);
 
@@ -5982,7 +5982,7 @@ function drawShareCard(challenge, isDone) {
   ctx.closePath();
   ctx.fill();
 
-  ctx.fillStyle = "#CBD5E1";
+  ctx.fillStyle = cs.getPropertyValue("--text-dim").trim() || "#9a9a98";
   ctx.font      = `400 ${Math.round(s * 0.038)}px 'Arial', sans-serif`;
   ctx.fillText(statLine, s / 2, pillY + pillH * 0.64);
 
@@ -5995,19 +5995,19 @@ function drawShareCard(challenge, isDone) {
   ctx.fillText(headline, s / 2, s * 0.65);
 
   // Sub copy
-  ctx.fillStyle = "#CBD5E1";
+  ctx.fillStyle = cs.getPropertyValue("--text-dim").trim() || "#9a9a98";
   ctx.font      = `400 ${Math.round(s * 0.033)}px 'Arial', sans-serif`;
   ctx.fillText(isDone ? `Kept the ${term('habitPlural')}. Won the Challenge.` : "One day at a time. " + SHARE_URL, s / 2, s * 0.72);
 
   // Rank line
   const _scLevel = getLevelInfo(state.xp);
   const _scTheme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
-  ctx.fillStyle = "rgba(203,213,225,0.55)";
+  ctx.fillStyle = cs.getPropertyValue("--text-faint").trim() || "#5a5a58";
   ctx.font      = `400 ${Math.round(s * 0.03)}px 'Arial', sans-serif`;
   ctx.fillText(`${_scTheme.label} · ${term('level')} ${getStageNumber(_scLevel.level)} ${_scLevel.name}`, s / 2, s * 0.81);
 
   // Watermark
-  ctx.fillStyle = "rgba(203,213,225,0.4)";
+  ctx.fillStyle = cs.getPropertyValue("--text-faint").trim() || "#5a5a58";
   ctx.font      = `700 ${Math.round(s * 0.028)}px 'Arial', sans-serif`;
   ctx.fillText("CONQUR", s / 2, s * 0.89);
 
