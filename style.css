@@ -2515,6 +2515,15 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   margin-bottom: 10px;
 }
 
+.ob-hero-brand-sub {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: -6px 0 14px;
+}
+
 .ob-hero-tagline {
   font-size: 20px;
   font-weight: 700;

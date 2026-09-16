@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.16.01";
+const APP_VERSION = "2026.09.16.02";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 
@@ -615,7 +615,7 @@ function buildReflectBack() {
 
 const TEMPLATES = [
   {
-    id: "fitter-starter", name: "Fitter Starter", emoji: "👟", category: "movement",
+    id: "fitter-starter", name: "Momentum", emoji: "👟", category: "movement",
     description: "14 days of simple movement, strength, protein, and recovery. Built to start today, even if you are not in shape yet.",
     identity: "I am someone who starts where I am and gets a little fitter every day.",
     duration: 14, weeklyGoal: 42, defaultMode: "soft",
@@ -2910,6 +2910,8 @@ function defaultBuilderForm() {
     newHabitPoints: 2,
     newHabitWeeklyTarget: 5,
     newHabitType: "binary",
+    newHabitUnit: "min",
+    newHabitWeeklyQty: 150,
     newHabitTiers: [
       { label: "", points: 1 },
       { label: "", points: 2 },
@@ -2947,6 +2949,10 @@ function saveBuilderFormFromDOM() {
   if (nhEmoji) builderForm.newHabitEmoji = nhEmoji.value;
   if (nhPts)   builderForm.newHabitPoints = Number(nhPts.value) || builderForm.newHabitPoints;
   if (nhWeeklyTarget) builderForm.newHabitWeeklyTarget = Math.max(1, Math.min(7, Number(nhWeeklyTarget.value) || builderForm.newHabitWeeklyTarget));
+  const nhUnit = document.getElementById("nh-unit");
+  const nhWeeklyQty = document.getElementById("nh-weekly-qty");
+  if (nhUnit)      builderForm.newHabitUnit = nhUnit.value.trim();
+  if (nhWeeklyQty) builderForm.newHabitWeeklyQty = Math.max(1, Math.min(9999, Number(nhWeeklyQty.value) || builderForm.newHabitWeeklyQty));
   builderForm.newHabitTiers = builderForm.newHabitTiers.map((t, i) => ({
     ...t,
     label:  document.getElementById(`nh-tier-${i}-label`)?.value ?? t.label,
@@ -2982,12 +2988,17 @@ function normalizeHabit(raw) {
     title:       typeof raw.title === "string" ? raw.title : "Habit",
     emoji:       typeof raw.emoji === "string" ? raw.emoji : "⭐",
     quip:        typeof raw.quip  === "string" ? raw.quip  : "",
-    type:        ["binary","tiered","distance","measurement"].includes(raw.type) ? raw.type : "binary",
+    type:        ["binary","tiered","distance","measurement","quantity"].includes(raw.type) ? raw.type : "binary",
     points:      typeof raw.points === "number" && raw.points >= 1 ? Math.round(raw.points) : 2,
   };
   if (typeof raw.unit     === "string") habit.unit     = raw.unit;
   if (typeof raw.decimals === "number") habit.decimals = raw.decimals;
   if (typeof raw.weeklyTarget === "number") habit.weeklyTarget = Math.max(1, Math.min(7, Math.round(raw.weeklyTarget)));
+  // Weekly-total goal mode ("150 min/week" instead of "5 days/week") — the daily
+  // amount logged is summed across the week and compared to this target, instead
+  // of counting how many days the habit was checked off. See habitWeeklyTarget()
+  // and habitWeekCount().
+  if (typeof raw.weeklyQty === "number") habit.weeklyQty = Math.max(1, Math.round(raw.weeklyQty));
   if (Array.isArray(raw.tiers))         habit.tiers    = raw.tiers;
   // Main Quest model: the Promise habit (habits[0] on a Quest challenge) carries a
   // stable commitment (title/quip) plus a default + alternative ways to fulfill it.
@@ -3375,10 +3386,16 @@ function completionInfo(challenge, day) {
 }
 
 function challengeTotalKm(challenge) {
+  // Only sum habits actually tracked in distance units — day.distances is a
+  // shared per-day bucket also used by "measurement" and "quantity" habits
+  // (e.g. weekly-total minutes), which must not count toward route distance.
+  const distanceIds = new Set(challenge.habits.filter(h => h.type === "distance").map(h => h.id));
   let total = 0;
   for (const day of Object.values(challenge.days)) {
     if (day.distances) {
-      for (const km of Object.values(day.distances)) total += Number(km) || 0;
+      for (const [id, km] of Object.entries(day.distances)) {
+        if (distanceIds.has(id)) total += Number(km) || 0;
+      }
     }
   }
   return Math.round(total * 10) / 10;
@@ -4395,7 +4412,7 @@ function _renderInner() {
     <div class="install-banner">
       <span style="font-size:28px;color:var(--accent)"><i class="ti ti-download"></i></span>
       <div class="install-banner-text">
-        <strong>Add Conqur to your Home Screen</strong>
+        <strong>Add Momentum to your Home Screen</strong>
         <span>Works offline. Opens like a native app.</span>
       </div>
       <button class="install-banner-btn" data-install-accept>Install</button>
@@ -4454,10 +4471,10 @@ function renderTopbar() {
           <circle cx="18" cy="18" r="13" fill="none" stroke="url(#bm-g)" stroke-width="2.5"
             stroke-linecap="round" stroke-dasharray="61 20" transform="rotate(-90 18 18)"/>
           <text x="18" y="18" text-anchor="middle" dominant-baseline="central"
-            font-family="'Lato',system-ui,sans-serif" font-weight="900" font-size="15" fill="url(#bm-g)">C</text>
+            font-family="'Lato',system-ui,sans-serif" font-weight="900" font-size="15" fill="url(#bm-g)">M</text>
         </svg>
       </span>
-      <span>Conqur</span>
+      <span>Momentum</span>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <div class="date-chip">${formatDate(parseDate(todayKey()),{weekday:"short",month:"short",day:"numeric"})}</div>
@@ -4483,7 +4500,7 @@ const NAV_ICONS = {
 function renderNav() {
   const tabs = [["today","Week"],["challenges","Plans"],["badges","History"]];
   return `
-  <nav class="bottom-nav" aria-label="Conqur sections">
+  <nav class="bottom-nav" aria-label="Momentum sections">
     ${tabs.map(([id,label]) => `
       <button class="nav-button ${activeTab===id&&!builderOpen&&!settingsOpen&&!viewChallengeId&&!editChallengeId?"active":""}" data-tab="${id}">
         ${NAV_ICONS[id]}${label}
@@ -4604,10 +4621,19 @@ function displayPlanName(name) {
 function habitWeeklyTarget(habit, challenge = null) {
   const tpl = challenge?.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
   const templateHabit = tpl?.habits?.find(h => h.id === habit.id);
+  if (habit.type === "quantity") {
+    return Math.max(1, Number(habit.weeklyQty || templateHabit?.weeklyQty || 1));
+  }
   return Math.max(1, Math.min(7, Number(habit.weeklyTarget || templateHabit?.weeklyTarget || 7)));
 }
 
+// For a "quantity" habit (weekly-total goal, e.g. "150 min/week") this sums the
+// amount logged each day instead of counting checked-off days, so it can be
+// compared directly against habitWeeklyTarget()'s numeric target.
 function habitWeekCount(challenge, habit, week) {
+  if (habit.type === "quantity") {
+    return week.allDays.reduce((sum, k) => sum + (Number(challenge.days[k]?.distances?.[habit.id]) || 0), 0);
+  }
   return week.allDays.filter(k => challenge.days[k]?.done?.includes(habit.id)).length;
 }
 
@@ -4730,21 +4756,27 @@ function renderTrackerTodayHabit(challenge, habit, day, week) {
 }
 
 function renderTrackerWeekHabit(challenge, habit, week) {
+  const isQty = habit.type === "quantity";
   const count = habitWeekCount(challenge, habit, week);
   const target = habitWeeklyTarget(habit, challenge);
   const pct = Math.min(100, Math.round((Math.min(count, target) / target) * 100));
+  const unit = isQty ? (habit.unit ? ` ${habit.unit}` : "") : "";
   const today = todayKey();
   const boxes = week.allDays.map(k => {
-    const done = !!challenge.days[k]?.done?.includes(habit.id);
     const isToday = k === today;
     const isFuture = k > today;
+    if (isQty) {
+      const amt = Number(challenge.days[k]?.distances?.[habit.id]) || 0;
+      return `<button class="tracker-day-box ${amt > 0 ? "done" : ""} ${isToday ? "today" : ""}" ${isFuture ? "disabled" : `data-week-qty-habit="${habit.id}" data-week-qty-day="${k}" data-week-qty-unit="${esc(habit.unit || "")}"`} aria-label="${esc(habit.title)} ${k}">${amt > 0 ? amt : formatDate(parseDate(k), { weekday:"short" }).slice(0,1)}</button>`;
+    }
+    const done = !!challenge.days[k]?.done?.includes(habit.id);
     return `<button class="tracker-day-box ${done ? "done" : ""} ${isToday ? "today" : ""}" ${isFuture ? "disabled" : `data-week-toggle-habit="${habit.id}" data-week-toggle-day="${k}"`} aria-label="${esc(habit.title)} ${k}">${done ? `<i class="ti ti-check"></i>` : formatDate(parseDate(k), { weekday:"short" }).slice(0,1)}</button>`;
   }).join("");
   return `
   <div class="tracker-week-row">
     <div class="tracker-week-top">
       <span>${esc(habit.title)}</span>
-      <strong>${count}/${target}</strong>
+      <strong>${count}${unit}/${target}${unit} this week</strong>
     </div>
     <div class="tracker-week-track"><span style="width:${pct}%"></span></div>
     <div class="tracker-week-days">${boxes}</div>
@@ -4773,7 +4805,7 @@ function renderTrackerSidePlan(challenge) {
 
 function renderSimpleTrackerStart() {
   const starterPlans = [
-    { id: "fitter-starter", name: "Get Fitter", desc: "Strength, running, recovery, and a small morning anchor." },
+    { id: "fitter-starter", name: "Momentum", desc: "Strength, running, recovery, and a small morning anchor." },
     { id: "walking", name: "Walking Plan", desc: "One walking habit with a step goal you choose." },
     { id: "read-a-book", name: "Read a Book", desc: "Pick one book and keep reading it through the week." },
     { id: "meditation", name: "Meditation Plan", desc: "A calm practice for sitting, breathing, and reflection." },
@@ -4990,7 +5022,7 @@ function renderQuestChatSheet(quest) {
     <section class="sheet lets-talk-sheet quest-chat-sheet" role="dialog">
       <button class="link-btn" data-quest-chat-back style="margin-bottom:8px">← Back</button>
       <div class="section-label" style="margin-top:0">Talk it through</div>
-      <div class="quest-chat-disclaimer">Conqur only knows what you share here. This isn't a substitute for professional care.</div>
+      <div class="quest-chat-disclaimer">Momentum only knows what you share here. This isn't a substitute for professional care.</div>
       <div class="quest-chat-thread" id="quest-chat-thread">
         ${_questChatMessages.length === 0 ? `<div class="quest-chat-empty">What's making today's Promise hard right now?</div>` : ""}
         ${_questChatMessages.map(m => `<div class="quest-chat-msg quest-chat-msg--${m.role}">${esc(m.content)}</div>`).join("")}
@@ -5259,14 +5291,14 @@ function renderNoChallenge() {
         <rect width="120" height="120" rx="28" fill="#000"/>
         <circle cx="60" cy="60" r="46" fill="none" stroke="#111" stroke-width="8"/>
         <circle cx="60" cy="60" r="46" fill="none" stroke="url(#wg)" stroke-width="8" stroke-linecap="round" stroke-dasharray="216 72" transform="rotate(-90 60 60)"/>
-        <text x="60" y="60" text-anchor="middle" dominant-baseline="central" font-family="'Lato',system-ui,sans-serif" font-weight="900" font-size="56" fill="url(#wg)">C</text>
+        <text x="60" y="60" text-anchor="middle" dominant-baseline="central" font-family="'Lato',system-ui,sans-serif" font-weight="900" font-size="56" fill="url(#wg)">M</text>
       </svg>
     </div>
-    <h1 class="welcome-title">Conqur</h1>
+    <h1 class="welcome-title">Momentum</h1>
     <p class="welcome-sub">${upcoming.length ? `Your next ${term('challenge')} starts soon.` : hasPast ? `All ${term('challengePlural')} complete. Choose your next one.` : copy('welcomeFallback')}</p>
 
     ${isFirstTime ? `
-    <p class="welcome-desc">Conqur helps you build discipline through daily ${term('challengePlural')}, ${term('habitPlural')}, and streaks — and prove to yourself that you can follow through.</p>
+    <p class="welcome-desc">Momentum helps you build discipline through daily ${term('challengePlural')}, ${term('habitPlural')}, and streaks — and prove to yourself that you can follow through.</p>
     <div class="welcome-features">
       <div class="wf-item"><span class="wf-icon"><i class="ti ${OB_FEATURE_ICONS[0]}"></i></span><span class="wf-text">${term('challengePlural')} for routines, discipline, health, focus, and mindset</span></div>
       <div class="wf-item"><span class="wf-icon"><i class="ti ${OB_FEATURE_ICONS[1]}"></i></span><span class="wf-text">Daily ${term('habitPlural')} turn identity change into small wins you can repeat</span></div>
@@ -5913,7 +5945,7 @@ function pbCard(label, value, unit) {
 
 function shareAchievement(text) {
   if (navigator.share) {
-    navigator.share({ title: "Conqur", text }).catch(() => {});
+    navigator.share({ title: "Momentum", text }).catch(() => {});
   } else {
     navigator.clipboard?.writeText(text).then(() => showToast("Copied to clipboard!")).catch(() => showToast(text));
   }
@@ -6009,7 +6041,7 @@ function drawShareCard(challenge, isDone) {
   // Watermark
   ctx.fillStyle = cs.getPropertyValue("--text-faint").trim() || "#5a5a58";
   ctx.font      = `700 ${Math.round(s * 0.028)}px 'Arial', sans-serif`;
-  ctx.fillText("CONQUR", s / 2, s * 0.89);
+  ctx.fillText("MOMENTUM", s / 2, s * 0.89);
 
   return canvas;
 }
@@ -6021,7 +6053,7 @@ function renderShareModal() {
   const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate) + 1;
   const dayNum    = challengeDayNumber(_shareModalChallenge);
   const shareText = _shareModalDone
-    ? `I just completed the ${_shareModalChallenge.name} Challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} total · ${streak}-day ${term('streak')}.\nKeeping my ${term('habitPlural')}. 💪\n${SHARE_URL}`
+    ? `I just completed the ${_shareModalChallenge.name} Challenge on Momentum! 🏆\n${totalDays} days · ${totalPts} total · ${streak}-day ${term('streak')}.\nKeeping my ${term('habitPlural')}. 💪\n${SHARE_URL}`
     : `Day ${dayNum} of my ${_shareModalChallenge.name} Challenge — ${streak}-day ${term('streak')}. 🔥\nKeeping my ${term('habitPlural')}, one day at a time.\n${SHARE_URL}`;
 
   return `
@@ -6300,6 +6332,18 @@ function renderChallengeDetail(c) {
             <span class="hpi-rate" style="color:var(--accent)">${kmTotal.toFixed(1)} km${routePct !== null ? ` · ${routePct}% of route` : ` · ${daysLogged}d logged`}</span>
           </div>`;
         }
+        if (h.type === "quantity") {
+          const week = getCurrentTrackerWeek(c);
+          const count = habitWeekCount(c, h, week);
+          const target = habitWeeklyTarget(h, c);
+          const pct = Math.min(100, Math.round((count / target) * 100));
+          const color = pct >= 80 ? "var(--success)" : pct >= 50 ? "var(--warning)" : "var(--secondary)";
+          const unit = h.unit ? ` ${h.unit}` : "";
+          return `<div class="habit-preview-item">
+            <span>${esc(h.title)}</span>
+            <span class="hpi-rate" style="color:${color}">${count}${unit}/${target}${unit} this week · ${pct}%</span>
+          </div>`;
+        }
         if (h.type === "measurement") {
           const sortedDays = Object.entries(c.days)
             .filter(([k]) => /^\d{4}-\d{2}-\d{2}$/.test(k))
@@ -6394,6 +6438,7 @@ function renderEditChallenge(c) {
           if (editForm?.habitEditIdx === i) {
             // Inline edit row
             const isTiered = h.type === "tiered";
+            const isQty = h.type === "quantity";
             return `
             <div class="ech-edit-row">
               <div class="ech-edit-top">
@@ -6403,10 +6448,19 @@ function renderEditChallenge(c) {
                   ? `<span class="custom-habit-pts" style="font-size:11px">${h.tiers.map(t=>t.label||`Tier`).join(" / ")}</span>`
                   : `<input id="ech-pts" type="number" value="${h.points}" min="1" max="20" style="width:52px">`}
               </div>
+              ${isQty ? `
+              <div class="tier-inputs-simple">
+                <span style="font-size:12px;color:var(--text-dim)">Unit</span>
+                <input id="ech-unit" type="text" value="${esc(h.unit||"")}" maxlength="12" style="width:80px">
+              </div>
+              <div class="tier-inputs-simple">
+                <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
+                <input id="ech-weekly-qty" type="number" value="${habitWeeklyTarget(h, c)}" min="1" max="9999" style="width:70px">
+              </div>` : `
               <div class="tier-inputs-simple">
                 <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
                 <input id="ech-weekly-target" type="number" value="${habitWeeklyTarget(h, c)}" min="1" max="7" style="width:60px">
-              </div>
+              </div>`}
               ${isTiered ? `<p style="font-size:11px;color:var(--text-dim);margin:0">Tiered habit — to change tiers, delete and re-add.</p>` : ""}
               <div class="ech-edit-actions">
                 <button class="pill-btn" data-ec-save-habit>Save ✓</button>
@@ -6418,7 +6472,7 @@ function renderEditChallenge(c) {
           <div class="custom-habit-row">
             <span class="custom-habit-emoji"><i class="ti ti-square"></i></span>
             <span class="custom-habit-name">${esc(h.title)}</span>
-            <span class="custom-habit-pts">${habitWeeklyTarget(h, c)}/week</span>
+            <span class="custom-habit-pts">${habitWeeklyTarget(h, c)}${h.type==="quantity"&&h.unit?` ${h.unit}`:""}/week</span>
             <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points??h.tiers[0].pts??0}–${(t=>t.points??t.pts??0)(h.tiers[h.tiers.length-1])}pt` : h.points+"pt"}</span>
             <button class="icon-btn" data-ec-edit-habit="${i}" title="Edit"><i class="ti ti-pencil"></i></button>
             <button class="icon-btn" data-ec-delete-habit="${i}" title="Delete" style="color:var(--secondary)"><i class="ti ti-x"></i></button>
@@ -6433,10 +6487,11 @@ function renderEditChallenge(c) {
           <div class="add-habit-top-row">
             <input id="ech-new-emoji" class="emoji-input" type="text" value="${esc(ef.newHabitEmoji||"⭐")}" maxlength="2" placeholder="⭐" style="width:46px">
             <input id="ech-new-title" type="text" value="${esc(ef.newHabitTitle||"")}" placeholder="New habit name" style="flex:1">
-            <div class="habit-type-toggle">
-              <button class="ht-btn ${newType!=="tiered"?"active":""}" data-ech-type="binary">Simple</button>
-              <button class="ht-btn ${newType==="tiered"?"active":""}" data-ech-type="tiered">Tiered</button>
-            </div>
+          </div>
+          <div class="habit-type-toggle" style="margin-top:8px;flex-wrap:wrap">
+            <button class="ht-btn ${newType==="binary"?"active":""}" data-ech-type="binary">Simple</button>
+            <button class="ht-btn ${newType==="tiered"?"active":""}" data-ech-type="tiered">Tiered</button>
+            <button class="ht-btn ${newType==="quantity"?"active":""}" data-ech-type="quantity">Weekly total</button>
           </div>
           ${newType === "tiered" ? `
           <div class="tier-inputs">
@@ -6448,15 +6503,30 @@ function renderEditChallenge(c) {
               ${newTiers.length>2?`<button class="icon-btn" data-ech-remove-tier="${i}" style="font-size:11px"><i class="ti ti-x"></i></button>`:""}
             </div>`).join("")}
             ${newTiers.length<5?`<button class="link-btn" data-ech-add-tier style="font-size:12px;margin-top:2px">+ Add tier</button>`:""}
-          </div>` : `
+          </div>` : newType === "quantity" ? `
+          <p class="mode-desc" style="margin:0 0 8px">Log an amount each day — progress is the total for the week, not days checked off.</p>
+          <div class="tier-inputs-simple">
+            <span style="font-size:12px;color:var(--text-dim)">Unit</span>
+            <input id="ech-new-unit" type="text" value="${esc(ef.newHabitUnit||"min")}" maxlength="12" placeholder="min" style="width:80px">
+          </div>
+          <div class="tier-inputs-simple">
+            <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
+            <input id="ech-new-weekly-qty" type="number" value="${ef.newHabitWeeklyQty||150}" min="1" max="9999" style="width:70px">
+          </div>
+          <div class="tier-inputs-simple">
+            <span style="font-size:12px;color:var(--text-dim)">Points per logged day</span>
+            <input id="ech-new-pts" type="number" value="${ef.newHabitPoints||2}" min="1" max="20" style="width:60px">
+          </div>
+          ` : `
           <div class="tier-inputs-simple">
             <span style="font-size:12px;color:var(--text-dim)">Points</span>
             <input id="ech-new-pts" type="number" value="${ef.newHabitPoints||2}" min="1" max="20" style="width:60px">
           </div>`}
+          ${newType !== "quantity" ? `
           <div class="tier-inputs-simple">
             <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
             <input id="ech-new-weekly-target" type="number" value="${ef.newHabitWeeklyTarget||5}" min="1" max="7" style="width:60px">
-          </div>
+          </div>` : ""}
           <button class="pill-btn" data-ec-add-habit style="margin-top:8px;width:100%">+ Add habit</button>
         </div>`;
         })()}
@@ -6838,7 +6908,7 @@ function renderBuilderCustomize() {
           <div class="custom-habit-row">
             <span class="custom-habit-emoji"><i class="ti ti-square"></i></span>
             <span class="custom-habit-name">${esc(h.title)}</span>
-            <span class="custom-habit-pts">${habitWeeklyTarget(h)}/week</span>
+            <span class="custom-habit-pts">${habitWeeklyTarget(h)}${h.type==="quantity"&&h.unit?` ${h.unit}`:""}/week</span>
             <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points??h.tiers[0].pts??0}–${(t=>t.points??t.pts??0)(h.tiers[h.tiers.length-1])}pt` : h.points+"pt"}</span>
             <button class="icon-btn" data-remove-habit="${i}"><i class="ti ti-x"></i></button>
           </div>`).join("")}
@@ -6846,10 +6916,11 @@ function renderBuilderCustomize() {
           <div class="add-habit-top-row">
             <input id="nh-emoji" class="emoji-input" type="text" value="${esc(builderForm.newHabitEmoji)}" maxlength="2" placeholder="⭐" style="width:46px">
             <input id="nh-name" type="text" value="${esc(builderForm.newHabitName)}" placeholder="Habit name" style="flex:1">
-            <div class="habit-type-toggle">
-              <button class="ht-btn ${builderForm.newHabitType!=="tiered"?"active":""}" data-nh-type="binary">Simple</button>
-              <button class="ht-btn ${builderForm.newHabitType==="tiered"?"active":""}" data-nh-type="tiered">Tiered</button>
-            </div>
+          </div>
+          <div class="habit-type-toggle" style="margin-top:8px;flex-wrap:wrap">
+            <button class="ht-btn ${builderForm.newHabitType==="binary"?"active":""}" data-nh-type="binary">Simple</button>
+            <button class="ht-btn ${builderForm.newHabitType==="tiered"?"active":""}" data-nh-type="tiered">Tiered</button>
+            <button class="ht-btn ${builderForm.newHabitType==="quantity"?"active":""}" data-nh-type="quantity">Weekly total</button>
           </div>
           ${builderForm.newHabitType === "tiered" ? `
           <div class="tier-inputs">
@@ -6861,15 +6932,30 @@ function renderBuilderCustomize() {
               ${builderForm.newHabitTiers.length>2?`<button class="icon-btn" data-nh-remove-tier="${i}" style="font-size:11px"><i class="ti ti-x"></i></button>`:""}
             </div>`).join("")}
             ${builderForm.newHabitTiers.length<5?`<button class="link-btn" data-nh-add-tier style="font-size:12px;margin-top:2px">+ Add tier</button>`:""}
-          </div>` : `
+          </div>` : builderForm.newHabitType === "quantity" ? `
+          <p class="mode-desc" style="margin:0 0 8px">Log an amount each day — progress is the total for the week, not days checked off.</p>
+          <div class="tier-inputs-simple">
+            <span style="font-size:12px;color:var(--text-dim)">Unit</span>
+            <input id="nh-unit" type="text" value="${esc(builderForm.newHabitUnit)}" maxlength="12" placeholder="min" style="width:80px">
+          </div>
+          <div class="tier-inputs-simple">
+            <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
+            <input id="nh-weekly-qty" type="number" value="${builderForm.newHabitWeeklyQty}" min="1" max="9999" style="width:70px">
+          </div>
+          <div class="tier-inputs-simple">
+            <span style="font-size:12px;color:var(--text-dim)">Points per logged day</span>
+            <input id="nh-pts" type="number" value="${builderForm.newHabitPoints}" min="1" max="20" style="width:60px">
+          </div>
+          ` : `
           <div class="tier-inputs-simple">
             <span style="font-size:12px;color:var(--text-dim)">Points</span>
             <input id="nh-pts" type="number" value="${builderForm.newHabitPoints}" min="1" max="20" style="width:60px">
           </div>`}
+          ${builderForm.newHabitType !== "quantity" ? `
           <div class="tier-inputs-simple">
             <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
             <input id="nh-weekly-target" type="number" value="${builderForm.newHabitWeeklyTarget}" min="1" max="7" style="width:60px">
-          </div>
+          </div>` : ""}
           <button class="pill-btn" data-add-habit style="margin-top:8px;width:100%">+ Add Habit</button>
         </div>
       </div>`}
@@ -7584,10 +7670,11 @@ function renderObHero() {
   <div class="ob-screen" role="main">
     <div class="ob-hero-top">
       <div class="ob-hero-icon" aria-hidden="true"><i class="ti ti-run"></i></div>
-      <div class="ob-hero-logo">CONQUR</div>
+      <div class="ob-hero-logo">MOMENTUM</div>
+      <div class="ob-hero-brand-sub">The Zaera Habit Tracker</div>
       <div class="ob-hero-tagline">Set the week.<br>Follow the plan.</div>
     </div>
-    <div class="ob-body ob-fitness-intro">Pick one plan. Conqur will show what is due today, what is still missing this week, and where consistency is building.</div>
+    <div class="ob-body ob-fitness-intro">Pick one plan. Momentum will show what is due today, what is still missing this week, and where consistency is building.</div>
     <div class="ob-fitness-starts" aria-label="Habit plan quick starts">
       ${fitnessStarts.map(t => `
       <button class="ob-fitness-card" data-ob-fitness-start="${t.id}">
@@ -8183,6 +8270,25 @@ function bindEvents() {
     viewingDate = prevViewingDate;
     render();
   });
+  on("[data-week-qty-habit]", el => {
+    const dayKey = el.dataset.weekQtyDay;
+    const habitId = el.dataset.weekQtyHabit;
+    const unit = el.dataset.weekQtyUnit || "";
+    const c = currentChallenge();
+    const current = c?.days?.[dayKey]?.distances?.[habitId] || "";
+    showPrompt(
+      `Log ${unit ? unit + " " : ""}for ${formatDate(parseDate(dayKey), { weekday: "short", month: "short", day: "numeric" })}`,
+      current,
+      val => {
+        const prevViewingDate = viewingDate;
+        viewingDate = dayKey === todayKey() ? null : dayKey;
+        logMeasurement(habitId, Math.max(0, Number(val) || 0));
+        viewingDate = prevViewingDate;
+        render();
+      },
+      { inputAttrs: `min="0" max="9999" step="any"`, placeholder: unit || "amount", confirmLabel: "Save" }
+    );
+  });
   on("[data-week-day-jump]", el => {
     const dayKey = el.dataset.weekDayJump;
     viewingDate = dayKey === todayKey() ? null : dayKey;
@@ -8348,12 +8454,12 @@ function bindEvents() {
     const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate)+1;
     const dayNum    = challengeDayNumber(_shareModalChallenge);
     const text = _shareModalDone
-      ? `I just completed the ${_shareModalChallenge.name} Challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} total · ${streak}-day ${term('streak')}.\nKeeping my ${term('habitPlural')}. 💪\n${SHARE_URL}`
+      ? `I just completed the ${_shareModalChallenge.name} Challenge on Momentum! 🏆\n${totalDays} days · ${totalPts} total · ${streak}-day ${term('streak')}.\nKeeping my ${term('habitPlural')}. 💪\n${SHARE_URL}`
       : `Day ${dayNum} of my ${_shareModalChallenge.name} Challenge — ${streak}-day ${term('streak')}. 🔥\nKeeping my ${term('habitPlural')}, one day at a time.\n${SHARE_URL}`;
     if (navigator.share) {
       fetch(_shareCardDataUrl).then(r=>r.blob()).then(blob => {
-        const file = new File([blob], "conqur-share.png", { type:"image/png" });
-        const shareData = { title:"Conqur", text };
+        const file = new File([blob], "momentum-share.png", { type:"image/png" });
+        const shareData = { title:"Momentum", text };
         if (navigator.canShare?.({files:[file]})) shareData.files = [file];
         navigator.share(shareData).catch(()=>{});
       }).catch(() => shareAchievement(text));
@@ -8365,7 +8471,7 @@ function bindEvents() {
     if (!_shareCardDataUrl || !_shareModalChallenge) return;
     const a = document.createElement("a");
     a.href     = _shareCardDataUrl;
-    a.download = `${(_shareModalChallenge.name||"conqur").replace(/\s+/g,"-")}-day${challengeDayNumber(_shareModalChallenge)}.png`;
+    a.download = `${(_shareModalChallenge.name||"momentum").replace(/\s+/g,"-")}-day${challengeDayNumber(_shareModalChallenge)}.png`;
     a.click();
   });
   on("[data-copy-share-text]", () => {
@@ -8375,7 +8481,7 @@ function bindEvents() {
     const totalDays = diffDays(_shareModalChallenge.startDate, _shareModalChallenge.endDate)+1;
     const dayNum    = challengeDayNumber(_shareModalChallenge);
     const text = _shareModalDone
-      ? `I just completed the ${_shareModalChallenge.name} Challenge on Conqur! 🏆\n${totalDays} days · ${totalPts} total · ${streak}-day ${term('streak')}.\nKeeping my ${term('habitPlural')}. 💪\n${SHARE_URL}`
+      ? `I just completed the ${_shareModalChallenge.name} Challenge on Momentum! 🏆\n${totalDays} days · ${totalPts} total · ${streak}-day ${term('streak')}.\nKeeping my ${term('habitPlural')}. 💪\n${SHARE_URL}`
       : `Day ${dayNum} of my ${_shareModalChallenge.name} Challenge — ${streak}-day ${term('streak')}. 🔥\nKeeping my ${term('habitPlural')}, one day at a time.\n${SHARE_URL}`;
     navigator.clipboard?.writeText(text).then(() => showToast("Copied!")).catch(() => showToast(text));
   });
@@ -8436,7 +8542,7 @@ function bindEvents() {
       habits: JSON.parse(JSON.stringify(c.habits)),  // deep copy — Cancel discards this
       habitEditIdx: null,
       newHabitEmoji: "⭐", newHabitTitle: "", newHabitPoints: 2, newHabitWeeklyTarget: 5,
-      newHabitType: "binary",
+      newHabitType: "binary", newHabitUnit: "min", newHabitWeeklyQty: 150,
       newHabitTiers: [{ label:"", points:1 }, { label:"", points:2 }, { label:"", points:3 }],
     };
     editChallengeId = el.dataset.editChallenge;
@@ -8464,11 +8570,17 @@ function bindEvents() {
     const h = editForm.habits[i];
     const emoji = (document.getElementById("ech-emoji")?.value || "⭐").trim() || "⭐";
     const title = (document.getElementById("ech-title")?.value || "").trim();
-    const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-weekly-target")?.value) || habitWeeklyTarget(h)));
     if (!title) { showToast("Habit needs a name."); return; }
     if (h.type === "tiered") {
+      const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-weekly-target")?.value) || habitWeeklyTarget(h)));
       editForm.habits[i] = { ...h, emoji, title, weeklyTarget };
+    } else if (h.type === "quantity") {
+      const unit = (document.getElementById("ech-unit")?.value || h.unit || "").trim();
+      const weeklyQty = Math.max(1, Math.min(9999, Number(document.getElementById("ech-weekly-qty")?.value) || habitWeeklyTarget(h)));
+      const pts = Math.max(1, Math.min(20, Number(document.getElementById("ech-pts")?.value) || h.points || 2));
+      editForm.habits[i] = { ...h, emoji, title, points: pts, unit, weeklyQty };
     } else {
+      const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-weekly-target")?.value) || habitWeeklyTarget(h)));
       const pts = Math.max(1, Math.min(20, Number(document.getElementById("ech-pts")?.value) || 2));
       editForm.habits[i] = { ...h, emoji, title, points: pts, weeklyTarget };
     }
@@ -8493,9 +8605,9 @@ function bindEvents() {
     if (!editForm) return;
     const emoji = (document.getElementById("ech-new-emoji")?.value || "⭐").trim() || "⭐";
     const title = (document.getElementById("ech-new-title")?.value || "").trim();
-    const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-new-weekly-target")?.value) || editForm.newHabitWeeklyTarget || 5));
     if (!title) { showToast(`Enter an ${term('habit')} name.`); return; }
     if (editForm.newHabitType === "tiered") {
+      const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-new-weekly-target")?.value) || editForm.newHabitWeeklyTarget || 5));
       const tiers = (editForm.newHabitTiers || []).map((t, i) => ({
         label:  (document.getElementById(`ech-tier-${i}-label`)?.value || t.label || `Tier ${i+1}`).trim() || `Tier ${i+1}`,
         value:  i,
@@ -8503,7 +8615,13 @@ function bindEvents() {
       }));
       if (tiers.filter(t => t.label).length < 2) { showToast("Fill in at least 2 tier labels."); return; }
       editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "tiered", points: tiers[0].points, weeklyTarget, tiers });
+    } else if (editForm.newHabitType === "quantity") {
+      const unit = (document.getElementById("ech-new-unit")?.value || editForm.newHabitUnit || "").trim();
+      const weeklyQty = Math.max(1, Math.min(9999, Number(document.getElementById("ech-new-weekly-qty")?.value) || editForm.newHabitWeeklyQty || 1));
+      const pts = Math.max(1, Math.min(20, Number(document.getElementById("ech-new-pts")?.value) || 2));
+      editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "quantity", points: pts, unit, weeklyQty });
     } else {
+      const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-new-weekly-target")?.value) || editForm.newHabitWeeklyTarget || 5));
       const pts = Math.max(1, Math.min(20, Number(document.getElementById("ech-new-pts")?.value) || 2));
       editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "binary", points: pts, weeklyTarget });
     }
@@ -8511,6 +8629,8 @@ function bindEvents() {
     editForm.newHabitTitle  = "";
     editForm.newHabitPoints = 2;
     editForm.newHabitWeeklyTarget = 5;
+    editForm.newHabitUnit   = "min";
+    editForm.newHabitWeeklyQty = 150;
     editForm.newHabitType   = "binary";
     editForm.newHabitTiers  = [{ label:"", points:1 }, { label:"", points:2 }, { label:"", points:3 }];
     render();
@@ -8540,6 +8660,10 @@ function bindEvents() {
     const newTitle = document.getElementById("ech-new-title")?.value || "";
     const newEmoji = document.getElementById("ech-new-emoji")?.value || "⭐";
     const newWeeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-new-weekly-target")?.value) || editForm.newHabitWeeklyTarget || 5));
+    const newUnitEl = document.getElementById("ech-new-unit");
+    const newQtyEl  = document.getElementById("ech-new-weekly-qty");
+    if (newUnitEl) editForm.newHabitUnit = newUnitEl.value.trim();
+    if (newQtyEl)  editForm.newHabitWeeklyQty = Math.max(1, Math.min(9999, Number(newQtyEl.value) || editForm.newHabitWeeklyQty || 150));
     editForm.newHabitTiers = (editForm.newHabitTiers || []).map((t, i) => ({
       ...t,
       label:  document.getElementById(`ech-tier-${i}-label`)?.value ?? t.label,
@@ -9100,7 +9224,7 @@ function toggleHabit(id, minimum = false) {
 function logMeasurement(habitId, value) {
   const c = currentChallenge(); if (!c) return;
   const habit = c.habits.find(h => h.id === habitId); if (!habit) return;
-  if (habit.type !== "measurement") return;
+  if (habit.type !== "measurement" && habit.type !== "quantity") return;
   const day = getChallengeDay(c, effectiveDate());
   if (day.mode === "rest") return;
   if (!day.distances) day.distances = {};
@@ -9386,6 +9510,11 @@ function addCustomHabit() {
     }));
     if (tiers.filter(t => t.label).length < 2) { showToast("Fill in at least 2 tier labels."); return; }
     builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"tiered", points:tiers[0].points, weeklyTarget, tiers });
+  } else if (builderForm.newHabitType === "quantity") {
+    const unit = (document.getElementById("nh-unit")?.value || builderForm.newHabitUnit || "").trim();
+    const weeklyQty = Math.max(1, Math.min(9999, Number(document.getElementById("nh-weekly-qty")?.value) || builderForm.newHabitWeeklyQty || 1));
+    const pts = Math.max(1, Math.min(20, Number(document.getElementById("nh-pts")?.value)||2));
+    builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"quantity", points:pts, unit, weeklyQty });
   } else {
     const pts = Math.max(1, Math.min(20, Number(document.getElementById("nh-pts")?.value)||2));
     builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"binary", points:pts, weeklyTarget });
@@ -9395,6 +9524,8 @@ function addCustomHabit() {
   builderForm.newHabitName   = "";
   builderForm.newHabitPoints = 2;
   builderForm.newHabitWeeklyTarget = 5;
+  builderForm.newHabitUnit   = "min";
+  builderForm.newHabitWeeklyQty = 150;
   builderForm.newHabitType   = "binary";
   builderForm.newHabitTiers  = [{ label:"", points:1 }, { label:"", points:2 }, { label:"", points:3 }];
   render();
@@ -9714,7 +9845,7 @@ function fireReminder() {
   const body = cue
     ? `${cue.charAt(0).toUpperCase()}${cue.slice(1)}? ${names} still needs today's ${term('habitPlural')}.`
     : `${names}: you still have ${term('habitPlural')} left for today.`;
-  new Notification(`Conqur — Protect your ${term('streak')}`, {
+  new Notification(`Momentum — Protect your ${term('streak')}`, {
     body,
     icon: "/icons/icon-192.svg",
     tag: "conqur-daily",
