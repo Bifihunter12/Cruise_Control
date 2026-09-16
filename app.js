@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.16.10";
+const APP_VERSION = "2026.09.16.11";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -86,30 +86,25 @@ const XP_LEVELS = [
   { level: 25, xp: 3000  },
 ];
 
-// Stages — a calmer, coarser progression than the raw 1-25 level count. Boundaries
-// match the chapter-milestone trigger points below (5/10/15/20/25), so the two
-// systems always agree on where one stage ends and the next begins.
-const STAGE_BANDS = [
-  { max: 4,  num: 1, name: "Begin" },
-  { max: 9,  num: 2, name: "Show Up" },
-  { max: 14, num: 3, name: "Build Trust" },
-  { max: 19, num: 4, name: "Find Your Rhythm" },
-  { max: 24, num: 5, name: "Become Consistent" },
-  { max: 25, num: 6, name: "Lead Yourself" },
+// Level names — one name per raw XP level (1-25). Lifetime consistency: every
+// completed habit is +1 XP, forever, and these names are the only thing shown
+// for a level. No stage grouping, no numbers, no other gamification.
+const LEVEL_NAMES = [
+  "Spark", "Starter", "First Step", "Moving", "Building",
+  "Committed", "Steady", "Consistent", "Driven", "Momentum",
+  "Focus", "Discipline", "Dedicated", "Relentless", "Unshaken",
+  "Resolute", "Tenacious", "Unstoppable", "Force", "Powerhouse",
+  "Mastery", "Elite", "Vanguard", "Legendary", "Inevitable",
 ];
-function getStage(levelNum) {
-  return STAGE_BANDS.find(b => levelNum <= b.max) || STAGE_BANDS[STAGE_BANDS.length - 1];
-}
-function getStageNumber(levelNum) { return getStage(levelNum).num; }
 
 // Level chapter milestones shown once as an overlay — each one announces arrival
-// at the next Stage (see STAGE_BANDS above).
+// at that level. Titles match LEVEL_NAMES above at the same level.
 const CHAPTER_LEVELS = {
-  5:  { title:"Show Up",             msg:"You're no longer just starting — you're showing up." },
-  10: { title:"Build Trust",         msg:"You've given yourself real reasons to trust you again." },
-  15: { title:"Find Your Rhythm",    msg:"This is starting to feel less like effort and more like who you are." },
-  20: { title:"Become Consistent",   msg:"Consistency isn't something you're chasing anymore — it's something you have." },
-  25: { title:"Lead Yourself",       msg:"You don't need anyone to tell you to show up. You made it." },
+  5:  { title:"Building",    msg:"You're no longer just starting — you're showing up." },
+  10: { title:"Momentum",    msg:"You've given yourself real reasons to trust you again." },
+  15: { title:"Unshaken",    msg:"This is starting to feel less like effort and more like who you are." },
+  20: { title:"Powerhouse",  msg:"Consistency isn't something you're chasing anymore — it's something you have." },
+  25: { title:"Inevitable",  msg:"You don't need anyone to tell you to show up. You made it." },
 };
 
 // Per-Quest narrative milestones — keyed to cumulative days the Quest's own
@@ -205,7 +200,7 @@ const CORE_HABIT_TEMPLATE_IDS = new Set([...FITNESS_TEMPLATE_IDS, "sleep-reset",
 const INTENSE_TEMPLATE_IDS = new Set(["cruise-control", "75-hard", "monk-mode", "project-50"]);
 
 function getThemedLevelName(levelNum) {
-  return getStage(levelNum).name;
+  return LEVEL_NAMES[Math.max(1, Math.min(LEVEL_NAMES.length, Math.round(levelNum))) - 1];
 }
 
 // ── Per-theme vocabulary — each theme has its own words for the same concepts ──
@@ -4136,7 +4131,7 @@ function showLevelUpModal(o) {
     <div class="luo-card" role="dialog" aria-modal="true" aria-label="Level up!">
       <div class="luo-burst"><i class="ti ti-flame"></i></div>
       <div class="luo-badge">LEVEL UP</div>
-      <div class="luo-level">Level ${getStageNumber(o.level)}</div>
+      <div class="luo-level">${getThemedLevelName(o.level)}</div>
       <div class="luo-total">${o.total.toLocaleString()} XP total</div>
       <button class="primary-button luo-cta" data-close-levelup-modal>Keep going</button>
     </div>`;
@@ -4535,8 +4530,7 @@ function renderThisWeek(challenge, active, xpInfo, xpTheme, xpToNext) {
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     <div class="xp-mini-bar">
-      <span class="xmb-badge"><i class="ti ${xpTheme.icon}"></i> ${term('level')} ${getStageNumber(xpInfo.level)}</span>
-      <span class="xmb-name">${xpInfo.name}</span>
+      <span class="xmb-badge"><i class="ti ${xpTheme.icon}"></i> ${xpInfo.name}</span>
       <span class="xmb-track"><span class="xmb-fill" style="width:${xpInfo.pct}%"></span></span>
       <span class="xmb-hint">${xpToNext ? xpToNext + " to next " + term('level') + " · Progress never resets" : `Max ${term('level')} <i class="ti ti-trophy"></i>`}</span>
     </div>
@@ -4979,7 +4973,7 @@ function renderMainQuestHome(quest) {
     </div>
     <div class="quest-stats-row">
       <div class="ring-stat"><div class="ring-stat-value">${streak}</div><div class="ring-stat-label">day ${term('streak')}</div></div>
-      <div class="ring-stat"><div class="ring-stat-value">${getStageNumber(stage.level)}</div><div class="ring-stat-label">${term('level')}</div></div>
+      <div class="ring-stat"><div class="ring-stat-value">${getThemedLevelName(stage.level)}</div><div class="ring-stat-label">${term('level')}</div></div>
     </div>
     ${renderQuestWeeklyReflect(quest)}
     ${renderLetsTalkSheet(quest)}
@@ -5145,8 +5139,7 @@ function renderToday() {
   return `
   <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
     <div class="xp-mini-bar">
-      <span class="xmb-badge"><i class="ti ${xpTheme.icon}"></i> ${term('level')} ${getStageNumber(xpInfo.level)}</span>
-      <span class="xmb-name">${xpInfo.name}</span>
+      <span class="xmb-badge"><i class="ti ${xpTheme.icon}"></i> ${xpInfo.name}</span>
       <span class="xmb-track"><span class="xmb-fill" style="width:${xpInfo.pct}%"></span></span>
       <span class="xmb-hint">${xpToNext ? xpToNext + " to next " + term('level') + " · Progress never resets" : `Max ${term('level')} <i class="ti ti-trophy"></i>`}</span>
     </div>
@@ -5827,7 +5820,7 @@ function renderXPBar() {
   return `
   <div class="xp-bar-wrap">
     <div class="xp-bar-header">
-      <span class="xp-level-badge"><i class="ti ti-bolt"></i> ${term('level')} ${getStageNumber(info.level)} <span class="xp-level-name">${info.name}</span></span>
+      <span class="xp-level-badge"><i class="ti ti-bolt"></i> <span class="xp-level-name">${info.name}</span></span>
       <div style="display:flex;align-items:center;gap:8px">
         ${freezes > 0 ? `<span class="xp-freeze-badge" title="Streak freezes — use one to protect a missed day"><i class="ti ti-snowflake"></i> ${freezes}</span>` : ""}
         <span class="xp-bar-to-next">${isMax ? `Max ${term('level')}` : (() => { const avg = avgDailyXP(); const d = avg ? `~${Math.ceil(toNext/avg)}d` : null; return `${toNext.toLocaleString()} to next ${term('level')}${d?` · ${d}`:""}` })()}</span>
@@ -6088,7 +6081,7 @@ function drawShareCard(challenge, isDone) {
   const _scTheme = JOURNEY_THEMES[state.settings.journeyTheme] || JOURNEY_THEMES.frostborn;
   ctx.fillStyle = cs.getPropertyValue("--text-faint").trim() || "#5a5a58";
   ctx.font      = `400 ${Math.round(s * 0.03)}px 'Arial', sans-serif`;
-  ctx.fillText(`${term('level')} ${getStageNumber(_scLevel.level)}`, s / 2, s * 0.81);
+  ctx.fillText(getThemedLevelName(_scLevel.level), s / 2, s * 0.81);
 
   // Watermark
   ctx.fillStyle = cs.getPropertyValue("--text-faint").trim() || "#5a5a58";
@@ -7176,7 +7169,7 @@ function renderLevelProfile() {
   return `
   <div class="level-profile-card">
     <div class="lp-top">
-      <div class="lp-level-num"><i class="ti ti-flame"></i> ${term('level')} ${getStageNumber(info.level)}</div>
+      <div class="lp-level-num"><i class="ti ti-flame"></i> ${getThemedLevelName(info.level)}</div>
     </div>
     <div class="xp-bar-track lp-track">
       <div class="xp-bar-fill" style="width:${info.pct}%"></div>
@@ -7190,7 +7183,7 @@ function renderLevelProfile() {
         const unlocked = state.xp >= lvl.xp;
         const isCurrent = info.level === lvl.level;
         const showNum = isCurrent || lvl.level % 5 === 0;
-        return `<div class="lvl-node ${unlocked ? "unlocked" : ""} ${isCurrent ? "current" : ""}" title="${term('level')} ${getStageNumber(lvl.level)}">
+        return `<div class="lvl-node ${unlocked ? "unlocked" : ""} ${isCurrent ? "current" : ""}" title="${getThemedLevelName(lvl.level)}">
           <div class="lvl-node-dot"></div>
           ${showNum ? `<div class="lvl-node-num">${lvl.level}</div>` : ""}
         </div>`;
@@ -7238,7 +7231,6 @@ function showChapterModal(level) {
   const data = CHAPTER_LEVELS[level];
   if (!data) return;
   const chapterIcon = level >= 25 ? "ti-trophy" : level >= 20 ? "ti-star" : level >= 15 ? "ti-diamond" : level >= 10 ? "ti-bolt" : "ti-seedling";
-  const levelName = getThemedLevelName(level, state.settings.journeyTheme);
   const el = document.createElement('div');
   el.id = 'chapter-modal';
   el.className = 'luo-backdrop';
@@ -7247,8 +7239,6 @@ function showChapterModal(level) {
     <div class="luo-card" role="dialog" aria-modal="true">
       <div class="luo-burst"><i class="ti ${chapterIcon}"></i></div>
       <div class="luo-badge">CHAPTER ${esc(data.title.toUpperCase())}</div>
-      <div class="luo-level">${term('level')} ${getStageNumber(level)}</div>
-      <div class="luo-name">${esc(levelName)}</div>
       <div class="luo-total">${esc(data.msg)}</div>
       <button class="primary-button luo-cta" data-close-chapter-modal>Begin again. Stronger. →</button>
     </div>`;
@@ -7482,7 +7472,7 @@ function renderBadgeCat(label, defs, earned, templateId, progressCtx) {
     }
     if (b.levelReq !== undefined && progressCtx.level !== undefined) {
       const have = Math.min(progressCtx.level, b.levelReq);
-      return `<div class="badge-hint">${term('level')} ${getStageNumber(have)} / ${getStageNumber(b.levelReq)}</div>`;
+      return `<div class="badge-hint">${getThemedLevelName(have)} / ${getThemedLevelName(b.levelReq)}</div>`;
     }
     return "";
   }
