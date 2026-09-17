@@ -1,10 +1,10 @@
 "use strict";
 
-const APP_VERSION = "2026.09.16.11";
+const APP_VERSION = "2026.09.16.12";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
-const SUPPORT_EMAIL = "PLACEHOLDER_SUPPORT_EMAIL";
+const SUPPORT_EMAIL = "support@zaeralabs.com";
 
 // ── Field icons (Tabler outline) ─────────────────────────────────────────────
 const TIER_ICON = { common:"ti-award", uncommon:"ti-award", rare:"ti-medal", epic:"ti-medal-2", legendary:"ti-trophy" };
@@ -2149,10 +2149,12 @@ const UNIVERSAL_BADGES = [
   { id:"u-60d",    label:"📆 Two Months",         desc:"60-day Fire.",                                        test: u => u.longestStreak >= 60 },
   { id:"u-75d",    label:"🏆 75 Fire",            desc:"75 consecutive days. Legendary.",                     test: u => u.longestStreak >= 75 },
   // XP (all-time total across all challenges)
+  { id:"u-p1",     label:"🌱 First Check-In",     desc:"Complete your very first habit.",                     test: u => u.totalPts >= 1 },
   { id:"u-p10",    label:"⚡ First Progress",     desc:"Reach your first 10 total.",                          test: u => u.totalPts >= 10 },
   { id:"u-p100",   label:"💯 Century",            desc:"100 total.",                                          test: u => u.totalPts >= 100 },
   { id:"u-p500",   label:"🏅 Progress Collector", desc:"500 total.",                                          test: u => u.totalPts >= 500 },
   { id:"u-p1k",    label:"💜 Elite",              desc:"1,000 total. Rare.",                                  test: u => u.totalPts >= 1000 },
+  { id:"u-p2500",  label:"🔷 Halfway to Mastery", desc:"2,500 total.",                                        test: u => u.totalPts >= 2500 },
   // Body tracking (global)
   { id:"u-scale",  label:"⚖️ On The Scale",       desc:"Log your first weight check-in.",                    test: u => u.weighIns >= 1 },
   { id:"u-1lb",    label:"📉 First Pound",        desc:"Lose 1 lb from your starting weight.",               test: u => u.weightLost >= 1 },
@@ -2166,6 +2168,7 @@ const UNIVERSAL_BADGES = [
   { id:"u-done1",  label:"✅ Challenge Done",     desc:"Finish your first challenge.",                        test: u => u.completedChallenges >= 1 },
   { id:"u-done3",  label:"🏆 Triple Threat",      desc:"Complete 3 challenges.",                              test: u => u.completedChallenges >= 3 },
   { id:"u-perfwk", label:"⭐ Perfect Week",        desc:"Complete all Oaths every day for 7 consecutive days.", test: u => u.hasPerfectWeek },
+  { id:"u-route",  label:"🗺️ Route Finished",      desc:"Complete a distance-based route plan.",               test: u => u.expeditionDone },
   // Hidden badges — show as "🔒 ???" until earned
   { id:"u-double-agent", label:"🔀 Double Agent",     desc:"Complete the same challenge twice.",                         tier:"rare",      hidden:true, test: u => u.doubleAgent },
   { id:"u-dark-horse",   label:"🖤 Dark Horse",       desc:"Come back after a streak gap and still finish.",             tier:"epic",      hidden:true, test: u => u.darkHorse },
@@ -2174,53 +2177,16 @@ const UNIVERSAL_BADGES = [
 
 // Lifetime achievements — cross-challenge milestones earned once (tracked in state.globalBadges)
 const LIFETIME_BADGES = [
+  { id:"lt-25h",    label:"🧩 25 Habits",          desc:"Log 25 individual habits across all plans.",         test: l => l.totalHabitsLogged >= 25 },
   { id:"lt-100h",   label:"📦 100 Habits",         desc:"Log 100 individual habits across all challenges.",  test: l => l.totalHabitsLogged >= 100 },
   { id:"lt-500h",   label:"🏋️ 500 Habits",         desc:"Log 500 habits total. You're built different.",    test: l => l.totalHabitsLogged >= 500 },
+  { id:"lt-1000h",  label:"🗿 1,000 Habits",       desc:"Log 1,000 habits total. Lifetime consistency.",     test: l => l.totalHabitsLogged >= 1000 },
   { id:"lt-5c",     label:"🎖️ Serial Challenger",  desc:"Complete 5 challenges.",                            test: l => l.completedChallenges >= 5 },
+  { id:"lt-10c",    label:"👑 Ten Plans",          desc:"Complete 10 plans.",                                 test: l => l.completedChallenges >= 10 },
   { id:"lt-cats",   label:"🌍 Well Rounded",        desc:"Complete a challenge in all 3 categories.",        test: l => l.allCategoriesDone },
   { id:"lt-perf",   label:"💎 Perfect Run",         desc:"Complete a challenge without a single missed day.", test: l => l.perfectChallenge },
   { id:"lt-freeze", label:"❄️ Ice Age",             desc:"Use a streak freeze to save a streak.",             test: l => l.freezeUsed },
 ];
-
-// Rank runes — earned by reaching rank milestones (5/10/15/20/25) on the Frostborn path.
-// Tracked in state.globalBadges like Universal/Lifetime runes. Sticky once earned.
-const THEME_BADGES = {
-  frostborn: [
-    { id:"theme-frostborn-5",  label:"❄️ Ice-Tempered",   desc:"Reach the Show Up stage. The cold no longer bothers you.",         levelReq:5,  tier:"uncommon" },
-    { id:"theme-frostborn-10", label:"🛡️ Shield-Wall",    desc:"Reach the Build Trust stage. You hold the line.",                   levelReq:10, tier:"rare" },
-    { id:"theme-frostborn-15", label:"⚡ Jarl",            desc:"Reach the Find Your Rhythm stage. You lead now.",                   levelReq:15, tier:"rare" },
-    { id:"theme-frostborn-20", label:"🔥 Frostborn",      desc:"Reach the Become Consistent stage. Ice and fire, both yours to command.", levelReq:20, tier:"epic" },
-    { id:"theme-frostborn-25", label:"👑 Conqueror",       desc:"Reach the Lead Yourself stage — the top of the Frostborn path.",   levelReq:25, tier:"legendary" },
-  ],
-  phoenix: [
-    { id:"theme-phoenix-5",  label:"🔥 First Ember",     desc:"Reach Flight 5. You've survived the fall.",             levelReq:5,  tier:"uncommon" },
-    { id:"theme-phoenix-10", label:"🪶 Wings Forming",   desc:"Reach Flight 10. You're learning to rise.",             levelReq:10, tier:"rare" },
-    { id:"theme-phoenix-15", label:"⚡ Rising Fast",     desc:"Reach Flight 15. Nothing holds you down now.",          levelReq:15, tier:"rare" },
-    { id:"theme-phoenix-20", label:"✨ Living Proof",    desc:"Reach Flight 20. You are the comeback.",                levelReq:20, tier:"epic" },
-    { id:"theme-phoenix-25", label:"👑 The Phoenix",     desc:"Reach Flight 25 — the top of the Phoenix path.",        levelReq:25, tier:"legendary" },
-  ],
-  everest: [
-    { id:"theme-everest-5",  label:"🏕️ Basecamp Cleared", desc:"Reach Camp 5. The mountain knows your name.",         levelReq:5,  tier:"uncommon" },
-    { id:"theme-everest-10", label:"🥾 Ridge Walker",      desc:"Reach Camp 10. Thin air, steady feet.",               levelReq:10, tier:"rare" },
-    { id:"theme-everest-15", label:"☁️ Above the Clouds",  desc:"Reach Camp 15. Most never see this view.",            levelReq:15, tier:"rare" },
-    { id:"theme-everest-20", label:"⚠️ The Death Zone",    desc:"Reach Camp 20. You're in rare air now.",              levelReq:20, tier:"epic" },
-    { id:"theme-everest-25", label:"👑 Conqueror of Everest", desc:"Reach Camp 25 — the summit is yours.",             levelReq:25, tier:"legendary" },
-  ],
-  cosmos: [
-    { id:"theme-cosmos-5",  label:"🛰️ Orbit Reached",   desc:"Reach Clearance 5. You've left the ground behind.",     levelReq:5,  tier:"uncommon" },
-    { id:"theme-cosmos-10", label:"🌙 Moon Bound",       desc:"Reach Clearance 10. Halfway to somewhere new.",         levelReq:10, tier:"rare" },
-    { id:"theme-cosmos-15", label:"🪐 Deep Space Pioneer", desc:"Reach Clearance 15. Few make it this far out.",       levelReq:15, tier:"rare" },
-    { id:"theme-cosmos-20", label:"🚀 Mars Landing",     desc:"Reach Clearance 20. Touchdown on a new world.",         levelReq:20, tier:"epic" },
-    { id:"theme-cosmos-25", label:"👑 First on Mars",    desc:"Reach Clearance 25 — the top of the Cosmos path.",      levelReq:25, tier:"legendary" },
-  ],
-  martial: [
-    { id:"theme-martial-5",  label:"🥋 Blue Belt",       desc:"Reach Belt 5. The basics are yours now.",               levelReq:5,  tier:"uncommon" },
-    { id:"theme-martial-10", label:"⚫ Black Belt",       desc:"Reach Belt 10. A beginner, at the highest level.",      levelReq:10, tier:"rare" },
-    { id:"theme-martial-15", label:"👊 Iron Fist",       desc:"Reach Belt 15. Discipline made physical.",              levelReq:15, tier:"rare" },
-    { id:"theme-martial-20", label:"🐉 Shihan",          desc:"Reach Belt 20. You teach through example now.",         levelReq:20, tier:"epic" },
-    { id:"theme-martial-25", label:"👑 Grandmaster",     desc:"Reach Belt 25 — the top of the Martial Arts path.",     levelReq:25, tier:"legendary" },
-  ],
-};
 
 // Template-specific badges — 5 per template, only shown/counted for that challenge (tracked in challenge.badges)
 const TEMPLATE_BADGES = {
@@ -2678,6 +2644,7 @@ let _levelUpOverlay = null;   // { level, name, emoji, total } — full-screen l
 let _chapterOverlay = null;   // level number (5/10/15/20/25) — shown once per chapter threshold
 let _questChapterOverlay = null; // days-kept threshold (3/7/14/30/60/90) — shown once per Quest milestone
 let _resetConfirm = false;    // shows inline confirm step before wiping all data
+let _resetConfirmChecked = false; // "I understand" checkbox on the delete-all-data confirm step
 let _safetyPendingTemplateId = null; // templateId awaiting health disclaimer acknowledgement
 let _obTransitioning = false; // true while slide animation is in flight
 let _prevObStep = undefined;  // last rendered onboardingStep — transition only when this changes
@@ -3487,8 +3454,8 @@ function weeklyStatusMessage(challenge) {
   const elapsed = week.days.length;
   const daysLeft = week.allDays.length - elapsed;
   const logged = week.days.filter(k => dayLogged(challenge.days[k])).length;
-  const pts = week.days.reduce((s,k) => { const d = challenge.days[k]; return s + (d ? completionInfo(challenge, d).points : 0); }, 0);
-  const goal = goalForWeek(challenge, curWeekIdx);
+  const pts = challenge.habits.reduce((s, h) => s + Math.min(habitWeekCount(challenge, h, week), habitWeeklyTarget(h, challenge)), 0);
+  const goal = goalForWeek(challenge);
   const expectedPace = goal * (elapsed / 7) * 0.85; // 15% slack before flagging as behind
   const onPace = goal <= 0 || pts >= expectedPace;
   return { elapsed, daysLeft, logged, pts, goal, onPace, weekNum: week.num, curWeekIdx };
@@ -3505,8 +3472,8 @@ function calcWeeklySuccessStreak(challenge) {
   let streak = 0;
   for (let i = pastWeeks.length - 1; i >= 0; i--) {
     const w = pastWeeks[i];
-    const pts = w.days.reduce((s,k) => { const d = challenge.days[k]; return s + (d ? completionInfo(challenge, d).points : 0); }, 0);
-    if (pts >= goalForWeek(challenge, i)) streak++;
+    const pts = challenge.habits.reduce((s, h) => s + Math.min(habitWeekCount(challenge, h, w), habitWeeklyTarget(h, challenge)), 0);
+    if (pts >= goalForWeek(challenge)) streak++;
     else break;
   }
   return streak;
@@ -3962,17 +3929,6 @@ function checkBadges(challenge) {
     }
   });
 
-  // ── 4. Journey badges (level milestones within the currently active theme) ──
-  const activeThemeId = state.settings.journeyTheme;
-  const curLevel = getLevelInfo(state.xp).level;
-  (THEME_BADGES[activeThemeId] || []).forEach(b => {
-    if (!state.globalBadges.includes(b.id) && curLevel >= b.levelReq) {
-      state.globalBadges.push(b.id);
-      _badgeSheetQueue.push({ label: b.label, desc: b.desc || "", tier: b.tier });
-      earned = true;
-    }
-  });
-
   if (earned) saveState();
   checkStreakFreezeAward(challenge, myWeeks);
 }
@@ -4334,7 +4290,7 @@ function _renderInner() {
     html += activeTab === "today"      ? renderMainQuestTab() : "";
     html += activeTab === "challenges" ? renderQuestPicker()  : "";
 
-    html += activeTab === "badges"     ? renderBadges()     : "";
+    html += activeTab === "badges"     ? renderCoachProgress() : "";
   }
   html += renderNav();
   if (justCompletedId) {
@@ -4520,8 +4476,8 @@ function renderThisWeek(challenge, active, xpInfo, xpTheme, xpToNext) {
   const todayK = todayKey();
   const curWeekIdx = weeks.findIndex(w => w.allDays.includes(todayK));
   const week = curWeekIdx >= 0 ? weeks[curWeekIdx] : weeks[weeks.length - 1];
-  const goal = goalForWeek(challenge, curWeekIdx >= 0 ? curWeekIdx : weeks.length - 1);
-  const ptsThisWeek = week.days.reduce((s,k) => { const d = challenge.days[k]; return s + (d ? completionInfo(challenge, d).points : 0); }, 0);
+  const goal = goalForWeek(challenge);
+  const ptsThisWeek = challenge.habits.reduce((s, h) => s + Math.min(habitWeekCount(challenge, h, week), habitWeeklyTarget(h, challenge)), 0);
   const pct = goal > 0 ? clamp(Math.round((ptsThisWeek / goal) * 100), 0, 100) : 0;
   const loggedDays = week.days.filter(k => dayLogged(challenge.days[k])).length;
   const weekStreak = calcWeeklySuccessStreak(challenge);
@@ -5843,16 +5799,14 @@ function renderWeeklyRecap(challenge) {
   const curWeekIdx = weeks.findIndex(w => w.allDays.includes(todayK));
   if (curWeekIdx <= 0) return "";                              // no completed week yet
   const lastWeek = weeks[curWeekIdx - 1];
-  const pts = lastWeek.allDays.reduce((sum,k) => {
-    const d = challenge.days[k]; return sum + (d ? completionInfo(challenge,d).points : 0);
-  }, 0);
+  const pts = challenge.habits.reduce((s, h) => s + Math.min(habitWeekCount(challenge, h, lastWeek), habitWeeklyTarget(h, challenge)), 0);
   const logged = lastWeek.allDays.filter(k => { const d=challenge.days[k]; return d&&(d.done.length||d.recovered); }).length;
   const streak = calcChallengeStreak(challenge);
   // Week-over-week delta
   const prevWeek = curWeekIdx >= 2 ? weeks[curWeekIdx - 2] : null;
-  const prevPts  = prevWeek ? prevWeek.allDays.reduce((sum,k) => {
-    const d = challenge.days[k]; return sum + (d ? completionInfo(challenge,d).points : 0);
-  }, 0) : null;
+  const prevPts  = prevWeek
+    ? challenge.habits.reduce((s, h) => s + Math.min(habitWeekCount(challenge, h, prevWeek), habitWeeklyTarget(h, challenge)), 0)
+    : null;
   const delta = prevPts != null ? pts - prevPts : null;
   const deltaStr = delta == null ? "" :
     delta > 0 ? `<span class="wrc-delta up">↑ +${delta} vs last week</span>` :
@@ -5868,9 +5822,8 @@ function renderWeeklyRecap(challenge) {
   }, 0) : null;
   const weekDistLabel = isFloorsR ? Math.round(weekKm) : weekKm?.toFixed(1);
   const weekDistUnit  = isFloorsR ? "floors" : "km";
-  const lastWeekGoal = isExpedition ? null : goalForWeek(challenge, curWeekIdx - 1);
+  const lastWeekGoal = isExpedition ? null : goalForWeek(challenge);
   const goalMetLast  = lastWeekGoal != null && pts >= lastWeekGoal;
-  const thisWeekGoal = isExpedition ? null : goalForWeek(challenge, curWeekIdx);
   const msgs = ["Progress compounds. Keep stacking.", "New week, fresh start. Let's go.", "Every logged day is a win.", "Last week was strong. Build on it.", "Momentum is real — keep it going."];
   const recapTpl = challenge.templateId ? TEMPLATES.find(t => t.id === challenge.templateId) : null;
   // Alternate weeks between the challenge's identity line and the generic rotating message,
@@ -5893,7 +5846,7 @@ function renderWeeklyRecap(challenge) {
       <div class="wrc-sep"></div>
       <div class="wrc-stat"><span class="wrc-val">${streak}</span><span class="wrc-lbl">${term('streak')}</span></div>
     </div>
-    ${lastWeekGoal ? `<div class="wrc-goal-row${goalMetLast ? " wrc-goal-met" : ""}"><i class="ti ti-target"></i> ${goalMetLast ? "Weekly goal hit!" : `${pts}/${lastWeekGoal} — ${Math.round(pts/lastWeekGoal*100)}% of goal`}${thisWeekGoal && thisWeekGoal !== lastWeekGoal ? ` · Week ${curWeekIdx + 1} target: ${thisWeekGoal}` : ""}</div>` : ""}
+    ${lastWeekGoal ? `<div class="wrc-goal-row${goalMetLast ? " wrc-goal-met" : ""}"><i class="ti ti-target"></i> ${goalMetLast ? "Weekly goal hit!" : `${pts}/${lastWeekGoal} — ${Math.round(pts/lastWeekGoal*100)}% of goal`}</div>` : ""}
     ${deltaStr ? `<div class="wrc-delta-row">${deltaStr}</div>` : ""}
     ${!challenge.reflections?.[lastWeek.num] ? `
     <div class="wrc-reflect">
@@ -6486,6 +6439,20 @@ function renderEditChallenge(c) {
         <button class="mode-button ${(editForm?.mode||c.mode)==="strict"?"active":""}" data-ec-mode="strict">Strict</button>
       </div>
       <p class="mode-desc" style="margin-bottom:14px">${(editForm?.mode||c.mode)==="soft"?"Flexible — choose your own recovery days when life gets in the way.":"Strict — zero recovery days. Every day counts."}</p>
+      ${(editForm?.mode||c.mode) === "strict" ? `
+      <div class="joker-budget-row" style="margin-bottom:14px">
+        <span class="field-label">${term('restDay')}s</span>
+        <span class="mode-desc" style="margin:0">Zero — no recovery days on this plan.</span>
+      </div>` : `
+      <div class="joker-budget-row" style="margin-bottom:14px">
+        <div class="field-label">${term('restDay')}s allowed</div>
+        <div class="joker-stepper">
+          <button class="joker-step-btn" data-ec-joker-adj="-1">−</button>
+          <span class="joker-step-val">${editForm?.jokerBudget ?? c.jokerBudget ?? 3}</span>
+          <button class="joker-step-btn" data-ec-joker-adj="1">+</button>
+        </div>
+        <p class="mode-desc" style="margin:4px 0 0">${(editForm?.jokerBudget ?? c.jokerBudget) === 0 ? "Zero compromise — no recovery days." : `${editForm?.jokerBudget ?? c.jokerBudget} day${(editForm?.jokerBudget ?? c.jokerBudget)===1?"":"s"} you can use to recover without breaking your ${term('streak')}.`}</p>
+      </div>`}
       <div class="section-label" style="margin:20px 0 8px">Habits</div>
       <div class="custom-habits-list">
         ${(editForm?.habits || []).map((h, i) => {
@@ -6590,12 +6557,13 @@ function statCard(label, value, unit) {
   </div>`;
 }
 
-function goalForWeek(challenge, weekIdx) {
-  const g = challenge.weeklyGoal;
-  if (weekIdx <= 0) return Math.round(g * 0.5);
-  if (weekIdx === 1) return Math.round(g * 0.7);
-  if (weekIdx === 2) return Math.round(g * 0.85);
-  return g;
+// Real weekly target: sum of each habit's actual scheduled occurrences this
+// week (habitWeeklyTarget) — the same number the Week/Plans tabs use. This
+// used to read the arbitrary per-template challenge.weeklyGoal field instead
+// (e.g. 90 for Momentum, whose habits can only ever add up to 31/week), which
+// made this screen's percentage and streak disagree with every other screen.
+function goalForWeek(challenge) {
+  return challenge.habits.reduce((s, h) => s + habitWeeklyTarget(h, challenge), 0);
 }
 
 // ── Month Calendar Heatmap ────────────────────────────────────────────────
@@ -7352,57 +7320,34 @@ function renderCoachProgress() {
       <div class="section-label" style="margin:0 0 10px">Level</div>
       ${renderLevelProfile()}
     </section>
+
+    <section class="tracker-section">
+      <div class="section-label" style="margin:0 0 10px">Achievements</div>
+      ${renderAchievements()}
+    </section>
   </main>`;
 }
 
-function renderBadges() {
-  return renderCoachProgress();
-  const allChallenges    = getAllChallenges();
-  // Only show/count template badges for challenges that have been started
-  const startedChallenges = allChallenges.filter(c => Object.keys(c.days).length > 0 || c.badges.length > 0);
-
-  // Honest denominator: fixed global pool + per-challenge template sets
-  const allThemeBadges = Object.values(THEME_BADGES).flat();
-  const templateTotal = startedChallenges.reduce((s,c) => s + (TEMPLATE_BADGES[c.templateId]?.length || 0), 0);
-  const total  = UNIVERSAL_BADGES.length + LIFETIME_BADGES.length + allThemeBadges.length + templateTotal;
-
-  const universalEarned = state.globalBadges.filter(id => UNIVERSAL_BADGES.some(b=>b.id===id)).length;
-  const lifetimeEarned  = state.globalBadges.filter(id => LIFETIME_BADGES.some(b=>b.id===id)).length;
-  const themeEarned     = state.globalBadges.filter(id => allThemeBadges.some(b=>b.id===id)).length;
-  const templateEarned  = allChallenges.reduce((s,c) => s+c.badges.length, 0);
-  const earned = universalEarned + lifetimeEarned + themeEarned + templateEarned;
-
-  const pct = total > 0 ? Math.round((earned/total)*100) : 0;
+// Achievements — Universal + Lifetime badges only (no per-template or theme
+// badges: those depended on a theme-picker that's no longer reachable, and
+// per-template sets were leftover complexity from a much larger badge system).
+// Shown inside History, not the daily flow — see renderCoachProgress().
+function renderAchievements() {
+  const defs  = [...rethemeBadges(UNIVERSAL_BADGES), ...rethemeBadges(LIFETIME_BADGES)];
+  const total = defs.length;
+  const earned = state.globalBadges.filter(id => defs.some(b => b.id === id)).length;
+  const pct = total > 0 ? Math.round((earned / total) * 100) : 0;
+  const progressCtx = { xp: state.xp, maxStreak: Math.max(0, ...getAllChallenges().map(c => calcChallengeStreak(c))) };
   return `
-  <main${_viewChanged ? ` class="tab-fade-in"` : ""}>
-    ${renderLevelProfile()}
-    <div class="section-label">${term('badgePlural')}</div>
-    <div class="more-card">
-      <div class="badge-overview">
-        <div class="badge-overview-count"><span class="boc-num">${earned}</span><span class="boc-total"> / ${total}</span></div>
-        <div class="badge-overview-label">${term('badgePlural')} earned</div>
-      </div>
-      <div class="badge-overall-track"><div class="badge-overall-fill" style="width:${pct}%"></div></div>
-      ${earned === 0 ? `<div class="badges-new-hint">Keep your first ${term('habit')} to unlock your first ${term('badge')} — most people earn 3–5 in their first week.</div>` : ""}
-      ${renderBadgeCat('<i class="ti ti-world"></i> Universal', rethemeBadges(UNIVERSAL_BADGES), state.globalBadges, null, { xp: state.xp, maxStreak: Math.max(0, ...getAllChallenges().map(c => calcChallengeStreak(c))) })}
-      ${renderBadgeCat('<i class="ti ti-diamond"></i> Lifetime Achievements', rethemeBadges(LIFETIME_BADGES), state.globalBadges, null, null)}
-      ${Object.entries(THEME_BADGES).map(([themeId, defs]) => {
-        const theme = JOURNEY_THEMES[themeId];
-        const isActiveTheme = state.settings.journeyTheme === themeId;
-        const progressCtx = isActiveTheme ? { level: getLevelInfo(state.xp).level } : null;
-        return renderBadgeCat(`<i class="ti ${theme.icon}"></i> ${theme.label} Path`, defs, state.globalBadges, null, progressCtx);
-      }).join("")}
-      ${startedChallenges.map(c => {
-        const tBadges = TEMPLATE_BADGES[c.templateId];
-        if (!tBadges) return "";
-        const tpl = c.templateId ? TEMPLATES.find(t => t.id === c.templateId) : null;
-        return renderBadgeCat(`<i class="ti ${challengeIcon(tpl)}"></i> ${esc(c.name)}`, rethemeBadges(tBadges), c.badges, c.templateId, null);
-      }).join("")}
+  <div class="more-card">
+    <div class="badge-overview">
+      <div class="badge-overview-count"><span class="boc-num">${earned}</span><span class="boc-total"> / ${total}</span></div>
+      <div class="badge-overview-label">Achievements earned</div>
     </div>
-    ${renderPersonalBests()}
-    ${renderTrophyCase()}
-    ${renderConsistencyChart(allChallenges)}
-  </main>`;
+    <div class="badge-overall-track"><div class="badge-overall-fill" style="width:${pct}%"></div></div>
+    ${earned === 0 ? `<div class="badges-new-hint">Keep your first ${term('habit')} to unlock your first achievement.</div>` : ""}
+    ${renderBadgeCat('<i class="ti ti-award"></i> Achievements', defs, state.globalBadges, null, progressCtx)}
+  </div>`;
 }
 
 function renderConsistencyChart(allChallenges) {
@@ -7457,7 +7402,7 @@ function renderBadgeCat(label, defs, earned, templateId, progressCtx) {
 
   // Progress hints for universal streak/xp badges
   const STREAK_BADGES = { "u-3d":3,"u-7d":7,"u-14d":14,"u-21d":21,"u-30d":30,"u-60d":60,"u-75d":75 };
-  const XP_BADGES     = { "u-p10":10,"u-p100":100,"u-p500":500,"u-p1k":1000 };
+  const XP_BADGES     = { "u-p1":1,"u-p10":10,"u-p100":100,"u-p500":500,"u-p1k":1000,"u-p2500":2500 };
   function badgeProgressHint(b) {
     if (!progressCtx || earnedSet.has(b.id)) return "";
     if (STREAK_BADGES[b.id] !== undefined) {
@@ -8073,20 +8018,23 @@ function renderDataSettings() {
       <div style="font-size:12px;color:var(--text-dim);line-height:1.5">Progress is stored on this device. If you clear your browser or switch devices, it will be lost. <button class="link-btn" data-preview-onboarding style="font-size:12px">Sign in to back up →</button></div>
     </div>
   </div>` : ""}
-  ${CloudSync.isSignedIn ? `
   <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
     ${_resetConfirm ? `
       <div style="background:color-mix(in srgb,var(--error) 8%,transparent);border:1px solid color-mix(in srgb,var(--error) 30%,transparent);border-radius:10px;padding:14px">
-        <div style="font-size:13px;font-weight:700;color:var(--error);margin-bottom:6px">Delete account?</div>
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">All ${term('challengePlural')}, Progress, ${term('badgePlural')}, ${term('streak')}, and settings will be permanently deleted and your account removed. This cannot be undone.</div>
+        <div style="font-size:13px;font-weight:700;color:var(--error);margin-bottom:6px">${CloudSync.isSignedIn ? "Delete account?" : "Delete all data?"}</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">All ${term('challengePlural')}, progress, ${term('badgePlural')}, ${term('streak')}s, XP, levels, and settings will be permanently deleted${CloudSync.isSignedIn ? " and your account removed" : ""} — the app will reset to a clean install. This cannot be undone.</div>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px;color:var(--text-dim);cursor:pointer">
+          <input type="checkbox" id="reset-confirm-checkbox" data-reset-confirm-checkbox style="width:16px;height:16px;accent-color:var(--error)">
+          I understand this permanently deletes everything
+        </label>
         <div style="display:flex;gap:8px">
           <button class="secondary-button" data-reset-cancel style="flex:1">Cancel</button>
-          <button class="primary-button" data-reset-confirm style="flex:1;background:var(--error);border-color:var(--error)">Yes, delete account</button>
+          <button class="primary-button" data-reset-confirm ${_resetConfirmChecked ? "" : "disabled"} style="flex:1;background:var(--error);border-color:var(--error);opacity:${_resetConfirmChecked ? 1 : 0.5}">${CloudSync.isSignedIn ? "Yes, delete account" : "Yes, delete everything"}</button>
         </div>
       </div>` : `
-      <div style="font-size:13px;color:var(--text-dim);margin-bottom:8px">Permanently delete your account and all data.</div>
-      <button class="secondary-button" data-reset-app style="color:var(--error);border-color:color-mix(in srgb,var(--error) 40%,transparent)">Delete account</button>`}
-  </div>` : ""}
+      <div style="font-size:13px;color:var(--text-dim);margin-bottom:8px">${CloudSync.isSignedIn ? "Permanently delete your account and all data." : "Wipe all plans, progress, XP, levels, and achievements — resets the app to a clean install."}</div>
+      <button class="secondary-button" data-reset-app style="color:var(--error);border-color:color-mix(in srgb,var(--error) 40%,transparent)">${CloudSync.isSignedIn ? "Delete account" : "Delete all data"}</button>`}
+  </div>
   <div style="margin-top:20px;text-align:center">
     <a href="/privacy.html" target="_blank" style="font-size:12px;color:var(--text-dim);text-decoration:none">Privacy Policy</a>
     <span style="font-size:12px;color:var(--text-faint);margin:0 8px">·</span>
@@ -8215,7 +8163,7 @@ function renderSettings() {
     <div class="more-card coach-settings-card">
       <div class="coach-settings-row">
         <span><strong>Send feedback</strong><small>Tell us where the app feels unclear, heavy, or missing something.</small></span>
-        <a class="link-btn" href="mailto:${esc(SUPPORT_EMAIL)}?subject=${encodeURIComponent("Momentum feedback")}">Send note</a>
+        <a class="link-btn" href="mailto:${esc(SUPPORT_EMAIL)}?subject=${encodeURIComponent("Momentum Support")}">Send note</a>
       </div>
     </div>
     ${renderProSection()}
@@ -8584,6 +8532,7 @@ function bindEvents() {
     const c = getChallenge(el.dataset.editChallenge); if (!c) return;
     editForm = {
       mode: c.mode,
+      jokerBudget: typeof c.jokerBudget === "number" ? c.jokerBudget : 3,
       habits: JSON.parse(JSON.stringify(c.habits)),  // deep copy — Cancel discards this
       habitEditIdx: null,
       newHabitEmoji: "⭐", newHabitTitle: "", newHabitPoints: 2, newHabitWeeklyTarget: 5,
@@ -8595,7 +8544,22 @@ function bindEvents() {
     render();
   });
   on("[data-close-edit]",    () => { viewChallengeId=editChallengeId; editChallengeId=null; editForm=null; render(); });
-  on("[data-ec-mode]",       el => { if (editForm) { editForm.mode=el.dataset.ecMode; render(); } });
+  on("[data-ec-mode]",       el => {
+    if (!editForm) return;
+    editForm.mode = el.dataset.ecMode;
+    if (editForm.mode === "strict") editForm.jokerBudget = 0;
+    else if (!editForm.jokerBudget) editForm.jokerBudget = 3;
+    render();
+  });
+  on("[data-ec-joker-adj]", el => {
+    if (!editForm) return;
+    const c = getChallenge(editChallengeId);
+    const delta = Number(el.dataset.ecJokerAdj);
+    const dur = c ? diffDays(c.startDate, c.endDate) + 1 : 30;
+    const max = Math.floor(dur * 0.3);
+    editForm.jokerBudget = Math.max(0, Math.min(max, (editForm.jokerBudget || 0) + delta));
+    render();
+  });
   on("[data-save-edit]",         () => saveEditChallenge());
 
   // ── Habit CRUD inside Edit Challenge ──────────────────────────────────────
@@ -8736,9 +8700,11 @@ function bindEvents() {
     render();
   });
   on("[data-save-reminder]",   () => saveReminderTime());
-  on("[data-reset-app]",       () => { _resetConfirm = true;  render(); });
-  on("[data-reset-cancel]",    () => { _resetConfirm = false; render(); });
+  on("[data-reset-app]",       () => { _resetConfirm = true; _resetConfirmChecked = false; render(); });
+  on("[data-reset-cancel]",    () => { _resetConfirm = false; _resetConfirmChecked = false; render(); });
+  on("[data-reset-confirm-checkbox]", el => { _resetConfirmChecked = el.checked; render(); });
   on("[data-reset-confirm]",   async () => {
+    if (!_resetConfirmChecked) return;
     // 1. Kill pending push timer immediately
     clearTimeout(_cloudPushTimer);
     _cloudPushTimer = null;
@@ -9624,6 +9590,7 @@ function saveEditChallenge() {
   c.startDate  = start;
   c.endDate    = end;
   c.mode       = editForm?.mode || c.mode;
+  c.jokerBudget = c.mode === "strict" ? 0 : (typeof editForm?.jokerBudget === "number" ? editForm.jokerBudget : c.jokerBudget);
 
   // ── Apply habit changes ──────────────────────────────────────────────────
   if (editForm?.habits) {
