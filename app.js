@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.19.01";
+const APP_VERSION = "2026.09.19.02";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -7645,6 +7645,7 @@ function renderRankProgressHint() {
 
 function renderObHero() {
   const fitnessStarts = FITNESS_STARTER_IDS
+    .filter(id => id !== "read-a-book")
     .map(id => TEMPLATES.find(t => t.id === id))
     .filter(Boolean);
   return `
