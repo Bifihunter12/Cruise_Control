@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.19.02";
+const APP_VERSION = "2026.09.19.03";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -4792,6 +4792,7 @@ function renderTrackerSidePlan(challenge) {
 function renderSimpleTrackerStart() {
   const starterPlans = [
     { id: "fitter-starter", name: "Momentum", desc: "Strength, running, recovery, and a small morning anchor." },
+    { id: "75-soft", name: "75 Soft Plan", desc: "Movement, meals, hydration, and reading — sustainably." },
     { id: "walking", name: "Walking Plan", desc: "One walking habit with a step goal you choose." },
     { id: "read-a-book", name: "Read a Book", desc: "Pick one book and keep reading it through the week." },
     { id: "meditation", name: "Meditation Plan", desc: "A calm practice for sitting, breathing, and reflection." },
@@ -7644,10 +7645,7 @@ function renderRankProgressHint() {
 // ── Onboarding ────────────────────────────────────────────────────────────
 
 function renderObHero() {
-  const fitnessStarts = FITNESS_STARTER_IDS
-    .filter(id => id !== "read-a-book")
-    .map(id => TEMPLATES.find(t => t.id === id))
-    .filter(Boolean);
+  const momentum = TEMPLATES.find(t => t.id === "fitter-starter");
   return `
   <div class="ob-screen" role="main">
     <div class="ob-hero-top">
@@ -7656,24 +7654,21 @@ function renderObHero() {
       <div class="ob-hero-brand-sub">The Zaera Habit Tracker</div>
       <div class="ob-hero-tagline">Set the week.<br>Follow the plan.</div>
     </div>
-    <div class="ob-body ob-fitness-intro">Pick one plan. Momentum will show what is due today, what is still missing this week, and where consistency is building.</div>
-    <div class="ob-fitness-starts" aria-label="Habit plan quick starts">
-      ${fitnessStarts.map(t => `
-      <button class="ob-fitness-card" data-ob-fitness-start="${t.id}">
-        <span class="ob-fitness-icon"><i class="ti ${challengeIcon(t)}"></i></span>
+    <div class="ob-body ob-fitness-intro">Momentum is the benchmark plan — steps, protein, gratitude, movement, and reading, built to run for 30 days.</div>
+    <div class="ob-fitness-starts" aria-label="Momentum">
+      <button class="ob-fitness-card" data-ob-fitness-start="${momentum.id}">
+        <span class="ob-fitness-icon"><i class="ti ${challengeIcon(momentum)}"></i></span>
         <span class="ob-fitness-copy">
-          <span class="ob-fitness-name">${esc(t.name)}</span>
-          <span class="ob-fitness-meta">${t.duration} days · ${estimateMinutesPerDay(t.habits)} min/day</span>
+          <span class="ob-fitness-name">${esc(momentum.name)}</span>
+          <span class="ob-fitness-meta">${momentum.duration} days · ${estimateMinutesPerDay(momentum.habits)} min/day</span>
         </span>
         <i class="ti ti-chevron-right ob-fitness-go" aria-hidden="true"></i>
-      </button>`).join("")}
+      </button>
     </div>
-    <ul class="ob-features" aria-label="App features">
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-shield-check"></i></span><span><strong>Realistic starts</strong> — movement, recovery, and reading can sit in one week</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-check"></i></span><span><strong>Daily check-ins</strong> — a clear record of what you actually did</span></li>
-      <li class="ob-feature"><span class="ob-feature-icon" aria-hidden="true"><i class="ti ti-lock"></i></span><span>Works offline — no account required</span></li>
-    </ul>
-    <button class="primary-button ob-cta" data-ob-browse-fitness>Browse habit plans</button>
+    <div class="habit-preview-list">
+      ${momentum.habits.map(h => `<div class="habit-preview-item">${esc(h.title)}</div>`).join("")}
+    </div>
+    <button class="secondary-button ob-cta" data-ob-browse-fitness>Browse habit plans</button>
     <button class="link-btn ob-link" data-ob-to-signin>Already have an account? Sign in</button>
   </div>`;
 }
@@ -8787,7 +8782,7 @@ function bindEvents() {
     builderOpen = true;
     builderStep = "template";
     builderForm = defaultBuilderForm();
-    _templateFilter = "popular";
+    _templateFilter = "all";
     _difficultyFilter = "all";
     render();
   });
