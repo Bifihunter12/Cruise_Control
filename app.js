@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.19.04";
+const APP_VERSION = "2026.09.19.05";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -7646,15 +7646,20 @@ function renderRankProgressHint() {
 
 function renderObHero() {
   const momentum = TEMPLATES.find(t => t.id === "fitter-starter");
+  const HABIT_ICON = {
+    "mo-steps": "ti-shoe", "mo-protein": "ti-meat", "mo-gratitude": "ti-heart",
+    "mo-workout": "ti-barbell", "mo-read": "ti-book",
+  };
   return `
   <div class="ob-screen" role="main">
+    <div class="ob-hero-glow" aria-hidden="true"></div>
     <div class="ob-hero-top">
       <div class="ob-hero-icon" aria-hidden="true"><i class="ti ti-flame"></i></div>
       <div class="ob-hero-logo">MOMENTUM</div>
       <div class="ob-hero-brand-sub">The Zaera Habit Tracker</div>
-      <div class="ob-hero-tagline">Set the week.<br>Follow the plan.</div>
+      <div class="ob-hero-tagline">Set the week.<br><span class="ob-hero-tagline-accent">Follow the plan.</span></div>
     </div>
-    <div class="ob-body ob-fitness-intro">Momentum is the benchmark plan — steps, protein, gratitude, movement, and reading, built to run for 30 days.</div>
+    <div class="ob-body ob-fitness-intro">Momentum is the benchmark plan, built to run for 30 days.</div>
     <button class="ob-momentum-card" data-ob-fitness-start="${momentum.id}">
       <div class="ob-momentum-head">
         <span class="ob-fitness-icon"><i class="ti ${challengeIcon(momentum)}"></i></span>
@@ -7665,11 +7670,15 @@ function renderObHero() {
         <i class="ti ti-chevron-right ob-fitness-go" aria-hidden="true"></i>
       </div>
       <div class="ob-momentum-habits">
-        ${momentum.habits.map(h => `<span class="ob-momentum-habit"><i class="ti ti-check" aria-hidden="true"></i>${esc(h.title)}</span>`).join("")}
+        ${momentum.habits.map(h => `
+        <div class="ob-momentum-habit">
+          <span class="ob-momentum-habit-icon"><i class="ti ${HABIT_ICON[h.id] || "ti-check"}" aria-hidden="true"></i></span>
+          ${esc(h.title)}
+        </div>`).join("")}
       </div>
     </button>
     <button class="primary-button ob-cta" data-ob-fitness-start="${momentum.id}">Start Momentum</button>
-    <button class="link-btn ob-cta-secondary" data-ob-browse-fitness>Browse all habit plans</button>
+    <button class="ob-cta-secondary" data-ob-browse-fitness>Browse all habit plans</button>
     <button class="link-btn ob-link" data-ob-to-signin>Already have an account? Sign in</button>
   </div>`;
 }
