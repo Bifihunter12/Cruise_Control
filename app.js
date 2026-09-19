@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.19.03";
+const APP_VERSION = "2026.09.19.04";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -7655,20 +7655,21 @@ function renderObHero() {
       <div class="ob-hero-tagline">Set the week.<br>Follow the plan.</div>
     </div>
     <div class="ob-body ob-fitness-intro">Momentum is the benchmark plan — steps, protein, gratitude, movement, and reading, built to run for 30 days.</div>
-    <div class="ob-fitness-starts" aria-label="Momentum">
-      <button class="ob-fitness-card" data-ob-fitness-start="${momentum.id}">
+    <button class="ob-momentum-card" data-ob-fitness-start="${momentum.id}">
+      <div class="ob-momentum-head">
         <span class="ob-fitness-icon"><i class="ti ${challengeIcon(momentum)}"></i></span>
         <span class="ob-fitness-copy">
           <span class="ob-fitness-name">${esc(momentum.name)}</span>
-          <span class="ob-fitness-meta">${momentum.duration} days · ${estimateMinutesPerDay(momentum.habits)} min/day</span>
+          <span class="ob-fitness-meta">${momentum.duration} days · ${momentum.habits.length} daily habits</span>
         </span>
         <i class="ti ti-chevron-right ob-fitness-go" aria-hidden="true"></i>
-      </button>
-    </div>
-    <div class="habit-preview-list">
-      ${momentum.habits.map(h => `<div class="habit-preview-item">${esc(h.title)}</div>`).join("")}
-    </div>
-    <button class="secondary-button ob-cta" data-ob-browse-fitness>Browse habit plans</button>
+      </div>
+      <div class="ob-momentum-habits">
+        ${momentum.habits.map(h => `<span class="ob-momentum-habit"><i class="ti ti-check" aria-hidden="true"></i>${esc(h.title)}</span>`).join("")}
+      </div>
+    </button>
+    <button class="primary-button ob-cta" data-ob-fitness-start="${momentum.id}">Start Momentum</button>
+    <button class="link-btn ob-cta-secondary" data-ob-browse-fitness>Browse all habit plans</button>
     <button class="link-btn ob-link" data-ob-to-signin>Already have an account? Sign in</button>
   </div>`;
 }

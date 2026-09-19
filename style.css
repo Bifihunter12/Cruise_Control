@@ -1610,6 +1610,74 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   font-size: 16px;
 }
 
+.ob-momentum-card {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  margin: 4px 0 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-active);
+  background: linear-gradient(180deg, var(--primary-haze), var(--surface) 60%);
+  box-shadow: 0 12px 32px var(--primary-glow);
+  text-align: left;
+  cursor: pointer;
+}
+
+.ob-momentum-card:active {
+  transform: scale(0.99);
+}
+
+.ob-momentum-head {
+  display: grid;
+  grid-template-columns: 40px 1fr 18px;
+  align-items: center;
+  gap: 12px;
+}
+
+.ob-momentum-head .ob-fitness-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+}
+
+.ob-momentum-head .ob-fitness-name {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ob-momentum-habits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ob-momentum-habit {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
+.ob-momentum-habit i {
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.ob-cta-secondary {
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
 /* ── Simple habit tracker home ─────────────────────────────────────────── */
 .tracker-hero,
 .tracker-section,
@@ -2467,6 +2535,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   font-size: 56px;
   line-height: 1;
   margin-bottom: 12px;
+  filter: drop-shadow(0 0 22px var(--primary-glow));
 }
 
 .ob-hero-logo {
