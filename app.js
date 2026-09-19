@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.16.12";
+const APP_VERSION = "2026.09.19.01";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -10,6 +10,7 @@ const SUPPORT_EMAIL = "support@zaeralabs.com";
 const TIER_ICON = { common:"ti-award", uncommon:"ti-award", rare:"ti-medal", epic:"ti-medal-2", legendary:"ti-trophy" };
 const CATEGORY_ICON = { movement:"ti-run", endurance:"ti-stopwatch", health:"ti-heart-rate-monitor", expedition:"ti-map-2", transformation:"ti-flame", lifestyle:"ti-sun", mindset:"ti-brain" };
 const CHALLENGE_ICON = {
+  "fitter-starter":"ti-flame",
   "dog-walk":"ti-dog","cycling":"ti-bike","walking":"ti-walk","running":"ti-run",
   "strength":"ti-barbell","yoga-flexibility":"ti-yoga","core-abs":"ti-stretching",
   "c25k":"ti-run","5k-prep":"ti-run","pilates":"ti-stretching","12-3-30":"ti-treadmill",
@@ -4399,11 +4400,9 @@ function renderTopbar() {
             </linearGradient>
           </defs>
           <rect width="36" height="36" rx="8" fill="#000"/>
-          <circle cx="18" cy="18" r="13" fill="none" stroke="#111" stroke-width="2.5"/>
-          <circle cx="18" cy="18" r="13" fill="none" stroke="url(#bm-g)" stroke-width="2.5"
-            stroke-linecap="round" stroke-dasharray="61 20" transform="rotate(-90 18 18)"/>
-          <text x="18" y="18" text-anchor="middle" dominant-baseline="central"
-            font-family="'Lato',system-ui,sans-serif" font-weight="900" font-size="15" fill="url(#bm-g)">M</text>
+          <g transform="translate(5,5) scale(1.08)" fill="none" stroke="url(#bm-g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 10.941c2.333 -3.308 .167 -7.823 -1 -8.941c0 3.395 -2.235 5.299 -3.667 6.706c-1.43 1.408 -2.333 3.294 -2.333 5.588c0 3.704 3.134 6.706 7 6.706c3.866 0 7 -3.002 7 -6.706c0 -1.712 -1.232 -4.403 -2.333 -5.588c-2.084 3.353 -3.257 3.353 -4.667 2.235"/>
+          </g>
         </svg>
       </span>
       <span>Momentum</span>
@@ -7651,7 +7650,7 @@ function renderObHero() {
   return `
   <div class="ob-screen" role="main">
     <div class="ob-hero-top">
-      <div class="ob-hero-icon" aria-hidden="true"><i class="ti ti-run"></i></div>
+      <div class="ob-hero-icon" aria-hidden="true"><i class="ti ti-flame"></i></div>
       <div class="ob-hero-logo">MOMENTUM</div>
       <div class="ob-hero-brand-sub">The Zaera Habit Tracker</div>
       <div class="ob-hero-tagline">Set the week.<br>Follow the plan.</div>
