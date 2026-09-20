@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.zaeralabs.momentum",
+      "sha256_cert_fingerprints": [
+        "8C:DB:7E:FD:9F:98:94:87:AE:C8:3D:94:B2:F5:42:58:7B:98:5E:BA:73:02:B8:23:0C:E9:E6:E5:FA:B1:0A:43"
+      ]
+    }
+  }
+]
