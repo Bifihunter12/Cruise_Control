@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.19.05";
+const APP_VERSION = "2026.09.20.01";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -21,6 +21,7 @@ const CHALLENGE_ICON = {
   "weight-loss-30":"ti-scale","body-composition":"ti-scale","glucose-control":"ti-droplet",
   "sleep-tracker":"ti-moon","sleep-reset":"ti-moon","recovery-reset":"ti-bed","protein-challenge":"ti-meat",
   "hydration":"ti-droplet","posture-fix":"ti-stretching","digital-detox":"ti-device-mobile-off",
+  "dopamine-reset":"ti-brain","serotonin-boost":"ti-sun",
   "75-hard":"ti-flame","75-soft":"ti-flame","morning-routine":"ti-sun","morning-power-hour":"ti-sun",
   "everest-bc":"ti-mountain","west-highland-way":"ti-trekking","tour-du-mont-blanc":"ti-mountain",
   "john-muir-trail":"ti-trekking","camino":"ti-trekking","appalachian":"ti-trekking",
@@ -197,7 +198,7 @@ const FITNESS_TEMPLATE_IDS = new Set([
   "yoga-flexibility","posture-fix","beginner-strength","strength","core-abs","pilates",
   "running","c25k","kettlebell","calisthenics","pushup-challenge","pullup-progression",
 ]);
-const CORE_HABIT_TEMPLATE_IDS = new Set([...FITNESS_TEMPLATE_IDS, "sleep-reset", "stress-reset", "journaling"]);
+const CORE_HABIT_TEMPLATE_IDS = new Set([...FITNESS_TEMPLATE_IDS, "sleep-reset", "stress-reset", "journaling", "digital-detox", "dopamine-reset", "serotonin-boost"]);
 const INTENSE_TEMPLATE_IDS = new Set(["cruise-control", "75-hard", "monk-mode", "project-50"]);
 
 function getThemedLevelName(levelNum) {
@@ -405,6 +406,7 @@ const TEMPLATE_DIFFICULTY = {
   "morning-routine":"beginner","hydration":"beginner","meal-prep":"beginner",
   "no-spend":"beginner","dry-month":"beginner","creative":"beginner",
   "sleep-tracker":"beginner","no-sugar":"beginner","digital-detox":"beginner",
+  "dopamine-reset":"beginner","serotonin-boost":"beginner",
   "blood-pressure":"beginner","c25k":"beginner","pilates":"beginner",
   "sugar-reset-7":"beginner","caffeine-reset":"beginner","processed-food-reset":"beginner",
   "dry-reset-14":"beginner","fitter-starter":"beginner",
@@ -905,6 +907,31 @@ const TEMPLATES = [
       { id:"dd-morning",  title:"No phone first 30 min",      emoji:"🌅", quip:"Start the day on your terms.",            type:"binary", points:3 },
       { id:"dd-nobed",    title:"No phone in bed",            emoji:"🛏️", quip:"Better sleep starts here.",               type:"binary", points:2 },
       { id:"dd-outside",  title:"Spend 30 min outside",       emoji:"🌳", quip:"Real world. Real rest.",                  type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "dopamine-reset", name: "Dopamine Reset", emoji: "🧠", category: "lifestyle",
+    description: "21 days off compulsive stimulation — scrolling, sugar, and screens on autopilot. Reset your baseline.",
+    identity: "I am someone who doesn't need constant stimulation to feel okay.",
+    duration: 21, weeklyGoal: 70, defaultMode: "strict",
+    habits: [
+      { id:"dr-noscroll", title:"No mindless scrolling",           emoji:"📵", quip:"Notice the urge to check. Let it pass.",     type:"binary", points:4 },
+      { id:"dr-nosugar",  title:"No added sugar or junk food",     emoji:"🚫", quip:"Skip the quick hit. Let your baseline reset.",type:"binary", points:3 },
+      { id:"dr-boredom",  title:"Sit with boredom (10 min, no input)",emoji:"🌫️", quip:"No phone, no music, no scrolling. Just sit.", type:"binary", points:3 },
+      { id:"dr-move",     title:"Move your body",                  emoji:"🏃", quip:"Earned dopamine beats the free kind.",       type:"binary", points:3 },
+      { id:"dr-sunlight", title:"Morning sunlight",                emoji:"☀️", quip:"Light first. Screens later.",                type:"binary", points:2 },
+    ]
+  },
+  {
+    id: "serotonin-boost", name: "Serotonin Boost", emoji: "🌤️", category: "lifestyle",
+    description: "30 days of the habits that actually support mood — light, movement, connection, and gratitude.",
+    identity: "I am someone who builds my mood on purpose.",
+    duration: 30, weeklyGoal: 70, defaultMode: "soft",
+    habits: [
+      { id:"sb-sunlight",  title:"10 min morning sunlight", emoji:"☀️", quip:"Outside, no sunglasses, first hour up.",     type:"binary", points:3 },
+      { id:"sb-move",      title:"Move your body",          emoji:"🏃", quip:"A walk counts. Movement is the point.",       type:"binary", points:3, weeklyTarget:5 },
+      { id:"sb-connect",   title:"Reach out to someone",    emoji:"💬", quip:"A call, a text, a real conversation.",        type:"binary", points:2, weeklyTarget:5 },
+      { id:"sb-gratitude", title:"Gratitude note",          emoji:"🙏", quip:"One sentence, starting with \"I'm grateful for...\"", type:"text", points:2, placeholder:"I'm grateful for " },
     ]
   },
   {
@@ -6731,7 +6758,7 @@ function renderBuilderTemplates() {
   const cats = [
     { label:"Get Fitter", ids:["fitter-starter","75-soft","walking","running","c25k","strength-foundation","beginner-strength","yoga-flexibility"] },
     { label:"Strength Basics", ids:["strength-foundation","beginner-strength","strength","calisthenics","kettlebell","pushup-challenge","pullup-progression","core-abs","pilates"] },
-    { label:"Mind & Focus", ids:["read-a-book","meditation","journaling","stress-reset"] },
+    { label:"Mind & Focus", ids:["read-a-book","meditation","journaling","stress-reset","dopamine-reset","serotonin-boost","digital-detox"] },
     { label:"Recovery", ids:["sleep-reset","recovery-reset","yoga-flexibility","posture-fix"] },
     { label:"Simple Basics", ids:["start-small","momentum-builder","hydration","protein-challenge"] },
   ];
