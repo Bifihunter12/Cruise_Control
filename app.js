@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.20.02";
+const APP_VERSION = "2026.09.20.03";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
