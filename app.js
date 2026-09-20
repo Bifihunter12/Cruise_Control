@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.20.01";
+const APP_VERSION = "2026.09.20.02";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -8346,7 +8346,19 @@ function bindEvents() {
     render();
   });
   on("[data-close-builder]",() => { builderOpen=false; render(); });
-  on("[data-open-settings]",() => { settingsOpen=!settingsOpen; render(); });
+  on("[data-open-settings]",() => {
+    // The gear icon is visible on every screen, including the plan builder,
+    // plan detail, and edit-plan views — but those all render with higher
+    // priority than settingsOpen in _renderInner(), so toggling the flag
+    // without also closing them out silently did nothing while any of them
+    // were open. Force settings open and clear whatever else was showing.
+    builderOpen = false;
+    editChallengeId = null;
+    editForm = null;
+    viewChallengeId = null;
+    settingsOpen = true;
+    render();
+  });
   on("[data-close-settings]",()=>{ settingsOpen=false; render(); });
   on("[data-preview-onboarding]", () => { settingsOpen=false; _obAuthError=""; _obAuthMode="signup"; onboardingStep=0; render(); });
   on("[data-view-challenge]",el=>{ viewChallengeId=el.dataset.viewChallenge; calendarViewMonth=null; _pushAppState(); render(); });
