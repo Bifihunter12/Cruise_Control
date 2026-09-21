@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.21.02";
+const APP_VERSION = "2026.09.21.03";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -8772,18 +8772,27 @@ function bindEvents() {
     clearTimeout(_cloudPushTimer);
     _cloudPushTimer = null;
     _skipCloudPush = true;
-    // 2. Overwrite cloud row BEFORE clearing localStorage — auth token must
-    //    still be in localStorage for Supabase to authenticate the upsert
+    // 2. Actually delete the account server-side (removes both the saved
+    //    data row and the Supabase auth user itself — not just a local
+    //    sign-out). Needs the access token while it's still in localStorage.
     if (CloudSync.isSignedIn) {
       try {
-        await _sb().from("user_data").upsert({
-          user_id: CloudSync.uid,
-          state_json: {},
-          updated_at: new Date().toISOString(),
-        });
-      } catch(e) {}
+        const { data: { session } } = await _sb().auth.getSession();
+        const accessToken = session?.access_token;
+        if (accessToken) {
+          const res = await fetch("/.netlify/functions/delete-account", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${accessToken}` },
+          });
+          if (!res.ok) {
+            const info = await res.json().catch(() => ({}));
+            console.warn("Account deletion failed server-side:", info.error);
+            showToast("Your local data was wiped, but the cloud account may still exist — contact support if this persists.");
+          }
+        }
+      } catch(e) { console.warn("Account deletion request failed:", e); }
     }
-    // 3. Sign out (invalidates session server-side)
+    // 3. Sign out locally too (harmless if the account above was already deleted)
     try { await _sb().auth.signOut(); } catch(e) {}
     // 4. Now clear all client-side stores (auth token gone after signOut anyway)
     localStorage.clear();
