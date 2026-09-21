@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.21.01";
+const APP_VERSION = "2026.09.21.02";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -2664,6 +2664,7 @@ let _obAuthMode       = "signup"; // "signup" | "signin" on the account screen
 let _cloudPushTimer   = null;  // debounce timer for cloud push
 let _skipCloudPush    = false; // prevent redundant push after pull
 let reminderTimeout = null;
+let habitReminderTimeouts = {}; // "challengeId:habitId" -> timeout, for per-habit reminder times
 let _pwaInstallPrompt = null;  // beforeinstallprompt event (PWA install)
 let _showInstallBanner = false; // show the PWA install nudge
 let _cloudSyncing     = false; // true while CloudSync.pull / .push is in flight
@@ -2986,6 +2987,9 @@ function normalizeHabit(raw) {
   // occurrence-based (one occurrence per scheduled day, complete when that
   // day's logged amount clears this bar) instead of a single weekly total.
   if (typeof raw.dailyTarget === "number") habit.dailyTarget = Math.max(1, Math.round(raw.dailyTarget));
+  // Optional personal reminder time for this specific habit (e.g. "06:00" for
+  // a morning run) — independent of the single daily summary reminder.
+  if (typeof raw.reminderTime === "string" && /^\d{2}:\d{2}$/.test(raw.reminderTime)) habit.reminderTime = raw.reminderTime;
   if (Array.isArray(raw.tiers))         habit.tiers    = raw.tiers;
   // Main Quest model: the Promise habit (habits[0] on a Quest challenge) carries a
   // stable commitment (title/quip) plus a default + alternative ways to fulfill it.
@@ -6514,6 +6518,10 @@ function renderEditChallenge(c) {
                 <input id="ech-weekly-target" type="number" value="${habitWeeklyTarget(h, c)}" min="1" max="7" style="width:60px">
               </div>`}
               ${isTiered ? `<p style="font-size:11px;color:var(--text-dim);margin:0">Tiered habit — to change tiers, delete and re-add.</p>` : ""}
+              <div class="tier-inputs-simple">
+                <span style="font-size:12px;color:var(--text-dim)">Remind me at (optional)</span>
+                <input id="ech-reminder-time" type="time" value="${h.reminderTime || ""}" style="width:110px">
+              </div>
               <div class="ech-edit-actions">
                 <button class="pill-btn" data-ec-save-habit>Save ✓</button>
                 <button class="secondary-button" style="padding:6px 12px;font-size:13px" data-ec-cancel-habit-edit>Cancel</button>
@@ -6523,7 +6531,7 @@ function renderEditChallenge(c) {
           return `
           <div class="custom-habit-row">
             <span class="custom-habit-emoji"><i class="ti ti-square"></i></span>
-            <span class="custom-habit-name">${esc(h.title)}</span>
+            <span class="custom-habit-name">${esc(h.title)}${h.reminderTime ? ` <i class="ti ti-bell" title="Reminder at ${h.reminderTime}" style="font-size:11px;color:var(--text-dim)"></i>` : ""}</span>
             <span class="custom-habit-pts">${habitWeeklyTarget(h, c)}${h.type==="quantity"&&h.unit?` ${h.unit}`:""}/week</span>
             <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points??h.tiers[0].pts??0}–${(t=>t.points??t.pts??0)(h.tiers[h.tiers.length-1])}pt` : h.points+"pt"}</span>
             <button class="icon-btn" data-ec-edit-habit="${i}" title="Edit"><i class="ti ti-pencil"></i></button>
@@ -8135,7 +8143,8 @@ function renderReminderSettings() {
       <input id="reminder-time" type="time" value="${time}">
     </label>
     <button class="secondary-button" data-save-reminder style="margin-top:10px">Save time</button>
-    <p class="reminder-note" style="margin-top:8px">Browsers suspend timers in closed or backgrounded tabs, so this can miss firing if you're not near the app. We're looking at a proper background version.</p>` : ""}`;
+    <p class="reminder-note" style="margin-top:8px">Browsers suspend timers in closed or backgrounded tabs, so this can miss firing if you're not near the app. We're looking at a proper background version.</p>
+    <p class="reminder-note" style="margin-top:8px">Want a habit reminded at its own time — like a run at 6am or reading at 8pm? Open a plan → Edit Plan → edit that habit → "Remind me at".</p>` : ""}`;
   }
   return `
   <div class="section-label" style="margin-top:20px">Reminders</div>
@@ -8630,17 +8639,19 @@ function bindEvents() {
     const h = editForm.habits[i];
     const title = (document.getElementById("ech-title")?.value || "").trim();
     if (!title) { showToast("Habit needs a name."); return; }
+    const reminderTime = document.getElementById("ech-reminder-time")?.value || null;
     if (h.type === "tiered") {
       const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-weekly-target")?.value) || habitWeeklyTarget(h)));
-      editForm.habits[i] = { ...h, title, weeklyTarget };
+      editForm.habits[i] = { ...h, title, weeklyTarget, reminderTime };
     } else if (h.type === "quantity") {
       const unit = (document.getElementById("ech-unit")?.value || h.unit || "").trim();
       const weeklyQty = Math.max(1, Math.min(9999, Number(document.getElementById("ech-weekly-qty")?.value) || h.weeklyQty || 1));
-      editForm.habits[i] = { ...h, title, unit, weeklyQty };
+      editForm.habits[i] = { ...h, title, unit, weeklyQty, reminderTime };
     } else {
       const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-weekly-target")?.value) || habitWeeklyTarget(h)));
-      editForm.habits[i] = { ...h, title, weeklyTarget };
+      editForm.habits[i] = { ...h, title, weeklyTarget, reminderTime };
     }
+    if (!reminderTime) delete editForm.habits[i].reminderTime;
     editForm.habitEditIdx = null;
     render();
   });
@@ -8747,7 +8758,8 @@ function bindEvents() {
   on("[data-toggle-reminder]",        el => {
     state.settings.reminderEnabled = el.checked;
     saveState();
-    if (el.checked) scheduleReminder(); else clearTimeout(reminderTimeout);
+    if (el.checked) { scheduleReminder(); scheduleHabitReminders(); }
+    else { clearTimeout(reminderTimeout); Object.values(habitReminderTimeouts).forEach(clearTimeout); habitReminderTimeouts = {}; }
     render();
   });
   on("[data-save-reminder]",   () => saveReminderTime());
@@ -9669,6 +9681,7 @@ function saveEditChallenge() {
   state.xp = recalcXP();
   saveState();
   checkBadges(c);
+  scheduleHabitReminders();
   editChallengeId = null;
   editForm        = null;
   viewChallengeId = c.id;
@@ -9751,7 +9764,7 @@ function deleteChallenge(id) {
     `Delete "${displayPlanName(c.name)}"? All progress will be permanently removed.`,
     () => {
       delete state.challenges[id];
-      saveState(); viewChallengeId = null;
+      saveState(); scheduleHabitReminders(); viewChallengeId = null;
       showToast(`Plan deleted.`); render();
     }
   );
@@ -9947,6 +9960,55 @@ function fireReminder() {
   });
 }
 
+// Per-habit reminders — e.g. "Run" at 6am, "Walk the dog" at 8am, "Read"
+// at 8pm. Independent of the single daily summary reminder above; a habit
+// only gets one of these if the user set a specific time for it (see the
+// "Remind me at" field on the Edit Plan screen). Rebuilt from scratch on
+// every call so edited/deleted habits and plans can't leave stale timers.
+function scheduleHabitReminders() {
+  Object.values(habitReminderTimeouts).forEach(clearTimeout);
+  habitReminderTimeouts = {};
+  if (!state.settings.reminderEnabled) return;
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  for (const c of getActiveChallenges()) {
+    for (const h of c.habits) {
+      if (!h.reminderTime) continue;
+      scheduleOneHabitReminder(c.id, h.id);
+    }
+  }
+}
+
+function scheduleOneHabitReminder(challengeId, habitId) {
+  const c = getChallenge(challengeId);
+  const h = c?.habits.find(hh => hh.id === habitId);
+  if (!c || !h || !h.reminderTime) return;
+  const [hh24, mm] = h.reminderTime.split(":").map(Number);
+  const now = new Date();
+  const fire = new Date(now);
+  fire.setHours(hh24, mm, 0, 0);
+  if (fire <= now) fire.setDate(fire.getDate() + 1);
+  const key = `${challengeId}:${habitId}`;
+  habitReminderTimeouts[key] = setTimeout(() => {
+    fireHabitReminder(challengeId, habitId);
+    scheduleOneHabitReminder(challengeId, habitId);
+  }, fire - now);
+}
+
+function fireHabitReminder(challengeId, habitId) {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  const c = getChallenge(challengeId);
+  const h = c?.habits.find(hh => hh.id === habitId);
+  if (!c || !h) return;
+  const day = c.days[todayKey()];
+  if (day?.done?.includes(habitId)) return; // already done — don't nag
+  new Notification(h.title, {
+    body: h.quip || "It's time.",
+    icon: "/icons/icon-192.svg",
+    tag: `habit-${habitId}`,
+    renotify: true,
+  });
+}
+
 async function requestNotificationPermission() {
   if (!("Notification" in window)) { showToast("Notifications aren't supported in this browser."); return; }
   const timeInput = document.getElementById("notif-time-input");
@@ -9956,6 +10018,7 @@ async function requestNotificationPermission() {
     state.settings.reminderEnabled = true;
     saveState();
     scheduleReminder();
+    scheduleHabitReminders();
     showToast("Reminders on! You'll be nudged at " + state.settings.reminderTime);
   } else {
     state.settings.reminderEnabled = false;
@@ -10010,6 +10073,7 @@ function startUpdateChecks() {
     if (!document.hidden) {
       if (Date.now() - _lastUpdateCheckTime > 5 * 60 * 1000) checkForAppUpdate();
       scheduleReminder();
+      scheduleHabitReminders();
     } else {
       flushCloudPush();  // app backgrounded — don't let a fresh log wait out the debounce
     }
@@ -10142,6 +10206,7 @@ checkNewWeekCeremony();
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); _pwaInstallPrompt = e; });
 saveState();
 scheduleReminder();
+scheduleHabitReminders();
 setDynamicIcon();
 CloudSync.init();
 
