@@ -14,7 +14,7 @@
 
 const { createClient } = require("@supabase/supabase-js");
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://rmyvpndnwpgrxosqrqff.supabase.co";
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://jfhlsdkqtieriixudzko.supabase.co";
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const CORS = {

@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.21.03";
+const APP_VERSION = "2026.09.21.04";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -2771,8 +2771,8 @@ const AIService = {
 };
 
 // ── Cloud Sync (Supabase) ──────────────────────────────────────────────────
-const SUPABASE_URL = "https://rmyvpndnwpgrxosqrqff.supabase.co";
-const SUPABASE_KEY = "sb_publishable_NEeo1fUgGclLFN6VGGhl6w_ROgAEQJg";
+const SUPABASE_URL = "https://jfhlsdkqtieriixudzko.supabase.co";
+const SUPABASE_KEY = "sb_publishable_PoM_eo3RtbSX5zE4sB8COg_E9FrAwtw";
 let _sbClient = null;
 function _sb() {
   if (!_sbClient) _sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
