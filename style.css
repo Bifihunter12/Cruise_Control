@@ -4096,6 +4096,7 @@ button { border: 0; cursor: pointer; color: inherit; background: none; }
   background: var(--gradient); -webkit-background-clip: text;
   -webkit-text-fill-color: transparent; background-clip: text;
   margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: clip;
 }
 .luo-name  { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
 .luo-total { font-size: 13px; color: var(--text-dim); margin-bottom: 24px; }

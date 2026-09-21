@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.20.03";
+const APP_VERSION = "2026.09.21.01";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -4107,6 +4107,13 @@ function showBigToast(emoji, title, sub, duration = 4000) {
 // animation. Same fix as the badge-toast system earlier this session.
 function showLevelUpModal(o) {
   if (document.getElementById('level-up-modal')) return;
+  const levelName = getThemedLevelName(o.level);
+  // .luo-level is a big 72px display size tuned for short names ("Spark",
+  // "Driven"). Longer ones ("Unstoppable", "Consistent") overflow the card
+  // at that size, so scale down based on length — the card's inner width is
+  // ~270px and this font is bold/condensed enough that ~0.62em per
+  // character is a safe average to size against.
+  const fitSize = Math.max(32, Math.min(72, Math.floor(270 / (levelName.length * 0.62))));
   const el = document.createElement('div');
   el.id = 'level-up-modal';
   el.className = 'luo-backdrop';
@@ -4115,7 +4122,7 @@ function showLevelUpModal(o) {
     <div class="luo-card" role="dialog" aria-modal="true" aria-label="Level up!">
       <div class="luo-burst"><i class="ti ti-flame"></i></div>
       <div class="luo-badge">LEVEL UP</div>
-      <div class="luo-level">${getThemedLevelName(o.level)}</div>
+      <div class="luo-level" style="font-size:${fitSize}px">${esc(levelName)}</div>
       <div class="luo-total">${o.total.toLocaleString()} XP total</div>
       <button class="primary-button luo-cta" data-close-levelup-modal>Keep going</button>
     </div>`;
