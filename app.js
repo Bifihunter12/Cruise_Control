@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.22.01";
+const APP_VERSION = "2026.09.22.02";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -6496,13 +6496,27 @@ function renderEditChallenge(c) {
             // Inline edit row
             const isTiered = h.type === "tiered";
             const isQty = h.type === "quantity";
+            const isDailyQty = isQty && h.dailyTarget;
+            const isWeeklyQty = isQty && !h.dailyTarget;
             return `
             <div class="ech-edit-row">
               <div class="ech-edit-top">
                 <input id="ech-title" type="text" value="${esc(h.title)}" placeholder="Habit name" style="flex:1">
                 ${isTiered ? `<span class="custom-habit-pts" style="font-size:11px">${h.tiers.map(t=>t.label||`Tier`).join(" / ")}</span>` : ""}
               </div>
-              ${isQty ? `
+              ${isDailyQty ? `
+              <div class="tier-inputs-simple">
+                <span style="font-size:12px;color:var(--text-dim)">Unit</span>
+                <input id="ech-unit" type="text" value="${esc(h.unit||"")}" maxlength="12" style="width:80px">
+              </div>
+              <div class="tier-inputs-simple">
+                <span style="font-size:12px;color:var(--text-dim)">Daily target</span>
+                <input id="ech-daily-target" type="number" value="${h.dailyTarget}" min="1" max="999999" style="width:80px">
+              </div>
+              <div class="tier-inputs-simple">
+                <span style="font-size:12px;color:var(--text-dim)">Days per week</span>
+                <input id="ech-weekly-target" type="number" value="${habitWeeklyTarget(h, c)}" min="1" max="7" style="width:60px">
+              </div>` : isWeeklyQty ? `
               <div class="tier-inputs-simple">
                 <span style="font-size:12px;color:var(--text-dim)">Unit</span>
                 <input id="ech-unit" type="text" value="${esc(h.unit||"")}" maxlength="12" style="width:80px">
@@ -8648,6 +8662,11 @@ function bindEvents() {
     if (h.type === "tiered") {
       const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-weekly-target")?.value) || habitWeeklyTarget(h)));
       editForm.habits[i] = { ...h, title, weeklyTarget, reminderTime };
+    } else if (h.type === "quantity" && h.dailyTarget) {
+      const unit = (document.getElementById("ech-unit")?.value || h.unit || "").trim();
+      const dailyTarget = Math.max(1, Math.min(999999, Number(document.getElementById("ech-daily-target")?.value) || h.dailyTarget));
+      const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-weekly-target")?.value) || habitWeeklyTarget(h)));
+      editForm.habits[i] = { ...h, title, unit, dailyTarget, weeklyTarget, points, reminderTime };
     } else if (h.type === "quantity") {
       const unit = (document.getElementById("ech-unit")?.value || h.unit || "").trim();
       const weeklyQty = Math.max(1, Math.min(9999, Number(document.getElementById("ech-weekly-qty")?.value) || h.weeklyQty || 1));
