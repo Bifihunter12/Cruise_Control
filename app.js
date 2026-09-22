@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.21.04";
+const APP_VERSION = "2026.09.22.01";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -2893,7 +2893,7 @@ function defaultBuilderForm() {
     habits: [],
     newHabitEmoji: "⭐",
     newHabitName: "",
-    newHabitPoints: 2,
+    newHabitPoints: 1,
     newHabitWeeklyTarget: 5,
     newHabitType: "binary",
     newHabitUnit: "min",
@@ -2931,8 +2931,10 @@ function saveBuilderFormFromDOM() {
   if (nhWeeklyTarget) builderForm.newHabitWeeklyTarget = Math.max(1, Math.min(7, Number(nhWeeklyTarget.value) || builderForm.newHabitWeeklyTarget));
   const nhUnit = document.getElementById("nh-unit");
   const nhWeeklyQty = document.getElementById("nh-weekly-qty");
+  const nhPoints = document.getElementById("nh-points");
   if (nhUnit)      builderForm.newHabitUnit = nhUnit.value.trim();
   if (nhWeeklyQty) builderForm.newHabitWeeklyQty = Math.max(1, Math.min(9999, Number(nhWeeklyQty.value) || builderForm.newHabitWeeklyQty));
+  if (nhPoints)    builderForm.newHabitPoints = Math.max(1, Math.min(10, Number(nhPoints.value) || builderForm.newHabitPoints));
   builderForm.newHabitTiers = builderForm.newHabitTiers.map((t, i) => ({
     ...t,
     label:  document.getElementById(`nh-tier-${i}-label`)?.value ?? t.label,
@@ -6463,10 +6465,6 @@ function renderEditChallenge(c) {
         Plan name
         <input id="ec-name" type="text" value="${esc(c.name)}" maxlength="40">
       </label>
-      <label class="field" style="margin-bottom:14px">
-        Emoji
-        <input id="ec-emoji" type="text" value="${esc(c.emoji)}" maxlength="2" class="emoji-input" style="width:64px">
-      </label>
       <div class="field-grid" style="margin-bottom:14px">
         <label class="field">Start date<input id="ec-start" type="date" value="${c.startDate}"></label>
         <label class="field">End date<input id="ec-end" type="date" value="${c.endDate}"></label>
@@ -6517,7 +6515,11 @@ function renderEditChallenge(c) {
                 <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
                 <input id="ech-weekly-target" type="number" value="${habitWeeklyTarget(h, c)}" min="1" max="7" style="width:60px">
               </div>`}
-              ${isTiered ? `<p style="font-size:11px;color:var(--text-dim);margin:0">Tiered habit — to change tiers, delete and re-add.</p>` : ""}
+              ${isTiered ? `<p style="font-size:11px;color:var(--text-dim);margin:0">Tiered habit — to change tiers, delete and re-add.</p>` : `
+              <div class="tier-inputs-simple">
+                <span style="font-size:12px;color:var(--text-dim)">XP per habit</span>
+                <input id="ech-points" type="number" value="${h.points ?? 1}" min="1" max="10" style="width:60px">
+              </div>`}
               <div class="tier-inputs-simple">
                 <span style="font-size:12px;color:var(--text-dim)">Remind me at (optional)</span>
                 <input id="ech-reminder-time" type="time" value="${h.reminderTime || ""}" style="width:110px">
@@ -6533,7 +6535,7 @@ function renderEditChallenge(c) {
             <span class="custom-habit-emoji"><i class="ti ti-square"></i></span>
             <span class="custom-habit-name">${esc(h.title)}${h.reminderTime ? ` <i class="ti ti-bell" title="Reminder at ${h.reminderTime}" style="font-size:11px;color:var(--text-dim)"></i>` : ""}</span>
             <span class="custom-habit-pts">${habitWeeklyTarget(h, c)}${h.type==="quantity"&&h.unit?` ${h.unit}`:""}/week</span>
-            <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points??h.tiers[0].pts??0}–${(t=>t.points??t.pts??0)(h.tiers[h.tiers.length-1])}pt` : h.points+"pt"}</span>
+            <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points??h.tiers[0].pts??0}–${(t=>t.points??t.pts??0)(h.tiers[h.tiers.length-1])} XP` : h.points+" XP"}</span>
             <button class="icon-btn" data-ec-edit-habit="${i}" title="Edit"><i class="ti ti-pencil"></i></button>
             <button class="icon-btn" data-ec-delete-habit="${i}" title="Delete" style="color:var(--secondary)"><i class="ti ti-x"></i></button>
           </div>`;
@@ -6580,7 +6582,11 @@ function renderEditChallenge(c) {
           <div class="tier-inputs-simple">
             <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
             <input id="ech-new-weekly-target" type="number" value="${ef.newHabitWeeklyTarget||5}" min="1" max="7" style="width:60px">
-          </div>` : ""}
+          </div>` : `
+          <div class="tier-inputs-simple">
+            <span style="font-size:12px;color:var(--text-dim)">XP per habit</span>
+            <input id="ech-new-points" type="number" value="${ef.newHabitPoints||1}" min="1" max="10" style="width:60px">
+          </div>`}
           <button class="pill-btn" data-ec-add-habit style="margin-top:8px;width:100%">+ Add habit</button>
         </div>`;
         })()}
@@ -6939,13 +6945,6 @@ function renderBuilderCustomize() {
         <input id="bf-goalweight" type="number" value="${builderForm.goalWeight || ""}" min="0" max="999" step="0.1" placeholder="e.g. 150">
       </label>`;
     })()}
-    ${(() => {
-      const habits = builderForm.templateId
-        ? (TEMPLATES.find(t=>t.id===builderForm.templateId)?.habits || [])
-        : builderForm.habits;
-      const occurrencesPerWeek = habits.reduce((s,h) => s + habitWeeklyTarget(h), 0);
-      return occurrencesPerWeek > 0 ? `<p class="mode-desc" style="margin-bottom:16px">~${occurrencesPerWeek} XP/week if all habits are kept on schedule</p>` : `<p style="margin-bottom:16px"></p>`;
-    })()}
     ${template?.routeKm ? `
     <div class="route-info-card">
       <div class="route-info-header">
@@ -6971,6 +6970,7 @@ function renderBuilderCustomize() {
             <span class="custom-habit-emoji"><i class="ti ti-flame"></i></span>
             <span class="custom-habit-name">${esc(h.title)}</span>
             <span class="custom-habit-pts">${h.type==="quantity"&&h.unit?`${h.weeklyQty}${h.unit?` ${h.unit}`:""}/week`:`${habitWeeklyTarget(h)}/week`}</span>
+            <span class="custom-habit-pts">${h.type==="tiered" ? `${h.tiers[0].points??h.tiers[0].pts??0}–${(t=>t.points??t.pts??0)(h.tiers[h.tiers.length-1])} XP` : h.points+" XP"}</span>
             <button class="icon-btn" data-remove-habit="${i}"><i class="ti ti-x"></i></button>
           </div>`).join("")}
         <div class="add-habit-form">
@@ -7010,7 +7010,11 @@ function renderBuilderCustomize() {
           <div class="tier-inputs-simple">
             <span style="font-size:12px;color:var(--text-dim)">Target per week</span>
             <input id="nh-weekly-target" type="number" value="${builderForm.newHabitWeeklyTarget}" min="1" max="7" style="width:60px">
-          </div>` : ""}
+          </div>` : `
+          <div class="tier-inputs-simple">
+            <span style="font-size:12px;color:var(--text-dim)">XP per habit</span>
+            <input id="nh-points" type="number" value="${builderForm.newHabitPoints||1}" min="1" max="10" style="width:60px">
+          </div>`}
           <button class="pill-btn" data-add-habit style="margin-top:8px;width:100%">+ Add Habit</button>
         </div>
       </div>`}
@@ -8595,7 +8599,7 @@ function bindEvents() {
       jokerBudget: typeof c.jokerBudget === "number" ? c.jokerBudget : 3,
       habits: JSON.parse(JSON.stringify(c.habits)),  // deep copy — Cancel discards this
       habitEditIdx: null,
-      newHabitEmoji: "⭐", newHabitTitle: "", newHabitPoints: 2, newHabitWeeklyTarget: 5,
+      newHabitEmoji: "⭐", newHabitTitle: "", newHabitPoints: 1, newHabitWeeklyTarget: 5,
       newHabitType: "binary", newHabitUnit: "min", newHabitWeeklyQty: 150,
       newHabitTiers: [{ label:"", points:1 }, { label:"", points:2 }, { label:"", points:3 }],
     };
@@ -8640,16 +8644,17 @@ function bindEvents() {
     const title = (document.getElementById("ech-title")?.value || "").trim();
     if (!title) { showToast("Habit needs a name."); return; }
     const reminderTime = document.getElementById("ech-reminder-time")?.value || null;
+    const points = Math.max(1, Math.min(10, Number(document.getElementById("ech-points")?.value) || h.points || 1));
     if (h.type === "tiered") {
       const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-weekly-target")?.value) || habitWeeklyTarget(h)));
       editForm.habits[i] = { ...h, title, weeklyTarget, reminderTime };
     } else if (h.type === "quantity") {
       const unit = (document.getElementById("ech-unit")?.value || h.unit || "").trim();
       const weeklyQty = Math.max(1, Math.min(9999, Number(document.getElementById("ech-weekly-qty")?.value) || h.weeklyQty || 1));
-      editForm.habits[i] = { ...h, title, unit, weeklyQty, reminderTime };
+      editForm.habits[i] = { ...h, title, unit, weeklyQty, points, reminderTime };
     } else {
       const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-weekly-target")?.value) || habitWeeklyTarget(h)));
-      editForm.habits[i] = { ...h, title, weeklyTarget, reminderTime };
+      editForm.habits[i] = { ...h, title, weeklyTarget, points, reminderTime };
     }
     if (!reminderTime) delete editForm.habits[i].reminderTime;
     editForm.habitEditIdx = null;
@@ -8674,6 +8679,7 @@ function bindEvents() {
     const emoji = "🔥";
     const title = (document.getElementById("ech-new-title")?.value || "").trim();
     if (!title) { showToast(`Enter an ${term('habit')} name.`); return; }
+    const points = Math.max(1, Math.min(10, Number(document.getElementById("ech-new-points")?.value) || editForm.newHabitPoints || 1));
     if (editForm.newHabitType === "tiered") {
       const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-new-weekly-target")?.value) || editForm.newHabitWeeklyTarget || 5));
       const tiers = (editForm.newHabitTiers || []).map((t, i) => ({
@@ -8686,12 +8692,13 @@ function bindEvents() {
     } else if (editForm.newHabitType === "quantity") {
       const unit = (document.getElementById("ech-new-unit")?.value || editForm.newHabitUnit || "").trim();
       const weeklyQty = Math.max(1, Math.min(9999, Number(document.getElementById("ech-new-weekly-qty")?.value) || editForm.newHabitWeeklyQty || 1));
-      editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "quantity", points: 1, unit, weeklyQty });
+      editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "quantity", points, unit, weeklyQty });
     } else {
       const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-new-weekly-target")?.value) || editForm.newHabitWeeklyTarget || 5));
-      editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "binary", points: 1, weeklyTarget });
+      editForm.habits.push({ id: uid(), title, emoji, quip: "", type: "binary", points, weeklyTarget });
     }
     editForm.newHabitTitle  = "";
+    editForm.newHabitPoints = 1;
     editForm.newHabitWeeklyTarget = 5;
     editForm.newHabitUnit   = "min";
     editForm.newHabitWeeklyQty = 150;
@@ -8726,8 +8733,10 @@ function bindEvents() {
     const newWeeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("ech-new-weekly-target")?.value) || editForm.newHabitWeeklyTarget || 5));
     const newUnitEl = document.getElementById("ech-new-unit");
     const newQtyEl  = document.getElementById("ech-new-weekly-qty");
+    const newPointsEl = document.getElementById("ech-new-points");
     if (newUnitEl) editForm.newHabitUnit = newUnitEl.value.trim();
     if (newQtyEl)  editForm.newHabitWeeklyQty = Math.max(1, Math.min(9999, Number(newQtyEl.value) || editForm.newHabitWeeklyQty || 150));
+    if (newPointsEl) editForm.newHabitPoints = Math.max(1, Math.min(10, Number(newPointsEl.value) || editForm.newHabitPoints || 1));
     editForm.newHabitTiers = (editForm.newHabitTiers || []).map((t, i) => ({
       ...t,
       label:  document.getElementById(`ech-tier-${i}-label`)?.value ?? t.label,
@@ -9618,6 +9627,7 @@ function addCustomHabit() {
   const emoji = "🔥";
   const name  = (document.getElementById("nh-name")?.value||"").trim();
   const weeklyTarget = Math.max(1, Math.min(7, Number(document.getElementById("nh-weekly-target")?.value) || builderForm.newHabitWeeklyTarget || 5));
+  const points = Math.max(1, Math.min(10, Number(document.getElementById("nh-points")?.value) || builderForm.newHabitPoints || 1));
   if (!name) { showToast(`Enter an ${term('habit')} name.`); return; }
 
   if (builderForm.newHabitType === "tiered") {
@@ -9631,12 +9641,13 @@ function addCustomHabit() {
   } else if (builderForm.newHabitType === "quantity") {
     const unit = (document.getElementById("nh-unit")?.value || builderForm.newHabitUnit || "").trim();
     const weeklyQty = Math.max(1, Math.min(9999, Number(document.getElementById("nh-weekly-qty")?.value) || builderForm.newHabitWeeklyQty || 1));
-    builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"quantity", points:1, unit, weeklyQty });
+    builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"quantity", points, unit, weeklyQty });
   } else {
-    builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"binary", points:1, weeklyTarget });
+    builderForm.habits.push({ id:uid(), title:name, emoji, quip:"", type:"binary", points, weeklyTarget });
   }
 
   builderForm.newHabitName   = "";
+  builderForm.newHabitPoints = 1;
   builderForm.newHabitWeeklyTarget = 5;
   builderForm.newHabitUnit   = "min";
   builderForm.newHabitWeeklyQty = 150;
@@ -9653,12 +9664,10 @@ function removeCustomHabit(i) {
 function saveEditChallenge() {
   const c = getChallenge(editChallengeId); if (!c) return;
   const name  = document.getElementById("ec-name")?.value.trim();
-  const emoji = document.getElementById("ec-emoji")?.value.trim();
   const start = document.getElementById("ec-start")?.value;
   const end   = document.getElementById("ec-end")?.value;
   if (!start || !end || start > end) { showToast("Check your dates."); return; }
   if (name)  c.name       = name;
-  if (emoji) c.emoji      = emoji;
   c.startDate  = start;
   c.endDate    = end;
   c.mode       = editForm?.mode || c.mode;
