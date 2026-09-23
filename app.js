@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.23.02";
+const APP_VERSION = "2026.09.23.03";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -192,7 +192,6 @@ const FITNESS_TEMPLATE_IDS = new Set([
   "yoga-flexibility","posture-fix","beginner-strength","strength","core-abs","pilates",
   "c25k","kettlebell","calisthenics","pushup-challenge","pullup-progression",
 ]);
-const CORE_HABIT_TEMPLATE_IDS = new Set([...FITNESS_TEMPLATE_IDS, "sleep-reset", "stress-reset", "journaling", "digital-detox", "dopamine-reset", "serotonin-boost"]);
 const INTENSE_TEMPLATE_IDS = new Set(["cruise-control", "75-hard", "monk-mode", "project-50"]);
 
 function getThemedLevelName(levelNum) {
@@ -465,7 +464,7 @@ const ENDUR_TEMPLATE_IDS = new Set([
 ]);
 
 function isConqurTemplate(t) {
-  return !!t && !t.deprecated && CORE_HABIT_TEMPLATE_IDS.has(t.id);
+  return !!t && !t.deprecated;
 }
 
 // Challenge template → tier
@@ -6000,8 +5999,18 @@ function renderBuilderTemplates() {
     { label:"Mind & Focus", ids:["read-a-book","meditation","journaling","stress-reset","dopamine-reset","serotonin-boost","digital-detox"] },
     { label:"Recovery", ids:["sleep-reset","recovery-reset","yoga-flexibility","posture-fix"] },
     { label:"Simple Basics", ids:["start-small","momentum-builder","hydration","protein-challenge"] },
+    { label:"More Movement", ids:["dog-walk","12-3-30"] },
+    { label:"Discipline & Transformation", ids:["cruise-control","75-hard","cold-exposure","intermittent-fasting","monk-mode","project-50","morning-power-hour","deep-work-sprint"] },
+    { label:"Endurance & Racing", ids:["tough-mudder","spartan-race"] },
+    { label:"Health Tracking", ids:["weight-loss-30","body-composition","glucose-control","sleep-tracker","fiber-challenge","lean-start","fat-loss-foundation"] },
+    { label:"Nutrition Resets", ids:["dry-month","no-sugar","sugar-reset-7","sugar-reset-strict","caffeine-reset","processed-food-reset","dry-reset-14","meal-prep"] },
+    { label:"Reading & Creativity", ids:["reading","creative"] },
+    { label:"Mornings & Resets", ids:["morning-routine","reset-week"] },
+    { label:"Money & Home", ids:["no-spend","declutter","budget-reset"] },
+    { label:"Self-Care & Mindset", ids:["self-care-30","gratitude-reset","mental-health-30"] },
+    { label:"Learning & Awareness", ids:["language-learning","mindful-eating","nature-reset"] },
   ];
-  const fitnessCategoryLabels = new Set(["Get Fitter", "Strength Basics", "Recovery", "Simple Basics"]);
+  const fitnessCategoryLabels = new Set(["Get Fitter", "Strength Basics", "Recovery", "Simple Basics", "More Movement", "Discipline & Transformation", "Endurance & Racing", "Health Tracking"]);
   // Category-based quick filters — each maps a filter chip id to the category
   // section(s) it should narrow the list down to, so choosing e.g. "Recovery"
   // shows only that section instead of everything.
