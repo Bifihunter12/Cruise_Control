@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.23.01";
+const APP_VERSION = "2026.09.23.02";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -11,13 +11,12 @@ const TIER_ICON = { common:"ti-award", uncommon:"ti-award", rare:"ti-medal", epi
 const CATEGORY_ICON = { movement:"ti-run", endurance:"ti-stopwatch", health:"ti-heart-rate-monitor", expedition:"ti-map-2", transformation:"ti-flame", lifestyle:"ti-sun", mindset:"ti-brain" };
 const CHALLENGE_ICON = {
   "fitter-starter":"ti-flame",
-  "dog-walk":"ti-dog","cycling":"ti-bike","walking":"ti-walk","running":"ti-run",
+  "dog-walk":"ti-dog","walking":"ti-walk",
   "strength":"ti-barbell","yoga-flexibility":"ti-yoga","core-abs":"ti-stretching",
-  "c25k":"ti-run","5k-prep":"ti-run","pilates":"ti-stretching","12-3-30":"ti-treadmill",
+  "c25k":"ti-run","pilates":"ti-stretching","12-3-30":"ti-treadmill",
   "kettlebell":"ti-barbell","calisthenics":"ti-barbell","beginner-strength":"ti-barbell",
   "pushup-challenge":"ti-barbell","pullup-progression":"ti-barbell",
-  "zone2":"ti-heart-rate-monitor","hyrox":"ti-stopwatch","half-marathon-prep":"ti-run",
-  "marathon-training":"ti-run","10k-prep":"ti-run","swim-foundation":"ti-swimming","swim-1k":"ti-swimming","open-water-prep":"ti-lifebuoy",
+  "swim-foundation":"ti-swimming","swim-1k":"ti-swimming","open-water-prep":"ti-lifebuoy",
   "weight-loss-30":"ti-scale","body-composition":"ti-scale","glucose-control":"ti-droplet",
   "sleep-tracker":"ti-moon","sleep-reset":"ti-moon","recovery-reset":"ti-bed","protein-challenge":"ti-meat",
   "hydration":"ti-droplet","posture-fix":"ti-stretching","digital-detox":"ti-device-mobile-off",
@@ -191,7 +190,7 @@ const FITNESS_TEMPLATE_IDS = new Set([
   ...FITNESS_STARTER_IDS,
   "start-small","momentum-builder","protein-challenge","hydration","recovery-reset",
   "yoga-flexibility","posture-fix","beginner-strength","strength","core-abs","pilates",
-  "running","c25k","kettlebell","calisthenics","pushup-challenge","pullup-progression",
+  "c25k","kettlebell","calisthenics","pushup-challenge","pullup-progression",
 ]);
 const CORE_HABIT_TEMPLATE_IDS = new Set([...FITNESS_TEMPLATE_IDS, "sleep-reset", "stress-reset", "journaling", "digital-detox", "dopamine-reset", "serotonin-boost"]);
 const INTENSE_TEMPLATE_IDS = new Set(["cruise-control", "75-hard", "monk-mode", "project-50"]);
@@ -406,25 +405,22 @@ const TEMPLATE_DIFFICULTY = {
   "sugar-reset-7":"beginner","caffeine-reset":"beginner","processed-food-reset":"beginner",
   "dry-reset-14":"beginner","fitter-starter":"beginner",
   // Intermediate — consistent effort or existing fitness base needed
-  "running":"intermediate","cycling":"intermediate","yoga-flexibility":"intermediate",
+  "yoga-flexibility":"intermediate",
   "core-abs":"intermediate","strength":"intermediate","30-pushups":"intermediate",
   "30-squats":"intermediate","30-plank":"intermediate","spin":"intermediate",
-  "12-3-30":"intermediate","5k-prep":"intermediate","protein-challenge":"intermediate",
+  "12-3-30":"intermediate","protein-challenge":"intermediate",
   "weight-loss-30":"intermediate","body-composition":"intermediate",
   "glucose-control":"intermediate","sugar-reset-strict":"intermediate",
   // Advanced — high consistency demands or health-sensitive protocols
-  "75-soft":"advanced","10k-prep":"advanced","run-streak":"advanced",
-  "cold-exposure":"advanced","half-marathon-prep":"advanced",
+  "75-soft":"advanced","run-streak":"advanced",
+  "cold-exposure":"advanced",
   "cruise-control":"advanced","intermittent-fasting":"advanced",
   "monk-mode":"advanced","project-50":"advanced",
   // Extreme — elite output, multi-month commitment, or medical risk
-  "75-hard":"extreme","marathon-training":"extreme",
-  // HYROX — advanced functional racing
-  "hyrox":"advanced",
-  "ironman-703":"extreme","ironman-full":"extreme",
+  "75-hard":"extreme",
   "tough-mudder":"extreme","spartan-race":"extreme",
   // New challenges
-  "steps-10k":"beginner","zone2":"intermediate","recovery-reset":"beginner",
+  "steps-10k":"beginner","recovery-reset":"beginner",
   "fiber-challenge":"beginner","declutter":"beginner",
   // Strength single-movement progressions
   "pull-up-challenge":"intermediate","burpee-challenge":"intermediate","dip-challenge":"intermediate",
@@ -451,13 +447,9 @@ const TEMPLATE_SAFETY = {
   "blood-pressure": "Tracking only — does not replace medical care. If readings are high or you have symptoms (chest pain, headache, dizziness), see a doctor immediately.",
   "glucose-control": "Tracking only. Never adjust medication or insulin based on app readings. Always consult your healthcare provider.",
   "hydration": "Personalise your target to your size and climate. Do not exceed 3–4L per day without medical guidance — excess water can cause hyponatremia.",
-  "marathon-training": "High volume increases injury risk. Rest days are mandatory. Consult a doctor before starting if you have cardiovascular or joint conditions.",
-  "ironman-703": "Extreme training volume. Medical clearance recommended. Never skip recovery days.",
-  "ironman-full": "Maximum endurance stress. Medical clearance is strongly recommended. Overtraining and injury risk is very high.",
   "tough-mudder": "Includes cold water obstacles and contact elements. Consult a doctor if you have cardiovascular, joint, or cold-sensitivity conditions.",
   "spartan-race": "High-intensity obstacle training. Consult a doctor if you have cardiovascular or joint conditions.",
   "cruise-control": "Intense multi-habit daily protocol. Not suitable if you have joint issues, cardiovascular conditions, or are new to exercise.",
-  "hyrox": "High-intensity functional fitness with heavy sleds, carries, and running. Consult a doctor before starting if you have cardiovascular, joint, or lower-back conditions. Progress loads gradually — do not start at race weight.",
   "mindful-eating": "Not suitable if you have a history of disordered eating — rules like stopping at 80% full can reinforce restrictive patterns for some people. If your relationship with food feels genuinely out of your control, talk to a doctor instead.",
   "dry-month": "Not a substitute for medical support if you're alcohol-dependent — stopping suddenly can be dangerous. If you drink daily or feel physically unable to stop, talk to a doctor before quitting on your own.",
   "dry-reset-14": "Not a substitute for medical support if you're alcohol-dependent — stopping suddenly can be dangerous, even for 14 days. If you drink daily or feel physically unable to stop, talk to a doctor before quitting on your own.",
@@ -469,8 +461,7 @@ const TEMPLATE_SAFETY = {
 };
 
 const ENDUR_TEMPLATE_IDS = new Set([
-  "dog-walk","cycling","running","zone2","hyrox","half-marathon-prep","marathon-training",
-  "ironman-703","ironman-full","tough-mudder","spartan-race","c25k","5k-prep","10k-prep",
+  "dog-walk","tough-mudder","spartan-race","c25k",
 ]);
 
 function isConqurTemplate(t) {
@@ -486,8 +477,8 @@ const TEMPLATE_TIERS = {
   "sugar-reset-7":"common","caffeine-reset":"common","processed-food-reset":"common",
   "dry-reset-14":"common",
   // ── Uncommon: 30-day fitness / requires real consistency
-  "30-pushups":"uncommon","dog-walk":"uncommon","cycling":"uncommon",
-  "running":"uncommon","strength":"uncommon","no-sugar":"uncommon",
+  "30-pushups":"uncommon","dog-walk":"uncommon",
+  "strength":"uncommon","no-sugar":"uncommon",
   "morning-routine":"uncommon","core-abs":"uncommon","sugar-reset-strict":"uncommon",
   // ── Rare: mentally demanding, 75-day
   "cold-exposure":"rare","intermittent-fasting":"rare",
@@ -495,7 +486,7 @@ const TEMPLATE_TIERS = {
   // ── Epic: strict 75-day, 86-day transformation
   "75-hard":"epic","cruise-control":"epic",
   // ── New movement challenges
-  "c25k":"uncommon","5k-prep":"uncommon","10k-prep":"rare",
+  "c25k":"uncommon",
   "run-streak":"uncommon","30-squats":"uncommon","30-plank":"uncommon",
   "pilates":"common","12-3-30":"uncommon","spin":"uncommon",
   // ── New nutrition / health habits
@@ -507,11 +498,9 @@ const TEMPLATE_TIERS = {
   "blood-pressure":"uncommon","glucose-control":"uncommon",
   "body-composition":"rare",
   // ── Endurance sport training
-  "half-marathon-prep":"uncommon","marathon-training":"rare",
   "tough-mudder":"rare","spartan-race":"epic",
-  "ironman-703":"epic","ironman-full":"legendary","hyrox":"epic",
   // New challenges
-  "steps-10k":"common","zone2":"uncommon","recovery-reset":"common",
+  "steps-10k":"common","recovery-reset":"common",
   "fiber-challenge":"common","declutter":"common",
   // Strength single-movement progressions
   "pull-up-challenge":"uncommon","burpee-challenge":"uncommon","dip-challenge":"uncommon",
@@ -677,16 +666,6 @@ const TEMPLATES = [
     ]
   },
   {
-    id: "cycling", name: "Cycling Challenge", emoji: "🚴", category: "movement",
-    description: "30 days in the saddle. Build endurance, torch calories, go farther than yesterday.",
-    identity: "I am someone who goes farther than yesterday.",
-    duration: 30, weeklyGoal: 90, defaultMode: "soft",
-    habits: [
-      { id:"cy-stretch", title:"Stretch & recover",         emoji:"🦵", quip:"The ride you can do tomorrow depends on this.", type:"binary", points:2 },
-      { id:"cy-log",     title:"Log distance or time",      emoji:"📊", quip:"Track it. Every session tells a story.",        type:"binary", points:1 },
-    ]
-  },
-  {
     id: "walking", name: "Walking Challenge", emoji: "🔥", category: "movement",
     description: "30 days of daily walking. The simplest habit with the biggest returns.",
     identity: "I am someone who moves every day, no matter how small the step.",
@@ -704,16 +683,6 @@ const TEMPLATES = [
       { id:"ts-steps",   title:"Hit step target",           emoji:"👟", quip:"10k is the goal. Beat it when you can.", type:"tiered", points:4,
         tiers:[{label:"5,000–7,999",pts:2},{label:"8,000–9,999",pts:3},{label:"10,000+",pts:5}] },
       { id:"ts-outside", title:"30 min outside",            emoji:"🌳", quip:"Fresh air and daylight improve focus and mood.",              type:"binary", points:1 },
-    ]
-  },
-  {
-    id: "running", name: "Running Challenge", emoji: "🏃", category: "movement",
-    description: "30 days of running. Build the habit, find the pace, feel the difference. Rest days are encouraged — 4–5 sessions per week is plenty and helps prevent injury.",
-    identity: "I am a runner.",
-    duration: 30, weeklyGoal: 80, defaultMode: "soft",
-    habits: [
-      { id:"rn-log",     title:"Log your mileage",          emoji:"📊", quip:"What gets tracked gets improved.",   type:"binary", points:1 },
-      { id:"rn-stretch", title:"Post-run stretch",          emoji:"🧘", quip:"Skipping this is how injuries happen.", type:"binary", points:2 },
     ]
   },
   {
@@ -949,97 +918,6 @@ const TEMPLATES = [
 
   // ── Endurance Sport Training ─────────────────────────────────────────────
   {
-    id: "zone2", name: "Zone 2 Base Builder", emoji: "💚", category: "endurance",
-    description: "30 days of low-intensity cardio at conversational pace. The aerobic foundation that makes every other fitness goal easier.",
-    identity: "I am someone who builds the base before chasing the peak.",
-    duration: 30, weeklyGoal: 65, defaultMode: "soft",
-    habits: [
-      { id:"z2-check",    title:"Zone 2 effort check",        emoji:"🗣️", quip:"Could you hold a conversation? If not, slow down next time.", type:"binary", points:1 },
-      { id:"z2-mobility", title:"Mobility (5 min)",           emoji:"🧘", quip:"Keep the body feeling good as volume builds.",            type:"binary", points:2 },
-    ]
-  },
-  {
-    id: "hyrox", name: "HYROX Training", emoji: "⚡", category: "endurance",
-    description: "12 weeks of race-ready functional fitness. 4 training days per week: strength, running, WOD circuits, and full race simulations.",
-    identity: "I am someone who trains for the whole event, not just the parts I like.",
-    duration: 84, weeklyGoal: 70, defaultMode: "soft",
-    weekSchedule: [
-      { day:1, type:"strength",  label:"Strength",          emoji:"🏋️", desc:"Squats, deadlifts, overhead press. Build the base that powers every HYROX station." },
-      { day:2, type:"easy",      label:"Easy Run",           emoji:"🟢", desc:"6–8 km at conversational pace. RPE 3–4. HYROX is 8 km of running — build it now." },
-      { day:3, type:"wod",       label:"HYROX WOD",          emoji:"⚡", desc:"Station circuit: SkiErg, sled push/pull, burpee broad jumps, row, farmers carry, sandbag lunges, wall balls." },
-      { day:4, type:"rest",      label:"Rest Day",           emoji:"⚪", desc:"Full rest or easy walk. Recovery is where adaptation happens." },
-      { day:5, type:"interval",  label:"Run Intervals",      emoji:"🟠", desc:"8×400m at race pace + 60 sec rest, or 4×1km tempo. RPE 7–8." },
-      { day:6, type:"simulate",  label:"Race Simulation",    emoji:"🏆", desc:"Full HYROX: 8×1km run interleaved with all 8 stations at race pace. This is what it's all for." },
-      { day:7, type:"rest",      label:"Rest Day",           emoji:"⚪", desc:"Full rest. Eat well. Sleep 8 hours. You've earned it." },
-    ],
-    habits: [
-      { id:"hx-stations", title:"Station drills",            emoji:"🔔", quip:"SkiErg, sled, row, burpees, carries, lunges, wall balls.", type:"binary", points:4 },
-      { id:"hx-recover",  title:"Post-session recovery",     emoji:"🦵", quip:"Foam roll, stretch, and eat. Recovery builds the athlete.", type:"binary", points:2 },
-    ]
-  },
-  {
-    id: "half-marathon-prep", name: "Half Marathon Prep", emoji: "🏃", category: "endurance",
-    description: "12 weeks to race day. Built-in weekly schedule: easy runs, tempo, long run, cross-train, and 2 rest days.",
-    identity: "I am someone who follows through on what I signed up for.",
-    duration: 84, weeklyGoal: 75, defaultMode: "soft",
-    weekSchedule: [
-      { day:1, type:"easy",  label:"Easy Run",    emoji:"🟢", desc:"30–40 min at conversational pace. RPE 3–4." },
-      { day:2, type:"rest",  label:"Rest Day",    emoji:"⚪", desc:"Full rest or easy walk. Recovery is training." },
-      { day:3, type:"tempo", label:"Tempo Run",   emoji:"🟡", desc:"20–30 min at comfortably hard pace. RPE 6–7." },
-      { day:4, type:"easy",  label:"Easy Run",    emoji:"🟢", desc:"30–40 min easy. Keep it conversational." },
-      { day:5, type:"rest",  label:"Rest Day",    emoji:"⚪", desc:"Rest day. Prep mentally for tomorrow's long run." },
-      { day:6, type:"long",  label:"Long Run",    emoji:"🔴", desc:"The week's key session. Slow and steady. Add 1–2 km each week." },
-      { day:7, type:"cross", label:"Cross-Train", emoji:"🔵", desc:"Swim, bike, yoga, or strength. Easy effort only." },
-    ],
-    habits: [
-      { id:"hm-xt",     title:"Cross-train session",        emoji:"🚴", quip:"Swim, bike, yoga, or strength — anything non-run.", type:"binary", points:3 },
-      { id:"hm-stretch",title:"Mobility work",              emoji:"🦵", quip:"Tight hips = slower times.",        type:"binary", points:2 },
-      { id:"hm-fuel",   title:"Fuel + hydrate",             emoji:"🥗", quip:"Hit protein + 2L+ water. Carbs before long runs.", type:"binary", points:2 },
-      { id:"hm-pain",   title:"Pain check",                 emoji:"💚", quip:"Yellow or red: drop the pace today.", type:"binary", points:1 },
-    ]
-  },
-  {
-    id: "marathon-training", name: "Marathon Training", emoji: "🏅", category: "endurance",
-    description: "16 weeks to 42.2 km. Built-in schedule: easy runs, quality session, long run, cross-train, and 2 rest days.",
-    identity: "I am someone who can sustain effort over months, not just days.",
-    duration: 112, weeklyGoal: 70, defaultMode: "soft",
-    weekSchedule: [
-      { day:1, type:"easy",     label:"Easy Run",      emoji:"🟢", desc:"45–60 min easy pace. Conversational. RPE 3–4." },
-      { day:2, type:"rest",     label:"Rest Day",      emoji:"⚪", desc:"Full rest or foam rolling. Recovery is where you improve." },
-      { day:3, type:"interval", label:"Quality Run",   emoji:"🟠", desc:"Intervals, tempo, or strides. RPE 7–8." },
-      { day:4, type:"easy",     label:"Easy Run",      emoji:"🟢", desc:"30–45 min easy. Keep it easy — no heroics." },
-      { day:5, type:"cross",    label:"Cross-Train",   emoji:"🔵", desc:"Swim, bike, strength, or yoga. 30–60 min easy effort." },
-      { day:6, type:"long",     label:"Long Run",      emoji:"🔴", desc:"The week's anchor session. Slow, steady, and fuelled." },
-      { day:7, type:"rest",     label:"Rest Day",      emoji:"⚪", desc:"Full rest. Eat well. Sleep. You've earned it." },
-    ],
-    habits: [
-      { id:"mt-xt",     title:"Cross-train session",   emoji:"🏊", quip:"Active recovery is still recovery.",  type:"binary", points:3 },
-      { id:"mt-stretch",title:"Stretch & foam roll",   emoji:"🦵", quip:"15 min saves your IT bands.",         type:"binary", points:2 },
-      { id:"mt-fuel",   title:"Fuel & hydrate",        emoji:"🍌", quip:"Hit protein + carbs. Race-nutrition practice on long runs.", type:"binary", points:2 },
-      { id:"mt-pain",   title:"No pain or injury",     emoji:"💚", quip:"Pain is information. Dial back if needed.", type:"binary", points:1 },
-    ]
-  },
-  {
-    id: "ironman-703", name: "Ironman 70.3", emoji: "🏊", category: "endurance",
-    description: "20 weeks of swim, bike, run. Half the distance — all the glory.",
-    identity: "I am someone who trains across disciplines, not just one comfort zone.",
-    duration: 140, weeklyGoal: 65, defaultMode: "soft",
-    habits: [
-      { id:"703-log",    title:"Log sport and duration",    emoji:"📊", quip:"Track it. Your triathlon is built session by session.", type:"binary", points:2 },
-      { id:"703-recover",title:"Recovery & stretch",        emoji:"🦵", quip:"Three sports means three ways to injure.",             type:"binary", points:2 },
-    ]
-  },
-  {
-    id: "ironman-full", name: "Full Ironman", emoji: "🏅", category: "endurance",
-    description: "24 weeks to conquer 3.8 km swim, 180 km bike, and a full marathon. The ultimate endurance test.",
-    identity: "I am someone built for the long game.",
-    duration: 168, weeklyGoal: 60, defaultMode: "soft",
-    habits: [
-      { id:"im-strength",title:"Strength training",          emoji:"🏋️", quip:"Injury prevention starts in the gym.",        type:"binary", points:3 },
-      { id:"im-recover", title:"Active recovery",            emoji:"🛁", quip:"Ice, compression, soft-tissue work — do at least one.", type:"binary", points:2 },
-    ]
-  },
-  {
     id: "tough-mudder", name: "Tough Mudder Prep", emoji: "🪖", category: "endurance",
     description: "8 weeks to become obstacle-ready. Mud, walls, electric shocks — bring it on.",
     identity: "I am someone who trains for obstacles I haven't seen yet.",
@@ -1157,26 +1035,6 @@ const TEMPLATES = [
       { id:"c25k-run",     title:"Run/walk session",   emoji:"👟", quip:"Follow today's plan. Slow is fine — consistent is everything.",
         type:"tiered", points:5, tiers:[{label:"Partial (stopped early)",pts:3},{label:"Full session completed",pts:5},{label:"Exceeded the plan",pts:7}] },
       { id:"c25k-stretch", title:"Post-run stretch",   emoji:"🦵", quip:"5 minutes now saves weeks of injury later.", type:"binary", points:2 },
-    ]
-  },
-  {
-    id: "5k-prep", name: "5K Prep", emoji: "🎽", category: "movement",
-    description: "6 weeks to a faster 5K. Run 4× a week, add strides, and race-day yourself at the end.",
-    identity: "I am someone who chases a number I set for myself.",
-    duration: 42, weeklyGoal: 65, defaultMode: "soft",
-    habits: [
-      { id:"5k-strides", title:"Strides after easy runs", emoji:"⚡", quip:"6 × 20-second pick-ups. More speed than you think.", type:"binary", points:2 },
-      { id:"5k-stretch", title:"Post-run stretch",        emoji:"🦵", quip:"Tight calves slow you down. Fix them.",             type:"binary", points:2 },
-    ]
-  },
-  {
-    id: "10k-prep", name: "10K Prep", emoji: "🏅", category: "endurance",
-    description: "8 weeks to your best 10K. Build weekly mileage, sharpen with intervals, and trust the process.",
-    identity: "I am someone who trusts the process over the shortcut.",
-    duration: 56, weeklyGoal: 65, defaultMode: "soft",
-    habits: [
-      { id:"10k-xt",     title:"Cross-train",            emoji:"🚴", quip:"Bike, swim, or yoga — protect the legs.",             type:"binary", points:2 },
-      { id:"10k-stretch",title:"Stretch & foam-roll",    emoji:"🦵", quip:"15 minutes now = fewer physio bills later.",          type:"binary", points:2 },
     ]
   },
   {
@@ -1559,7 +1417,6 @@ const TEMPLATES = [
 ];
 
 const TEMPLATE_WEEKLY_TARGETS = {
-  "running": { "rn-log": 3, "rn-stretch": 3 },
   "strength": { "st-lift": 3, "st-overload": 3, "st-stretch": 3 },
   "meditation": { "med-sit": 5, "med-breath": 3, "med-journal": 2 },
   "sleep-reset": { "sl-hours": 5, "sl-screen": 5, "sl-caffeine": 5, "sl-routine": 5 },
@@ -1601,15 +1458,6 @@ const TEMPLATE_COPY_OVERRIDES = {
     asksStepDays: true,
     habits: {
       "wk-dist": { title: "Hit step goal", quip: "Choose the number that fits your current life. Then walk it." },
-    },
-  },
-  "running": {
-    name: "Running Plan",
-    description: "A steady run or walk-run plan with realistic recovery built in.",
-    identity: "I am someone who trains consistently and keeps the pace honest.",
-    habits: {
-      "rn-log": { title: "Log distance or time", quip: "A quick note is enough to see the pattern." },
-      "rn-stretch": { title: "Post-run mobility", quip: "Give your legs five calm minutes." },
     },
   },
   "strength": {
@@ -1801,26 +1649,12 @@ const TEMPLATE_BADGES = {
     { id:"dw-halfway",  label:"🐾 Halfway",              desc:"15 walks logged.",                                 test: c => c.daysLogged >= 15 },
     { id:"dw-done",     label:"✅ 30 Walks Done",        desc:"Complete the full 30-day dog walk challenge.",     test: c => c.pctDone >= 99 && c.complete },
   ],
-  "cycling": [
-    { id:"cy-first",    label:"🚲 First Ride",           desc:"Log your first bike ride.",                        test: c => c.daysLogged >= 1 },
-    { id:"cy-50km",     label:"🏔️ Epic Ride",            desc:"Log a 50 km+ ride.",                              test: c => c.has50kmRide },
-    { id:"cy-week",     label:"🚴 Saddle Week",          desc:"7 consecutive riding days.",                       test: c => c.streak >= 7 },
-    { id:"cy-halfway",  label:"⚡ Halfway",              desc:"15 rides logged.",                                 test: c => c.daysLogged >= 15 },
-    { id:"cy-done",     label:"✅ 30 Days Cycling",      desc:"Complete the full 30-day challenge.",               test: c => c.pctDone >= 99 && c.complete },
-  ],
   "walking": [
     { id:"wk-first",    label:"👟 First Steps",          desc:"Log your first walk.",                             test: c => c.daysLogged >= 1 },
     { id:"wk-10km",     label:"⚡ 10 km Walk",           desc:"Log a 10 km+ walk.",                              test: c => c.has10kmWalk },
     { id:"wk-week",     label:"🚶 Walk Week",            desc:"7-day walking streak.",                            test: c => c.streak >= 7 },
     { id:"wk-halfway",  label:"🚶 Halfway",              desc:"15 walks logged.",                                 test: c => c.daysLogged >= 15 },
     { id:"wk-done",     label:"✅ Walking Month Done",   desc:"Complete 30 days of walking.",                     test: c => c.pctDone >= 99 && c.complete },
-  ],
-  "running": [
-    { id:"rn-first",    label:"👟 First Run",            desc:"Log your first run.",                              test: c => c.runsLogged >= 1 },
-    { id:"rn-5k",       label:"🏅 5k Done",              desc:"Run 5 km or further.",                             test: c => c.hasRun5k },
-    { id:"rn-10",       label:"🏃 Ten Runs",             desc:"Log 10 run sessions.",                             test: c => c.runsLogged >= 10 },
-    { id:"rn-halfway",  label:"🔥 Halfway",              desc:"15 runs logged.",                                  test: c => c.runsLogged >= 15 },
-    { id:"rn-done",     label:"✅ Running Month Done",   desc:"Complete 30 days of running.",                     test: c => c.pctDone >= 99 && c.complete },
   ],
   "creative": [
     { id:"cr-first",    label:"✨ First Creation",       desc:"Log your first creative session.",                 test: c => c.daysLogged >= 1 },
@@ -1924,8 +1758,6 @@ const CHALLENGE_CHAINS = {
   "reading":            "creative",
   "meditation":         "cold-exposure",
   "morning-routine":    "75-soft",
-  "walking":            "running",
-  "running":            "cycling",
   "no-sugar":           "intermittent-fasting",
   "sleep-reset":        "morning-routine",
   "digital-detox":      "meditation",
@@ -1938,12 +1770,7 @@ const CHALLENGE_CHAINS = {
   "core-abs":           "strength",
   "journaling":         "reading",
   "monk-mode":          "cruise-control",
-  // Endurance training progression
-  "half-marathon-prep": "marathon-training",
-  "marathon-training":  "ironman-703",
-  "ironman-703":        "ironman-full",
   "tough-mudder":       "spartan-race",
-  "spartan-race":       "ironman-703",
 };
 
 // ── PhotoDB — IndexedDB wrapper for progress photos ───────────────────────
@@ -6168,7 +5995,7 @@ function renderBuilder() {
 
 function renderBuilderTemplates() {
   const cats = [
-    { label:"Get Fitter", ids:["fitter-starter","75-soft","walking","running","c25k","strength-foundation","beginner-strength","yoga-flexibility"] },
+    { label:"Get Fitter", ids:["fitter-starter","75-soft","walking","c25k","strength-foundation","beginner-strength","yoga-flexibility"] },
     { label:"Strength Basics", ids:["strength-foundation","beginner-strength","strength","calisthenics","kettlebell","pushup-challenge","pullup-progression","core-abs","pilates"] },
     { label:"Mind & Focus", ids:["read-a-book","meditation","journaling","stress-reset","dopamine-reset","serotonin-boost","digital-detox"] },
     { label:"Recovery", ids:["sleep-reset","recovery-reset","yoga-flexibility","posture-fix"] },
