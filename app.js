@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.22.02";
+const APP_VERSION = "2026.09.23.01";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -23,11 +23,6 @@ const CHALLENGE_ICON = {
   "hydration":"ti-droplet","posture-fix":"ti-stretching","digital-detox":"ti-device-mobile-off",
   "dopamine-reset":"ti-brain","serotonin-boost":"ti-sun",
   "75-hard":"ti-flame","75-soft":"ti-flame","morning-routine":"ti-sun","morning-power-hour":"ti-sun",
-  "everest-bc":"ti-mountain","west-highland-way":"ti-trekking","tour-du-mont-blanc":"ti-mountain",
-  "john-muir-trail":"ti-trekking","camino":"ti-trekking","appalachian":"ti-trekking",
-  "tour-de-france":"ti-bike","route66":"ti-road","amazon-river":"ti-kayak","pct":"ti-trekking",
-  "everest-stairmaster":"ti-stairs","kilimanjaro-stairmaster":"ti-stairs","montblanc-stairmaster":"ti-stairs",
-  "comrades-ultra":"ti-run","utmb":"ti-mountain","run-5-marathons":"ti-run","run-jogle":"ti-run","run-trans-america":"ti-run",
 };
 function challengeIcon(t) { return (t && (CHALLENGE_ICON[t.id] || CATEGORY_ICON[t.category])) || "ti-target"; }
 
@@ -417,25 +412,17 @@ const TEMPLATE_DIFFICULTY = {
   "12-3-30":"intermediate","5k-prep":"intermediate","protein-challenge":"intermediate",
   "weight-loss-30":"intermediate","body-composition":"intermediate",
   "glucose-control":"intermediate","sugar-reset-strict":"intermediate",
-  "everest-bc":"intermediate","west-highland-way":"intermediate","everest-stairmaster":"intermediate","kilimanjaro-stairmaster":"intermediate","montblanc-stairmaster":"intermediate","thames-row":"intermediate",
   // Advanced — high consistency demands or health-sensitive protocols
   "75-soft":"advanced","10k-prep":"advanced","run-streak":"advanced",
   "cold-exposure":"advanced","half-marathon-prep":"advanced",
   "cruise-control":"advanced","intermittent-fasting":"advanced",
   "monk-mode":"advanced","project-50":"advanced",
-  "camino":"advanced","tour-du-mont-blanc":"advanced","john-muir-trail":"advanced",
-  "route66":"advanced","raid-pyrenees":"advanced",
-  "danube-row":"advanced","comrades-ultra":"advanced","appalachian":"advanced",
-  "tour-de-france":"advanced",
   // Extreme — elite output, multi-month commitment, or medical risk
   "75-hard":"extreme","marathon-training":"extreme",
   // HYROX — advanced functional racing
   "hyrox":"advanced",
   "ironman-703":"extreme","ironman-full":"extreme",
   "tough-mudder":"extreme","spartan-race":"extreme",
-  "utmb":"extreme","run-5-marathons":"extreme","run-jogle":"extreme",
-  "run-trans-america":"extreme","trans-am-bike":"extreme","pct":"extreme",
-  "amazon-river":"extreme",
   // New challenges
   "steps-10k":"beginner","zone2":"intermediate","recovery-reset":"beginner",
   "fiber-challenge":"beginner","declutter":"beginner",
@@ -484,10 +471,6 @@ const TEMPLATE_SAFETY = {
 const ENDUR_TEMPLATE_IDS = new Set([
   "dog-walk","cycling","running","zone2","hyrox","half-marathon-prep","marathon-training",
   "ironman-703","ironman-full","tough-mudder","spartan-race","c25k","5k-prep","10k-prep",
-  "everest-bc","west-highland-way","tour-du-mont-blanc","john-muir-trail","camino","appalachian",
-  "tour-de-france","route66","amazon-river","pct","everest-stairmaster","kilimanjaro-stairmaster",
-  "montblanc-stairmaster","comrades-ultra","utmb","run-5-marathons","run-jogle","run-trans-america",
-  "raid-pyrenees","trans-am-bike","thames-row","danube-row"
 ]);
 
 function isConqurTemplate(t) {
@@ -506,20 +489,11 @@ const TEMPLATE_TIERS = {
   "30-pushups":"uncommon","dog-walk":"uncommon","cycling":"uncommon",
   "running":"uncommon","strength":"uncommon","no-sugar":"uncommon",
   "morning-routine":"uncommon","core-abs":"uncommon","sugar-reset-strict":"uncommon",
-  // ── Rare: mentally demanding, 75-day, or short expedition
+  // ── Rare: mentally demanding, 75-day
   "cold-exposure":"rare","intermittent-fasting":"rare",
-  "75-soft":"rare","everest-bc":"rare","monk-mode":"rare","montblanc-stairmaster":"rare",
-  // ── Epic: strict 75-day, 86-day transformation, long expeditions
-  "75-hard":"epic","cruise-control":"epic","camino":"epic","tour-de-france":"epic","tour-du-mont-blanc":"epic","john-muir-trail":"epic","kilimanjaro-stairmaster":"epic",
-  // ── Legendary: year-long or extreme challenges
-  "appalachian":"legendary","route66":"legendary",
-  "amazon-river":"legendary","everest-stairmaster":"legendary","pct":"legendary",
-  "run-trans-america":"legendary","trans-am-bike":"legendary",
-  // ── Epic: demanding multi-month expeditions
-  "run-jogle":"epic","danube-row":"epic",
-  // ── Rare: shorter expedition routes
-  "west-highland-way":"rare","run-5-marathons":"rare","raid-pyrenees":"rare","thames-row":"rare",
-  "comrades-ultra":"rare",
+  "75-soft":"rare","monk-mode":"rare",
+  // ── Epic: strict 75-day, 86-day transformation
+  "75-hard":"epic","cruise-control":"epic",
   // ── New movement challenges
   "c25k":"uncommon","5k-prep":"uncommon","10k-prep":"rare",
   "run-streak":"uncommon","30-squats":"uncommon","30-plank":"uncommon",
@@ -536,8 +510,6 @@ const TEMPLATE_TIERS = {
   "half-marathon-prep":"uncommon","marathon-training":"rare",
   "tough-mudder":"rare","spartan-race":"epic",
   "ironman-703":"epic","ironman-full":"legendary","hyrox":"epic",
-  // ── Epic expedition
-  "utmb":"epic",
   // New challenges
   "steps-10k":"common","zone2":"uncommon","recovery-reset":"common",
   "fiber-challenge":"common","declutter":"common",
@@ -633,8 +605,6 @@ const TEMPLATES = [
       { id:"protein",   title:"Protein at every meal",     emoji:"🥩", quip:"Protein keeps the muscle, drops the fat.", type:"binary", points:2 },
       { id:"noalcohol", title:"No alcohol or sugary drinks",emoji:"🚫", quip:"Empty calories in every form. Skip them.", type:"binary", points:2 },
       { id:"read",      title:"Read 10 pages",             emoji:"📖", quip:"10 pages a day is a book a month.",       type:"binary", points:2 },
-      { id:"run",       title:"Training session",          emoji:"🏃", quip:"Run, lift, ride — push yourself.",        type:"tiered",  points:2,
-        tiers:[{value:1,label:"1 km",points:2},{value:3,label:"3 km",points:3},{value:5,label:"5 km",points:5},{value:"5+",label:"5 km+",points:7}] },
     ]
   },
   {
@@ -702,8 +672,6 @@ const TEMPLATES = [
     duration: 30, weeklyGoal: 75, defaultMode: "soft",
     habits: [
       { id:"dw-walk",    title:"Morning walk",              emoji:"🌅", quip:"Start the day right — both of you.", type:"binary", points:3 },
-      { id:"dw-dist",    title:"Log walk distance",         emoji:"📍", quip:"Short is fine. Going is everything.", type:"tiered", points:2,
-        tiers:[{value:1,label:"1 km",points:2},{value:2,label:"2 km",points:3},{value:4,label:"4 km",points:4},{value:6,label:"6 km+",points:6}] },
       { id:"dw-evening", title:"Evening walk",              emoji:"🌆", quip:"Wind down together.",               type:"binary", points:2 },
       { id:"dw-water",   title:"Fresh water for your dog",  emoji:"💧", quip:"Hydration matters for them too.",   type:"binary", points:1 },
     ]
@@ -714,8 +682,6 @@ const TEMPLATES = [
     identity: "I am someone who goes farther than yesterday.",
     duration: 30, weeklyGoal: 90, defaultMode: "soft",
     habits: [
-      { id:"cy-ride",    title:"Bike ride",                 emoji:"🚲", quip:"Clip in. Show up.",                  type:"tiered", points:3,
-        tiers:[{value:5,label:"5 km",points:3},{value:15,label:"15 km",points:4},{value:30,label:"30 km",points:6},{value:50,label:"50 km+",points:9}] },
       { id:"cy-stretch", title:"Stretch & recover",         emoji:"🦵", quip:"The ride you can do tomorrow depends on this.", type:"binary", points:2 },
       { id:"cy-log",     title:"Log distance or time",      emoji:"📊", quip:"Track it. Every session tells a story.",        type:"binary", points:1 },
     ]
@@ -746,8 +712,6 @@ const TEMPLATES = [
     identity: "I am a runner.",
     duration: 30, weeklyGoal: 80, defaultMode: "soft",
     habits: [
-      { id:"rn-run",     title:"Run session",               emoji:"👟", quip:"Shoes on. Door open. Go.",           type:"tiered", points:3,
-        tiers:[{value:1,label:"1 km",points:3},{value:3,label:"3 km",points:4},{value:5,label:"5 km",points:6},{value:10,label:"10 km+",points:9}] },
       { id:"rn-log",     title:"Log your mileage",          emoji:"📊", quip:"What gets tracked gets improved.",   type:"binary", points:1 },
       { id:"rn-stretch", title:"Post-run stretch",          emoji:"🧘", quip:"Skipping this is how injuries happen.", type:"binary", points:2 },
     ]
@@ -953,8 +917,6 @@ const TEMPLATES = [
     duration: 30, weeklyGoal: 70, defaultMode: "soft",
     habits: [
       { id:"ca-core",     title:"Core workout (15 min)",      emoji:"💪", quip:"15 minutes. Show up, then it's done.",                type:"binary", points:5 },
-      { id:"ca-plank",    title:"Plank hold",                 emoji:"⏱️", quip:"The plank is honest.",                   type:"tiered", points:2,
-        tiers:[{label:"Under 1 min",pts:2},{label:"1–2 min",pts:4},{label:"2+ min",pts:6}] },
       { id:"ca-stretch",  title:"Hip flexor stretch",         emoji:"🦵", quip:"Core work tightens everything. Stretch.", type:"binary", points:1 },
     ]
   },
@@ -992,8 +954,6 @@ const TEMPLATES = [
     identity: "I am someone who builds the base before chasing the peak.",
     duration: 30, weeklyGoal: 65, defaultMode: "soft",
     habits: [
-      { id:"z2-session",  title:"Zone 2 session",            emoji:"💚", quip:"Conversational pace. Nasal breathing. 30–60 min.", type:"tiered", points:5,
-        tiers:[{label:"20–30 min",pts:5},{label:"30–45 min",pts:7},{label:"45–60 min",pts:9}] },
       { id:"z2-check",    title:"Zone 2 effort check",        emoji:"🗣️", quip:"Could you hold a conversation? If not, slow down next time.", type:"binary", points:1 },
       { id:"z2-mobility", title:"Mobility (5 min)",           emoji:"🧘", quip:"Keep the body feeling good as volume builds.",            type:"binary", points:2 },
     ]
@@ -1013,10 +973,6 @@ const TEMPLATES = [
       { day:7, type:"rest",      label:"Rest Day",           emoji:"⚪", desc:"Full rest. Eat well. Sleep 8 hours. You've earned it." },
     ],
     habits: [
-      { id:"hx-session",  title:"Training session",          emoji:"⚡", quip:"Strength, WOD, run, or race sim — log what you did.",
-        type:"tiered", points:5, tiers:[{label:"Easy 30 min",pts:5},{label:"WOD or run 45+ min",pts:7},{label:"Race simulation 60+ min",pts:10}] },
-      { id:"hx-run",      title:"Run distance",              emoji:"🏃", quip:"HYROX is 8 km of running. Build the base every week.",
-        type:"tiered", points:4, tiers:[{label:"3 km",pts:4},{label:"5 km",pts:6},{label:"8 km+",pts:8}] },
       { id:"hx-stations", title:"Station drills",            emoji:"🔔", quip:"SkiErg, sled, row, burpees, carries, lunges, wall balls.", type:"binary", points:4 },
       { id:"hx-recover",  title:"Post-session recovery",     emoji:"🦵", quip:"Foam roll, stretch, and eat. Recovery builds the athlete.", type:"binary", points:2 },
     ]
@@ -1036,8 +992,6 @@ const TEMPLATES = [
       { day:7, type:"cross", label:"Cross-Train", emoji:"🔵", desc:"Swim, bike, yoga, or strength. Easy effort only." },
     ],
     habits: [
-      { id:"hm-run",    title:"Scheduled run",              emoji:"🏃", quip:"Log the type of run you completed.", type:"tiered", points:5,
-        tiers:[{label:"Easy 20–30 min",pts:5},{label:"Tempo 30–40 min",pts:7},{label:"Long run 60+ min",pts:9},{label:"Interval session",pts:7}] },
       { id:"hm-xt",     title:"Cross-train session",        emoji:"🚴", quip:"Swim, bike, yoga, or strength — anything non-run.", type:"binary", points:3 },
       { id:"hm-stretch",title:"Mobility work",              emoji:"🦵", quip:"Tight hips = slower times.",        type:"binary", points:2 },
       { id:"hm-fuel",   title:"Fuel + hydrate",             emoji:"🥗", quip:"Hit protein + 2L+ water. Carbs before long runs.", type:"binary", points:2 },
@@ -1059,8 +1013,6 @@ const TEMPLATES = [
       { day:7, type:"rest",     label:"Rest Day",      emoji:"⚪", desc:"Full rest. Eat well. Sleep. You've earned it." },
     ],
     habits: [
-      { id:"mt-run",    title:"Scheduled session",     emoji:"🏃", quip:"Log the type of session you completed.", type:"tiered", points:5,
-        tiers:[{label:"Easy 30–45 min",pts:5},{label:"Quality 40+ min",pts:7},{label:"Long run 90+ min",pts:9}] },
       { id:"mt-xt",     title:"Cross-train session",   emoji:"🏊", quip:"Active recovery is still recovery.",  type:"binary", points:3 },
       { id:"mt-stretch",title:"Stretch & foam roll",   emoji:"🦵", quip:"15 min saves your IT bands.",         type:"binary", points:2 },
       { id:"mt-fuel",   title:"Fuel & hydrate",        emoji:"🍌", quip:"Hit protein + carbs. Race-nutrition practice on long runs.", type:"binary", points:2 },
@@ -1073,8 +1025,6 @@ const TEMPLATES = [
     identity: "I am someone who trains across disciplines, not just one comfort zone.",
     duration: 140, weeklyGoal: 65, defaultMode: "soft",
     habits: [
-      { id:"703-session",title:"Complete scheduled session", emoji:"🏊", quip:"Swim, bike, or run — log what the plan says.", type:"tiered", points:6,
-        tiers:[{label:"30–45 min",pts:6},{label:"60–90 min",pts:8},{label:"90+ min",pts:10}] },
       { id:"703-log",    title:"Log sport and duration",    emoji:"📊", quip:"Track it. Your triathlon is built session by session.", type:"binary", points:2 },
       { id:"703-recover",title:"Recovery & stretch",        emoji:"🦵", quip:"Three sports means three ways to injure.",             type:"binary", points:2 },
     ]
@@ -1085,8 +1035,6 @@ const TEMPLATES = [
     identity: "I am someone built for the long game.",
     duration: 168, weeklyGoal: 60, defaultMode: "soft",
     habits: [
-      { id:"im-session", title:"Complete scheduled session", emoji:"🏊", quip:"Swim, bike, or run — log what the plan says.", type:"tiered", points:6,
-        tiers:[{label:"45–60 min",pts:6},{label:"60–120 min",pts:8},{label:"120+ min",pts:10}] },
       { id:"im-strength",title:"Strength training",          emoji:"🏋️", quip:"Injury prevention starts in the gym.",        type:"binary", points:3 },
       { id:"im-recover", title:"Active recovery",            emoji:"🛁", quip:"Ice, compression, soft-tissue work — do at least one.", type:"binary", points:2 },
     ]
@@ -1217,8 +1165,6 @@ const TEMPLATES = [
     identity: "I am someone who chases a number I set for myself.",
     duration: 42, weeklyGoal: 65, defaultMode: "soft",
     habits: [
-      { id:"5k-run",     title:"Run session",             emoji:"🏃", quip:"Shoes on. Door open. Go.",                       type:"tiered", points:3,
-        tiers:[{label:"Easy 20 min",pts:3},{label:"Tempo 30 min",pts:5},{label:"Interval session",pts:7}] },
       { id:"5k-strides", title:"Strides after easy runs", emoji:"⚡", quip:"6 × 20-second pick-ups. More speed than you think.", type:"binary", points:2 },
       { id:"5k-stretch", title:"Post-run stretch",        emoji:"🦵", quip:"Tight calves slow you down. Fix them.",             type:"binary", points:2 },
     ]
@@ -1229,8 +1175,6 @@ const TEMPLATES = [
     identity: "I am someone who trusts the process over the shortcut.",
     duration: 56, weeklyGoal: 65, defaultMode: "soft",
     habits: [
-      { id:"10k-run",    title:"Run session",            emoji:"🏃", quip:"Every kilometre is a deposit.",                       type:"tiered", points:3,
-        tiers:[{label:"Easy 30 min",pts:3},{label:"Tempo 40 min",pts:5},{label:"Long run 60+ min",pts:7}] },
       { id:"10k-xt",     title:"Cross-train",            emoji:"🚴", quip:"Bike, swim, or yoga — protect the legs.",             type:"binary", points:2 },
       { id:"10k-stretch",title:"Stretch & foam-roll",    emoji:"🦵", quip:"15 minutes now = fewer physio bills later.",          type:"binary", points:2 },
     ]
@@ -1373,415 +1317,6 @@ const TEMPLATES = [
     ]
   },
 
-  // ── Expedition Routes ────────────────────────────────────────────────────
-  {
-    id: "everest-bc", name: "Everest Base Camp", emoji: "🏔️", category: "expedition", deprecated: true,
-    description: "Trek 130 km through the Himalayas to the foot of the world's highest peak.",
-    identity: "I am someone who covers real distance.",
-    duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 130,
-    milestones: [
-      { km: 10,  name: "Phakding",          emoji: "🏡" },
-      { km: 40,  name: "Namche Bazaar",      emoji: "🏙️" },
-      { km: 65,  name: "Tengboche",          emoji: "⛩️" },
-      { km: 100, name: "Gorak Shep",         emoji: "⛺" },
-      { km: 130, name: "Everest Base Camp",  emoji: "🏔️" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🏃", quip:"Walk, run, cycle, swim or row — it all counts.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "west-highland-way", name: "West Highland Way", emoji: "🌄", category: "expedition", deprecated: true,
-    description: "Walk 154 km through the Scottish Highlands from Milngavie to Fort William — lochs, glens, and mountain passes.",
-    identity: "I am someone who walks the whole route, not just the easy parts.",
-    duration: 30, weeklyGoal: 5, defaultMode: "soft", routeKm: 154,
-    milestones: [
-      { km: 20,  name: "Balmaha",        emoji: "🌊" },
-      { km: 50,  name: "Inverarnan",     emoji: "🏞️" },
-      { km: 80,  name: "Tyndrum",        emoji: "🏘️" },
-      { km: 120, name: "Kinlochleven",   emoji: "⛰️" },
-      { km: 154, name: "Fort William",   emoji: "🎉" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🥾", quip:"Every loch and glen earned one step at a time.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "tour-du-mont-blanc", name: "Tour du Mont Blanc", emoji: "🗻", category: "expedition", deprecated: true,
-    description: "Circle the Mont Blanc massif across France, Italy and Switzerland — 170 km of alpine trail through 3 countries.",
-    identity: "I am someone who goes the distance, literally.",
-    duration: 60, weeklyGoal: 5, defaultMode: "soft", routeKm: 170,
-    milestones: [
-      { km: 30,  name: "Les Contamines",  emoji: "🌲" },
-      { km: 60,  name: "Courmayeur",      emoji: "🇮🇹" },
-      { km: 90,  name: "La Fouly",        emoji: "🇨🇭" },
-      { km: 130, name: "Champex-Lac",     emoji: "🏞️" },
-      { km: 170, name: "Chamonix",        emoji: "🏔️" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🥾", quip:"Three countries. One mountain. Endless views.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "john-muir-trail", name: "John Muir Trail", emoji: "🦅", category: "expedition", deprecated: true,
-    description: "Hike 340 km through California's Sierra Nevada — from Yosemite Valley to the summit of Mount Whitney.",
-    identity: "I am someone who commits to the long trail.",
-    duration: 90, weeklyGoal: 5, defaultMode: "soft", routeKm: 340,
-    milestones: [
-      { km: 50,  name: "Tuolumne Meadows",  emoji: "🌿" },
-      { km: 120, name: "Evolution Valley",  emoji: "🏔️" },
-      { km: 180, name: "Muir Trail Ranch",  emoji: "🏕️" },
-      { km: 250, name: "Pinchot Pass",      emoji: "❄️" },
-      { km: 340, name: "Mount Whitney",     emoji: "🦅" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🥾", quip:"The Range of Light. Worth every step.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "camino", name: "Camino de Santiago", emoji: "⛪", category: "expedition", deprecated: true,
-    description: "Walk 790 km across Spain on the ancient pilgrimage route to Santiago de Compostela.",
-    identity: "I am someone who finishes what I set out to walk.",
-    duration: 90, weeklyGoal: 5, defaultMode: "soft", routeKm: 790,
-    milestones: [
-      { km: 75,  name: "Pamplona",               emoji: "🏟️" },
-      { km: 250, name: "Burgos",                  emoji: "🏰" },
-      { km: 400, name: "León",                    emoji: "🦁" },
-      { km: 590, name: "Ponferrada",              emoji: "🏯" },
-      { km: 790, name: "Santiago de Compostela",  emoji: "⛪" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🚶", quip:"Every step brings you closer to Santiago.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "appalachian", name: "Appalachian Trail", emoji: "🌲", category: "expedition", deprecated: true,
-    description: "Hike the full 3,540 km from Georgia to Maine — one of the world's great long trails.",
-    identity: "I am someone who thinks in months, not days.",
-    duration: 365, weeklyGoal: 5, defaultMode: "soft", routeKm: 3540,
-    milestones: [
-      { km: 300,  name: "Shenandoah Valley",    emoji: "🌿" },
-      { km: 900,  name: "Pennsylvania",          emoji: "🪨" },
-      { km: 1800, name: "New England",           emoji: "🍂" },
-      { km: 2600, name: "White Mountains, NH",   emoji: "❄️" },
-      { km: 3540, name: "Mount Katahdin, Maine", emoji: "🏔️" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🥾", quip:"Miles in the legs. Wilderness in the soul.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "tour-de-france", name: "Tour de France", emoji: "🚴", category: "expedition", deprecated: true,
-    description: "Ride the full 3,490 km route of the world's most iconic cycling race.",
-    identity: "I am someone who rides the distance others only watch.",
-    duration: 120, weeklyGoal: 5, defaultMode: "soft", routeKm: 3490,
-    milestones: [
-      { km: 400,  name: "Brittany Coast",     emoji: "🌊" },
-      { km: 900,  name: "Massif Central",     emoji: "🗺️" },
-      { km: 1600, name: "The Pyrenees",       emoji: "⛰️" },
-      { km: 2400, name: "The Alps",           emoji: "🏔️" },
-      { km: 3490, name: "Paris — Champs-Élysées", emoji: "🗼" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🚴", quip:"Clip in. Every km is a stage.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "route66", name: "Route 66", emoji: "🚗", category: "expedition", deprecated: true,
-    description: "Travel the 3,940 km Mother Road from Chicago, Illinois to Santa Monica, California.",
-    identity: "I am someone who keeps going, mile after mile.",
-    duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 3940,
-    milestones: [
-      { km: 500,  name: "Springfield, IL",   emoji: "🌽" },
-      { km: 1100, name: "Oklahoma City",      emoji: "🏙️" },
-      { km: 1900, name: "Amarillo, TX",       emoji: "🤠" },
-      { km: 2700, name: "Albuquerque, NM",    emoji: "🌵" },
-      { km: 3940, name: "Santa Monica Pier",  emoji: "🎡" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🚗", quip:"Get your kicks. Road is open.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "amazon-river", name: "Amazon River", emoji: "🌿", category: "expedition", deprecated: true,
-    description: "Navigate 6,437 km down the world's greatest river from the Andes to the Atlantic.",
-    identity: "I am someone who commits to the long haul.",
-    duration: 365, weeklyGoal: 5, defaultMode: "soft", routeKm: 6437,
-    milestones: [
-      { km: 500,  name: "Iquitos, Peru",   emoji: "🐊" },
-      { km: 1500, name: "Leticia",          emoji: "🦜" },
-      { km: 3000, name: "Manaus",           emoji: "🏙️" },
-      { km: 5000, name: "Santarém",         emoji: "🌊" },
-      { km: 6437, name: "Atlantic Ocean",   emoji: "🌊" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🚣", quip:"The river never stops. Neither do you.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "pct", name: "Pacific Crest Trail", emoji: "🌲", category: "expedition", deprecated: true,
-    description: "Walk 4,286 km from the Mexican border to the Canadian border — through the Sierra Nevada and Cascades. 5 months. No shortcuts.",
-    identity: "I am someone who takes no shortcuts.",
-    duration: 150, weeklyGoal: 5, defaultMode: "soft", routeKm: 4286,
-    milestones: [
-      { km:  160, name: "San Diego foothills", emoji: "🌵" },
-      { km:  700, name: "Los Angeles area",    emoji: "🌆" },
-      { km: 1300, name: "Mojave Desert",       emoji: "☀️" },
-      { km: 2000, name: "Sierra Nevada",       emoji: "⛰️" },
-      { km: 2600, name: "Northern California", emoji: "🌲" },
-      { km: 3100, name: "Oregon",              emoji: "🌋" },
-      { km: 3800, name: "Washington",          emoji: "🏔️" },
-      { km: 4286, name: "Canadian Border",     emoji: "🍁" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🥾", quip:"Every step north is progress.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "everest-stairmaster", name: "Everest StairMaster", emoji: "🏋️", category: "expedition", deprecated: true,
-    description: "Climb 2,903 floors — the StairMaster equivalent of summiting Mount Everest from sea level. No oxygen tank. No shortcuts.",
-    identity: "I am someone who climbs one floor at a time.",
-    duration: 112, weeklyGoal: 5, defaultMode: "soft", routeKm: 2903.2,
-    milestones: [
-      { km: 100,  name: "Foothills",             emoji: "⛰️" },
-      { km: 500,  name: "Camp I",                emoji: "⛺" },
-      { km: 1000, name: "Camp II",               emoji: "🏕️" },
-      { km: 1500, name: "Camp III",              emoji: "❄️" },
-      { km: 2000, name: "Death Zone",            emoji: "☠️" },
-      { km: 2903, name: "Summit — 8,849 m",     emoji: "🏔️" },
-    ],
-    habits: [
-      { id:"floors",    title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 2,903 to go.", type:"distance", points:1, unit:"floors" },
-      { id:"exp-sleep", title:"Sleep 7+ hours",       emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today",       emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "kilimanjaro-stairmaster", name: "Kilimanjaro StairMaster", emoji: "🌋", category: "expedition", deprecated: true,
-    description: "Climb 1,934 floors — the StairMaster equivalent of Africa's highest peak, Uhuru at 5,895 m. Less oxygen, less mercy than Everest, but still Africa's crown.",
-    identity: "I am someone who keeps climbing.",
-    duration: 240, weeklyGoal: 5, defaultMode: "strict", routeKm: 1934,
-    milestones: [
-      { km: 100,  name: "Foothills",               emoji: "🌿" },
-      { km: 600,  name: "Marangu Gate",             emoji: "🌲" },
-      { km: 900,  name: "Mandara Hut (2,720 m)",   emoji: "🏕️" },
-      { km: 1200, name: "Horombo Hut (3,720 m)",   emoji: "⛺" },
-      { km: 1548, name: "Kibo Hut (4,720 m)",      emoji: "❄️" },
-      { km: 1934, name: "Uhuru Peak — 5,895 m",    emoji: "🌋" },
-    ],
-    habits: [
-      { id:"floors",    title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 1,934 to go.", type:"distance", points:1, unit:"floors" },
-      { id:"exp-sleep", title:"Sleep 7+ hours",       emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today",       emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "montblanc-stairmaster", name: "Mont Blanc StairMaster", emoji: "⛰️", category: "expedition", deprecated: true,
-    description: "Climb 1,577 floors — the StairMaster equivalent of Mont Blanc, the highest peak in the Alps at 4,808 m. A serious mountain, but friendlier than the giants above.",
-    identity: "I am someone who takes on real mountains, one floor at a time.",
-    duration: 180, weeklyGoal: 5, defaultMode: "strict", routeKm: 1577,
-    milestones: [
-      { km: 100,  name: "Chamonix Valley",           emoji: "🏘️" },
-      { km: 400,  name: "Les Houches (1,220 m)",     emoji: "🌲" },
-      { km: 780,  name: "Nid d'Aigle (2,380 m)",     emoji: "🦅" },
-      { km: 1252, name: "Refuge du Goûter (3,817 m)",emoji: "🏔️" },
-      { km: 1577, name: "Summit — 4,808 m",          emoji: "⛰️" },
-    ],
-    habits: [
-      { id:"floors",    title:"Floors climbed today", emoji:"🏢", quip:"One floor at a time. 1,577 to go.", type:"distance", points:1, unit:"floors" },
-      { id:"exp-sleep", title:"Sleep 7+ hours",       emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today",       emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-
-  // ── Running Expeditions ──────────────────────────────────────────────────
-  {
-    id: "comrades-ultra", name: "Comrades Ultra", emoji: "🏃", category: "expedition", deprecated: true,
-    description: "Run the legendary 89 km Comrades Marathon from Pietermaritzburg to Durban, South Africa.",
-    identity: "I am someone who runs farther than seems reasonable.",
-    duration: 21, weeklyGoal: 5, defaultMode: "soft", routeKm: 89,
-    milestones: [
-      { km: 17,  name: "Drummond",     emoji: "🌿" },
-      { km: 36,  name: "Botha's Hill", emoji: "⛰️" },
-      { km: 55,  name: "Fields Hill",  emoji: "🏔️" },
-      { km: 82,  name: "Tollgate",     emoji: "🚦" },
-      { km: 89,  name: "Durban!",      emoji: "🌊" },
-    ],
-    habits: [
-      { id:"cu-run",    title:"Log running distance", emoji:"🏃", quip:"Every step toward Durban.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours",       emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today",       emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ]
-  },
-  {
-    id: "utmb", name: "Ultra Trail du Mont Blanc", emoji: "⛰️", category: "expedition", deprecated: true,
-    description: "Tackle the 171 km UTMB course circling Mont Blanc through France, Italy and Switzerland.",
-    identity: "I am someone who runs toward the mountains, not away from them.",
-    duration: 40, weeklyGoal: 5, defaultMode: "soft", routeKm: 171,
-    milestones: [
-      { km: 22,  name: "Les Houches",  emoji: "🌲" },
-      { km: 50,  name: "Courmayeur",   emoji: "🇮🇹" },
-      { km: 80,  name: "Champex-Lac",  emoji: "🏊" },
-      { km: 122, name: "Vallorcine",   emoji: "🏔️" },
-      { km: 152, name: "La Flégère",   emoji: "⛷️" },
-      { km: 171, name: "Chamonix!",    emoji: "🎉" },
-    ],
-    habits: [
-      { id:"utmb-run",  title:"Log running distance", emoji:"🏃", quip:"The mountains are waiting.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours",       emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today",       emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ]
-  },
-  {
-    id: "run-5-marathons", name: "5 Marathon Challenge", emoji: "🏃", category: "expedition", deprecated: true,
-    description: "Run the equivalent of 5 consecutive marathons — 211 km total. Pace doesn't matter. Showing up does.",
-    identity: "I am someone who shows up, regardless of pace.",
-    duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 211,
-    milestones: [
-      { km: 42,  name: "Marathon 1", emoji: "🏅" },
-      { km: 84,  name: "Marathon 2", emoji: "🏅" },
-      { km: 126, name: "Marathon 3", emoji: "🏅" },
-      { km: 168, name: "Marathon 4", emoji: "🏅" },
-      { km: 211, name: "Marathon 5", emoji: "🎖️" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🏃", quip:"Every km counts. Log it.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "run-jogle", name: "Land's End to John o'Groats", emoji: "🏃", category: "expedition", deprecated: true,
-    description: "Run the entire length of Great Britain — 1,407 km from Land's End to John o'Groats. End to end.",
-    identity: "I am someone who finishes the whole route.",
-    duration: 90, weeklyGoal: 5, defaultMode: "soft", routeKm: 1407,
-    milestones: [
-      { km: 1,    name: "Land's End",       emoji: "🌊" },
-      { km: 340,  name: "Bristol",          emoji: "🏙️" },
-      { km: 600,  name: "Manchester",       emoji: "🏭" },
-      { km: 900,  name: "Scottish Border",  emoji: "🏴" },
-      { km: 1407, name: "John o'Groats",    emoji: "🏔️" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🏃", quip:"North. Always north.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "run-trans-america", name: "Trans-America Run", emoji: "🏃", category: "expedition", deprecated: true,
-    description: "Run across the United States — 4,989 km from San Francisco to New York City.",
-    identity: "I am someone who thinks in coast-to-coast terms.",
-    duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 4989,
-    milestones: [
-      { km: 1,    name: "San Francisco",     emoji: "🌉" },
-      { km: 1500, name: "Rocky Mountains",   emoji: "⛰️" },
-      { km: 2500, name: "Great Plains",      emoji: "🌾" },
-      { km: 3500, name: "Mississippi River", emoji: "🌊" },
-      { km: 4989, name: "New York City",     emoji: "🗽" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🏃", quip:"Coast to coast. One step at a time.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-
-  // ── Additional Cycling Expeditions ──────────────────────────────────────
-  {
-    id: "raid-pyrenees", name: "Raid Pyrénéen", emoji: "🚴", category: "expedition", deprecated: true,
-    description: "Cycle all 726 km of the legendary Pyrénées mountain route from the Atlantic coast to the Mediterranean.",
-    identity: "I am someone who climbs every pass on the way.",
-    duration: 45, weeklyGoal: 5, defaultMode: "soft", routeKm: 726,
-    milestones: [
-      { km: 1,   name: "Hendaye — Atlantic",     emoji: "🌊" },
-      { km: 150, name: "First High Passes",       emoji: "⛰️" },
-      { km: 400, name: "Andorra",                 emoji: "🏔️" },
-      { km: 600, name: "Final Cols",              emoji: "🚴" },
-      { km: 726, name: "Cerbère — Mediterranean", emoji: "☀️" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🚴", quip:"Pedal. Climb. Breathe.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "trans-am-bike", name: "Trans-America Bike", emoji: "🚴", category: "expedition", deprecated: true,
-    description: "Ride the 6,771 km TransAm Bike Trail from Yorktown, Virginia to Astoria, Oregon.",
-    identity: "I am someone who pedals the whole way across.",
-    duration: 180, weeklyGoal: 5, defaultMode: "soft", routeKm: 6771,
-    milestones: [
-      { km: 1,    name: "Yorktown, Virginia",  emoji: "🏛️" },
-      { km: 900,  name: "Blue Ridge Parkway",  emoji: "🌄" },
-      { km: 2700, name: "Missouri River",      emoji: "🌊" },
-      { km: 4500, name: "Colorado Rockies",    emoji: "🏔️" },
-      { km: 6771, name: "Astoria, Oregon",     emoji: "🌊" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🚴", quip:"Every state. Every climb. No shortcuts.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-
-  // ── Additional Rowing Expeditions ────────────────────────────────────────
-  {
-    id: "thames-row", name: "Thames Row", emoji: "🚣", category: "expedition", deprecated: true,
-    description: "Row the full length of the Thames from its source in the Cotswolds to the open sea — 346 km.",
-    identity: "I am someone who pulls their own weight, literally.",
-    duration: 30, weeklyGoal: 5, defaultMode: "soft", routeKm: 346,
-    milestones: [
-      { km: 1,   name: "The Source, Cotswolds", emoji: "🌿" },
-      { km: 75,  name: "Oxford",                emoji: "🎓" },
-      { km: 170, name: "Windsor Castle",        emoji: "🏰" },
-      { km: 280, name: "London Bridge",         emoji: "🌉" },
-      { km: 346, name: "Thames Estuary",        emoji: "🌊" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🚣", quip:"Pull. The river knows the way.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
-  {
-    id: "danube-row", name: "Danube Row", emoji: "🚣", category: "expedition", deprecated: true,
-    description: "Row 2,860 km down the Danube from Germany to the Black Sea — through 10 countries.",
-    identity: "I am someone who commits to the whole river.",
-    duration: 120, weeklyGoal: 5, defaultMode: "soft", routeKm: 2860,
-    milestones: [
-      { km: 1,    name: "Donaueschingen, Germany", emoji: "🇩🇪" },
-      { km: 360,  name: "Vienna",                  emoji: "🎼" },
-      { km: 680,  name: "Budapest",                emoji: "🏰" },
-      { km: 1400, name: "Iron Gates Gorge",         emoji: "⛰️" },
-      { km: 2860, name: "Black Sea",               emoji: "🌊" },
-    ],
-    habits: [
-      { id:"dist",      title:"Log distance",  emoji:"🚣", quip:"Downstream. Europe unrolling behind you.", type:"distance", points:1, unit:"km" },
-      { id:"exp-sleep", title:"Sleep 7+ hours", emoji:"😴", quip:"Recovery is part of the journey.", type:"binary", points:2 },
-      { id:"exp-fuel",  title:"Fuel well today", emoji:"🍽️", quip:"Protein + carbs. Serious ground ahead.", type:"binary", points:2 },
-    ],
-  },
   {
     id: "self-care-30", name: "Self-Care 30", emoji: "🌸", category: "lifestyle",
     description: "30 days of putting yourself first. Small rituals that add up to big change.",
@@ -2024,12 +1559,12 @@ const TEMPLATES = [
 ];
 
 const TEMPLATE_WEEKLY_TARGETS = {
-  "running": { "rn-run": 3, "rn-log": 3, "rn-stretch": 3 },
+  "running": { "rn-log": 3, "rn-stretch": 3 },
   "strength": { "st-lift": 3, "st-overload": 3, "st-stretch": 3 },
   "meditation": { "med-sit": 5, "med-breath": 3, "med-journal": 2 },
   "sleep-reset": { "sl-hours": 5, "sl-screen": 5, "sl-caffeine": 5, "sl-routine": 5 },
   "yoga-flexibility": { "yf-yoga": 3, "yf-stretch": 3, "yf-breathe": 2 },
-  "core-abs": { "ca-core": 3, "ca-plank": 3, "ca-stretch": 3 },
+  "core-abs": { "ca-core": 3, "ca-stretch": 3 },
   "recovery-reset": { "rr-sleep": 5, "rr-walk": 3, "rr-mobility": 3, "rr-stress": 3 },
   "c25k": { "c25k-run": 3, "c25k-stretch": 3 },
   "pilates": { "pil-session": 3, "pil-breath": 2, "pil-stretch": 3 },
@@ -2073,7 +1608,6 @@ const TEMPLATE_COPY_OVERRIDES = {
     description: "A steady run or walk-run plan with realistic recovery built in.",
     identity: "I am someone who trains consistently and keeps the pace honest.",
     habits: {
-      "rn-run": { title: "Run or walk-run session", quip: "Easy pace counts. Build the base first." },
       "rn-log": { title: "Log distance or time", quip: "A quick note is enough to see the pattern." },
       "rn-stretch": { title: "Post-run mobility", quip: "Give your legs five calm minutes." },
     },
@@ -2366,95 +1900,6 @@ const TEMPLATE_BADGES = {
     { id:"ca-done",     label:"✅ Core Month Done",      desc:"Complete 30 days of core training.",               test: c => c.pctDone >= 99 && c.complete },
   ],
 
-  // Expedition routes — km-milestone badges
-  "everest-bc": [
-    { id:"ebc-start",     label:"🥾 First Steps",          desc:"Log your first km on the trail.",                  test: c => c.totalKm >= 1 },
-    { id:"ebc-phakding",  label:"🏡 Phakding",             desc:"Reach the first mountain village (10 km).",        test: c => c.totalKm >= 10 },
-    { id:"ebc-namche",    label:"🏙️ Namche Bazaar",        desc:"Climb to the Sherpa capital (40 km).",             test: c => c.totalKm >= 40 },
-    { id:"ebc-gorak",     label:"⛺ Gorak Shep",           desc:"Reach the highest camp (100 km).",                 test: c => c.totalKm >= 100 },
-    { id:"ebc-done",      label:"🏔️ Base Camp!",           desc:"Conquer Everest Base Camp — all 130 km.",          test: c => c.totalKm >= 130 },
-  ],
-  "west-highland-way": [
-    { id:"whw-start",   label:"🥾 First Steps",     desc:"Log your first km on the Way.",                       test: c => c.totalKm >= 1   },
-    { id:"whw-balmaha", label:"🌊 Balmaha",          desc:"Reach the shores of Loch Lomond (20 km).",           test: c => c.totalKm >= 20  },
-    { id:"whw-inv",     label:"🏞️ Inverarnan",       desc:"Pass the north end of Loch Lomond (50 km).",         test: c => c.totalKm >= 50  },
-    { id:"whw-tyn",     label:"🏘️ Tyndrum",          desc:"Into the open Highlands (80 km).",                   test: c => c.totalKm >= 80  },
-    { id:"whw-kin",     label:"⛰️ Kinlochleven",     desc:"The final mountain crossing (120 km).",              test: c => c.totalKm >= 120 },
-    { id:"whw-done",    label:"🎉 Fort William!",    desc:"Complete the full West Highland Way — 154 km.",      test: c => c.totalKm >= 154 },
-  ],
-  "tour-du-mont-blanc": [
-    { id:"tmb-start",  label:"🥾 Chamonix Start",  desc:"Log your first km around the massif.",                test: c => c.totalKm >= 1   },
-    { id:"tmb-cont",   label:"🌲 Les Contamines",  desc:"Into France's southern valleys (30 km).",             test: c => c.totalKm >= 30  },
-    { id:"tmb-cour",   label:"🇮🇹 Courmayeur",     desc:"Cross into Italy (60 km).",                           test: c => c.totalKm >= 60  },
-    { id:"tmb-fouly",  label:"🇨🇭 La Fouly",       desc:"Cross into Switzerland (90 km).",                     test: c => c.totalKm >= 90  },
-    { id:"tmb-champ",  label:"🏞️ Champex-Lac",     desc:"The final Alpine section (130 km).",                  test: c => c.totalKm >= 130 },
-    { id:"tmb-done",   label:"🏔️ Full Circle!",    desc:"Complete the Tour du Mont Blanc — 170 km.",           test: c => c.totalKm >= 170 },
-  ],
-  "john-muir-trail": [
-    { id:"jmt-start",   label:"🥾 Happy Isles",       desc:"Step off from Yosemite. The Sierra awaits.",          test: c => c.totalKm >= 1   },
-    { id:"jmt-tuol",    label:"🌿 Tuolumne",           desc:"Reach the High Sierra plateau (50 km).",             test: c => c.totalKm >= 50  },
-    { id:"jmt-evol",    label:"🏔️ Evolution Valley",  desc:"Deep wilderness (120 km).",                          test: c => c.totalKm >= 120 },
-    { id:"jmt-ranch",   label:"🏕️ Muir Trail Ranch",  desc:"Halfway through the Sierra (180 km).",               test: c => c.totalKm >= 180 },
-    { id:"jmt-pinchot", label:"❄️ Pinchot Pass",      desc:"Over the high passes (250 km).",                     test: c => c.totalKm >= 250 },
-    { id:"jmt-done",    label:"🦅 Whitney Summit!",   desc:"Highest peak in the lower 48 — all 340 km.",         test: c => c.totalKm >= 340 },
-  ],
-  "camino": [
-    { id:"cam-start",     label:"🎒 Buen Camino",          desc:"Log your first km on the Way.",                    test: c => c.totalKm >= 1 },
-    { id:"cam-pamplona",  label:"🏟️ Pamplona",             desc:"Reach Pamplona (75 km).",                          test: c => c.totalKm >= 75 },
-    { id:"cam-burgos",    label:"🏰 Burgos",               desc:"Reach the Gothic city of Burgos (250 km).",        test: c => c.totalKm >= 250 },
-    { id:"cam-leon",      label:"🦁 León",                 desc:"Pass through the city of León (400 km).",          test: c => c.totalKm >= 400 },
-    { id:"cam-done",      label:"⛪ Santiago!",            desc:"Arrive at Santiago de Compostela — all 790 km.",   test: c => c.totalKm >= 790 },
-  ],
-  "appalachian": [
-    { id:"at-start",      label:"🌅 Georgia Start",        desc:"Log your first km on the AT.",                     test: c => c.totalKm >= 1 },
-    { id:"at-shenandoah", label:"🌿 Shenandoah",           desc:"Hike through Shenandoah Valley (300 km).",         test: c => c.totalKm >= 300 },
-    { id:"at-halfway",    label:"🪨 Halfway There",         desc:"Pass the halfway mark in Pennsylvania (900 km).",  test: c => c.totalKm >= 900 },
-    { id:"at-newengland", label:"🍂 New England",          desc:"Enter the final stretch (1,800 km).",              test: c => c.totalKm >= 1800 },
-    { id:"at-done",       label:"🏔️ Katahdin!",            desc:"Reach Mount Katahdin — all 3,540 km.",             test: c => c.totalKm >= 3540 },
-  ],
-  "tour-de-france": [
-    { id:"tdf-start",     label:"🟡 Maillot Jaune",        desc:"Clip in and log your first km.",                   test: c => c.totalKm >= 1 },
-    { id:"tdf-brittany",  label:"🌊 Brittany",             desc:"Clear the Brittany coast (400 km).",               test: c => c.totalKm >= 400 },
-    { id:"tdf-pyrenees",  label:"⛰️ Les Pyrénées",         desc:"Conquer the Pyrenees (1,600 km).",                 test: c => c.totalKm >= 1600 },
-    { id:"tdf-alps",      label:"🏔️ Les Alpes",            desc:"Survive the Alps (2,400 km).",                     test: c => c.totalKm >= 2400 },
-    { id:"tdf-done",      label:"🗼 Paris!",               desc:"Roll onto the Champs-Élysées — all 3,490 km.",     test: c => c.totalKm >= 3490 },
-  ],
-  "route66": [
-    { id:"r66-start",     label:"🛣️ Hit the Road",         desc:"Start the Mother Road — log your first km.",       test: c => c.totalKm >= 1 },
-    { id:"r66-springfield",label:"🌽 Springfield",         desc:"Roll through Springfield, IL (500 km).",           test: c => c.totalKm >= 500 },
-    { id:"r66-okc",       label:"🤠 Oklahoma City",        desc:"Reach Oklahoma City (1,100 km).",                  test: c => c.totalKm >= 1100 },
-    { id:"r66-abq",       label:"🌵 Albuquerque",          desc:"Cross the desert to Albuquerque (2,700 km).",      test: c => c.totalKm >= 2700 },
-    { id:"r66-done",      label:"🎡 Santa Monica!",        desc:"Reach the end of Route 66 — all 3,940 km.",        test: c => c.totalKm >= 3940 },
-  ],
-  "amazon-river": [
-    { id:"amz-start",     label:"🌿 Into the Jungle",      desc:"Launch onto the Amazon — log your first km.",      test: c => c.totalKm >= 1 },
-    { id:"amz-iquitos",   label:"🐊 Iquitos",              desc:"Pass through Iquitos, Peru (500 km).",              test: c => c.totalKm >= 500 },
-    { id:"amz-manaus",    label:"🏙️ Manaus",               desc:"Reach the heart of the Amazon (3,000 km).",        test: c => c.totalKm >= 3000 },
-    { id:"amz-santarem",  label:"🦜 Santarém",             desc:"Approach the Atlantic delta (5,000 km).",          test: c => c.totalKm >= 5000 },
-    { id:"amz-done",      label:"🌊 Atlantic!",            desc:"Flow into the Atlantic Ocean — all 6,437 km.",     test: c => c.totalKm >= 6437 },
-  ],
-  "everest-stairmaster": [
-    { id:"esm-start",   label:"🏢 First Floor",        desc:"Log your first floor. The climb begins.",             test: c => c.totalKm >= 1     },
-    { id:"esm-100",     label:"⛰️ Foothills",           desc:"Reach 100 floors — the foothills.",                  test: c => c.totalKm >= 100   },
-    { id:"esm-1000",    label:"🏕️ Camp II",             desc:"1,000 floors deep. Basecamp II altitude.",           test: c => c.totalKm >= 1000  },
-    { id:"esm-2000",    label:"☠️ Death Zone",           desc:"2,000 floors. The air is dangerously thin.",         test: c => c.totalKm >= 2000  },
-    { id:"esm-summit",  label:"🏔️ Everest Summit!",     desc:"2,903 floors. You climbed an entire mountain.",      test: c => c.totalKm >= 2903.2},
-  ],
-  "kilimanjaro-stairmaster": [
-    { id:"ksm-start",   label:"🏢 First Floor",          desc:"Log your first floor. Africa calls.",                test: c => c.totalKm >= 1     },
-    { id:"ksm-600",     label:"🌲 Marangu Gate",          desc:"600 floors — through the tropical forest zone.",    test: c => c.totalKm >= 600   },
-    { id:"ksm-900",     label:"🏕️ Mandara Hut",          desc:"900 floors. First mountain camp at 2,720 m.",       test: c => c.totalKm >= 900   },
-    { id:"ksm-1200",    label:"⛺ Horombo Hut",           desc:"1,200 floors. High camp at 3,720 m.",               test: c => c.totalKm >= 1200  },
-    { id:"ksm-1548",    label:"❄️ Kibo Hut",              desc:"1,548 floors. The final camp before the summit.",   test: c => c.totalKm >= 1548  },
-    { id:"ksm-summit",  label:"🌋 Uhuru Peak!",           desc:"1,934 floors. Africa's highest point — 5,895 m.",  test: c => c.totalKm >= 1934  },
-  ],
-  "montblanc-stairmaster": [
-    { id:"mb-start",    label:"🏢 First Floor",           desc:"Log your first floor. The Alps await.",             test: c => c.totalKm >= 1     },
-    { id:"mb-400",      label:"🌲 Les Houches",            desc:"400 floors — into the Alpine foothills.",           test: c => c.totalKm >= 400   },
-    { id:"mb-780",      label:"🦅 Nid d'Aigle",            desc:"780 floors. Eagle's Nest at 2,380 m.",              test: c => c.totalKm >= 780   },
-    { id:"mb-1252",     label:"🏔️ Refuge du Goûter",      desc:"1,252 floors. The classic summit hut at 3,817 m.", test: c => c.totalKm >= 1252  },
-    { id:"mb-summit",   label:"⛰️ Mont Blanc Summit!",    desc:"1,577 floors. Highest peak in the Alps — 4,808 m.",test: c => c.totalKm >= 1577  },
-  ],
   "journaling": [
     { id:"jn-d1",    label:"✍️ First Entry",       desc:"Write your first journal entry.",                          test: c => c.dayNumber >= 1 && c.complete },
     { id:"jn-d7",    label:"📓 One Week In",        desc:"Complete a full week of journaling.",                     test: c => c.streak >= 7 },
@@ -2468,62 +1913,6 @@ const TEMPLATE_BADGES = {
     { id:"mm-d14",   label:"💻 Deep Work Streak",   desc:"14 consecutive days of 2-hour deep work blocks.",        test: c => c.streak >= 14 },
     { id:"mm-d21",   label:"⚡ Flow State",          desc:"21 days of monk mode — you've found your rhythm.",       test: c => c.streak >= 21 },
     { id:"mm-done",  label:"🏆 Monk Certified",     desc:"30 days. You built a mind like a weapon.",               test: c => c.complete && c.dayNumber >= 30 },
-  ],
-  "pct": [
-    { id:"pct-start",  label:"🌵 Mexico Border",    desc:"Step off from the southern terminus. The journey begins.", test: c => c.totalKm >= 1    },
-    { id:"pct-sierra", label:"⛰️ High Sierra",      desc:"Enter the Sierra Nevada (2,000 km).",                     test: c => c.totalKm >= 2000 },
-    { id:"pct-oregon", label:"🌋 Into Oregon",      desc:"Cross into Oregon (3,100 km).",                           test: c => c.totalKm >= 3100 },
-    { id:"pct-wa",     label:"🏔️ Washington",       desc:"Enter the final state (3,800 km).",                       test: c => c.totalKm >= 3800 },
-    { id:"pct-done",   label:"🍁 Canada!",           desc:"4,286 km. You walked from Mexico to Canada.",            test: c => c.totalKm >= 4286 },
-  ],
-  "run-5-marathons": [
-    { id:"r5m-start",   label:"👟 First Steps",      desc:"Log your first km.",                                      test: c => c.totalKm >= 1   },
-    { id:"r5m-mar1",    label:"🏅 Marathon 1",        desc:"Cover 42 km — first marathon done.",                     test: c => c.totalKm >= 42  },
-    { id:"r5m-halfway", label:"🔥 Halfway",           desc:"105 km — halfway through all 5 marathons.",              test: c => c.totalKm >= 105 },
-    { id:"r5m-mar4",    label:"🏃 Marathon 4",        desc:"168 km — fourth marathon complete.",                     test: c => c.totalKm >= 168 },
-    { id:"r5m-done",    label:"🎖️ Five Marathons!",   desc:"All 211 km done. Five consecutive marathons.",           test: c => c.totalKm >= 211 },
-  ],
-  "run-jogle": [
-    { id:"jogle-start",   label:"🌊 Land's End",       desc:"Start your JOGLE run.",                                 test: c => c.totalKm >= 1    },
-    { id:"jogle-bristol", label:"🏙️ Bristol",           desc:"Reach Bristol (340 km in).",                           test: c => c.totalKm >= 340  },
-    { id:"jogle-manc",    label:"🏭 Manchester",        desc:"Run through Manchester (600 km).",                      test: c => c.totalKm >= 600  },
-    { id:"jogle-border",  label:"🏴 Scotland",          desc:"Cross the Scottish Border (900 km).",                  test: c => c.totalKm >= 900  },
-    { id:"jogle-done",    label:"🏔️ John o'Groats!",   desc:"Run the full length of Britain — 1,407 km.",           test: c => c.totalKm >= 1407 },
-  ],
-  "run-trans-america": [
-    { id:"rta-start",   label:"🌉 San Francisco",     desc:"Set off from the Bay Area.",                             test: c => c.totalKm >= 1    },
-    { id:"rta-rockies", label:"⛰️ Rockies",           desc:"Cross the Rocky Mountains (1,500 km).",                 test: c => c.totalKm >= 1500 },
-    { id:"rta-plains",  label:"🌾 Great Plains",      desc:"Run through the Great Plains (2,500 km).",               test: c => c.totalKm >= 2500 },
-    { id:"rta-miss",    label:"🌊 Mississippi",       desc:"Cross the Mississippi River (3,500 km).",               test: c => c.totalKm >= 3500 },
-    { id:"rta-done",    label:"🗽 New York City!",    desc:"Run coast to coast — all 4,989 km.",                    test: c => c.totalKm >= 4989 },
-  ],
-  "raid-pyrenees": [
-    { id:"rp-start",    label:"🌊 Hendaye",           desc:"Clip in at the Atlantic start.",                         test: c => c.totalKm >= 1   },
-    { id:"rp-pass1",    label:"⛰️ First High Pass",   desc:"Conquer the first high passes (150 km).",               test: c => c.totalKm >= 150 },
-    { id:"rp-andorra",  label:"🏔️ Andorra",           desc:"Reach Andorra at the halfway point (400 km).",          test: c => c.totalKm >= 400 },
-    { id:"rp-final",    label:"🚴 Final Cols",         desc:"Enter the final mountain stretch (600 km).",             test: c => c.totalKm >= 600 },
-    { id:"rp-done",     label:"☀️ Mediterranean!",    desc:"Reach Cerbère and the Mediterranean — all 726 km.",     test: c => c.totalKm >= 726 },
-  ],
-  "trans-am-bike": [
-    { id:"tab-start",   label:"🏛️ Yorktown",          desc:"Roll out from the East Coast.",                          test: c => c.totalKm >= 1    },
-    { id:"tab-ridge",   label:"🌄 Blue Ridge",        desc:"Ride the Blue Ridge Parkway (900 km).",                  test: c => c.totalKm >= 900  },
-    { id:"tab-river",   label:"🌊 Missouri River",    desc:"Cross the Missouri River (2,700 km).",                  test: c => c.totalKm >= 2700 },
-    { id:"tab-rockies", label:"🏔️ Colorado Rockies",  desc:"Conquer the Colorado Rockies (4,500 km).",               test: c => c.totalKm >= 4500 },
-    { id:"tab-done",    label:"🌊 Astoria!",          desc:"Reach the Pacific — all 6,771 km.",                     test: c => c.totalKm >= 6771 },
-  ],
-  "thames-row": [
-    { id:"thr-start",   label:"🌿 The Source",        desc:"Push off from the Thames source.",                       test: c => c.totalKm >= 1   },
-    { id:"thr-oxford",  label:"🎓 Oxford",            desc:"Row through Oxford (75 km).",                           test: c => c.totalKm >= 75  },
-    { id:"thr-windsor", label:"🏰 Windsor Castle",    desc:"Pass Windsor Castle (170 km).",                         test: c => c.totalKm >= 170 },
-    { id:"thr-london",  label:"🌉 London Bridge",     desc:"Row under London Bridge (280 km).",                     test: c => c.totalKm >= 280 },
-    { id:"thr-done",    label:"🌊 To the Sea!",       desc:"Reach the Thames Estuary — all 346 km.",                test: c => c.totalKm >= 346 },
-  ],
-  "danube-row": [
-    { id:"dan-start",    label:"🇩🇪 Donaueschingen",  desc:"Launch on the Danube in Germany.",                       test: c => c.totalKm >= 1    },
-    { id:"dan-vienna",   label:"🎼 Vienna",           desc:"Row past Vienna (360 km).",                             test: c => c.totalKm >= 360  },
-    { id:"dan-budapest", label:"🏰 Budapest",         desc:"Pass through Budapest (680 km).",                       test: c => c.totalKm >= 680  },
-    { id:"dan-gorge",    label:"⛰️ Iron Gates",       desc:"Navigate the Iron Gates Gorge (1,400 km).",             test: c => c.totalKm >= 1400 },
-    { id:"dan-done",     label:"🌊 Black Sea!",       desc:"Row to the Black Sea — all 2,860 km.",                  test: c => c.totalKm >= 2860 },
   ],
 };
 
@@ -2549,18 +1938,6 @@ const CHALLENGE_CHAINS = {
   "core-abs":           "strength",
   "journaling":         "reading",
   "monk-mode":          "cruise-control",
-  "pct":                "appalachian",
-  // Rowing progression
-  "thames-row":         "danube-row",
-  "danube-row":         "amazon-river",
-  // Running expedition progression
-  "comrades-ultra":     "utmb",
-  "utmb":               "run-5-marathons",
-  "run-5-marathons":    "run-jogle",
-  "run-jogle":          "run-trans-america",
-  // Cycling expedition progression
-  "raid-pyrenees":      "tour-de-france",
-  "tour-de-france":     "trans-am-bike",
   // Endurance training progression
   "half-marathon-prep": "marathon-training",
   "marathon-training":  "ironman-703",
