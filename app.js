@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.23.03";
+const APP_VERSION = "2026.09.23.04";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -191,6 +191,10 @@ const FITNESS_TEMPLATE_IDS = new Set([
   "start-small","momentum-builder","protein-challenge","hydration","recovery-reset",
   "yoga-flexibility","posture-fix","beginner-strength","strength","core-abs","pilates",
   "c25k","kettlebell","calisthenics","pushup-challenge","pullup-progression",
+  "dog-walk","12-3-30",
+  "cruise-control","75-hard","cold-exposure","intermittent-fasting","monk-mode","project-50","morning-power-hour","deep-work-sprint",
+  "tough-mudder","spartan-race",
+  "weight-loss-30","body-composition","glucose-control","sleep-tracker","fiber-challenge","lean-start","fat-loss-foundation",
 ]);
 const INTENSE_TEMPLATE_IDS = new Set(["cruise-control", "75-hard", "monk-mode", "project-50"]);
 
