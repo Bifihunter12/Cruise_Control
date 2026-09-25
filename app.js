@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.23.04";
+const APP_VERSION = "2026.09.25.01";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -592,9 +592,7 @@ const TEMPLATES = [
     duration: 30, weeklyGoal: 90, defaultMode: "soft",
     habits: [
       { id:"yoga",      title:"Yoga or mobility",          emoji:"🧘", quip:"Sets the tone for everything after.",      type:"binary", points:2 },
-      { id:"steps",     title:"Steps",                     emoji:"👟", quip:"8k / 10k / 15k steps.",                  type:"tiered", points:2,
-        tiers:[{value:8,label:"8k",points:2},{value:10,label:"10k",points:3},{value:15,label:"15k",points:4}] },
-      { id:"protein",   title:"Protein at every meal",     emoji:"🥩", quip:"Protein keeps the muscle, drops the fat.", type:"binary", points:2 },
+      { id:"protein",   title:"Protein at every meal",    emoji:"🥩", quip:"Protein keeps the muscle, drops the fat.", type:"binary", points:2 },
       { id:"noalcohol", title:"No alcohol or sugary drinks",emoji:"🚫", quip:"Empty calories in every form. Skip them.", type:"binary", points:2 },
       { id:"read",      title:"Read 10 pages",             emoji:"📖", quip:"10 pages a day is a book a month.",       type:"binary", points:2 },
     ]
@@ -1545,6 +1543,11 @@ TEMPLATES.forEach(template => {
   template.habits?.forEach(habit => {
     if (targets?.[habit.id]) habit.weeklyTarget = targets[habit.id];
     if (copy?.habits?.[habit.id]) Object.assign(habit, copy.habits[habit.id]);
+    // Every habit is a plain yes/no check-off, except free-text notes (gratitude).
+    if (habit.type !== "text") {
+      habit.type = "binary";
+      delete habit.tiers; delete habit.unit; delete habit.dailyTarget; delete habit.weeklyQty; delete habit.decimals;
+    }
   });
   if (template.id === "walking") template.habits = template.habits.filter(habit => habit.id === "wk-dist");
 });
@@ -2073,6 +2076,8 @@ const CloudSync = {
   },
 };
 let onboardingStep = null;   // null = done, 0-3 = active step
+let _obIntroIdx = 0;         // which intro slide (step 0 shows these before the plan-picker hero)
+let _obIntroDone = false;
 let bodyHistoryLimit = 5;    // how many history rows to show in Body tab
 let _lastViewKey   = "";       // for scroll-to-top on navigation changes
 let _viewChanged   = false;    // true on the render immediately after a tab/view switch
@@ -2180,26 +2185,16 @@ function normalizeHabit(raw) {
     title:       typeof raw.title === "string" ? raw.title : "Habit",
     emoji:       typeof raw.emoji === "string" ? raw.emoji : "⭐",
     quip:        typeof raw.quip  === "string" ? raw.quip  : "",
-    type:        ["binary","tiered","distance","measurement","quantity","text"].includes(raw.type) ? raw.type : "binary",
+    type:        raw.type === "text" ? "text" : "binary",
     points:      typeof raw.points === "number" && raw.points >= 1 ? Math.round(raw.points) : 2,
   };
   if (typeof raw.placeholder === "string") habit.placeholder = raw.placeholder;
-  if (typeof raw.unit     === "string") habit.unit     = raw.unit;
-  if (typeof raw.decimals === "number") habit.decimals = raw.decimals;
   if (typeof raw.weeklyTarget === "number") habit.weeklyTarget = Math.max(1, Math.min(7, Math.round(raw.weeklyTarget)));
-  // Weekly-total goal mode ("150 min/week" instead of "5 days/week") — the daily
-  // amount logged is summed across the week and compared to this target, instead
-  // of counting how many days the habit was checked off. See habitWeeklyTarget()
-  // and habitWeekCount().
-  if (typeof raw.weeklyQty === "number") habit.weeklyQty = Math.max(1, Math.round(raw.weeklyQty));
-  // A per-day numeric threshold (e.g. steps) — makes a "quantity" habit
-  // occurrence-based (one occurrence per scheduled day, complete when that
-  // day's logged amount clears this bar) instead of a single weekly total.
-  if (typeof raw.dailyTarget === "number") habit.dailyTarget = Math.max(1, Math.round(raw.dailyTarget));
+  // Distance/time/number tracking is gone: older saved habits (tiered, quantity,
+  // measurement) load as plain check-offs, dropping their tiers/units/targets.
   // Optional personal reminder time for this specific habit (e.g. "06:00" for
   // a morning run) — independent of the single daily summary reminder.
   if (typeof raw.reminderTime === "string" && /^\d{2}:\d{2}$/.test(raw.reminderTime)) habit.reminderTime = raw.reminderTime;
-  if (Array.isArray(raw.tiers))         habit.tiers    = raw.tiers;
   // Main Quest model: the Promise habit (habits[0] on a Quest challenge) carries a
   // stable commitment (title/quip) plus a default + alternative ways to fulfill it.
   // Choosing an alternative never creates a second habit — see day.replacementUsed.
@@ -3508,8 +3503,9 @@ function _renderInner() {
   const app = document.getElementById("app");
   // Full-screen onboarding — render only the onboarding screen
   if (onboardingStep !== null) {
-    const stepChanged = onboardingStep !== _prevObStep;
-    _prevObStep = onboardingStep;
+    const obKey = onboardingStep === 0 && !_obIntroDone ? "0:" + _obIntroIdx : String(onboardingStep);
+    const stepChanged = obKey !== _prevObStep;
+    _prevObStep = obKey;
     app.innerHTML = renderOnboarding();
     if (stepChanged) {
       const scr = app.querySelector(".ob-screen");
@@ -5770,11 +5766,6 @@ function renderEditChallenge(c) {
           <div class="add-habit-top-row">
             <input id="ech-new-title" type="text" value="${esc(ef.newHabitTitle||"")}" placeholder="New habit name" style="flex:1">
           </div>
-          <div class="habit-type-toggle" style="margin-top:8px;flex-wrap:wrap">
-            <button class="ht-btn ${newType==="binary"?"active":""}" data-ech-type="binary">Simple</button>
-            <button class="ht-btn ${newType==="tiered"?"active":""}" data-ech-type="tiered">Tiered</button>
-            <button class="ht-btn ${newType==="quantity"?"active":""}" data-ech-type="quantity">Weekly total</button>
-          </div>
           ${newType === "tiered" ? `
           <div class="tier-inputs">
             <div class="tier-inputs-header"><span>Label</span>${newTiers.length>2?"<span></span>":""}</div>
@@ -6207,11 +6198,6 @@ function renderBuilderCustomize() {
         <div class="add-habit-form">
           <div class="add-habit-top-row">
             <input id="nh-name" type="text" value="${esc(builderForm.newHabitName)}" placeholder="Habit name" style="flex:1">
-          </div>
-          <div class="habit-type-toggle" style="margin-top:8px;flex-wrap:wrap">
-            <button class="ht-btn ${builderForm.newHabitType==="binary"?"active":""}" data-nh-type="binary">Simple</button>
-            <button class="ht-btn ${builderForm.newHabitType==="tiered"?"active":""}" data-nh-type="tiered">Tiered</button>
-            <button class="ht-btn ${builderForm.newHabitType==="quantity"?"active":""}" data-nh-type="quantity">Weekly total</button>
           </div>
           ${builderForm.newHabitType === "tiered" ? `
           <div class="tier-inputs">
@@ -6921,6 +6907,33 @@ function renderRankProgressHint() {
 
 // ── Onboarding ────────────────────────────────────────────────────────────
 
+const OB_INTRO_SLIDES = [
+  { icon: "ti-flame",       title: "Small habits, real momentum", body: "Momentum helps you build a routine by checking off a few simple habits every day." },
+  { icon: "ti-list-check",  title: "Pick a plan",                 body: "Choose from ready-made plans for fitness, sleep, focus and more, or build your own. A plan is a short list of habits over a set number of days." },
+  { icon: "ti-circle-check", title: "Tap to check in",            body: "Every habit is a simple yes or no. When you've done it, tap the day. No numbers, no timers." },
+  { icon: "ti-bolt",        title: "Earn XP and level up",        body: "Each check earns 1 XP. XP fills your level bar and unlocks badges for streaks and milestones." },
+  { icon: "ti-shield-check", title: "Life happens",               body: "Recovery days and streak freezes protect your streak when you miss a day. Your data stays on your device." },
+];
+
+function renderObIntro() {
+  const s = OB_INTRO_SLIDES[_obIntroIdx];
+  const last = _obIntroIdx === OB_INTRO_SLIDES.length - 1;
+  return `
+  <div class="ob-screen ob-screen--slide" role="main">
+    <div class="ob-slide-inner">
+      <div class="ob-emoji" aria-hidden="true" style="color:var(--primary)"><i class="ti ${s.icon}"></i></div>
+      <div class="ob-title">${s.title}</div>
+      <div class="ob-body">${s.body}</div>
+    </div>
+    <div class="ob-dots" role="presentation" aria-label="Slide ${_obIntroIdx + 1} of ${OB_INTRO_SLIDES.length}">
+      ${OB_INTRO_SLIDES.map((_, i) => `<span class="ob-dot${i === _obIntroIdx ? " active" : ""}"></span>`).join("")}
+    </div>
+    <button class="primary-button ob-cta" data-ob-intro-next>${last ? "Get started" : "Next"}</button>
+    ${last ? "" : `<button class="link-btn ob-link ob-link--faint" data-ob-intro-skip>Skip</button>`}
+    <button class="link-btn ob-link" data-ob-to-signin>Already have an account? Sign in</button>
+  </div>`;
+}
+
 function renderObHero() {
   const momentum = TEMPLATES.find(t => t.id === "fitter-starter");
   const HABIT_ICON = {
@@ -7261,7 +7274,7 @@ function renderObAccount() {
 
 function renderOnboarding() {
   if (onboardingStep === null) return "";
-  if (onboardingStep === 0) return renderObHero();
+  if (onboardingStep === 0) return _obIntroDone ? renderObHero() : renderObIntro();
   if (onboardingStep === 1) return renderObExplainer();
   if (onboardingStep === 2) return renderObPattern();
   if (onboardingStep === 3) return renderObObstacle();
@@ -7611,7 +7624,7 @@ function bindEvents() {
     render();
   });
   on("[data-close-settings]",()=>{ settingsOpen=false; render(); });
-  on("[data-preview-onboarding]", () => { settingsOpen=false; _obAuthError=""; _obAuthMode="signup"; onboardingStep=0; render(); });
+  on("[data-preview-onboarding]", () => { settingsOpen=false; _obAuthError=""; _obAuthMode="signup"; _obIntroIdx=0; _obIntroDone=false; onboardingStep=0; render(); });
   on("[data-view-challenge]",el=>{ viewChallengeId=el.dataset.viewChallenge; calendarViewMonth=null; _pushAppState(); render(); });
   on("[data-close-detail]", () => { viewChallengeId=null; calendarViewMonth=null; render(); });
   on("[data-cal-prev]",     el => { calendarViewMonth=el.dataset.calPrev; render(); });
@@ -8053,6 +8066,15 @@ function bindEvents() {
   // ── Onboarding navigation ──────────────────────────────────────────────────
   on("[data-ob-next]", () => {
     onboardingStep++;
+    render();
+  });
+  on("[data-ob-intro-next]", () => {
+    if (_obIntroIdx < OB_INTRO_SLIDES.length - 1) _obIntroIdx++;
+    else _obIntroDone = true;
+    render();
+  });
+  on("[data-ob-intro-skip]", () => {
+    _obIntroDone = true;
     render();
   });
   on("[data-ob-skip]", () => {
