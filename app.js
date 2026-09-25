@@ -1,6 +1,6 @@
 "use strict";
 
-const APP_VERSION = "2026.09.25.01";
+const APP_VERSION = "2026.09.25.02";
 // Public URL shown on shared cards/text. UPDATE to your real domain before launch.
 const SHARE_URL = "vermillion-marshmallow-d68dba.netlify.app";
 // Support inbox for the Settings "Send note" feedback link.
@@ -1543,6 +1543,8 @@ TEMPLATES.forEach(template => {
   template.habits?.forEach(habit => {
     if (targets?.[habit.id]) habit.weeklyTarget = targets[habit.id];
     if (copy?.habits?.[habit.id]) Object.assign(habit, copy.habits[habit.id]);
+    // Standard XP is 1 per habit; older template point values (2-5) were never scored.
+    habit.points = 1;
     // Every habit is a plain yes/no check-off, except free-text notes (gratitude).
     if (habit.type !== "text") {
       habit.type = "binary";
@@ -1584,7 +1586,6 @@ const UNIVERSAL_BADGES = [
   { id:"u-done1",  label:"✅ Challenge Done",     desc:"Finish your first challenge.",                        test: u => u.completedChallenges >= 1 },
   { id:"u-done3",  label:"🏆 Triple Threat",      desc:"Complete 3 challenges.",                              test: u => u.completedChallenges >= 3 },
   { id:"u-perfwk", label:"⭐ Perfect Week",        desc:"Complete all Oaths every day for 7 consecutive days.", test: u => u.hasPerfectWeek },
-  { id:"u-route",  label:"🗺️ Route Finished",      desc:"Complete a distance-based route plan.",               test: u => u.expeditionDone },
   // Hidden badges — show as "🔒 ???" until earned
   { id:"u-double-agent", label:"🔀 Double Agent",     desc:"Complete the same challenge twice.",                         tier:"rare",      hidden:true, test: u => u.doubleAgent },
   { id:"u-dark-horse",   label:"🖤 Dark Horse",       desc:"Come back after a streak gap and still finish.",             tier:"epic",      hidden:true, test: u => u.darkHorse },
@@ -1609,14 +1610,14 @@ const TEMPLATE_BADGES = {
   "cruise-control": [
     { id:"cc-start",    label:"🌊 Day 1 Done",          desc:"Complete 100% on Day 1.",                          test: c => c.dayNumber >= 1 && c.complete },
     { id:"cc-month",    label:"📅 One Month",            desc:"Complete 4 full weeks.",                           test: c => c.completedWeeks >= 4 },
-    { id:"cc-halfway",  label:"⚡ Halfway",              desc:"Reach the 43-day mark.",                           test: c => c.pctDone >= 50 },
-    { id:"cc-week8",    label:"📆 Two Months",           desc:"Complete 8 full weeks.",                           test: c => c.completedWeeks >= 8 },
+    { id:"cc-halfway",  label:"⚡ Halfway",              desc:"Reach the halfway point.",                       test: c => c.pctDone >= 50 },
+    { id:"cc-week8",    label:"📆 Three Weeks",          desc:"Complete 3 full weeks.",                           test: c => c.completedWeeks >= 3 },
     { id:"cc-done",     label:"🔱 Cruise Control",        desc:"Complete the full 30-day Cruise Control challenge.", test: c => c.pctDone >= 99 && c.complete },
   ],
   "75-hard": [
     { id:"hard-start",   label:"💪 Day 1",               desc:"Complete 100% on Day 1 of 75 Hard.",               test: c => c.dayNumber >= 1 && c.complete },
     { id:"hard-3wk",     label:"📅 3 Weeks In",          desc:"Complete 3 full weeks. No compromises.",           test: c => c.completedWeeks >= 3 },
-    { id:"hard-photos",  label:"📸 7 Photo Days",        desc:"Log the progress photo habit 7 times.",            test: c => c.photosLogged >= 7 },
+    { id:"hard-photos",  label:"🔥 7-Day Streak",        desc:"Keep a 7-day streak.",                             test: c => c.streak >= 7 },
     { id:"hard-halfway", label:"⚡ Halfway",             desc:"Day 37+. You're past the hard part.",              test: c => c.pctDone >= 50 },
     { id:"hard-done",    label:"🏆 75 Hard Complete",    desc:"Finish all 75 days. Zero compromises.",            test: c => c.pctDone >= 99 && c.complete },
   ],
@@ -1650,14 +1651,14 @@ const TEMPLATE_BADGES = {
   ],
   "dog-walk": [
     { id:"dw-first",    label:"🐕 First Walk",           desc:"Log your first dog walk.",                         test: c => c.daysLogged >= 1 },
-    { id:"dw-6km",      label:"🗺️ Adventure Walk",       desc:"Log a 6 km+ walk.",                               test: c => c.has6kmWalk },
+    { id:"dw-6km",      label:"🗺️ Two Weeks",            desc:"Keep a 14-day walking streak.",                   test: c => c.streak >= 14 },
     { id:"dw-week",     label:"🌅 Walk Week",            desc:"7-day walking streak.",                            test: c => c.streak >= 7 },
     { id:"dw-halfway",  label:"🐾 Halfway",              desc:"15 walks logged.",                                 test: c => c.daysLogged >= 15 },
     { id:"dw-done",     label:"✅ 30 Walks Done",        desc:"Complete the full 30-day dog walk challenge.",     test: c => c.pctDone >= 99 && c.complete },
   ],
   "walking": [
     { id:"wk-first",    label:"👟 First Steps",          desc:"Log your first walk.",                             test: c => c.daysLogged >= 1 },
-    { id:"wk-10km",     label:"⚡ 10 km Walk",           desc:"Log a 10 km+ walk.",                              test: c => c.has10kmWalk },
+    { id:"wk-10km",     label:"⚡ Two Weeks",            desc:"Keep a 14-day walking streak.",                   test: c => c.streak >= 14 },
     { id:"wk-week",     label:"🚶 Walk Week",            desc:"7-day walking streak.",                            test: c => c.streak >= 7 },
     { id:"wk-halfway",  label:"🚶 Halfway",              desc:"15 walks logged.",                                 test: c => c.daysLogged >= 15 },
     { id:"wk-done",     label:"✅ Walking Month Done",   desc:"Complete 30 days of walking.",                     test: c => c.pctDone >= 99 && c.complete },
@@ -1671,7 +1672,7 @@ const TEMPLATE_BADGES = {
   ],
   "strength": [
     { id:"st-first",    label:"🏋️ First Rep",            desc:"Log your first lift session.",                     test: c => c.hasLifted },
-    { id:"st-pr",       label:"⚡ PR Hunter",             desc:"Hit a personal record.",                           test: c => c.hasPR },
+    { id:"st-pr",       label:"⚡ Ten Lifts",             desc:"Log 10 lift sessions.",                            test: c => c.liftsLogged >= 10 },
     { id:"st-week",     label:"💪 Training Week",        desc:"7-day lifting streak.",                            test: c => c.streak >= 7 },
     { id:"st-20",       label:"🏋️ Gym Rat",              desc:"Log 20 lift sessions.",                            test: c => c.liftsLogged >= 20 },
     { id:"st-done",     label:"✅ Strength Month Done",  desc:"Complete 30 days of strength training.",           test: c => c.pctDone >= 99 && c.complete },
@@ -1686,7 +1687,7 @@ const TEMPLATE_BADGES = {
   "cold-exposure": [
     { id:"ce-first",    label:"🧊 First Plunge",         desc:"Take your first cold shower.",                     test: c => c.coldShowersLogged >= 1 },
     { id:"ce-week",     label:"❄️ Cold Warrior",         desc:"7-day cold shower streak.",                        test: c => c.coldShowerStreak >= 7 },
-    { id:"ce-plunge",   label:"🏔️ Ice Bath",             desc:"Complete a full 5-min cold plunge.",               test: c => c.hasColdPlunge },
+    { id:"ce-plunge",   label:"🏔️ Two Weeks Cold",       desc:"Keep a 14-day cold shower streak.",                test: c => c.coldShowerStreak >= 14 },
     { id:"ce-halfway",  label:"🧊 Halfway",              desc:"15 cold sessions.",                                test: c => c.coldShowersLogged >= 15 },
     { id:"ce-done",     label:"✅ Cold Month Done",      desc:"Complete 30 days of cold exposure.",               test: c => c.pctDone >= 99 && c.complete },
   ],
@@ -2186,7 +2187,7 @@ function normalizeHabit(raw) {
     emoji:       typeof raw.emoji === "string" ? raw.emoji : "⭐",
     quip:        typeof raw.quip  === "string" ? raw.quip  : "",
     type:        raw.type === "text" ? "text" : "binary",
-    points:      typeof raw.points === "number" && raw.points >= 1 ? Math.round(raw.points) : 2,
+    points:      typeof raw.points === "number" && raw.points >= 1 ? Math.min(10, Math.round(raw.points)) : 1,
   };
   if (typeof raw.placeholder === "string") habit.placeholder = raw.placeholder;
   if (typeof raw.weeklyTarget === "number") habit.weeklyTarget = Math.max(1, Math.min(7, Math.round(raw.weeklyTarget)));
@@ -2551,16 +2552,24 @@ function tierPoints(habit, tierValue) {
   return tier ? (tier.points ?? tier.pts ?? 0) : 0;
 }
 
-// Universal XP rule: every completed habit occurrence is worth exactly +1,
-// with no per-habit point values, streak multipliers, or completion bonuses.
-// `points`/`maxPoints` below are literally the completed/total habit counts.
+// XP rule: every completed habit is worth its own XP value (default 1, the
+// user can set 1-10 per habit). No streak multipliers or completion bonuses.
+function habitXP(h) {
+  return Math.max(1, Math.round(Number(h?.points) || 1));
+}
 function completionInfo(challenge, day) {
   // Rest day: treat as 100% complete, 0 pts
   if (day.mode === "rest") return { done: 1, total: 1, percent: 100, points: 0, maxPoints: 0, multiplier: 1 };
   const active = activeHabits(challenge, day);
-  const done = day.done.filter(id => active.some(h => h.id === id)).length;
+  const doneHabits = active.filter(h => day.done.includes(h.id));
+  const done = doneHabits.length;
   const total = active.length;
-  return { done, total, percent: total ? Math.round((done/total)*100) : 0, points: done, maxPoints: total, multiplier: 1 };
+  return {
+    done, total, percent: total ? Math.round((done/total)*100) : 0,
+    points: doneHabits.reduce((s, h) => s + habitXP(h), 0),
+    maxPoints: active.reduce((s, h) => s + habitXP(h), 0),
+    multiplier: 1,
+  };
 }
 
 function challengeTotalKm(challenge) {
@@ -4638,7 +4647,6 @@ function renderRing(info, day, streak, challenge) {
     <div class="ring-stat">
       <div class="ring-stat-value${streak>=7?' streak-hero':''}">${streak}${gracePip?`<span style="font-size:10px;color:var(--warning);margin-left:2px" title="Grace day used yesterday — don't miss today!"><i class="ti ti-lifebuoy"></i></span>`:""}${streak>=7?` <i class="ti ti-activity"></i>`:""}</div>
       <div class="ring-stat-label">day ${term('streak')}${gracePip?`<span style="display:block;font-size:9px;color:var(--warning)">grace used</span>`:""}</div>
-      ${challenge && getStreakMultiplier(challenge) > 1.0 ? `<div class="ring-mult-chip">${getStreakMultiplier(challenge).toFixed(2).replace(/\.?0+$/,"")}× progress</div>` : ""}
     </div>
   </div>
   ${isPerfect ? `<div class="perfect-day-chip"><i class="ti ti-circle-check"></i> PERFECT DAY</div>` : ""}
@@ -5014,8 +5022,6 @@ function renderXPBar() {
   const c       = currentChallenge();
   const freezes = c ? (c.streakFreezes || 0) : 0;
   const todayDay = c?.days[todayKey()];
-  const mult     = todayDay?.streakMult ?? (c ? getStreakMultiplier(c) : 1);
-  const multLabel = mult >= 1.40 ? `<i class="ti ti-activity"></i> +40% ${term('streak')} bonus active` : mult >= 1.25 ? `<i class="ti ti-activity"></i> +25% ${term('streak')} bonus active` : mult >= 1.15 ? `<i class="ti ti-activity"></i> +15% ${term('streak')} bonus active` : mult >= 1.10 ? `<i class="ti ti-activity"></i> +10% ${term('streak')} bonus active` : null;
   return `
   <div class="xp-bar-wrap">
     <div class="xp-bar-header">
@@ -5028,7 +5034,7 @@ function renderXPBar() {
     <div class="xp-bar-track" role="progressbar" aria-valuenow="${info.pct}" aria-valuemin="0" aria-valuemax="100">
       <div class="xp-bar-fill" style="width:${info.pct}%"></div>
     </div>
-    <div class="xp-bar-explainer">${multLabel || `Progress builds your ${term('level')} forever`}</div>
+    <div class="xp-bar-explainer">Progress builds your ${term('level')} forever</div>
   </div>`;
 }
 
@@ -8934,6 +8940,8 @@ function saveEditChallenge() {
   // ── Apply habit changes ──────────────────────────────────────────────────
   if (editForm?.habits) {
     const newHabitIds = new Set(editForm.habits.map(h => h.id));
+    if (editForm.habits.length === 0) { showToast(`Add at least one ${term('habit')}.`); return; }
+    c.habits = editForm.habits;
     // Strip deleted habits from every logged day
     for (const day of Object.values(c.days)) {
       day.done  = day.done.filter(id => newHabitIds.has(id));
@@ -8950,8 +8958,6 @@ function saveEditChallenge() {
       // Recalculate stored pts for this day
       updateDayPoints(c, day);
     }
-    c.habits = editForm.habits;
-    if (c.habits.length === 0) { showToast(`Add at least one ${term('habit')}.`); return; }
   }
 
   state.xp = recalcXP();
@@ -9406,6 +9412,17 @@ if (!state.migrations["dPtsRecalcV1"]) {
   }
   state.xp = recalcXP();
   state.migrations["dPtsRecalcV1"] = true;
+  saveState();
+}
+// Migration: XP is now per-habit (default 1). Point values stored on existing plans were
+// never used for scoring, so reset them to 1 rather than suddenly inflating old totals.
+if (!state.migrations["xpPerHabitV1"]) {
+  for (const c of Object.values(state.challenges)) {
+    for (const h of c.habits) h.points = 1;
+    for (const day of Object.values(c.days)) updateDayPoints(c, day);
+  }
+  state.xp = recalcXP();
+  state.migrations["xpPerHabitV1"] = true;
   saveState();
 }
 // Migration: fix expedition challenges with unreachable weeklyGoal of 20 (max achievable is 7)
